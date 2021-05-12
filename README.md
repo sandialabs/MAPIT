@@ -1,5 +1,5 @@
 # Material Accountancy Performance Indicator Toolkit (MAPIT)
-***
+
 
 ## Purpose
 MAPIT is a toolkit written based in Python designed to function as a desktop application to aid in safeguards analysis of bulk materials. The inherent flexibility is designed to allow safeguards practitioners ask the "what if?" questions and to provide transparency into commonly employed statistical tests.
@@ -11,7 +11,7 @@ MAPIT is a toolkit written based in Python designed to function as a desktop app
   * .csv or .mat file types
 
 
-* Tutorial dataset generated from a Separations and Safeguards Performance Model ([1](),[2](),[3]()) fuel fabrication model based on IAEA STR-150 ([4](https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216))
+* Tutorial dataset generated from a Separations and Safeguards Performance Model ([1](https://www.osti.gov/biblio/1375573-integration-sspm-stage-mpact-virtual-facility-distributed-test-bed),[2](https://www.osti.gov/biblio/1646073-separations-safeguards-performance-model-sspm-capabilities-application-integration),[3](https://www.osti.gov/biblio/1476138-bulk-handling-facility-modeling-simulation-safeguards-analysis)) fuel fabrication model based on IAEA STR-150 ([4](https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216))
 
 * Automated error propagation
 
@@ -39,11 +39,14 @@ MAPIT is a toolkit written based in Python designed to function as a desktop app
 ## Testing
 TBD
 
+## Status
+> :construction: **MAPIT IS IN BETA** :construction: \
+> \
+> You may notice various bugs and errors. Help contribute to this project by reporting them through our issue page.
+
 ## Getting Started
 
-<div class="alert alert-block alert-warning">
-<b>Note:</b> MAPIT is in beta, and as such, you may notice various bugs and errors. Help contribute to this project by reporting them through our .
-</div>
+
 
 MAPIT is primarily a GUI-based tool so launching the program is as simple as running ``MAPIT_main.py``. To get started, it is suggested that users try to use the included dataset to gain some familiarity with the tool.
 
