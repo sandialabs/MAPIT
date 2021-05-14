@@ -4,10 +4,10 @@ Welcome to the reference materials for the Materials Accountancy Performance Ind
 
 
 
-<div align="center">
+
 
 >##   :construction: MAPIT IS IN BETA :construction:
-</div>
+
 
 MAPIT has worked well in internal testing with the included example dataset and with several example `.csv` and `.mat` datasets. However, there may be some unusual edge cases which will cause the tool to fail.
 
