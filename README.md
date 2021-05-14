@@ -71,7 +71,7 @@ A general workflow is as follows:
 
 
 ## Documentation
-* [User Guide - WIP]()
+* [User Guide](https://sandialabs.github.io/MAPIT/)
 * [References - WIP]()
 
 
