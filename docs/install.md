@@ -3,15 +3,14 @@
 ## Code overview
 The current implementation of MAPIT is largely a GUI-based tool that is based on a few key Python scripts:
 
-> `MAPIT.py` - The main GUI file that ties everything together
-> <br>
-> `ScenarioSelector.py` - Code associated with the included dataset exploration and interaction
-> <br>
-> `IOWizardMat.py` - Script responsible for reading MATLAB `.mat` file extensions
-> <br>
-> `IOWizard.py` - Script responsible for reading `.csv` file extensions
-> <br>
-> `StatsPackage.py` - Script containing functions pertaining to error propagation and statistics tests
+* `MAPIT.py` - The main GUI file that ties everything together
+
+* `ScenarioSelector.py` - Code associated with the included dataset exploration and interaction
+* `IOWizardMat.py` - Script responsible for reading MATLAB `.mat` file extensions
+
+* `IOWizard.py` - Script responsible for reading `.csv` file extensions
+
+* `StatsPackage.py` - Script containing functions pertaining to error propagation and statistics tests
 
 Currently MAPIT is only being distributed through this repository as a series of scripts. Internal testing has used [PyInstaller](https://www.pyinstaller.org/) to generate standalone executables. However, given the level of development to take MAPIT out of beta this strategy is not currently being pursued.
 
