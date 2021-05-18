@@ -24,7 +24,7 @@ First, run MAPIT by running `python MAPIT.py` in a terminal or launching through
 >Note that the appearance of MAPIT may change during development, however, this image should largely reflect the tool. The maintainers will strive to keep this guide updated.
 
 
-![MAPIT Main](/assets/scenescreenshots/MAPITmain.png?raw=false "MAPIT main area")
+![MAPIT Main](./assets/scenescreenshots/MAPITmain.png?raw=false "MAPIT main area")
 
 
 <br/><br/>
@@ -39,7 +39,7 @@ After selecting `Load data and return to plots` you will be returned to the main
 
 >Importing data only needs to be performed once. You can repeat the steps below multiple times (assuming you have not restarted MAPIT) without needing to import the data again.
 
-![MAPIT Main 2](/assets/scenescreenshots/MAPITmain2.png?raw=false "MAPIT after data import with statistical setup highlighted")
+![MAPIT Main 2](../assets/scenescreenshots/MAPITmain2.png?raw=false "MAPIT after data import with statistical setup highlighted")
 
 
 <br/><br/>
@@ -71,7 +71,7 @@ One purpose of MAPIT is to understand how these errors impact common safeguards 
 ## Analysis
 Once the statistical tests and errors have been configured press `Run` to start the calculation. MAPIT is a lightweight tool that should run fairly quickly for a small number of iterations (~100). Progress can be monitored through the dialog and progress bar at the bottom of the tool (see below).
 
-![MAPIT PB](/assets/scenescreenshots/progress1.png?raw=false "MAPIT progress bar during calculation")
+![MAPIT PB](assets/scenescreenshots/progress1.png?raw=false "MAPIT progress bar during calculation")
 
 
 
