@@ -2,3 +2,8 @@ theme: jekyll-theme-leap-day
 title: MAPIT Documentation
 plugins:
   - jemoji
+defaults:
+  - scope:
+      path: "assets/scenescreenshots"
+    values:
+      image: true
