@@ -110,7 +110,7 @@ Statistical tests used in safeguards usually require adjustment of at least one 
 
 The statistical threshold area of MAPIT (shown below) allows users to input a value and see how many times that threshold has been crossed. The threshold calculation is generic and can be applied to any of the plot quantities.
 
-![MAPIT thresh](/assets/scenescreenshots/Thresh1.png?raw=false "MAPIT threshold analysis area")
+![MAPIT thresh](/assets/scenescreenshots/Thresh1.png?raw=true "MAPIT threshold analysis area")
 
 > The quantity reported by MAPIT `% Above Threshold` reflects *all* of the runs, even if not plotted. For example, if 1000 iterations were requested, then the max quantity of iterations allowed to be plotted at once is 100. However, the threshold will check all 1000 runs and report the quantity that exceeds the threshold.
 
@@ -128,7 +128,7 @@ Figure can be saved in one of two different ways:
 * First (recommended) use the save icon at the bottom of the plot (see below) which directly interacts with the [Matplotlib](https://matplotlib.org/) backend.
 * Second (not recommended), you can use the `Figure Options` in the main MAPIT area and select one of the `Save Figure` options.
 
-![MAPIT navi1](/assets/scenescreenshots/navi1.png?raw=false "Matplotlib navigation bar")
+![MAPIT navi1](assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar")
 
 >Plots can be further customized using the options on the navigation bar at the bottom of the plot.
 
