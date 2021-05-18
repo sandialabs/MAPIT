@@ -144,3 +144,20 @@ The data can be exported by selecting the `File` menu option in the MAPIT main a
 > The default behavior is to create a folder called "MAPIT_Output" containing output files in the same location where `MAPIT.py` is located.
 
 > :warning: Do not expect reliable performance of this capability when using irregularly sampled data. This is an open issue under active development.
+
+
+![MAPIT navi1](.assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar")
+![MAPIT navi1](..assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar")
+![MAPIT navi1](./assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar")
+![MAPIT navi1](../assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar")
+![MAPIT navi1](/assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar")
+![MAPIT navi1](<.assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar">)
+![MAPIT navi1](<..assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar">)
+![MAPIT navi1](<./assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar">)
+![MAPIT navi1](<../assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar">)
+![MAPIT navi1](</assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar">)
+![MAPIT navi1](.assets/scenescreenshots/navi1.png?raw=true "Matplotlib navigation bar")
+![MAPIT navi1](<..assets/scenescreenshots/navi1.png>?raw=true "Matplotlib navigation bar")
+![MAPIT navi1](<./assets/scenescreenshots/navi1.png>?raw=true "Matplotlib navigation bar")
+![MAPIT navi1](<../assets/scenescreenshots/navi1.png>?raw=true "Matplotlib navigation bar")
+![MAPIT navi1](</assets/scenescreenshots/navi1.png>?raw=true "Matplotlib navigation bar")
