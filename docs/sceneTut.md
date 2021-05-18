@@ -24,7 +24,7 @@ First, run MAPIT by running `python MAPIT.py` in a terminal or launching through
 >Note that the appearance of MAPIT may change during development, however, this image should largely reflect the tool. The maintainers will strive to keep this guide updated.
 
 
-![MAPIT Main](../assets/scenescreenshots/MAPITmain.png?raw=false "MAPIT main area")
+![MAPIT Main](/assets/scenescreenshots/MAPITmain.png?raw=false "MAPIT main area")
 
 
 <br/><br/>
@@ -39,7 +39,7 @@ After selecting `Load data and return to plots` you will be returned to the main
 
 >Importing data only needs to be performed once. You can repeat the steps below multiple times (assuming you have not restarted MAPIT) without needing to import the data again.
 
-![MAPIT Main 2](../assets/scenescreenshots/MAPITmain2.png?raw=false "MAPIT after data import with statistical setup highlighted")
+![MAPIT Main 2](/assets/scenescreenshots/MAPITmain2.png?raw=false "MAPIT after data import with statistical setup highlighted")
 
 
 <br/><br/>
@@ -71,7 +71,7 @@ One purpose of MAPIT is to understand how these errors impact common safeguards 
 ## Analysis
 Once the statistical tests and errors have been configured press `Run` to start the calculation. MAPIT is a lightweight tool that should run fairly quickly for a small number of iterations (~100). Progress can be monitored through the dialog and progress bar at the bottom of the tool (see below).
 
-![MAPIT PB](../assets/scenescreenshots/progress1.png?raw=false "MAPIT progress bar during calculation")
+![MAPIT PB](/assets/scenescreenshots/progress1.png?raw=false "MAPIT progress bar during calculation")
 
 
 
@@ -80,7 +80,7 @@ Once the statistical tests and errors have been configured press `Run` to start 
 
 The first step in many analysis workflows is to plot data to gain an intuition for what is happening. MAPIT has multiple plot options (shown below) that dynamically change based on the option selected. Try plotting different quantities of interest (also make sure to note how these change with the selected errors).
 
-![MAPIT plot](../assets/scenescreenshots/plot1.png?raw=false "MAPIT plotting area")
+![MAPIT plot](/assets/scenescreenshots/plot1.png?raw=false "MAPIT plotting area")
 
 The various options are as follows:
 
@@ -110,7 +110,7 @@ Statistical tests used in safeguards usually require adjustment of at least one 
 
 The statistical threshold area of MAPIT (shown below) allows users to input a value and see how many times that threshold has been crossed. The threshold calculation is generic and can be applied to any of the plot quantities.
 
-![MAPIT thresh](../assets/scenescreenshots/Thresh1.png?raw=false "MAPIT threshold analysis area")
+![MAPIT thresh](/assets/scenescreenshots/Thresh1.png?raw=false "MAPIT threshold analysis area")
 
 > The quantity reported by MAPIT `% Above Threshold` reflects *all* of the runs, even if not plotted. For example, if 1000 iterations were requested, then the max quantity of iterations allowed to be plotted at once is 100. However, the threshold will check all 1000 runs and report the quantity that exceeds the threshold.
 
@@ -128,7 +128,7 @@ Figure can be saved in one of two different ways:
 * First (recommended) use the save icon at the bottom of the plot (see below) which directly interacts with the [Matplotlib](https://matplotlib.org/) backend.
 * Second (not recommended), you can use the `Figure Options` in the main MAPIT area and select one of the `Save Figure` options.
 
-![MAPIT navi1](../assets/scenescreenshots/navi1.png?raw=false "Matplotlib navigation bar")
+![MAPIT navi1](/assets/scenescreenshots/navi1.png?raw=false "Matplotlib navigation bar")
 
 >Plots can be further customized using the options on the navigation bar at the bottom of the plot.
 
