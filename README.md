@@ -48,15 +48,12 @@ TBD
 
 
 
-MAPIT is primarily a GUI-based tool so launching the program is as simple as running ``MAPIT_main.py``. To get started, it is suggested that users try to use the included dataset to gain some familiarity with the tool.
+MAPIT is primarily a GUI-based tool so launching the program is as simple as running ``MAPIT_main.py``. To get started, it is suggested that users try to use the included dataset to gain some familiarity with the tool. To do this, select the ``SNL curated dataset`` option when MAPIT starts and prompts for a dataset to be analyzed.
 
 
 
-The included data can be accessed through the ``Scenario Select`` menu (shown below) and selecting ``Load``.
 
-![Scenario selection menu](assets/screenshots/SceneSelect1.png?raw=false "Scenario selection menu")
-
-The ``Scenario Selection`` allows users to explore the underlying process model used to generate the included example dataset that is based on IAEA-STR150 ([4](https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216)). After loading the data (see below) the general workflow involves analysis of the loaded dataset.
+The ``SNL curated dataset`` allows users to explore the underlying process model used to generate the included example dataset that is based on IAEA-STR150 ([4](https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216)). After loading the data (see below) the general workflow involves analysis of the loaded dataset.
 
 ![Scenario selection menu](assets/screenshots/SceneSelect2.png?raw=false "Scenario selection menu")
 
