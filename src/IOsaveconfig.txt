@@ -1,0 +1,12 @@
+null
+null
+null
+2
+3
+1
+/home/nshoman/Documents/MATLAB/SPTK/SampleData/Input
+/home/nshoman/Documents/MATLAB/SPTK/SampleData/Inventory
+/home/nshoman/Documents/MATLAB/SPTK/SampleData/Output
+null
+null
+null
