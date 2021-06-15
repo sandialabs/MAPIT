@@ -19,17 +19,8 @@ This tutorial describes basic functions of MAPIT and how to get started using th
 > This tutorial contains notes that are not necessary to understand the tool's basic functionality, but may be useful to users looking for more advanced functionality.
 
 ## Getting started
-First, run MAPIT by running `python MAPIT.py` in a terminal or launching through your IDE. The main window, shown below, should be brought up.
-
->Note that the appearance of MAPIT may change during development, however, this image should largely reflect the tool. The maintainers will strive to keep this guide updated.
-
-
-![MAPIT Main](https://github.com/sandialabs/MAPIT/raw/master/assets/scenescreenshots/MAPITmain.png?raw=false "MAPIT main area")
-
-
-<br/><br/>
-## Loading the included dataset
-The pre-generated dataset described in the introduction can be accessed through the `Select Scenario` menu at the top of MAPIT followed by the `Load` option. This will open the scenario examiner area. The scenario examiner enables a detailed look of MBA2 of the fuel fabrication facility described in [IAEA-STR150](https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216).
+### Loading the included dataset
+The pre-generated dataset described in the introduction can be accessed by selecting `SNL curated dataset` button when MAPIT is first loaded and prompts for data to be analyzed. This will open the scenario examiner area. The scenario examiner enables a detailed look of MBA2 of the fuel fabrication facility described in [IAEA-STR150](https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216).
 
 It is often difficult to envision individual unit processes at a facility and how they relate to the over safeguards setup. The scenario examiner area has several drop down menus that enable animated plots showing the inventory behavior of various unit operations. Use this area before selecting the `Load data and return to plots` button to gain an intuition of the fuel fabrication facility's normal operation.
 
@@ -42,7 +33,17 @@ After selecting `Load data and return to plots` you will be returned to the main
 ![MAPIT Main 2](https://github.com/sandialabs/MAPIT/raw/master/assets/scenescreenshots/MAPITmain2.png?raw=false "Statistical setup for MAPIT")
 
 
+<!-- <br/><br/>
+First, run MAPIT by running `python MAPIT.py` in a terminal or launching through your IDE. After selecting a data source, the main window, shown below, should be brought up.
+
+>Note that the appearance of MAPIT may change during development, however, this image should largely reflect the tool. The maintainers will strive to keep this guide updated.
+
+
+![MAPIT Main](https://github.com/sandialabs/MAPIT/raw/master/assets/scenescreenshots/MAPITmain.png?raw=false "MAPIT main area") -->
+
+
 <br/><br/>
+
 
 ## Statistical test configuration
 The boxes with blue borders are the next steps in the MAPIT workflow. The currently available statistical tests are denoted by check boxes, go ahead and select all of them.
@@ -110,7 +111,7 @@ Statistical tests used in safeguards usually require adjustment of at least one 
 
 The statistical threshold area of MAPIT (shown below) allows users to input a value and see how many times that threshold has been crossed. The threshold calculation is generic and can be applied to any of the plot quantities.
 
-![MAPIT Thresh](https://github.com/sandialabs/MAPIT/raw/master/assets/scenescreenshots/Thresh1.png?raw=false "MAPIT threshold analysis area")
+![MAPIT Thresh](https://github.com/sandialabs/MAPIT/raw/master/assets/scenescreenshots/Thresh1.png?raw=true "MAPIT threshold analysis area")
 
 > The quantity reported by MAPIT `% Above Threshold` reflects *all* of the runs, even if not plotted. For example, if 1000 iterations were requested, then the max quantity of iterations allowed to be plotted at once is 100. However, the threshold will check all 1000 runs and report the quantity that exceeds the threshold.
 
