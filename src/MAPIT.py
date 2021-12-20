@@ -37,6 +37,8 @@ from pathlib import Path
 import AnimationTools
 
 
+
+
 class customExecp(Exception):
     pass
 
@@ -364,23 +366,18 @@ class ViewErrorTabs(QtWidgets.QDialog):
     super(ViewErrorTabs, self).__init__()
     li_l = QtWidgets.QGridLayout(self)
 
-    timeSteps = np.shape(parent.inpFrame)[1]
+    if isinstance(parent.inpFrame,list):
+      timeSteps = np.shape(parent.inpFrame[0])[0]
+    else:
+      timeSteps = np.shape(parent.inpFrame)[1]
     mbaTime = int(parent.MBPBox.text())
     MBPs = np.shape(parent.SEMUFContribR)[2] - 1  #1 to total MBPs
 
-    LocContainer = QtWidgets.QGroupBox(self)
-    LCL = QtWidgets.QVBoxLayout(LocContainer)
-    LocContainer.setTitle('Location')
-    li_l.addWidget(LocContainer, 0, 0)
-
-    self.LocSelector = QtWidgets.QComboBox(self)
-
-    LCL.addWidget(self.LocSelector)
 
     MatContainer = QtWidgets.QGroupBox(self)
     MCC = QtWidgets.QVBoxLayout(MatContainer)
     MatContainer.setTitle('Material')
-    li_l.addWidget(MatContainer, 0, 1)
+    li_l.addWidget(MatContainer, 0, 0)
 
     ck0 = parent.CB_PuMUF.isChecked() + parent.CB_PuSMUF.isChecked(
     ) + parent.CB_PuSITMUF.isChecked() + parent.CB_PuSPage.isChecked()
@@ -403,7 +400,7 @@ class ViewErrorTabs(QtWidgets.QDialog):
     MBPContainer = QtWidgets.QGroupBox(self)
     MBC = QtWidgets.QVBoxLayout(MBPContainer)
     MBPContainer.setTitle('MBP')
-    li_l.addWidget(MBPContainer, 0, 2)
+    li_l.addWidget(MBPContainer, 0, 1)
 
     self.MBPDisp = QtWidgets.QSpinBox(self)
     self.MBPDisp.setMaximum(MBPs)
@@ -453,7 +450,7 @@ class ViewErrorTabs(QtWidgets.QDialog):
     self.EP2.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
     self.MBPDisp.valueChanged.connect(self.setItems)
-    self.LocSelector.currentIndexChanged.connect(self.setItems)
+
 
     self.parent = parent
     ViewErrorTabs.setItems(self)  #set the table items
@@ -523,18 +520,9 @@ class ViewErrorTabs(QtWidgets.QDialog):
                    int(parent.Wizard.InvKMP)] = parent.Wizard.OutKMP_names[i]
 
     else:  #if pulled from the fuel fab scenario use this labels
-      rowNames = [
-          'Cylinder (input)', 'Drums (input)', '', 'Vaporization',
-          'Precipitation', 'Offgas Filters', 'Centrifuge',
-          'CalcinationReduction', 'MillingBlending', 'Mixing Tank 1',
-          'Pressing', 'Sintering', 'Grinding', 'Pellet Storage', 'Tube Filling',
-          'ADU Scrap', 'Green Scrap', 'Dirty Powder', 'Sintered Scrap',
-          'Grinder Sludge', 'OffSpec Pellets', 'Scrap Grinder',
-          'Scrap Oxidation', 'Scrap Dissolution', 'Scrap Solvent',
-          'Scrap Percipitation', 'Scrap Grinder 2', 'Scrap Oxidation 2',
-          'Scrap Reduction', '', 'UF6 Heel (output)', 'Scrap Loss (output)',
-          'Fuel Pins (output)'
-      ]
+      F = os.path.join(x, 'data', 'fuel_fab', self.parent.SS.sceneName, 'auxData.npz')
+      A = np.load(F)
+      rowNames = A['arr2']
 
     self.EP2.setVerticalHeaderLabels(rowNames)
     li_l.addWidget(self.EP2, 1, 0, 1, 2)
@@ -749,27 +737,27 @@ class MPLCanvas(FigureCanvas):
 
     if self.window().MakeLight.isChecked() == 0:
       matplotlib.rcParams['axes.prop_cycle'] = matplotlib.cycler(color=[
-          eval(self.window().colorsD.lb),
-          eval(self.window().colorsD.t),
-          eval(self.window().colorsD.a),
-          eval(self.window().colorsD.p),
-          eval(self.window().colorsD.y),
-          eval(self.window().colorsD.r),
-          eval(self.window().colorsD.g),
-          eval(self.window().colorsD.la),
-          eval(self.window().colorsD.o)
+          self.window().colorsD.lb,
+          self.window().colorsD.t,
+          self.window().colorsD.a,
+          self.window().colorsD.p,
+          self.window().colorsD.y,
+          self.window().colorsD.r,
+          self.window().colorsD.g,
+          self.window().colorsD.la,
+          self.window().colorsD.o
       ])
     else:
       matplotlib.rcParams['axes.prop_cycle'] = matplotlib.cycler(color=[
-          eval(self.window().colors.lb),
-          eval(self.window().colors.t),
-          eval(self.window().colors.a),
-          eval(self.window().colors.p),
-          eval(self.window().colors.y),
-          eval(self.window().colors.r),
-          eval(self.window().colors.g),
-          eval(self.window().colors.la),
-          eval(self.window().colors.o)
+          self.window().colors.lb,
+          self.window().colors.t,
+          self.window().colors.a,
+          self.window().colors.p,
+          self.window().colors.y,
+          self.window().colors.r,
+          self.window().colors.g,
+          self.window().colors.la,
+          self.window().colors.o
       ])
 
     self.axes.cla()
@@ -851,23 +839,23 @@ class LaunchGUI(QtWidgets.QMainWindow):
     #these need to be better integrated
     #in the animations (future TODO)
     self.colors = Colors(
-        '(0,51/255,89/255)', '(0,118/255,169/255)', '(0,173/255,208/255)',
-        '(0,102/255,204/255)', '(0,142/255,116/255)', '(90/255,60/255,191/255)',
-        '(179/255,18/255,177/255)', '(108/255,179/255,18/255)',
-        '(130/255,36/255,51/255)', '(204/255,0,0)', '(242/255,63/255,0)',
-        '(253/255,89/255,71/255)', '(255/255,136/255,0)', '(255/255,194/255,0)',
-        '(153/255,153/255,153/255)', '(130/255,120/255,111/255)',
-        '(125/255,142/255,160/255)')
+        '#003359', '#0076a9', '#00add0',
+        '#0066cc', '#008e74', '#5a3cbf',
+        '#b312b1', '#6cb312',
+        '#822433', '#cc0000', '#f23f00',
+        '#fd5947', '#ff8800', '#ffc200',
+        '#999999', '#82786f',
+        '#7d8ea0')
 
-    self.colorsD = ColorsD('(0,36/255,62/255)', '(0,83/255,118/255)',
-                           '(0,121/255,146/255)', '(0,71/255,143/255)',
-                           '(0,99/255,81/255)', '(63/255,43/255,134/255)',
-                           '(125/255,13/255,124/255)',
-                           '(76/255,125/255,13/255)', '(91/255,25/255,36/255)',
-                           '(143/255,0,0)', '(169/255,44/255,0)',
-                           '(177/255,62/255,50/255)', '(179/255,95/255,0)',
-                           '(179/255,136/255,0)', '(107/255,107/255,107/255)',
-                           '(91/255,84/255,78/255)', '(88/255,99/255,112/255)')
+    self.colorsD = ColorsD(
+        '#002541', '#00587e', '#00839d',
+        '#004c99', '#006b57', '#442d8e',
+        '#880d86', '#53880d',
+        '#631b27', '#990000', '#b43000',
+        '#d53220', '#bf6600', '#bf9300',
+        '#737373', '#615953',
+        '#5a6b7c')
+
 
     # bigger font here
     f = QtCore.QCoreApplication.instance().font()
@@ -1036,7 +1024,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
           ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
     # OD add iterations
     elif self.metricBox.currentText() == 'Observed Data':
-      if int(self.IterBox.text()) <= 100 and self.NumToPlot.count() == 0:
+      if int(self.IterBox.text()) <= 100:
+        if self.NumToPlot.count() > 0:
+          for i in range(0, self.NumToPlot.count()):
+            self.NumToPlot.removeItem(0)
         self.NumToPlot.addItem('1 Random Iteration')
         self.NumToPlot.addItem('Average of All Iterations')
         self.NumToPlot.addItem('All Iterations (' + self.IterBox.text() + ')')
@@ -1108,8 +1099,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
             "QWidget#{VAL}".format(VAL=self.mb3.Loc) +
             ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
 
-        if int(self.IterBox.text()) <= 100 and self.NumToPlot.count(
-        ) == 0:  #check options for iterations
+        if int(self.IterBox.text()) <= 100:  #check options for iterations
+          if self.NumToPlot.count() > 0:
+            for i in range(0, self.NumToPlot.count()):
+              self.NumToPlot.removeItem(0)
           self.NumToPlot.addItem('1 Random Iteration')
           self.NumToPlot.addItem('Average of All Iterations')
           self.NumToPlot.addItem('All Iterations (' + self.IterBox.text() + ')')
@@ -1266,7 +1259,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     if self.metricBox.currentText() == 'Ground Truth Data':
 
-      try:
+      if isinstance(self.inpFrame, list) == 0 and isinstance(self.invFrame, list) == 0 and isinstance(self.outFrame, list) == 0:
         PlotDat = np.concatenate((self.inpFrame, self.invFrame, self.outFrame),
                                  axis=0,
                                  dtype=object)
@@ -1274,7 +1267,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
         self.canvas.update_figure_title(CanvasLabels)
         self.ThreshData = PlotDat[PlotIndex, :, NucIndex]
 
-      except:
+      else:
         #okay here is where we deal with variable
         #length arrays (i.e. non-constant sampling)
 
@@ -1305,37 +1298,78 @@ class LaunchGUI(QtWidgets.QMainWindow):
           #could just do asarray(list) here later
           if isinstance(self.inpFrame, list):
             PDD = self.inpFrame[localIndex][:, NucIndex]
+            PDD2 = self.inpTimeFrame[localIndex][:,NucIndex]
+            EE = np.where(np.diff(PDD2) > 1)
+
+            #list mode data is sometimes dense, but still represents pulses
+            #for nicer plotting, add some zeros to make pulses more rounded
+            for i in range(len(EE[0])): #len(EE[0])-1
+                d = np.array([0])
+                if i == 0:
+                    RI = int(np.max(np.where(PDD[0:EE[0][0]]>0)))
+                    xnew = np.concatenate(([np.array([PDD2[0]-1e-5]),PDD2[0:EE[0][0]][:RI],np.array([PDD2[:EE[0][0]][RI]+1e-5])]))
+                    ynew = np.concatenate((d,PDD[0:EE[0][0]][:RI],d))
+                else:
+                    RI = int(np.max(np.where(PDD[EE[0][i-1]+1:EE[0][i]]>0)))
+                    xnew = np.concatenate((xnew,np.array([PDD2[EE[0][i-1]+1]-1e-5]),PDD2[EE[0][i-1]+1:EE[0][i]][:RI],np.array([PDD2[EE[0][i-1]+1:EE[0][i]][RI]+1e-5])))
+                    ynew = np.concatenate((ynew,d,PDD[EE[0][i-1]+1:EE[0][i]][:RI],d))
+
+            if len(EE[0]) > 1:
+              PDD2 = xnew
+              PDD = ynew
+
           else:
             PDD = self.inpFrame[localIndex, :, NucIndex]
+            PDD2 = self.inpTimeFrame[localIndex, :, NucIndex]
 
           self.canvas.update_figure(
               np.concatenate(
-                  (self.inpTimeFrame[localIndex, :, NucIndex].reshape(
-                      (-1, 1)), PDD.reshape((-1, 1))),axis=1), 1)
+                  (PDD2.reshape((-1,1)), PDD.reshape((-1, 1))),axis=1), 1)
           self.canvas.update_figure_title(CanvasLabels)
           self.ThreshData = PDD
 
         elif plttyp == 1:
           if isinstance(self.invFrame, list):
             PDD = self.invFrame[localIndex][:, NucIndex]
+            PDD2 = self.invTimeFrame[localIndex][:,NucIndex]
           else:
             PDD = self.invFrame[localIndex, :, NucIndex]
+            PDD2 = self.invTimeFrame[localIndex, :, NucIndex]
+
           self.canvas.update_figure(
+
               np.concatenate(
-                  (self.invTimeFrame[localIndex, :, NucIndex].reshape(
-                      (-1, 1)), PDD.reshape((-1, 1))),axis=1), 1)
+                  (PDD2.reshape((-1,1)), PDD.reshape((-1, 1))),axis=1), 1)
           self.canvas.update_figure_title(CanvasLabels)
           self.ThreshData = PDD
 
         else:
           if isinstance(self.outFrame, list):
             PDD = self.outFrame[localIndex][:, NucIndex]
+            PDD2 = self.outTimeFrame[localIndex][:,NucIndex]
+            EE = np.where(np.diff(PDD2) > 1)
+
+            for i in range(len(EE[0])): #len(EE[0])-1
+                d = np.array([0])
+                if i == 0:
+                    RI = int(np.max(np.where(PDD[0:EE[0][0]]>0)))
+                    xnew = np.concatenate(([np.array([PDD2[0]-1e-5]),PDD2[0:EE[0][0]][:RI],np.array([PDD2[:EE[0][0]][RI]+1e-5])]))
+                    ynew = np.concatenate((d,PDD[0:EE[0][0]][:RI],d))
+                else:
+                    RI = int(np.max(np.where(PDD[EE[0][i-1]+1:EE[0][i]]>0)))
+                    xnew = np.concatenate((xnew,np.array([PDD2[EE[0][i-1]+1]-1e-5]),PDD2[EE[0][i-1]+1:EE[0][i]][:RI],np.array([PDD2[EE[0][i-1]+1:EE[0][i]][RI]+1e-5])))
+                    ynew = np.concatenate((ynew,d,PDD[EE[0][i-1]+1:EE[0][i]][:RI],d))
+            if len(EE[0]) > 1:
+              PDD2 = xnew
+              PDD = ynew
+
           else:
             PDD = self.outFrame[localIndex, :, NucIndex]
+            PDD2 = self.outTimeFrame[localIndex, :, NucIndex]
+
           self.canvas.update_figure(
               np.concatenate(
-                  (self.outTimeFrame[localIndex, :, NucIndex].reshape(
-                      (-1, 1)), PDD.reshape((-1, 1))),axis=1), 1)
+                  (PDD2.reshape((-1,1)), PDD.reshape((-1, 1))),axis=1,dtype=object), 1)
           self.canvas.update_figure_title(CanvasLabels)
           self.ThreshData = PDD
 
@@ -1343,7 +1377,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
       # iter, location, timestep, element
 
-      try:  #is this uniformly sampled (if so concatenate will succeed)
+      if isinstance(self.invEFrame,list) == False:  #is this uniformly sampled (if so concatenate will succeed)
 
         PlotDat = np.concatenate(
             (self.inpEFrame, self.invEFrame, self.outEFrame),
@@ -1381,7 +1415,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
         self.canvas.update_figure_title(CanvasLabels)
 
-      except:  #this is not uniformily sampled
+      else:  #this is not uniformily sampled
 
         #which terms are not uniformly sampled
         if isinstance(self.inpEFrame, list):
@@ -1418,6 +1452,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
                                              NucIndex]  #get the measured data
             PDD2 = self.inpTimeFrame[
                 localIndex][:, NucIndex]  #get the corresponding time
+
           else:
             PDD = self.inpEFrame[localIndex, :, :, NucIndex]
             PDD2 = self.inpTimeFrame[localIndex, :, :, NucIndex]
@@ -1447,6 +1482,41 @@ class LaunchGUI(QtWidgets.QMainWindow):
           PH.append(PDD2)
           PH.append(PDD)
 
+        #FH = np.zeros(np.shape(PH[1]))
+        #improved plotting visuals for pulses
+        #note this won't show noise for zero values
+        #as usually only dense, non-zero data is recorded
+        #so no noise can be added to zeros (as they are unrecorded)
+        #this is just an improved visual
+        if len(np.where(np.diff(PH[0]) > 1)[0]) > 0:
+          for J in range(np.shape(PH[1])[0]):
+            PDD = PH[1][J,:]
+            PDD2 = PH[0]
+            EE = np.where(np.diff(PDD2) > 1)
+
+
+            for i in range(len(EE[0])): #len(EE[0])-1
+                d = np.array([0])
+                if i == 0:
+                    RI = int(np.max(np.where(PDD[0:EE[0][0]]>0)))
+                    xnew = np.concatenate(([np.array([PDD2[0]-1e-5]),PDD2[0:EE[0][0]][:RI],np.array([PDD2[:EE[0][0]][RI]+1e-5])]))
+                    ynew = np.concatenate((d,PDD[0:EE[0][0]][:RI],d))
+                else:
+                    RI = int(np.max(np.where(PDD[EE[0][i-1]+1:EE[0][i]]>0)))
+                    xnew = np.concatenate((xnew,np.array([PDD2[EE[0][i-1]+1]-1e-5]),PDD2[EE[0][i-1]+1:EE[0][i]][:RI],np.array([PDD2[EE[0][i-1]+1:EE[0][i]][RI]+1e-5])))
+                    ynew = np.concatenate((ynew,d,PDD[EE[0][i-1]+1:EE[0][i]][:RI],d))
+
+            if len(EE[0]) > 1:
+              PDD2 = xnew
+              PDD = ynew
+            if J == 0:
+              FH = np.zeros((np.shape(PH[1])[0],np.shape(ynew)[0]))
+            FH[J,:] = ynew
+
+          PH[1] = FH
+          PH[0] = PDD2
+          del FH #garbage cleanup
+
         #how many to plot?
         if NumToPlot == 1:  #1
           IterIndex = np.random.randint(
@@ -1474,7 +1544,9 @@ class LaunchGUI(QtWidgets.QMainWindow):
             indexes[i] = np.random.randint(
                 low=0, high=int(self.IterBox.text()) - 1)
 
-          PH[1] = PH[1][indexes, :]
+          PH[1] = PH[1][indexes.astype('int'), :]
+          if PH[1].shape[0] < PH[1].shape[1]:
+            PH[1] = PH[1].T
           self.canvas.update_figure(PH, 2)
           self.ThreshData = PH[1]
 
@@ -1660,14 +1732,16 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.RunStats.setEnabled(
         1)  #flag to show that the calc has run at least once
 
+
     if self.HasRunErrors == 1:  #if has run previously get those values
-      x = np.zeros((self.EP.rowCount(), 6))
+      pastEVals = np.zeros((self.EP.rowCount(), 6))
       for i in range(0, self.EP.rowCount()):
         for j in range(0, 6):
           if self.EP.item(i, j) is None:
-            x[i, j] = 0
+            pastEVals[i, j] = 0
           else:
-            x[i, j] = self.EP.item(i, j).text()
+            pastEVals[i, j] = self.EP.item(i, j).text()
+
 
     #stop animation if running
     if (self.SGSetContainer._animation.currentLoopTime()
@@ -1701,7 +1775,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     AllError.setTitle("All errors")
 
     AllRandLabel = QtWidgets.QLabel("Random Errors")
-    AllSysLabel = QtWidgets.QLabel("Systmatic Errors")
+    AllSysLabel = QtWidgets.QLabel("Systematic Errors")
 
     self.AllRand = QtWidgets.QComboBox(AllError)
     self.AllSys = QtWidgets.QComboBox(AllError)
@@ -1709,8 +1783,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.AllRand.addItems(ErrorBox)
     self.AllSys.addItems(ErrorBox)
 
-    self.AllRand.currentTextChanged.connect(self.RandBoxChanged)
-    self.AllSys.currentTextChanged.connect(self.SysBoxChanged)
+    self.AllRand.activated.connect(self.RandBoxChanged)
+    self.AllSys.activated.connect(self.SysBoxChanged)
 
     AE_L.addWidget(AllRandLabel, 0, 0)
     AE_L.addWidget(AllSysLabel, 0, 1)
@@ -1724,7 +1798,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     InpError.setTitle("Input Error")
 
     InpRandLabel = QtWidgets.QLabel("Random Errors")
-    InpSysLabel = QtWidgets.QLabel("Systmatic Errors")
+    InpSysLabel = QtWidgets.QLabel("Systematic Errors")
 
     self.InpRand = QtWidgets.QComboBox(InpError)
     self.InpSys = QtWidgets.QComboBox(InpError)
@@ -1732,8 +1806,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.InpRand.addItems(ErrorBox)
     self.InpSys.addItems(ErrorBox)
 
-    self.InpRand.currentTextChanged.connect(self.InpRandFcn)
-    self.InpSys.currentTextChanged.connect(self.InpSysFcn)
+    self.InpRand.activated.connect(self.InpRandFcn)
+    self.InpSys.activated.connect(self.InpSysFcn)
 
     IE_L.addWidget(InpRandLabel, 0, 0)
     IE_L.addWidget(InpSysLabel, 0, 1)
@@ -1748,7 +1822,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     InvError.setTitle("Inventory Error")
 
     InvRandLabel = QtWidgets.QLabel("Random Errors")
-    InvSysLabel = QtWidgets.QLabel("Systmatic Errors")
+    InvSysLabel = QtWidgets.QLabel("Systematic Errors")
 
     self.InvRand = QtWidgets.QComboBox(InvError)
     self.InvSys = QtWidgets.QComboBox(InvError)
@@ -1756,8 +1830,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.InvRand.addItems(ErrorBox)
     self.InvSys.addItems(ErrorBox)
 
-    self.InvRand.currentTextChanged.connect(self.InvRandFcn)
-    self.InvSys.currentTextChanged.connect(self.InvSysFcn)
+    self.InvRand.activated.connect(self.InvRandFcn)
+    self.InvSys.activated.connect(self.InvSysFcn)
 
     IV_L.addWidget(InvRandLabel, 0, 0)
     IV_L.addWidget(InvSysLabel, 0, 1)
@@ -1772,7 +1846,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     OutError.setTitle("Output Error")
 
     OutRandLabel = QtWidgets.QLabel("Random Errors")
-    OutSysLabel = QtWidgets.QLabel("Systmatic Errors")
+    OutSysLabel = QtWidgets.QLabel("Systematic Errors")
 
     self.OutRand = QtWidgets.QComboBox(OutError)
     self.OutSys = QtWidgets.QComboBox(OutError)
@@ -1780,8 +1854,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.OutRand.addItems(ErrorBox)
     self.OutSys.addItems(ErrorBox)
 
-    self.OutRand.currentTextChanged.connect(self.OutRandFcn)
-    self.OutSys.currentTextChanged.connect(self.OutSysFcn)
+    self.OutRand.activated.connect(self.OutRandFcn)
+    self.OutSys.activated.connect(self.OutSysFcn)
 
     OE_L.addWidget(OutRandLabel, 0, 0)
     OE_L.addWidget(OutSysLabel, 0, 1)
@@ -1790,20 +1864,29 @@ class LaunchGUI(QtWidgets.QMainWindow):
     bc_L.addWidget(OutError)
 
     # table pane
+    self.EP = QtWidgets.QTableWidget()
+
     if hasattr(self, 'Wizard'):
       TotalLocs = int(self.Wizard.InKMP) + int(self.Wizard.InvKMP) + int(
           self.Wizard.OutKMP)
-    else:
-      TotalLocs = np.shape(self.SS.Inputs)[2] + np.shape(
-          self.SS.Inventories)[2] + np.shape(
-              self.SS.Outputs)[2]  #for spacer lines
 
-    self.EP = QtWidgets.QTableWidget()
-    self.EP.setRowCount(TotalLocs + 2)
-    self.EP.setColumnCount(6)
-    self.EP.setHorizontalHeaderLabels([
+      self.EP.setColumnCount(6)
+      self.EP.setHorizontalHeaderLabels([
         'U Rand ', 'U Sys', 'Pu Rand', 'Pu Sys', 'Generic Rand', 'Generic Sys'
     ])
+    else:
+      TotalLocs = len(self.SS.Inputs) + len(self.SS.Inventories) + len(self.SS.Outputs)
+      x = Path(sys.argv[0]).resolve().parents[1]
+      F = os.path.join(x, 'data', 'fuel_fab', self.SS.sceneName, 'auxData.npz')
+      A = np.load(F)
+      A = A['arr1']
+      self.EP.setColumnCount(2)
+      self.EP.setHorizontalHeaderLabels(['U Rand ', 'U Sys'])
+      self.EP.setHorizontalHeaderLabels(A)
+
+
+
+    self.EP.setRowCount(TotalLocs + 2)
     ep_L.addWidget(self.EP)
 
     if hasattr(self, 'Wizard'):  #if data is imported
@@ -1871,44 +1954,34 @@ class LaunchGUI(QtWidgets.QMainWindow):
       )  #removes spaces which don't serve an asthetic purpose in the plot list
 
       if self.HasRunErrors == 0:
-        for i in range(0, 6):
+        for i in range(0, self.EP.rowCount()):
           for j in range(0, TotalLocs + 2):
-            if j != int(self.Wizard.InKMP) and j != int(
-                self.Wizard.InKMP) + int(self.Wizard.InvKMP) + 1:
+            if self.EP.verticalHeaderItem(j).text() != '' and self.EP.horizontalHeaderItem(i) is not None:
               self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(0.5)))
-      else:
-        for i in range(np.shape(x)[0]):
-          for j in range(np.shape(x)[1]):
-            if x[i, j] != 0:
-              self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(x[i, j])))
-
-      FN = 0
 
     else:  #predetermined labels for fuel fab scenario
-      rowNames = [
-          'Cylinder (input)', 'Drums (input)', '', 'Vaporization',
-          'Precipitation', 'Offgas Filters', 'Centrifuge',
-          'CalcinationReduction', 'MillingBlending', 'Mixing Tank 1',
-          'Pressing', 'Sintering', 'Grinding', 'Pellet Storage', 'Tube Filling',
-          'ADU Scrap', 'Green Scrap', 'Dirty Powder', 'Sintered Scrap',
-          'Grinder Sludge', 'OffSpec Pellets', 'Scrap Grinder',
-          'Scrap Oxidation', 'Scrap Dissolution', 'Scrap Solvent',
-          'Scrap Percipitation', 'Scrap Grinder 2', 'Scrap Oxidation 2',
-          'Scrap Reduction', '', 'UF6 Heel (output)', 'Scrap Loss (output)',
-          'Fuel Pins (output)'
-      ]
+      x = Path(sys.argv[0]).resolve().parents[1]
+      F = os.path.join(x, 'data', 'fuel_fab', self.SS.sceneName, 'auxData.npz')
+      A = np.load(F)
 
-      self.EP.setVerticalHeaderLabels(rowNames)
+      self.EP.setVerticalHeaderLabels(A['arr2'])
       self.PlotLocLabels = list(
-          filter(len, rowNames)
+          filter(len, A['arr2'])
       )  #remove spaces which don't serve a purpose in the plotter dropdown
 
       # set the initial table items
       # the 2 and 31 index are separator rows
-      for i in range(0, 6):
-        for j in range(0, TotalLocs + 2):
-          if j != 2 and j != 29:
-            self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(0.5)))
+      if self.HasRunErrors == 0:
+        for i in range(0, self.EP.rowCount()):
+          for j in range(0, TotalLocs + 2):
+            if self.EP.verticalHeaderItem(j).text() != '' and self.EP.horizontalHeaderItem(i) is not None:
+              self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(0.5)))
+
+    if self.HasRunErrors == 1:
+      for i in range(np.shape(pastEVals)[0]):
+        for j in range(np.shape(pastEVals)[1]):
+          if pastEVals[i, j] != 0:
+            self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])))
 
     # save/load buttons
     SLContain = QtWidgets.QFrame(self.ErrorPane)
@@ -1954,8 +2027,9 @@ class LaunchGUI(QtWidgets.QMainWindow):
       TotalLocs = int(self.Wizard.InKMP) + int(self.Wizard.InvKMP) + int(
           self.Wizard.OutKMP)
     else:
-      TotalLocs = np.shape(self.SS.Inputs)[2] + np.shape(
-          self.SS.Inventories)[2] + np.shape(self.SS.Outputs)[2]
+      TotalLocs = len(self.SS.Inputs) + len(self.SS.Inventories) + len(self.SS.Outputs.shape)
+    RC = self.EP.columnCount()
+
 
     i = 0
     while i < 5:
@@ -1982,8 +2056,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
       TotalLocs = int(self.Wizard.InKMP) + int(self.Wizard.InvKMP) + int(
           self.Wizard.OutKMP)
     else:
-      TotalLocs = np.shape(self.SS.Inputs)[2] + np.shape(
-          self.SS.Inventories)[2] + np.shape(self.SS.Outputs)[2]
+      TotalLocs = len(self.SS.Inputs) + len(self.SS.Inventories) + len(self.SS.Outputs.shape)
+
 
     i = 1
     while i < 6:
@@ -2004,9 +2078,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
       TD2 = int(self.Wizard.InvKMP)
       TD3 = int(self.Wizard.OutKMP)
     else:
-      TD = np.shape(self.SS.Inputs)[2]
-      TD2 = np.shape(self.SS.Inventories)[2]
-      TD3 = np.shape(self.SS.Outputs)[2]
+      TD = len(self.SS.Inputs)
+      TD2 = len(self.SS.Inventories)
+      TD3 = len(self.SS.Outputs.shape)
+
 
     i = 0
     while i < 5:
@@ -2027,9 +2102,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
       TD2 = int(self.Wizard.InvKMP)
       TD3 = int(self.Wizard.OutKMP)
     else:
-      TD = np.shape(self.SS.Inputs)[2]
-      TD2 = np.shape(self.SS.Inventories)[2]
-      TD3 = np.shape(self.SS.Outputs)[2]
+      TD = len(self.SS.Inputs)
+      TD2 = len(self.SS.Inventories)
+      TD3 = len(self.SS.Outputs.shape)
+
 
     i = 1
     while i < 6:
@@ -2050,9 +2126,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
       TD2 = int(self.Wizard.InvKMP)
       TD3 = int(self.Wizard.OutKMP)
     else:
-      TD = np.shape(self.SS.Inputs)[2]
-      TD2 = np.shape(self.SS.Inventories)[2] + 1
-      TD3 = np.shape(self.SS.Outputs)[2] + 1
+      TD = len(self.SS.Inputs)
+      TD2 = len(self.SS.Inventories) +1
+      TD3 = len(self.SS.Outputs.shape) +1
+
 
     i = 0
     while i < 5:
@@ -2073,9 +2150,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
       TD2 = int(self.Wizard.InvKMP)
       TD3 = int(self.Wizard.OutKMP)
     else:
-      TD = np.shape(self.SS.Inputs)[2]
-      TD2 = np.shape(self.SS.Inventories)[2] + 1
-      TD3 = np.shape(self.SS.Outputs)[2] + 1
+      TD = len(self.SS.Inputs)
+      TD2 = len(self.SS.Inventories) +1
+      TD3 = len(self.SS.Outputs.shape) +1
+
 
     i = 1
     while i < 6:
@@ -2099,9 +2177,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
       TD2 = int(self.Wizard.InvKMP)
       TD3 = int(self.Wizard.OutKMP)
     else:
-      TD = np.shape(self.SS.Inputs)[2]
-      TD2 = np.shape(self.SS.Inventories)[2] + 1
-      TD3 = np.shape(self.SS.Outputs)[2] + 1
+      TD = len(self.SS.Inputs)
+      TD2 = len(self.SS.Inventories) +1
+      TD3 = len(self.SS.Outputs.shape) +1
+
 
     i = 0
     while i < 5:
@@ -2122,9 +2201,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
       TD2 = int(self.Wizard.InvKMP)
       TD3 = int(self.Wizard.OutKMP)
     else:
-      TD = np.shape(self.SS.Inputs)[2]
-      TD2 = np.shape(self.SS.Inventories)[2] + 1
-      TD3 = np.shape(self.SS.Outputs)[2] + 1
+      TD = len(self.SS.Inputs)
+      TD2 = len(self.SS.Inventories) +1
+      TD3 = len(self.SS.Outputs.shape) +1
+
 
     i = 1
     while i < 6:
@@ -2155,8 +2235,6 @@ class LaunchGUI(QtWidgets.QMainWindow):
     """
 
     outdir = os.path.join(os.getcwd(), 'errorConfig.csv')
-    TotalLocs = int(self.Wizard.InKMP) + int(self.Wizard.InvKMP) + int(
-        self.Wizard.OutKMP)
 
     x = np.zeros((self.EP.rowCount(), 6))
 

@@ -214,7 +214,8 @@ class DirPage(QtWidgets.QWizardPage):
 
   def GetInDirs(self):
     """
-            Gets the directory selected by user
+            Gets the location of the .mat file containing
+            variables in, invn and outn
     """
 
     #there is some strange behavior in some Linux distros
@@ -223,6 +224,7 @@ class DirPage(QtWidgets.QWizardPage):
 
     fname = QtWidgets.QFileDialog(
         self, options=QtWidgets.QFileDialog.DontUseNativeDialog)
+
     fname.setFileMode(QtWidgets.QFileDialog.ExistingFile)
     fname.setViewMode(QtWidgets.QFileDialog.List)
     fname.setNameFilter('MATLAB Container (*.mat)')

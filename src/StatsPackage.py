@@ -55,30 +55,26 @@ class ErrorHandle:
         if self.Wizard.IsMatV == 0:
           # need to infer the number of elements
 
-          lddir = os.path.join(self.Wizard.InDir,
-                               sorted(os.listdir(self.Wizard.InDir))[0])
+          lddir = os.path.join(self.Wizard.InDir,sorted(os.listdir(self.Wizard.InDir))[0])
 
           testM = np.loadtxt(lddir, delimiter=',')
         else:
-          G = loadmat(
-              self.Wizard.MatDir)  # should be only one .mat for all locations
+          G = loadmat(self.Wizard.MatDir)  # should be only one .mat for all locations
           testM = G['in']['data'][0][0]
 
         # if there's only a single element it could be imported as
         # a single dimesion vector which we need to fix for code
         # further in to work as intended
 
-        if len(
-            np.shape(testM)
-        ) == 1:  # adds a dimension in case single element is recorded as (X,) rather than (X,1)
+        if len(np.shape(testM)) == 1:  # adds a dimension in case single element is recorded as (X,) rather than (X,1)
           testM = np.expand_dims(testM, axis=0)
 
-        eleInfer = np.min(np.shape(
-            testM))  # assuming smallest dimension is number of elements
+        eleInfer = np.min(np.shape(testM))  # assuming smallest dimension is number of elements
 
         # try to number of elements in the input
         #also grab some information about the
         #labels for the elements if provided
+
         if len(self.Wizard.EleVec_IN) > 0:
           for i in range(0, int(self.Wizard.InKMP)):
             for j in range(0, len(self.Wizard.EleVec_IN)):
@@ -99,8 +95,7 @@ class ErrorHandle:
         #begin to load the data
         if self.Wizard.IsMatV == 0:  # if CSV
           for i in range(0, int(self.Wizard.InKMP)):
-            lddir = os.path.join(self.Wizard.InDir,
-                                 sorted(os.listdir(self.Wizard.InDir))[i])
+            lddir = os.path.join(self.Wizard.InDir,sorted(os.listdir(self.Wizard.InDir))[i])
             r = np.loadtxt(lddir, delimiter=',')
             LiC.append(r)
 
@@ -114,6 +109,7 @@ class ErrorHandle:
           LiC2 = []
           lddir = loadmat(self.Wizard.MatDir)
           JJ = np.shape(G['in']['data'][0])[0]
+
           for i in range(0, JJ):
             LiC.append(G['in']['data'][0][i])
             LiC2.append(G['in']['time'][0][i])
@@ -123,14 +119,13 @@ class ErrorHandle:
             inpTimeFrame = np.stack(LiC2)
           except:
             inpFrame = LiC
-            inpFrame = LiC2
+            inpTimeFrame = LiC2
 
         ##IO - Inventory
         liH = []
         if self.Wizard.IsMatV == 0:
           # need to infer the number of elements
-          lddir = os.path.join(self.Wizard.InvDir,
-                               sorted(os.listdir(self.Wizard.InvDir))[0])
+          lddir = os.path.join(self.Wizard.InvDir,sorted(os.listdir(self.Wizard.InvDir))[0])
 
           testM = np.loadtxt(lddir, delimiter=',')
 
@@ -156,9 +151,9 @@ class ErrorHandle:
 
           self.eleINV = copy.copy(len(liH))
           LiC = []
+
           for i in range(0, int(self.Wizard.InvKMP)):
-            lddir = os.path.join(self.Wizard.InvDir,
-                                 sorted(os.listdir(self.Wizard.InvDir))[i])
+            lddir = os.path.join(self.Wizard.InvDir,sorted(os.listdir(self.Wizard.InvDir))[i])
             r = np.loadtxt(lddir, delimiter=',')
             LiC.append(r)
 
@@ -172,6 +167,9 @@ class ErrorHandle:
           LiC2 = []
           lddir = loadmat(self.Wizard.MatDir)
           JJ = np.shape(G['invn']['data'][0])[0]
+
+
+
           for i in range(0, JJ):
             LiC.append(G['invn']['data'][0][i])
             LiC2.append(G['invn']['time'][0][i])
@@ -248,24 +246,13 @@ class ErrorHandle:
             outTimeFrame = LiC2
 
       else:
-        # imported scene data
-        # SS data is shape time, ele, loc
-
-        # inputs
-
-        self.SS.Inputs = np.swapaxes(self.SS.Inputs, 0, 2)
-        self.SS.Inputs = np.swapaxes(self.SS.Inputs, 1, 2)
-        inpFrame = self.SS.Inputs
+        inpFrame = list(self.SS.Inputs)
 
         # inventories
-        self.SS.Inventories = np.swapaxes(self.SS.Inventories, 0, 2)
-        self.SS.Inventories = np.swapaxes(self.SS.Inventories, 1, 2)
-        invFrame = self.SS.Inventories
+        invFrame = list(self.SS.Inventories)
 
         # outputs
-        self.SS.Outputs = np.swapaxes(self.SS.Outputs, 0, 2)
-        self.SS.Outputs = np.swapaxes(self.SS.Outputs, 1, 2)
-        outFrame = self.SS.Outputs
+        outFrame = list(self.SS.Outputs)
 
         liH = ['U', 'Pu', 'Cs', 'Xe', 'Eu']  #predetermined elements
         self.GuessEles = 5
@@ -286,20 +273,27 @@ class ErrorHandle:
           self.outTimeFrame = outTimeFrame
 
           ST = 1
+      if hasattr(self,'SS'):
+          self.inpTimeFrame = list(self.SS.InputsT)  #grab the times
+          self.invTimeFrame = list(self.SS.InventoriesT)
+          self.outTimeFrame = list(self.SS.OutputsT)
 
       #the lists are usually missing a dimension
       #required for later analysis
       if isinstance(self.inpFrame, list) == 0:
-        if len(np.shape(self.inpFrame)) != 3:
-          self.inpFrame = np.expand_dims(self.inpFrame, axis=2)
+        if self.inpFrame.dtype != 'O':
+          if len(np.shape(self.inpFrame)) != 3:
+            self.inpFrame = np.expand_dims(self.inpFrame, axis=2)
 
       if isinstance(self.invFrame, list) == 0:
-        if len(np.shape(self.invFrame)) != 3:
-          self.invFrame = np.expand_dims(self.invFrame, axis=2)
+        if self.invFrame.dtype != 'O':
+          if len(np.shape(self.invFrame)) != 3:
+            self.invFrame = np.expand_dims(self.invFrame, axis=2)
 
       if isinstance(self.outFrame, list) == 0:
-        if len(np.shape(self.outFrame)) != 3:
-          self.outFrame = np.expand_dims(self.outFrame, axis=2)
+        if self.outFrame.dtype != 'O':
+          if len(np.shape(self.outFrame)) != 3:
+            self.outFrame = np.expand_dims(self.outFrame, axis=2)
 
     else:
       if hasattr(self, 'Wizard'):
@@ -417,8 +411,8 @@ class ErrorHandle:
 
   def ErrorProp(self):
     """
-            Function to perform the error propogation
-  """
+      Function to perform the error propogation
+    """
     self.RunStats._animation.setLoopCount(1)
 
     self.StatDlg.UpdateDispText('Applying and propogating error')
@@ -426,24 +420,23 @@ class ErrorHandle:
 
     self.PB.setMaximum(100)
 
+    self.decompStatus = 1 #sets a flag related to the cholesky decomp
+                          #for sitmuf, in case it's called later
+
     if hasattr(self, 'Wizard'):  #if data was imported
       TotalLocs = int(self.Wizard.InKMP) + int(self.Wizard.InvKMP) + int(
           self.Wizard.OutKMP)
 
       eleNames = self.Wizard.EleVec_IN
-      O1 = int(self.Wizard.InKMP)
-      O2 = O1 + int(self.Wizard.InvKMP)
+
     else:  #otherwise (scene selection)
-      TotalLocs = np.shape(self.SS.Inputs)[0] + np.shape(
-          self.SS.Inventories)[0] + np.shape(self.SS.Outputs)[0]
+      TotalLocs = len(self.SS.Inputs) + len(
+          self.SS.Inventories) + len(self.SS.Outputs)
 
       eleNames = self.liH
-      O1 = int(np.shape(self.SS.Inputs)[0])
-      O2 = O1 + int(np.shape(self.SS.Inventories)[0])
 
-    NumSamples = np.max(
-        np.shape(self.invFrame)
-    ) - self.offset  # samples should be max size of matrix less any offset
+
+
 
     # determine OPindex (index to operate on) here
     # either its listed as label or needs popup to find index
@@ -539,16 +532,28 @@ class ErrorHandle:
     else:
       None
 
-    ErrorMatrix = np.zeros((TotalLocs, 6))
+    self.ErrorMatrix = np.zeros((TotalLocs, 6))
 
     # setup error table using
     # previously described errors
+
+    #this ensures that the right items are placed correctly within the error matrix
+    #as sometimes the GUI can have missing columns, added rows, etc for aesthetic purposes
+
+    mapDict = {'U Rand':0, 'U Sys':1, 'Pu Rand':2, 'Pu Sys':3, 'Generic Rand':4, 'Generic Sys':5}
+
+
     P = 0
     for i in range(0, self.EP.rowCount()):
-      if self.EP.item(i, 0) is not None:
-        for j in range(0, 6):
-          ErrorMatrix[P, j] = float(self.EP.item(i, j).text()) / 100
-        P += 1
+      for j in range(0, 6):
+        if self.EP.item(i, j) is not None:
+          C = mapDict[self.EP.horizontalHeaderItem(j).text().rstrip()]
+          self.ErrorMatrix[P, C] = float(self.EP.item(i, j).text()) / 100
+
+      if self.EP.item(i,0) is not None:
+        P +=1
+
+
 
     # important -- going to assume every feature has different systematic error instance - in practice they might be shared
     # basically gonna propogate error to everything because its easier on me and probably doesn't have a lot
@@ -563,70 +568,76 @@ class ErrorHandle:
     GF = 0  #flag to determine if data is mat
     #future TODO: update to be less
     #redunant with IsMatV
-
-    if hasattr(self,
-               'Wizard'):  #if its imported get some information about the shape
+    if hasattr(self,'Wizard'):
       if self.Wizard.IsMatV == 1:
         GF = 1
 
-        if isinstance(self.inpFrame, list):
-          S1 = []
-          for JR in range(len(self.inpFrame)):
-            S1.append(np.shape(self.inpFrame[JR]))
-        else:
-          S1 = []
-          for JR in range(len(self.inpFrame)):
-            S1.append(np.shape(self.inpFrame[JR, :, :]))
+    if hasattr(self,'SS'):
+      GF = 1
 
-        if isinstance(self.invFrame, list):
-          S2 = []
-          for JR in range(len(self.invFrame)):
-            S2.append(np.shape(self.invFrame[JR]))
-        else:
-          S2 = []
-          for JR in range(len(self.invFrame)):
-            S2.append(np.shape(self.invFrame[JR, :, :]))
 
-        if isinstance(self.outFrame, list):
-          S3 = []
-          for JR in range(len(self.outFrame)):
-            S3.append(np.shape(self.outFrame[JR]))
-        else:
-          S3 = []
-          for JR in range(len(self.outFrame)):
-            S3.append(np.shape(self.outFrame[JR, :, :]))
+    #in some cases not all mat data is sampled unevenly, so need to check
+    #if list or array
+    if GF == 1:
 
-        self.inpEFrame = []  #list holding input with applied errors
-        self.inpSFrame = [
-        ]  #list holding the input's systematic error (unapplied)
-        self.inpRFrame = []  #list holding the input's random error (unapplied)
+      if isinstance(self.inpFrame, list):
+        S1 = []
+        for JR in range(len(self.inpFrame)):
+          S1.append(np.shape(self.inpFrame[JR]))
+      else:
+        S1 = []
+        for JR in range(len(self.inpFrame)):
+          S1.append(np.shape(self.inpFrame[JR, :, :]))
 
-        for i in range(0, len(self.inpFrame)):
-          self.inpEFrame.append(np.zeros((IT, S1[i][0], S1[i][1])))
-          self.inpSFrame.append(np.zeros((S1[i][0], S1[i][1])))
-          self.inpRFrame.append(np.zeros((S1[i][0], S1[i][1])))
+      if isinstance(self.invFrame, list):
+        S2 = []
+        for JR in range(len(self.invFrame)):
+          S2.append(np.shape(self.invFrame[JR]))
+      else:
+        S2 = []
+        for JR in range(len(self.invFrame)):
+          S2.append(np.shape(self.invFrame[JR, :, :]))
 
-        self.invEFrame = []
-        self.invSFrame = []
-        self.invRFrame = []
+      if isinstance(self.outFrame, list):
+        S3 = []
+        for JR in range(len(self.outFrame)):
+          S3.append(np.shape(self.outFrame[JR]))
+      else:
+        S3 = []
+        for JR in range(len(self.outFrame)):
+          S3.append(np.shape(self.outFrame[JR, :, :]))
 
-        for i in range(0, len(self.invFrame)):
-          self.invEFrame.append(np.zeros(
-              (IT, S2[i][0], S2[i][1])))  #[Iterations, Locs, Samples, Elements]
-          self.invSFrame.append(np.zeros((S2[i][0], S2[i][1])))
-          self.invRFrame.append(np.zeros((S2[i][0], S2[i][1])))
+      self.inpEFrame = []  #list holding input with applied errors
+      self.inpSFrame = [
+      ]  #list holding the input's systematic error (unapplied)
+      self.inpRFrame = []  #list holding the input's random error (unapplied)
 
-        self.outEFrame = []
-        self.outRFrame = []
-        self.outSFrame = []
+      for i in range(0, len(self.inpFrame)):
+        self.inpEFrame.append(np.zeros((IT, S1[i][0], S1[i][1]),dtype=np.float32))
+        self.inpSFrame.append(np.zeros((S1[i][0], S1[i][1]),dtype=np.float32))
+        self.inpRFrame.append(np.zeros((S1[i][0], S1[i][1]),dtype=np.float32))
 
-        for i in range(0, len(self.outFrame)):
-          self.outEFrame.append(np.zeros(
-              (IT, S3[i][0], S3[i][1])))  #[Iterations, Locs, Samples, Elements]
-          self.outRFrame.append(np.zeros((S3[i][0], S3[i][1])))
-          self.outSFrame.append(np.zeros((S3[i][0], S3[i][1])))
+      self.invEFrame = []
+      self.invSFrame = []
+      self.invRFrame = []
 
-    if GF == 0:  #if it's not a mat assume uniform sampling
+      for i in range(0, len(self.invFrame)):
+        self.invEFrame.append(np.zeros(
+            (IT, S2[i][0], S2[i][1]),dtype=np.float32))  #[Iterations, Locs, Samples, Elements]
+        self.invSFrame.append(np.zeros((S2[i][0], S2[i][1]),dtype=np.float32))
+        self.invRFrame.append(np.zeros((S2[i][0], S2[i][1]),dtype=np.float32))
+
+      self.outEFrame = []
+      self.outRFrame = []
+      self.outSFrame = []
+
+      for i in range(0, len(self.outFrame)):
+        self.outEFrame.append(np.zeros(
+            (IT, S3[i][0], S3[i][1]),dtype=np.float32))  #[Iterations, Locs, Samples, Elements]
+        self.outRFrame.append(np.zeros((S3[i][0], S3[i][1]),dtype=np.float32))
+        self.outSFrame.append(np.zeros((S3[i][0], S3[i][1]),dtype=np.float32))
+
+    else:  #if it's not a mat assume uniform sampling
       #i.e. once every unit of time
       S1 = np.asarray(np.shape(self.inpFrame))
       S2 = np.asarray(np.shape(self.invFrame))
@@ -674,11 +685,31 @@ class ErrorHandle:
     else:
       None
 
-    ############################################ Error Propogation ################################################
-    ##### This section is pretty ugly because I had originally written this to handle fixed-step sampled data such that it could be easily represented in matrix form     #####
-    ##### However, that became problematic because for V&V purposes the MAPIT needed to be compared against SSPM, which was integrated in variable-time-step  #####
-    ##### form. The MAT section uses potentially variable sample times to perform the error prop. This may be cleaned up in the future, but not enough budget now #####
-    #######################################################################################################
+    #special case where if no tests are requested for the
+    #scenario select but error propagation is requested
+    #need to update this object to point correctly to
+    #the relevant parts of the error matrix. In other cases
+    #where the scenario selector is not used, the full error
+    #matrix is filled in so MAPIT will just assume that
+    #the generic element column errors are desired. However,
+    #for the scene select, the generic columns are zero
+    #(for aesthetic purposes) so pointing to the generic
+    #columns results in zero error being applied
+    if ck0+ck1+ck2 == 0 and hasattr(self,'SS'):
+      self.EMD.update({self.ULoc: 0})
+
+
+    """
+    ----------------------------------------------------------------------------------------------------
+                                                Error Propogation
+    ----------------------------------------------------------------------------------------------------
+    This section is pretty ugly because I had originally written this to handle fixed-step sampled data
+    such that it could be easily represented in matrix form However, that became problematic because for
+    V&V purposes the MAPIT needed to be compared against SSPM, which was integrated in variable-time-step
+    form. The MAT section uses potentially variable sample times to perform the error prop. This may be
+    cleaned up in the future.
+    """
+
 
     ############################################       Input       ###################################################
     ############################################        MAT        ###################################################
@@ -686,112 +717,89 @@ class ErrorHandle:
     # see github for more theory
     #observed = true(1+random*sys)
     if GF == 1:
-      for Z in range(0, IT):
+      QtCore.QCoreApplication.instance().processEvents(
+      )  # ensures window isn't seen as unresponsive
+
+      # locations, timesteps, elements
+
+      # for each location
+      for i in range(0, len(S1)):
+        self.PB.setValue(
+            np.floor((i) /
+                      ((len(S1) + len(S2) + len(S3))) * 100))
         QtCore.QCoreApplication.instance().processEvents(
         )  # ensures window isn't seen as unresponsive
+        # for each element
 
-        # locations, timesteps, elements
-        self.inpRFrame = []
-        self.inpSFrame = []
-
-        # for each location
-        for i in range(0, len(S1)):
-          self.PB.setValue(
-              np.floor((i + Z * len(S1)) /
-                       ((len(S1) + len(S2) + len(S3)) * IT) * 100))
-          QtCore.QCoreApplication.instance().processEvents(
-          )  # ensures window isn't seen as unresponsive
-          # for each element
-
-          #assume sys differs by location only and doesn't change for different elements
-
-          self.inpRFrame.append(np.random.normal(size=(S1[i][0], S1[i][1])))
-          self.inpSFrame.append(
-              np.ones((S1[i][0], S1[i][1])) * np.random.normal(size=(1,)))
-
-          for j in range(0, S1[i][1]):
-
-            # check to see if this element is u or pu
-            key = 0
-            if j in self.EMD:
-              key = self.EMD[j]
-            else:
-              # location of generic errors
-              key = 4
+        #assume sys differs by location only and doesn't change for different elements
 
 
-            self.inpEFrame[i][Z,:,j] = self.inpFrame[i][:,j] + \
-                                                    self.inpFrame[i][:,j] * (self.inpSFrame[i][:,j] * ErrorMatrix[i, key + 1]) + \
-                                                    self.inpFrame[i][:,j] * (self.inpRFrame[i][:,j] * ErrorMatrix[i, key])
+        for j in range(0, S1[i][1]):
+
+          # check to see if this element is u or pu
+          key = 0
+          if j in self.EMD:
+            key = self.EMD[j]
+          else:
+            # location of generic errors
+            key = 4
+
+          self.inpEFrame[i][:,:,j] = self.inpFrame[i][:,j].reshape((S1[i][1],-1)) * (1+np.random.normal(size=(IT,S1[i][1],1),loc=0,scale=self.ErrorMatrix[i, key + 1])+np.random.normal(size=(IT,S1[i][0], S1[i][1]),loc=0,scale=self.ErrorMatrix[i, key])).reshape((IT,-1))
 
       ############################################     Inventory     ################################################
       ############################################        MAT        ###################################################
-      for Z in range(0, IT):
-        QtCore.QCoreApplication.instance().processEvents(
-        )  # ensures window isn't seen as unresponsive
 
-        self.invRFrame = []
-        self.invSFrame = []
-
-        for i in range(0, len(S2)):
-
-          self.PB.setValue(
-              np.floor((i + Z * len(S2) + IT * len(S1)) /
-                       ((len(S1) + len(S2) + len(S3)) * IT) * 100))
-          QtCore.QCoreApplication.instance().processEvents()
-          self.invRFrame.append(np.random.normal(size=(S2[i][0], S2[i][1])))
-          self.invSFrame.append(
-              np.ones((S2[i][0], S2[i][1])) * np.random.normal(size=(1,)))
-
-          for j in range(0, S2[i][1]):
-
-            key = 0
-            if j in self.EMD:
-              key = self.EMD[j]
-            else:
-              # location of generic errors
-              key = 4
+      QtCore.QCoreApplication.instance().processEvents(
+      )  # ensures window isn't seen as unresponsive
 
 
+      for i in range(0, len(S2)):
 
-            self.invEFrame[i][Z,:,j] = self.invFrame[i][:,j] + \
-                                                     self.invFrame[i][:,j] * (self.invSFrame[i][:,j] * ErrorMatrix[i + len(S1), key + 1]) + \
-                                                     self.invFrame[i][:,j] * (self.invRFrame[i][:,j] * ErrorMatrix[i + len(S1), key])
+        self.PB.setValue(np.floor((i + len(S1)) / ((len(S1) + len(S2) + len(S3))) * 100))
+        QtCore.QCoreApplication.instance().processEvents()
+
+
+        for j in range(0, S2[i][1]):
+
+          key = 0
+          if j in self.EMD:
+            key = self.EMD[j]
+          else:
+            # location of generic errors
+            key = 4
+
+          self.invEFrame[i][:,:,j] = self.invFrame[i][:,j].reshape((S2[i][1],-1)) *\
+           (1+np.random.normal(size=(IT,S2[i][1],1),loc=0,scale=self.ErrorMatrix[i + len(S1), key + 1])+\
+           np.random.normal(size=(IT, S2[i][0], S2[i][1]),loc=0,scale=self.ErrorMatrix[i + len(S1), key])).reshape((IT,-1))
+
 
       ############################################       Output       ################################################
       ############################################        MAT        ###################################################
-      for Z in range(0, IT):
-        QtCore.QCoreApplication.instance().processEvents(
-        )  # ensures window isn't seen as unresponsive
 
-        self.outRFrame = []
-        self.outSFrame = []
+      QtCore.QCoreApplication.instance().processEvents(
+      )  # ensures window isn't seen as unresponsive
 
-        for i in range(0, len(S3)):  #location
+      for i in range(0, len(S3)):  #location
 
-          self.PB.setValue(
-              np.floor((i + Z * len(S3) + IT * len(S1) + IT * len(S2)) /
-                       ((len(S1) + len(S2) + len(S3)) * IT) * 100))
-          QtCore.QCoreApplication.instance().processEvents()
+        self.PB.setValue(
+            np.floor((i +len(S1) + len(S2)) /
+                      ((len(S1) + len(S2) + len(S3))) * 100))
+        QtCore.QCoreApplication.instance().processEvents()
 
-          self.outRFrame.append(np.random.normal(size=(S3[i][0], S3[i][1])))
-          self.outSFrame.append(
-              np.ones((S3[i][0], S3[i][1])) * np.random.normal(size=(1,)))
 
-          for j in range(0, S3[i][1]):  #elements
+        for j in range(0, S3[i][1]):  #elements
 
-            key = 0
-            if j in self.EMD:
-              key = self.EMD[j]
-            else:
-              # location of generic errors
-              key = 4
+          key = 0
+          if j in self.EMD:
+            key = self.EMD[j]
+          else:
+            # location of generic errors
+            key = 4
 
-            #self.outSFrame[i][:, j] = np.random.normal(size=(S3[1],))
+          self.outEFrame[i][:,:,j] = self.outFrame[i][:,j].reshape((S3[i][1],-1)) *\
+           (1+np.random.normal(size=(IT,S3[i][1],1),loc=0,scale=self.ErrorMatrix[i + len(S1) + len(S2), key + 1])+\
+           np.random.normal(size=(IT,S3[i][0], S2[i][1]),loc=0,scale=self.ErrorMatrix[i + len(S1) + len(S2), key])).reshape((IT,-1))
 
-            self.outEFrame[i][Z, :, j] = self.outFrame[i][:, j] + \
-                                         self.outFrame[i][:, j] * (self.outSFrame[i][:, j] * ErrorMatrix[i + len(S1) + len(S2), key + 1]) + \
-                                         self.outFrame[i][:, j] * (self.outRFrame[i][:, j] * ErrorMatrix[i + len(S1) + len(S2), key])
 
     else:
       ############################################          Input            ###################################################
@@ -827,8 +835,8 @@ class ErrorHandle:
               key = 4
 
             self.inpEFrame[Z, i, :, j] = self.inpFrame[i, :, j] + \
-                                         self.inpFrame[i, :, j] * (self.inpSFrame[i, :, j] * ErrorMatrix[i, key + 1]) + \
-                                         self.inpFrame[i, :, j] * (self.inpRFrame[i, :, j] * ErrorMatrix[i, key])
+                                         self.inpFrame[i, :, j] * (self.inpSFrame[i, :, j] * self.ErrorMatrix[i, key + 1]) + \
+                                         self.inpFrame[i, :, j] * (self.inpRFrame[i, :, j] * self.ErrorMatrix[i, key])
 
       ############################################       Inventory       ###################################################
       ############################################        Non-MAT       ###################################################
@@ -857,8 +865,8 @@ class ErrorHandle:
             self.invSFrame[i, :, j] = np.random.normal(size=(S2[1],))
 
             self.invEFrame[Z, i, :, j] = self.invFrame[i, :, j] + \
-                                         self.invFrame[i, :, j] * (self.invSFrame[i, :, j] * ErrorMatrix[i + S1[0], key + 1]) + \
-                                         self.invFrame[i, :, j] * (self.invRFrame[i, :, j] * ErrorMatrix[i + S1[0], key])
+                                         self.invFrame[i, :, j] * (self.invSFrame[i, :, j] * self.ErrorMatrix[i + S1[0], key + 1]) + \
+                                         self.invFrame[i, :, j] * (self.invRFrame[i, :, j] * self.ErrorMatrix[i + S1[0], key])
 
       ############################################       Output       ###################################################
       ############################################       Non-MAT    ###################################################
@@ -887,8 +895,8 @@ class ErrorHandle:
             self.outSFrame[i, :, j] = np.random.normal(size=(S3[1],))
 
             self.outEFrame[Z, i, :, j] = self.outFrame[i, :, j] + \
-                                         self.outFrame[i, :, j] * (self.outSFrame[i, :, j] * ErrorMatrix[i + S1[0] + S2[0], key + 1]) + \
-                                         self.outFrame[i, :, j] * (self.outRFrame[i, :, j] * ErrorMatrix[i + S1[0] + S2[0], key])
+                                         self.outFrame[i, :, j] * (self.outSFrame[i, :, j] * self.ErrorMatrix[i + S1[0] + S2[0], key + 1]) + \
+                                         self.outFrame[i, :, j] * (self.outRFrame[i, :, j] * self.ErrorMatrix[i + S1[0] + S2[0], key])
 
     self.PB.setValue(np.floor(TotalLocs / TotalLocs) * 100)
 
@@ -1018,7 +1026,7 @@ class Tests:
             Function to calculate
             MUF (Material Unaccounted
             For).
-  """
+    """
 
     ck0 = []
     if self.CB_PuMUF.isChecked() == 1:
@@ -1044,52 +1052,49 @@ class Tests:
     #-------------------------------------------------------
 
     GF = 0
-
-    if hasattr(self, 'Wizard'):
+    if hasattr(self,'Wizard'):
       if self.Wizard.IsMatV == 1:
         GF = 1
-        if isinstance(self.inpFrame, list):
-          S1 = []
-          for JR in range(len(self.inpFrame)):
-            S1.append(np.shape(self.inpFrame[JR]))
-        else:
-          S1 = []
-          for JR in range(len(self.inpFrame)):
-            S1.append(np.shape(self.inpFrame[JR, :, :]))
 
-        if isinstance(self.invFrame, list):
-          S2 = []
-          for JR in range(len(self.invFrame)):
-            S2.append(np.shape(self.invFrame[JR]))
-        else:
-          S2 = []
-          for JR in range(len(self.invFrame)):
-            S2.append(np.shape(self.invFrame[JR, :, :]))
+    if hasattr(self,'SS'):
+      GF = 1
 
-        if isinstance(self.outFrame, list):
-          S3 = []
-          for JR in range(len(self.outFrame)):
-            S3.append(np.shape(self.outFrame[JR]))
-        else:
-          S3 = []
-          for JR in range(len(self.outFrame)):
-            S3.append(np.shape(self.outFrame[JR, :, :]))
-
+    if GF == 1:
+      if isinstance(self.inpFrame, list):
+        S1 = []
+        for JR in range(len(self.inpFrame)):
+          S1.append(np.shape(self.inpFrame[JR]))
       else:
-        TotalLocs = int(self.Wizard.InKMP) + int(self.Wizard.InvKMP) + int(
-            self.Wizard.OutKMP)
-    else:
-      TotalLocs = np.shape(self.SS.Inputs)[0] + np.shape(
-          self.SS.Inventories)[0] + np.shape(self.SS.Outputs)[0]
+        S1 = []
+        for JR in range(len(self.inpFrame)):
+          S1.append(np.shape(self.inpFrame[JR, :, :]))
 
-    if GF == 0:
+      if isinstance(self.invFrame, list):
+        S2 = []
+        for JR in range(len(self.invFrame)):
+          S2.append(np.shape(self.invFrame[JR]))
+      else:
+        S2 = []
+        for JR in range(len(self.invFrame)):
+          S2.append(np.shape(self.invFrame[JR, :, :]))
+
+      if isinstance(self.outFrame, list):
+        S3 = []
+        for JR in range(len(self.outFrame)):
+          S3.append(np.shape(self.outFrame[JR]))
+      else:
+        S3 = []
+        for JR in range(len(self.outFrame)):
+          S3.append(np.shape(self.outFrame[JR, :, :]))
+
+    else:
       S1 = np.shape(self.inpFrame)
       S2 = np.shape(self.invFrame)
       S3 = np.shape(self.outFrame)
 
     mbaTime = int(self.MBPBox.text())
 
-    NumSamples = np.max(np.shape(self.inpFrame))
+
     IT = int(self.IterBox.text())
 
     #if one of the datasets are a list
@@ -1130,56 +1135,85 @@ class Tests:
     self.StatDlg.UpdateDispText('Calculating MUF')
     QtCore.QCoreApplication.instance().processEvents()
     self.PB.setValue(0)
-    GF = 0
-
+    loopcounter = 0
+    totalloops = (len(ck0)*(MBPs-1)*(len(self.inpEFrame)+len(self.outEFrame)+len(self.invEFrame)))
     # start MUF calc here
     # sum(input) - sum(output) - delta(inventory)
     # use data from (i-1):i to set MUF for period i:i+1
     ############################################  MUF Calculation  ################################################
     # for each MUF test
-    if hasattr(self, 'Wizard'):
-      if self.Wizard.IsMatV == 1:
-        GF = 1
+    if GF == 1:
+      for ZZ in range(0, len(ck0)):  #for each test
 
-        for ZZ in range(0, len(ck0)):  #for each test
-          for i in range(1, int(MBPs)):  #each MBP
+        if ck0[ZZ] in self.EMD:
+          key = self.EMD[ck0[ZZ]]
+        else:
+          key = 4
 
-            for j in range(
-                0, len(self.inpEFrame)
-            ):  #for each location -- have to do individually because the elements is per location in the list
+        for i in range(1, int(MBPs)):  #each MBP
+          #print(p)
+          QtCore.QCoreApplication.instance().processEvents()
+          self.PB.setValue(loopcounter / totalloops*100)
+          #self.PB.setValue((ZZ*(MBPs-1) + i)/(len(ck0)*(MBPs-1))*100)
 
-              IntV = np.logical_and(
-                  self.inpTimeFrame[j] >= mbaTime * (i - 1),
-                  self.inpTimeFrame[j] <= mbaTime * i).reshape(
-                      (-1,))  #select the indices for the relevant time
 
-              self.MUFCalcs[:, ZZ, i * mbaTime:(i + 1) * mbaTime] += \
-              np.tile(AuxFunctions.trapSum(IntV,self.inpTimeFrame[j],self.inpEFrame[j],ck0[ZZ]), (mbaTime, 1)).transpose()
+          for j in range(
+              0, len(self.inpEFrame)
+          ):  #for each location -- have to do individually because the elements is per location in the list
 
-            for j in range(0, len(self.outEFrame)):
-              IntV = np.logical_and(
-                  self.outTimeFrame[j] >= mbaTime * (i - 1),
-                  self.outTimeFrame[j] <= mbaTime * i).reshape((-1,))
 
+            EMI = j
+
+            QtCore.QCoreApplication.instance().processEvents()
+            self.PB.setValue(loopcounter / totalloops*100)
+            loopcounter +=1
+            IntV = np.logical_and(
+                self.inpTimeFrame[j] >= mbaTime * (i - 1),
+                self.inpTimeFrame[j] <= mbaTime * i).reshape(
+                    (-1,))  #select the indices for the relevant time
+
+
+            self.MUFCalcs[:, ZZ, i * mbaTime:(i + 1) * mbaTime] += \
+            np.tile(AuxFunctions.trapSum(IntV,self.inpTimeFrame[j],self.inpEFrame[j],ck0[ZZ],self.ErrorMatrix[EMI, key]), (mbaTime, 1)).transpose()
+
+
+          for j in range(0, len(self.outEFrame)):
+
+            EMI = j + len(S1) + len(S2)
+
+            QtCore.QCoreApplication.instance().processEvents()
+            self.PB.setValue(loopcounter / totalloops*100)
+            loopcounter +=1
+
+            IntV = np.logical_and(
+                self.outTimeFrame[j] >= mbaTime * (i - 1),
+                self.outTimeFrame[j] <= mbaTime * i).reshape((-1,))
+
+            self.MUFCalcs[:, ZZ, i * mbaTime:(i + 1) * mbaTime] -= \
+            np.tile(AuxFunctions.trapSum(IntV,self.outTimeFrame[j],self.outEFrame[j],ck0[ZZ],self.ErrorMatrix[EMI, key]), (mbaTime, 1)).transpose()
+
+          for j in range(0, len(self.invEFrame)):
+
+            EMI = j + len(S1)
+
+            QtCore.QCoreApplication.instance().processEvents()
+            self.PB.setValue(loopcounter / totalloops*100)
+            loopcounter +=1
+
+            StartT = np.abs(self.invTimeFrame[j].reshape((-1,)) - mbaTime *
+                            (i - 1)).argmin()
+            EndT = np.abs(self.invTimeFrame[j].reshape((-1,)) -
+                          mbaTime * i).argmin()
+
+            if i == 1:
               self.MUFCalcs[:, ZZ, i * mbaTime:(i + 1) * mbaTime] -= \
-              np.tile(AuxFunctions.trapSum(IntV,self.outTimeFrame[j],self.outEFrame[j],ck0[ZZ]), (mbaTime, 1)).transpose()
+              np.tile((self.invEFrame[j][:, EndT, ck0[ZZ]]), (mbaTime, 1)).transpose()
 
-            for j in range(0, len(self.invEFrame)):
+            else:
+              self.MUFCalcs[:, ZZ, i * mbaTime:(i + 1) * mbaTime] -= \
+              np.tile((self.invEFrame[j][:, EndT, ck0[ZZ]] - self.invEFrame[j][:, StartT,ck0[ZZ]]), (mbaTime, 1)).transpose()
 
-              StartT = np.abs(self.invTimeFrame[j].reshape((-1,)) - mbaTime *
-                              (i - 1)).argmin()
-              EndT = np.abs(self.invTimeFrame[j].reshape((-1,)) -
-                            mbaTime * i).argmin()
-
-              if i == 1:
-                self.MUFCalcs[:, ZZ, i * mbaTime:(i + 1) * mbaTime] -= \
-                np.tile((self.invEFrame[j][:, EndT, ck0[ZZ]]), (mbaTime, 1)).transpose()
-
-              else:
-                self.MUFCalcs[:, ZZ, i * mbaTime:(i + 1) * mbaTime] -= \
-                np.tile((self.invEFrame[j][:, EndT, ck0[ZZ]] - self.invEFrame[j][:, StartT,ck0[ZZ]]), (mbaTime, 1)).transpose()
-
-    if GF == 0:  #basically if not mat type
+    else:  #basically if not mat type
       for ZZ in range(0, len(ck0)):
         # for each MBP
         for i in range(1, int(MBPs)):
@@ -1246,15 +1280,9 @@ class Tests:
     else:
       None
 
-    ErrorMatrix = np.zeros((TotalLocs, 6))
 
-    # setup error table
-    P = 0
-    for i in range(0, self.EP.rowCount()):
-      if self.EP.item(i, 0) is not None:
-        for j in range(0, 6):
-          ErrorMatrix[P, j] = float(self.EP.item(i, j).text()) / 100
-        P += 1
+
+
 
     ck1 = self.CB_PuMUF.isChecked() + self.CB_PuSMUF.isChecked(
     ) + self.CB_PuSITMUF.isChecked() + self.CB_PuSPage.isChecked()
@@ -1264,49 +1292,45 @@ class Tests:
     ) + self.CB_GSITMUF.isChecked() + self.CB_GSPage.isChecked()
 
     mbaTime = int(self.MBPBox.text())
-    NumSamples = np.max(np.shape(self.inpFrame))
     IT = int(self.IterBox.text())
 
     GF = 0
-
-    if hasattr(
-        self,
-        'Wizard'):  #some setup to later determine the length of data provided
+    if hasattr(self,'Wizard'):
       if self.Wizard.IsMatV == 1:
         GF = 1
-        lddir = loadmat(self.Wizard.MatDir)
+
+    if hasattr(self,'SS'):
+      GF = 1
+
+    if GF == 1:
+      if isinstance(self.inpFrame, list):
         S1 = []
-        for JR in range(0, np.shape(lddir['in']['data'][0])[0]):
-          S1.append(np.zeros(2,))
-          S1[JR][0] = np.shape(lddir['in']['data'][0][JR])[0]
-          S1[JR][1] = np.shape(lddir['in']['data'][0][0])[
-              1]  #elements shouldn't change with location
-          S1[JR] = S1[JR].astype(int)
+        for JR in range(len(self.inpFrame)):
+          S1.append(np.shape(self.inpFrame[JR]))
+      else:
+        S1 = []
+        for JR in range(len(self.inpFrame)):
+          S1.append(np.shape(self.inpFrame[JR, :, :]))
 
+      if isinstance(self.invFrame, list):
         S2 = []
-        for JR in range(0, np.shape(lddir['invn']['data'][0])[0]):
-          S2.append(np.zeros(2,))
-          S2[JR][0] = np.shape(lddir['invn']['data'][0][JR])[0]
-          S2[JR][1] = np.shape(lddir['invn']['data'][0][0])[
-              1]  #elements shouldn't change with location
-          S2[JR] = S2[JR].astype(int)
+        for JR in range(len(self.invFrame)):
+          S2.append(np.shape(self.invFrame[JR]))
+      else:
+        S2 = []
+        for JR in range(len(self.invFrame)):
+          S2.append(np.shape(self.invFrame[JR, :, :]))
 
+      if isinstance(self.outFrame, list):
         S3 = []
-        for JR in range(0, np.shape(lddir['outn']['data'][0])[0]):
-          S3.append(np.zeros(2,))
-          S3[JR][0] = np.shape(lddir['outn']['data'][0][JR])[0]
-          S3[JR][1] = np.shape(lddir['outn']['data'][0][0])[
-              1]  #elements shouldn't change with location
-          S3[JR] = S3[JR].astype(int)
+        for JR in range(len(self.outFrame)):
+          S3.append(np.shape(self.outFrame[JR]))
+      else:
+        S3 = []
+        for JR in range(len(self.outFrame)):
+          S3.append(np.shape(self.outFrame[JR, :, :]))
 
-        else:
-          TotalLocs = int(self.Wizard.InKMP) + int(self.Wizard.InvKMP) + int(
-              self.Wizard.OutKMP)
     else:
-      TotalLocs = np.shape(self.SS.Inputs)[0] + np.shape(
-          self.SS.Inventories)[0] + np.shape(self.SS.Outputs)[0]
-
-    if GF == 0:
       S1 = np.shape(self.inpFrame)
       S2 = np.shape(self.invFrame)
       S3 = np.shape(self.outFrame)
@@ -1352,137 +1376,120 @@ class Tests:
     # else
     # (Begin^2+End^2) * (sys^2 + rand^2)
 
-    GF = 0
+
+    loopcounter = 0
+    totalloops = (len(ck0)*(MBPs-1)*(len(self.inpEFrame)+len(self.outEFrame)+len(self.invEFrame)))
 
     ############################################  SEID Calculation  ###############################################
-    if hasattr(self, 'Wizard'):
+    if GF == 1:
       self.SEMUFContribI = np.zeros(
-          (IT, TotalLocs, int(MBPs)))  #lazy, helps later
-      #note that the integration for the mat case requires
-      #the aux trap function
-      if self.Wizard.IsMatV == 1:
-        PBTot = len(ck0) * int(MBPs) * TotalLocs * IT
-        GF = 1
-        for ZZ in range(0, len(ck0)):  #each test type
-          QtCore.QCoreApplication.instance().processEvents()
+        (IT, TotalLocs, int(MBPs)))  #lazy, helps later
+    #note that the integration for the mat case requires
+    #the aux trap function
+      PBTot = len(ck0) * int(MBPs) * TotalLocs * IT
+      GF = 1
+      for ZZ in range(0, len(ck0)):  #each test type
 
-          if ck0[ZZ] in self.EMD:
-            key = self.EMD[ck0[ZZ]]
-          else:
-            key = 4
 
-          for Z in range(0, IT):  #iterations
 
-            InpVar = np.zeros((int(MBPs * mbaTime),))
+        if ck0[ZZ] in self.EMD:
+          key = self.EMD[ck0[ZZ]]
+        else:
+          key = 4
 
-            for j in range(0, len(S1)):  #for each location
-              for i in range(1, int(MBPs)):  #MBPs
 
-                QtCore.QCoreApplication.instance().processEvents()
-                self.PB.setValue(
-                    ((ZZ * IT * TotalLocs * MBPs) + (Z * TotalLocs * MBPs) +
-                     (j * MBPs) + i) / PBTot * 100)
+        InpVar = np.zeros((IT,int(MBPs * mbaTime)))
+        InvVar = np.zeros((IT,int(MBPs * mbaTime)))
+        OutVar = np.zeros((IT,int(MBPs * mbaTime)))
 
-                IntV = np.logical_and(
-                    self.inpTimeFrame[j] >= mbaTime * (i - 1),
-                    self.inpTimeFrame[j] <= mbaTime * i).reshape(
-                        (-1,))  #select the indices for the relevant time
+        for i in range(1, int(MBPs)):  #for each location
 
-                VR =np.power(AuxFunctions.trapSum(IntV,self.inpTimeFrame[j],self.inpEFrame[j],ck0[ZZ],Z),2) *\
-                    np.power(ErrorMatrix[j, key], 2) #random component
 
-                VS = np.power(AuxFunctions.trapSum(IntV,self.inpTimeFrame[j],self.inpEFrame[j],ck0[ZZ],Z),2) *\
-                     np.power(ErrorMatrix[j, key + 1], 2) #systematic component
+          for j in range(0, len(S1)):  #MBPs
+            EMI = j
 
-                #variance is stored as a function of time, but contributions are
-                #stored per MBP which makes it easier to put in a table later
-                #especially considering the time might be variable
-                InpVar[i * mbaTime:(i + 1) * mbaTime] += (VR + VS) * np.ones(
-                    (mbaTime,))
-                self.SEMUFContribR[Z, j, i] = VR
-                self.SEMUFContribS[Z, j, i] = VS
-                self.SEMUFContribI[Z, j, i] = AuxFunctions.trapSum(
-                    IntV, self.inpTimeFrame[j], self.inpEFrame[j], ck0[ZZ], Z)
+            QtCore.QCoreApplication.instance().processEvents()
+            self.PB.setValue(loopcounter / totalloops*100)
+            loopcounter +=1
 
-            InvVar = np.zeros((int(MBPs * mbaTime),))
+            IntV = np.logical_and(
+                self.inpTimeFrame[j] >= mbaTime * (i - 1),
+                self.inpTimeFrame[j] <= mbaTime * i).reshape(
+                    (-1,))  #select the indices for the relevant time
 
-            for j in range(0, len(S2)):
-              for i in range(1, int(MBPs)):
+            AFTS = AuxFunctions.trapSum(IntV,self.inpTimeFrame[j],self.inpEFrame[j],ck0[ZZ],self.ErrorMatrix[EMI, key])
+            VR = AFTS**2 * self.ErrorMatrix[j, key]**2
+            VS = AFTS**2 * self.ErrorMatrix[j, key + 1]**2
 
-                EMI = j + len(S1)
-                StartT = np.abs(self.invTimeFrame[j].reshape((-1,)) - mbaTime *
-                                (i - 1)).argmin()
-                EndT = np.abs(self.invTimeFrame[j].reshape((-1,)) -
-                              mbaTime * i).argmin()
+            #variance is stored as a function of time, but contributions are
+            #stored per MBP which makes it easier to put in a table later
+            #especially considering the time might be variable
+            InpVar[:,i * mbaTime:(i + 1) * mbaTime] += ((VR + VS) * np.ones(
+              (mbaTime,IT))).T
+            self.SEMUFContribR[:, j, i] = VR
+            self.SEMUFContribS[:, j, i] = VS
+            self.SEMUFContribI[:, j, i] = AFTS
 
-                self.PB.setValue(
-                    ((ZZ * IT * TotalLocs * MBPs) + (Z * TotalLocs * MBPs) +
-                     ((EMI) * MBPs) + i) / PBTot * 100)
 
-                if i == 1:
-                  VR = np.power(
-                  self.invEFrame[j][Z, EndT, ck0[ZZ]], 2) * \
-                  np.power(ErrorMatrix[EMI, key], 2)
 
-                  VS = np.power(
-                  self.invEFrame[j][Z, EndT, ck0[ZZ]], 2) * \
-                  np.power(ErrorMatrix[EMI, key + 1], 2)
+          for j in range(0, len(S2)):
+            EMI = j + len(S1)
+            StartT = np.abs(self.invTimeFrame[j].reshape((-1,)) - mbaTime *
+                            (i - 1)).argmin()
+            EndT = np.abs(self.invTimeFrame[j].reshape((-1,)) -
+                          mbaTime * i).argmin()
 
-                  self.SEMUFContribI[Z, j + len(S1),
-                                     i] = self.invEFrame[j][Z, EndT, ck0[ZZ]]
+            QtCore.QCoreApplication.instance().processEvents()
+            self.PB.setValue(loopcounter / totalloops*100)
+            loopcounter +=1
 
-                else:
+            if i == 1:
+              VR = self.invEFrame[j][:, EndT, ck0[ZZ]]**2 * self.ErrorMatrix[EMI, key]**2
+              VS = self.invEFrame[j][:, EndT, ck0[ZZ]]**2 * self.ErrorMatrix[EMI, key + 1]**2
 
-                  VR = (np.power(self.invEFrame[j][Z, StartT, ck0[ZZ]], 2) + \
-                        np.power(self.invEFrame[j][Z, EndT, ck0[ZZ]], 2)) * \
-                        np.power(ErrorMatrix[EMI, key], 2)
+              self.SEMUFContribI[:, j + len(S1),
+                                i] = self.invEFrame[j][:, EndT, ck0[ZZ]]
 
-                  VS = (np.power(self.invEFrame[j][Z, StartT, ck0[ZZ]], 2) + \
-                       np.power(self.invEFrame[j][Z, EndT, ck0[ZZ]], 2)) * \
-                       np.power(ErrorMatrix[EMI, key + 1], 2)
+            else:
 
-                  self.SEMUFContribI[Z, j + len(S1),
-                                     i] = self.invEFrame[j][Z, EndT, ck0[ZZ]]
+              VR = (self.invEFrame[j][:, StartT, ck0[ZZ]]**2 + self.invEFrame[j][:, EndT, ck0[ZZ]]**2) * self.ErrorMatrix[EMI, key]**2
 
-                InvVar[i * mbaTime:(i + 1) * mbaTime] += (VR + VS) * np.ones(
-                    (mbaTime,))
-                self.SEMUFContribR[Z, j + len(S1), i] = VR
-                self.SEMUFContribS[Z, j + len(S1), i] = VS
+              VS = (self.invEFrame[j][:, StartT, ck0[ZZ]]**2 + self.invEFrame[j][:, EndT, ck0[ZZ]]**2) * self.ErrorMatrix[EMI, key+1]**2
 
-            OutVar = np.zeros((int(MBPs * mbaTime),))
+              self.SEMUFContribI[:, j + len(S1),
+                  i] = self.invEFrame[j][:, EndT, ck0[ZZ]]
 
-            for j in range(0, len(S3)):
-              for i in range(1, int(MBPs)):
+            self.SEMUFContribR[:, j + len(S1), i] = VR
+            self.SEMUFContribS[:, j + len(S1), i] = VS
+            InvVar[:,i * mbaTime:(i + 1) * mbaTime] += ((VR + VS) * np.ones(
+                (mbaTime,IT))).T
 
-                IntV = np.logical_and(
-                    self.outTimeFrame[j] >= mbaTime * (i - 1),
-                    self.outTimeFrame[j] <= mbaTime * i).reshape((-1,))
-                EMI = j + len(S1) + len(S2)
 
-                self.PB.setValue(
-                    ((ZZ * IT * TotalLocs * MBPs) + (Z * TotalLocs * MBPs) +
-                     ((EMI) * MBPs) + i) / PBTot * 100)
 
-                VR = np.power(
-                     AuxFunctions.trapSum(IntV,self.outTimeFrame[j],self.outEFrame[j],ck0[ZZ],Z), 2) * \
-                     np.power(ErrorMatrix[EMI, key + 1], 2)
+          for j in range(0, len(S3)):
+            IntV = np.logical_and(
+                self.outTimeFrame[j] >= mbaTime * (i - 1),
+                self.outTimeFrame[j] <= mbaTime * i).reshape((-1,))
+            EMI = j + len(S1) + len(S2)
 
-                VS = np.power(
-                     AuxFunctions.trapSum(IntV,self.outTimeFrame[j],self.outEFrame[j],ck0[ZZ],Z), 2) * \
-                     np.power(ErrorMatrix[EMI, key + 1], 2)
+            QtCore.QCoreApplication.instance().processEvents()
+            self.PB.setValue(loopcounter / totalloops*100)
+            loopcounter +=1
 
-                OutVar[i * mbaTime:(i + 1) * mbaTime] += (VR + VS) * np.ones(
-                    (mbaTime,))
-                self.SEMUFContribR[Z, j + len(S1) + len(S2), i] = VR
-                self.SEMUFContribS[Z, j + len(S1) + len(S2), i] = VS
-                self.SEMUFContribI[Z, j + len(S1) + len(S2),
-                                   i] = AuxFunctions.trapSum(
-                                       IntV, self.outTimeFrame[j],
-                                       self.outEFrame[j], ck0[ZZ], Z)
+            AFTS = AuxFunctions.trapSum(IntV,self.outTimeFrame[j],self.outEFrame[j],ck0[ZZ],self.ErrorMatrix[EMI, key])
+            VR = AFTS**2 * self.ErrorMatrix[EMI, key]**2
+            VS = AFTS**2 * self.ErrorMatrix[EMI, key+1]**2
 
-            self.SEMUFCalcs[Z, ZZ, :] = np.sqrt(InpVar + InvVar + OutVar)
 
-    if GF == 0:  #if not a mat
+            OutVar[:,i * mbaTime:(i + 1) * mbaTime] += ((VR + VS) * np.ones(
+              (mbaTime,IT))).T
+            self.SEMUFContribR[:, j + len(S1) + len(S2), i] = VR
+            self.SEMUFContribS[:, j + len(S1) + len(S2), i] = VS
+            self.SEMUFContribI[:, j + len(S1) + len(S2), i] = AFTS
+
+        self.SEMUFCalcs[:, ZZ, :] = np.sqrt(InpVar + InvVar + OutVar)
+
+    else:  #if not a mat
       #assumes data is collected
       #once per unit of time
       PBTot = len(ck0) * int(MBPs) * TotalLocs * IT
@@ -1504,17 +1511,15 @@ class Tests:
 
             for i in range(1, int(MBPs)):
               QtCore.QCoreApplication.instance().processEvents()
-              self.PB.setValue(
-                  ((ZZ * IT * TotalLocs * MBPs) + (Z * TotalLocs * MBPs) +
-                   (j * MBPs) + i) / PBTot * 100)
+             # self.PB.setValue(
+               #   ((ZZ * IT * TotalLocs * MBPs) + (Z * TotalLocs * MBPs) +
+               #    (j * MBPs) + i) / PBTot * 100)
               # inventory, sys and rand components
-              VR = np.power(
-                  np.sum(self.inpEFrame[Z, j, (i - 1) * mbaTime:i * mbaTime, ck0[ZZ]]), 2) * \
-                                                        np.power(ErrorMatrix[j, key], 2)
+              VR = (np.sum(self.inpEFrame[Z, j, (i - 1) * mbaTime:i * mbaTime, ck0[ZZ]]))**2 * \
+                                                       (self.ErrorMatrix[j, key])**2
 
-              VS = np.power(
-                    np.sum(self.inpEFrame[Z, j, (i - 1) * mbaTime:i * mbaTime, ck0[ZZ]]), 2) * \
-                                                          np.power(ErrorMatrix[j, key + 1], 2)
+              VS = (np.sum(self.inpEFrame[Z, j, (i - 1) * mbaTime:i * mbaTime, ck0[ZZ]]))**2 * \
+                                                         (self.ErrorMatrix[j, key + 1])**2
 
               InpVar[i * mbaTime:(i + 1) * mbaTime] += (VR + VS) * np.ones(
                   (mbaTime,))
@@ -1534,13 +1539,11 @@ class Tests:
                    ((EMI) * MBPs) + i) / PBTot * 100)
 
               if i == 1:
-                VR = np.power(
-                                self.invEFrame[Z, j, i * mbaTime, ck0[ZZ]], 2) * \
-                               np.power(ErrorMatrix[EMI, key], 2)
+                VR = (self.invEFrame[Z, j, i * mbaTime, ck0[ZZ]])**2 * \
+                               (self.ErrorMatrix[EMI, key])**2
 
-                VS = np.power(
-                                self.invEFrame[Z, j, i * mbaTime, ck0[ZZ]], 2) * \
-                               np.power(ErrorMatrix[EMI, key + 1], 2)
+                VS =(self.invEFrame[Z, j, i * mbaTime, ck0[ZZ]])**2 * \
+                              (self.ErrorMatrix[EMI, key + 1])**2
 
                 InvVar[i * mbaTime:(i + 1) * mbaTime] += (VR + VS) * np.ones(
                     (mbaTime,))
@@ -1548,13 +1551,13 @@ class Tests:
                 self.SEMUFContribS[Z, S1[0] + j, i] = VS
 
               else:
-                VR = (np.power(self.invEFrame[Z, j, (i - 1) * mbaTime, ck0[ZZ]], 2) + \
-                            np.power(self.invEFrame[Z, j, i * mbaTime, ck0[ZZ]],2)) * \
-                            np.power(ErrorMatrix[EMI, key], 2)
+                VR = ((self.invEFrame[Z, j, (i - 1) * mbaTime, ck0[ZZ]])**2 + \
+                           (self.invEFrame[Z, j, i * mbaTime, ck0[ZZ]],2)) * \
+                           (self.ErrorMatrix[EMI, key])**2
 
-                VS = (np.power(self.invEFrame[Z, j, (i - 1) * mbaTime, ck0[ZZ]], 2) + \
-                            np.power(self.invEFrame[Z, j, i * mbaTime, ck0[ZZ]],2)) * \
-                            np.power(ErrorMatrix[EMI, key + 1], 2)
+                VS = ((self.invEFrame[Z, j, (i - 1) * mbaTime, ck0[ZZ]])**2 + \
+                           (self.invEFrame[Z, j, i * mbaTime, ck0[ZZ]],2)) * \
+                           (self.ErrorMatrix[EMI, key + 1])**2
 
                 InvVar[i * mbaTime:(i + 1) * mbaTime] += (VR + VS) * np.ones(
                     (mbaTime,))
@@ -1572,13 +1575,11 @@ class Tests:
                   ((ZZ * IT * TotalLocs * MBPs) + (Z * TotalLocs * MBPs) +
                    ((EMI) * MBPs) + i) / PBTot * 100)
 
-              VR = np.power(
-                  np.sum(self.outEFrame[Z, j, (i - 1) * mbaTime:i * mbaTime, ck0[ZZ]]), 2) * \
-                                                        np.power(ErrorMatrix[EMI, key], 2)
+              VR =(np.sum(self.outEFrame[Z, j, (i - 1) * mbaTime:i * mbaTime, ck0[ZZ]]))**2 * \
+                                                       (self.ErrorMatrix[EMI, key])**2
 
-              VS = np.power(
-                  np.sum(self.outEFrame[Z, j, (i - 1) * mbaTime:i * mbaTime, ck0[ZZ]]), 2) * \
-                                                        np.power(ErrorMatrix[EMI, key + 1], 2)
+              VS =(np.sum(self.outEFrame[Z, j, (i - 1) * mbaTime:i * mbaTime, ck0[ZZ]]))**2 * \
+                                                       (self.ErrorMatrix[EMI, key + 1])**2
 
               OutVar[i * mbaTime:(i + 1) * mbaTime] += (VR + VS) * np.ones(
                   (mbaTime,))
@@ -1605,48 +1606,49 @@ class Tests:
     #look familiar to the MUF
     #and SEMUF calculations
     GF = 0
-    if hasattr(self, 'Wizard'):
-      if self.Wizard.IsMatV == 1:
+    if hasattr(self,'Wizard'):
         GF = 1
-        lddir = loadmat(self.Wizard.MatDir)
+
+    if hasattr(self,'SS'):
+      GF = 1
+
+    if GF == 1:
+      if isinstance(self.inpFrame, list):
         S1 = []
-
-        for JR in range(0, np.shape(lddir['in']['data'][0])[0]):
-          S1.append(np.zeros(2,))
-          S1[JR][0] = np.shape(lddir['in']['data'][0][JR])[0]
-          S1[JR][1] = np.shape(lddir['in']['data'][0][0])[
-              1]  # elements shouldn't change with location
-          S1[JR] = S1[JR].astype(int)
-
-        S2 = []
-        for JR in range(0, np.shape(lddir['invn']['data'][0])[0]):
-          S2.append(np.zeros(2,))
-          S2[JR][0] = np.shape(lddir['invn']['data'][0][JR])[0]
-          S2[JR][1] = np.shape(lddir['invn']['data'][0][0])[
-              1]  # elements shouldn't change with location
-          S2[JR] = S2[JR].astype(int)
-
-        S3 = []
-
-        for JR in range(0, np.shape(lddir['outn']['data'][0])[0]):
-          S3.append(np.zeros(2,))
-          S3[JR][0] = np.shape(lddir['outn']['data'][0][JR])[0]
-          S3[JR][1] = np.shape(lddir['outn']['data'][0][0])[
-              1]  # elements shouldn't change with location
-          S3[JR] = S3[JR].astype(int)
-
-        TotalLocs = len(S1) + len(S2) + len(S3)
+        for JR in range(len(self.inpFrame)):
+          S1.append(np.shape(self.inpFrame[JR]))
       else:
-        TotalLocs = int(self.Wizard.InKMP) + int(self.Wizard.InvKMP) + int(
-            self.Wizard.OutKMP)
-    else:
-      TotalLocs = np.shape(self.SS.Inputs)[0] + np.shape(
-          self.SS.Inventories)[0] + np.shape(self.SS.Outputs)[0]
+        S1 = []
+        for JR in range(len(self.inpFrame)):
+          S1.append(np.shape(self.inpFrame[JR, :, :]))
 
-    if GF == 0:
+      if isinstance(self.invFrame, list):
+        S2 = []
+        for JR in range(len(self.invFrame)):
+          S2.append(np.shape(self.invFrame[JR]))
+      else:
+        S2 = []
+        for JR in range(len(self.invFrame)):
+          S2.append(np.shape(self.invFrame[JR, :, :]))
+
+      if isinstance(self.outFrame, list):
+        S3 = []
+        for JR in range(len(self.outFrame)):
+          S3.append(np.shape(self.outFrame[JR]))
+      else:
+        S3 = []
+        for JR in range(len(self.outFrame)):
+          S3.append(np.shape(self.outFrame[JR, :, :]))
+
+      TotalLocs = len(S1) + len(S2) + len(S3)
+
+
+    else:
       S1 = np.shape(self.inpFrame)
       S2 = np.shape(self.invFrame)
       S3 = np.shape(self.outFrame)
+      TotalLocs = int(self.Wizard.InKMP) + int(self.Wizard.InvKMP) + int(
+          self.Wizard.OutKMP)
 
     ck0 = []
     ck1 = []
@@ -1692,18 +1694,12 @@ class Tests:
     else:
       self.StatDlg.UpdateDispText('Calculating SITMUF')
     QtCore.QCoreApplication.instance().processEvents()
-    ErrorMatrix = np.zeros((TotalLocs, 6))
+
 
     # setup error table
-    P = 0
-    for i in range(0, self.EP.rowCount()):
-      if self.EP.item(i, 0) is not None:
-        for j in range(0, 6):
-          ErrorMatrix[P, j] = float(self.EP.item(i, j).text()) / 100
-        P += 1
+
 
     mbaTime = int(self.MBPBox.text())
-    NumSamples = np.max(np.shape(self.inpFrame))
     IT = int(self.IterBox.text())
 
     if isinstance(S1, list) or isinstance(S2, list) or isinstance(S3, list):
@@ -1742,277 +1738,177 @@ class Tests:
     # Need to optimize this later as I think I could do better than what was originally implimented in matlab
     #################################################################################################################
     MBPb = MBPs + 1
-    PBTot = len(ck0) * IT * (MBPb / 2 - 0.5) * MBPb
+
+    totalloops = ((MBPs-1)**2 + MBPs) / 2 #nth triangle number, like factorial but addition
     self.PB.setValue(0)
+    loopcounter = 0
+    covmatrix = np.zeros((IT,int(MBPs), int(MBPs)))
+    if GF == 1:
+      for ZZ in range(len(ck0)):
+        if self.decompStatus == 1:
 
-    if hasattr(self, 'Wizard'):
-      if self.Wizard.IsMatV == 1:
-        for ZZ in range(0, len(ck0)):
-            if self.decompStatus == 1:
-              if ck0[ZZ] in self.EMD:
-                key = self.EMD[ck0[ZZ]]
-              else:
-                key = 4
+          if ck0[ZZ] in self.EMD:
+            key = self.EMD[ck0[ZZ]]
+          else:
+            key = 4
 
-              for Z in range(0, IT):
-                QtCore.QCoreApplication.instance().processEvents(
-                )  # ensures window isn't seen as unresponsive
-                for P in range(
-                    1, int(MBPs)
-                ):  # the covmatrix grows over time so have to do this double loop
-                  for j in range(0, P):
+          for P in range(1,int(MBPs)):
+              for j in range(0,P):
+                  QtCore.QCoreApplication.instance().processEvents()
+                  self.PB.setValue(loopcounter/totalloops*100)
+                  loopcounter +=1
 
-                    QtCore.QCoreApplication.instance().processEvents(
-                    )  # ensures no freezing when box is dragged during exe
-                    self.PB.setValue(((ZZ * IT * MBPb * (MBPb / 2 - 0.5)) +
-                                      (Z * MBPb * (MBPb / 2 - 0.5)) +
-                                      (P * (P / 2 - 0.5)) + j) / PBTot * 100)
 
-                    t1 = j * mbaTime
-                    t2 = t1 + mbaTime
-                    t3 = P * mbaTime
+                  t1 = j*mbaTime
+                  t2 = t1+mbaTime
+                  t3 = P*mbaTime
 
-                    if j == P - 1:
-                      term1 = 0
-                      for k in range(0, len(S1)):
 
-                        IntV = np.logical_and(
-                            self.inpTimeFrame[k] >= t1,
-                            self.inpTimeFrame[k] <= t2).reshape(
-                                (-1,))  #select the indices for the relevant time
+                  #diagonal terms
+                  if j == P-1:
 
-                        term1 += np.power(AuxFunctions.trapSum(IntV,self.inpTimeFrame[k],self.inpEFrame[k],ck0[ZZ],Z), 2) * \
-                                 (np.power(ErrorMatrix[k, key + 1], 2) +
-                                  np.power(ErrorMatrix[k, key], 2))
+                      term1 = np.zeros((IT,))
+                      term2 = np.zeros((IT,))
+                      term3 = np.zeros((IT,))
+                      term4 = np.zeros((IT,))
+                      term5 = np.zeros((IT,))
 
-                      term2 = 0
+                      for k in range(len(S1)):
+                          IntV = np.logical_and(self.inpTimeFrame[k] >= t1,self.inpTimeFrame[k] <= t2).reshape((-1,))  #select the indices for the relevant time
+                          term1 += AuxFunctions.trapSum(IntV,self.inpTimeFrame[k],self.inpEFrame[k],ck0[ZZ],self.ErrorMatrix[k, key]) **2 * (self.ErrorMatrix[k, key]**2 + self.ErrorMatrix[k, key+1]**2)
 
-                      for k in range(0, len(S3)):
-                        IntV = np.logical_and(self.outTimeFrame[k] >= t1,
-                                              self.outTimeFrame[k] <= t2).reshape(
-                                                  (-1,))
-                        EMI = k + len(S1) + len(S2)
+                      for k in range(len(S3)):
+                          IntV = np.logical_and(self.outTimeFrame[k] >= t1,self.outTimeFrame[k] <= t2).reshape((-1,))
+                          EMI = k + len(S1) + len(S2)
+                          term2 += AuxFunctions.trapSum(IntV,self.outTimeFrame[k],self.outEFrame[k],ck0[ZZ],self.ErrorMatrix[EMI, key])**2 * (self.ErrorMatrix[EMI, key]**2 + self.ErrorMatrix[EMI, key+1]**2)
 
-                        term2 += np.power(AuxFunctions.trapSum(IntV,self.outTimeFrame[k],self.outEFrame[k],ck0[ZZ],Z), 2) * \
-                                   (np.power(ErrorMatrix[EMI, key + 1], 2) +
-                                    np.power(ErrorMatrix[EMI, key], 2))
+                      for k in range(len(S2)):
+                          EMI = k+len(S1)
+                          StartT = np.abs(self.invTimeFrame[k].reshape((-1,)) - t1).argmin()
+                          EndT = np.abs(self.invTimeFrame[k].reshape((-1,)) - t2).argmin()
+                          term3 += self.invEFrame[k][:,EndT,ck0[ZZ]]**2 * (self.ErrorMatrix[EMI, key]**2 + self.ErrorMatrix[EMI, key+1]**2)
 
-                      term3 = 0
 
-                      for k in range(0, len(S2)):
-                        EMI = k + len(S1)
-                        StartT = np.abs(self.invTimeFrame[k].reshape((-1,)) -
-                                        t1).argmin()
-                        EndT = np.abs(self.invTimeFrame[k].reshape((-1,)) -
-                                      t2).argmin()
+                      if j != 0:
+                          for k in range(len(S2)):
+                              EMI = k + len(S1)
+                              StartT = np.abs(self.invTimeFrame[k].reshape((-1,)) -t1).argmin()
+                              EndT = np.abs(self.invTimeFrame[k].reshape((-1,)) - t2).argmin()
 
-                        term3 += np.power(self.invEFrame[k][Z,EndT,ck0[ZZ]], 2) * \
-                                 (np.power(ErrorMatrix[EMI, key + 1], 2) +
-                                  np.power(ErrorMatrix[EMI, key], 2))
+                              term4 += self.invEFrame[k][:,StartT,ck0[ZZ]]**2 * (self.ErrorMatrix[EMI, key]**2 + self.ErrorMatrix[EMI, key+1]**2)
+                              term5 += self.invEFrame[k][:,StartT,ck0[ZZ]] * self.invEFrame[k][:,EndT,ck0[ZZ]] * self.ErrorMatrix[EMI, key + 1]**2
 
-                      if j == 0:
-                        term4 = 0
-                        term5 = 0
-                      else:
-                        term4 = 0
-                        term5 = 0
+                      covmatrix[:,j,j] = term1 + term2 + term3 + term4 - 2 * term5
 
-                        for k in range(0, len(S2)):
+                  #off-diagonal terms
+                  else:
+                      term1 = np.zeros((IT,))
+                      term2 = np.zeros((IT,))
+                      term3 = np.zeros((IT,))
+                      term4 = np.zeros((IT,))
+                      term5 = np.zeros((IT,))
+
+                      term3a = np.zeros((IT,))
+                      term3b = np.zeros((IT,))
+                      term3c = np.zeros((IT,))
+
+                      term4a = np.zeros((IT,))
+                      term4b = np.zeros((IT,))
+                      term4c = np.zeros((IT,))
+
+                      term5a = np.zeros((IT,))
+                      term5b = np.zeros((IT,))
+                      term5c = np.zeros((IT,))
+
+                      A = np.zeros((IT,))
+                      B = np.zeros((IT,))
+                      C = np.zeros((IT,))
+
+                      for k in range(len(S1)):
+                          IntV = np.logical_and(self.inpTimeFrame[k] >= t1,self.inpTimeFrame[k] <= t2).reshape((-1,))  #select the indices for the relevant time
+                          IntV2 = np.logical_and(self.inpTimeFrame[k] >= t3 - mbaTime,self.inpTimeFrame[k] <= t3).reshape((-1,))  #select the indices for the relevant time
+
+                          A = AuxFunctions.trapSum(IntV, self.inpTimeFrame[k],self.inpEFrame[k], ck0[ZZ],self.ErrorMatrix[k, key])
+                          B = AuxFunctions.trapSum(IntV2, self.inpTimeFrame[k],self.inpEFrame[k], ck0[ZZ],self.ErrorMatrix[k, key])
+                          C = self.ErrorMatrix[k, key + 1]**2
+                          term1 += (A*B*C)
+
+                      for k in range(len(S3)):
+                          IntV = np.logical_and(self.outTimeFrame[k] >= t1,self.outTimeFrame[k] <= t2).reshape((-1,))  #select the indices for the relevant time
+                          IntV2 = np.logical_and(self.outTimeFrame[k] >= t3 - mbaTime,self.outTimeFrame[k] <= t3).reshape((-1,))  #select the indices for the relevant time
+                          EMI = k + len(S1) + len(S2)
+
+                          A = AuxFunctions.trapSum(IntV, self.outTimeFrame[k],self.outEFrame[k], ck0[ZZ],self.ErrorMatrix[EMI, key])
+                          B = AuxFunctions.trapSum(IntV2, self.outTimeFrame[k],self.outEFrame[k], ck0[ZZ],self.ErrorMatrix[EMI, key])
+                          C = self.ErrorMatrix[EMI, key + 1]**2
+                          term2 += (A*B*C)
+
+                      for k in range(len(S2)):
+                          StartT = np.abs(self.invTimeFrame[k].reshape((-1,)) - t1).argmin()
+                          EndT =  np.abs(self.invTimeFrame[k].reshape((-1,)) -  t2).argmin()
+                          EndT2 = np.abs(self.invTimeFrame[k].reshape((-1,)) -  t3).argmin()
+                          EndT3 = np.abs(self.invTimeFrame[k].reshape((-1,)) - (t2 - mbaTime)).argmin()
+                          EndT4 = np.abs(self.invTimeFrame[k].reshape((-1,)) - (t3 - 2 * mbaTime)).argmin()
                           EMI = k + len(S1)
-                          StartT = np.abs(self.invTimeFrame[k].reshape((-1,)) -
-                                          t1).argmin()
-                          EndT = np.abs(self.invTimeFrame[k].reshape((-1,)) -
-                                        t2).argmin()
 
-                          term4 += np.power(self.invEFrame[k][Z,StartT,ck0[ZZ]], 2) * \
-                                 (np.power(ErrorMatrix[EMI, key + 1], 2) +
-                                  np.power(ErrorMatrix[EMI, key], 2))
+                          term3a = self.invEFrame[k][:, EndT, ck0[ZZ]] * self.invEFrame[k][:, EndT2, ck0[ZZ]]
+                          term3b = self.invEFrame[k][:, EndT3, ck0[ZZ]] * self.invEFrame[k][:, EndT4,ck0[ZZ]]
+                          term3c = self.ErrorMatrix[EMI, key + 1]**2
+                          term3 += (term3a+term3b)*term3c
 
-                          term5 += self.invEFrame[k][Z,StartT,ck0[ZZ]] * \
-                                 self.invEFrame[k][Z,EndT,ck0[ZZ]] * \
-                                 np.power(ErrorMatrix[EMI, key + 1], 2)
+                          term4a = self.invEFrame[k][:, EndT, ck0[ZZ]] * self.invEFrame[k][:, EndT4, ck0[ZZ]]
+                          term4b = self.ErrorMatrix[EMI, key + 1]**2
+                          if P - j == 1:
+                              term4c = self.ErrorMatrix[EMI, key]**2
+                          else:
+                              term4c = np.zeros((IT,))
 
-                      covmatrix[j, j] = term1 + term2 + term3 + term4 - 2 * term5
-                    else:
-                      ################### Off-Diagonal Terms ####################
-                      ###################    Term 1    ##########################
-                      # inp_current * inv_P * sys^2
-                      term1 = 0
-                      A = 0
-                      B = 0
-                      C = 0
-                      for k in range(0, len(S1)):
-                        IntV = np.logical_and(
-                            self.inpTimeFrame[k] >= t1,
-                            self.inpTimeFrame[k] <= t2).reshape(
-                                (-1,))  #select the indices for the relevant time
-                        IntV2 = np.logical_and(
-                            self.inpTimeFrame[k] >= t3 - mbaTime,
-                            self.inpTimeFrame[k] <= t3).reshape(
-                                (-1,))  #select the indices for the relevant time
+                          #TODO: ???
+                          term4 += term4a*(term4b+term4c)*0
 
-                        A = AuxFunctions.trapSum(IntV, self.inpTimeFrame[k],
-                                                 self.inpEFrame[k], ck0[ZZ], Z)
-                        B = AuxFunctions.trapSum(IntV2, self.inpTimeFrame[k],
-                                                 self.inpEFrame[k], ck0[ZZ], Z)
-                        C = np.power(ErrorMatrix[k, key + 1], 2)
+                          term5a = self.invEFrame[k][:, EndT3, ck0[ZZ]] * self.invEFrame[k][:, EndT2,ck0[ZZ]]
+                          term5b = self.ErrorMatrix[EMI, key+1]**2
+                          if j-P == 1:
+                              term5c = self.ErrorMatrix[EMI, key]**2
+                          else:
+                              term5c = np.zeros((IT,))
 
-                        term1 += (A * B * C)
+                          covmatrix[:,j,P-1] = term1+term2+term3-term4-term5
+                          covmatrix[:,P-1,j] = term1+term2+term3-term4-term5
 
-                      ###################    Term 2    ##########################
-                      # out_current*out_P*sys^2
-                      term2 = 0
-                      A = 0
-                      B = 0
-                      C = 0
-                      for k in range(0, len(S3)):
-                        IntV = np.logical_and(
-                            self.outTimeFrame[k] >= t1,
-                            self.outTimeFrame[k] <= t2).reshape(
-                                (-1,))  #select the indices for the relevant time
-                        IntV2 = np.logical_and(
-                            self.outTimeFrame[k] >= t3 - mbaTime,
-                            self.outTimeFrame[k] <= t3).reshape(
-                                (-1,))  #select the indices for the relevant time
+              for k in range(IT):
+                tempcovmatrix = covmatrix[k,:P,:P]
+                tempID = np.zeros((P,))
 
-                        EMI = k + len(S1) + len(S2)
-                        A = AuxFunctions.trapSum(IntV, self.outTimeFrame[k],
-                                                 self.outEFrame[k], ck0[ZZ], Z)
-                        B = AuxFunctions.trapSum(IntV2, self.outTimeFrame[k],
-                                                 self.outEFrame[k], ck0[ZZ], Z)
-                        C = np.power(ErrorMatrix[k, key + 1], 2)
+                for ZR in range(0,P):
+                    tempID[ZR] = self.MUFCalcs[k,ZZ,ZR*mbaTime]
 
-                        term2 += (A * B * C)
+                try:
+                    V = np.linalg.cholesky(tempcovmatrix)
+                except:
+                    msg = QtWidgets.QMessageBox()
+                    msg.setIcon(QtWidgets.QMessageBox.Critical)
+                    msg.setText("Covariance decomposition failure")
+                    msg.setInformativeText("This usually occurs when the material balance is not setup correctly")
+                    msg.setWindowTitle("Error")
+                    msg.exec_()
+                    self.decompStatus = 0
+                    break
 
-                      ###################    Term 3,4,5    #######################
-                      # 3 - (inv_current*inv_P + inv_current-1*inv_P-1)sys^2
-                      term3 = 0
-                      term3a = 0
-                      term3b = 0
-                      term3c = 0
+                SITMUF = np.matmul(np.linalg.inv(V),tempID)
+                self.SITMUFCalcs[k,ZZ,int((P - 1) * mbaTime):int(P * mbaTime)] = np.ones((mbaTime,)) * SITMUF[P - 1]
 
-                      term4 = 0
-                      term4a = 0
-                      term4b = 0
-                      term4c = 0
-
-                      term5 = 0
-                      term5a = 0
-                      term5b = 0
-                      term5c = 0
-
-                      for k in range(0, len(S2)):
-                        StartT = np.abs(self.invTimeFrame[k].reshape((-1,)) -
-                                        t1).argmin()
-                        EndT = np.abs(self.invTimeFrame[k].reshape((-1,)) -
-                                      t2).argmin()
-                        EndT2 = np.abs(self.invTimeFrame[k].reshape((-1,)) -
-                                       t3).argmin()
-                        EndT3 = np.abs(self.invTimeFrame[k].reshape((-1,)) -
-                                       (t2 - mbaTime)).argmin()
-                        EndT4 = np.abs(self.invTimeFrame[k].reshape((-1,)) -
-                                       (t3 - 2 * mbaTime)).argmin()
-
-                        EMI = k + len(S1)
-
-                        term3a = self.invEFrame[k][
-                            Z, EndT, ck0[ZZ]] * self.invEFrame[k][Z, EndT2, ck0[ZZ]]
-                        term3b = self.invEFrame[k][
-                            Z, EndT3, ck0[ZZ]] * self.invEFrame[k][Z, EndT4,
-                                                                   ck0[ZZ]]
-                        term3c = np.power(ErrorMatrix[k, key + 1], 2)
-
-                        term3 += (term3a + term3b) * term3c
-
-                        # the condition for term4 is if P-j == 1
-                        # the condition for term5 is if j-P == 1
-                        #related to the fact that there is some
-                        #covariance from successive MBs due to
-                        #the share inventory term
-
-                        term4a = self.invEFrame[k][
-                            Z, EndT, ck0[ZZ]] * self.invEFrame[k][Z, EndT4, ck0[ZZ]]
-                        term4b = np.power(ErrorMatrix[k, key + 1], 2)
-                        if P - j == 1:
-                          term4c = np.power(ErrorMatrix[k, key], 2)
-                        else:
-                          term4c = 0
-
-                        term4 += term4a * (term4b + term4c) * 0
-
-                        term5a = self.invEFrame[k][
-                            Z, EndT3, ck0[ZZ]] * self.invEFrame[k][Z, EndT2,
-                                                                   ck0[ZZ]]
-                        term5b = np.power(ErrorMatrix[k, key + 1], 2)
-
-                        if j - P == 1:
-                          term5c = np.power(ErrorMatrix[k, key], 2)
-                        else:
-                          term5c = 0
-
-                        term5 += term5a * (term5b + term5c) * 0
-
-                      covmatrix[j, P - 1] = term1 + term2 + term3 - term4 - term5
-                      covmatrix[P - 1, j] = term1 + term2 + term3 - term4 - term5
-
-                  tempcovmatrix = np.zeros((P, P))
-                  tempID = np.zeros((P,))
-                  tempcovmatrix = covmatrix[0:P, 0:P]
-
-                  for ZR in range(0, P):
-                    tempID[ZR] = self.MUFCalcs[Z, ZZ, ZR * mbaTime]
-
-                  #yyy = np.linalg.cholesky(tempcovmatrix).T
-                  try:
-                      V = np.linalg.cholesky(tempcovmatrix)
-                  except:
-                      msg = QtWidgets.QMessageBox()
-                      msg.setIcon(QtWidgets.QMessageBox.Critical)
-                      msg.setText("Covariance decomposition failure")
-                      msg.setInformativeText("This usually occurs when the material balance is not setup correctly")
-                      msg.setWindowTitle("Error")
-                      msg.exec_()
-                      self.decompStatus = 0
-                      break
-                  #actually note that we could stop here as Picard (1985)
-                  #showed that  np.linalg.inv(V) @ tempID = SITMUF
-                  #including the below tricks for posteriority
-
-                  #Update 5/2021: co-authored a paper on this
-                  #for INMM, might want to come back
-                  #and update this as Picard is a more
-                  #elegant solution and is in some ways
-                  #more realistic w.r.t NMA
-
-                  U = np.diag(np.diag(V))
-                  T = np.linalg.solve(
-                      U.T,
-                      V.T).T  #solves TU = V for T using the property U.T T.T = V.T
-                  # (note the returned value is transposed so need to transpose again)
-                  ITMUF = np.linalg.solve(T, tempID.T)
-                  SITMUF = np.linalg.solve(U.T, ITMUF)
-
-                  self.SITMUFCalcs[Z, ZZ,
-                                   int((P - 1) *
-                                       mbaTime):int(P * mbaTime)] = np.ones(
-                                           (mbaTime,)) * SITMUF[P - 1]
-
-                  # one sided page - remove negative values
-                  #page
-                  if len(ck1) > 0:
+                if len(ck1) > 0:
                     if ck0[ZZ] == ck1[ZZ]:
-                      if P == 1:
-                        RZN = SITMUF[P - 1]
-                      else:
-                        RZN = SITMUF[P - 2] + SITMUF[P - 1] - 0.5
+                        if P == 1:
+                          RZN = SITMUF[P - 1]
+                        else:
+                          RZN = SITMUF[P - 2] + SITMUF[P - 1] - 0.5
 
-                      if RZN < 0:
-                        RZN = 0
+                        if RZN < 0:
+                          RZN = 0
 
-                      self.PageCalcs[Z, ZZ,
-                                     int((P - 1) *
-                                         mbaTime):int(P * mbaTime)] = np.ones(
-                                             (mbaTime,)) * RZN
+                        self.PageCalcs[k,ZZ,int((P - 1) * mbaTime):int(P * mbaTime)] = np.ones((mbaTime,)) * RZN
 
     else:
 
@@ -2033,11 +1929,9 @@ class Tests:
                     for j in range(0, P):
                       QtCore.QCoreApplication.instance().processEvents(
                       )  # ensures no freezing when box is dragged during exe
-                      self.PB.setValue(((ZZ * IT * MBPb * (MBPb / 2 - 0.5)) +
-                                        (Z * MBPb * (MBPb / 2 - 0.5)) +
-                                        (P * (P / 2 - 0.5)) + j) / PBTot * 100)
 
-                      # loops r fubar
+
+
                       # first entry needs to be 0,0 in covmatrix
                       t1 = j * mbaTime
                       t2 = t1 + mbaTime
@@ -2050,9 +1944,9 @@ class Tests:
                         # (current_inp)^2 * (ran^2 + sys^2)
                         term1 = 0
                         for k in range(0, int(S1[0])):
-                          term1 += np.power(np.sum(self.inpEFrame[Z, k, t1:t2, ck0[ZZ]]), 2) * \
-                                   (np.power(ErrorMatrix[k, key + 1], 2) +
-                                    np.power(ErrorMatrix[k, key], 2))
+                          term1 +=(np.sum(self.inpEFrame[Z, k, t1:t2, ck0[ZZ]]))**2 * \
+                                   ((self.ErrorMatrix[k, key + 1])**2 +
+                                   (self.ErrorMatrix[k, key])**2)
 
                         ###################    Term 2    ##########################
                         # (current_out)^2 * (ran^2 +sys^2)
@@ -2061,9 +1955,9 @@ class Tests:
                         for k in range(0, int(S3[0])):
                           EMI = k + int(S1[0]) + int(S2[0])
 
-                          term2 += np.power(np.sum(self.outEFrame[Z, k, t1:t2, ck0[ZZ]]), 2) * \
-                                   (np.power(ErrorMatrix[EMI, key + 1], 2) +
-                                    np.power(ErrorMatrix[EMI, key], 2))
+                          term2 +=(np.sum(self.outEFrame[Z, k, t1:t2, ck0[ZZ]]))**2 * \
+                                   ((self.ErrorMatrix[EMI, key + 1])**2 +
+                                   (self.ErrorMatrix[EMI, key])**2)
 
                         ###################    Term 3    ##########################
                         # (current_inv)^2 * (ran^2 + sys^2)
@@ -2072,9 +1966,9 @@ class Tests:
                         for k in range(0, int(S2[0])):
                           EMI = k + int(S1[0])
 
-                          term3 += np.power(self.invEFrame[Z, k, t2, ck0[ZZ]], 2) * \
-                                   (np.power(ErrorMatrix[EMI, key + 1], 2) +
-                                    np.power(ErrorMatrix[EMI, key], 2))
+                          term3 += (self.invEFrame[Z, k, t2, ck0[ZZ]])**2 * \
+                                   ((self.ErrorMatrix[EMI, key + 1])**2 +
+                                    (self.ErrorMatrix[EMI, key])**2)
 
                         ###################    Term 4+5    ########################
                         # 0 at first MBP
@@ -2090,13 +1984,13 @@ class Tests:
                           for k in range(0, int(S2[0])):
                             EMI = k + int(S1[0])
 
-                            term4 += np.power(self.invEFrame[Z, k, t1, ck0[ZZ]], 2) * \
-                                     (np.power(ErrorMatrix[EMI, key + 1], 2) +
-                                      np.power(ErrorMatrix[EMI, key], 2))
+                            term4 += (self.invEFrame[Z, k, t1, ck0[ZZ]])**2 * \
+                                     ((self.ErrorMatrix[EMI, key + 1])**2 +
+                                      (self.ErrorMatrix[EMI, key])**2)
 
                             term5 += self.invEFrame[Z, k, t1, ck0[ZZ]] * \
                                      self.invEFrame[Z, k, t2, ck0[ZZ]] * \
-                                     np.power(ErrorMatrix[EMI, key + 1], 2)
+                                     (self.ErrorMatrix[EMI, key + 1])**2
 
                         covmatrix[j, j] = term1 + term2 + term3 + term4 - 2 * term5
 
@@ -2111,7 +2005,7 @@ class Tests:
                         for k in range(0, int(S1[0])):
                           A = np.sum(self.inpEFrame[Z, k, t1:t2, ck0[ZZ]])
                           B = np.sum(self.inpEFrame[Z, k, t3 - mbaTime:t3, ck0[ZZ]])
-                          C = np.power(ErrorMatrix[k, key + 1], 2)
+                          C = (self.ErrorMatrix[k, key + 1])**2
 
                           term1 += (A * B * C)
 
@@ -2125,7 +2019,7 @@ class Tests:
                           EMI = k + int(S1[0]) + int(S2[0])
                           A = np.sum(self.outEFrame[Z, k, t1:t2, ck0[ZZ]])
                           B = np.sum(self.outEFrame[Z, k, t3 - mbaTime:t3, ck0[ZZ]])
-                          C = np.power(ErrorMatrix[k, key + 1], 2)
+                          C = (self.ErrorMatrix[EMI, key + 1])**2
 
                           term2 += (A * B * C)
 
@@ -2155,7 +2049,7 @@ class Tests:
                           term3b = self.invEFrame[Z, k, t2 - mbaTime,
                                                   ck0[ZZ]] * self.invEFrame[
                                                       Z, k, t3 - (2 * mbaTime), ck0[ZZ]]
-                          term3c = np.power(ErrorMatrix[k, key + 1], 2)
+                          term3c = (self.ErrorMatrix[EMI, key + 1])**2
 
                           term3 += (term3a + term3b) * term3c
 
@@ -2164,9 +2058,9 @@ class Tests:
 
                           term4a = self.invEFrame[Z, k, t2, ck0[ZZ]] * self.invEFrame[
                               Z, k, t3 - (2 * mbaTime), ck0[ZZ]]
-                          term4b = np.power(ErrorMatrix[k, key + 1], 2)
+                          term4b = (self.ErrorMatrix[EMI, key + 1])**2
                           if P - j == 1:
-                            term4c = np.power(ErrorMatrix[k, key], 2)
+                            term4c = (self.ErrorMatrix[EMI, key])**2
                           else:
                             term4c = 0
 
@@ -2175,10 +2069,10 @@ class Tests:
                           term5a = self.invEFrame[Z, k, t2 - mbaTime,
                                                   ck0[ZZ]] * self.invEFrame[Z, k, t3,
                                                                             ck0[ZZ]]
-                          term5b = np.power(ErrorMatrix[k, key + 1], 2)
+                          term5b = (self.ErrorMatrix[EMI, key + 1])**2
 
                           if j - P == 1:
-                            term5c = np.power(ErrorMatrix[k, key], 2)
+                            term5c = (self.ErrorMatrix[EMI, key])**2
                           else:
                             term5c = 0
 
@@ -2230,235 +2124,131 @@ class Tests:
                         if RZN < 0:
                           RZN = 0
 
-                        self.PageCalcs[Z, ZZ,
-                                       int((P - 1) * mbaTime):int(P *
-                                                                  mbaTime)] = np.ones(
-                                                                      (mbaTime,)) * RZN
+                        self.PageCalcs[Z,ZZ,int((P-1)*mbaTime):int(P*mbaTime)]=np.ones((mbaTime,))*RZN
 
     self.StatDlg.UpdateDispText('SITMUF Finished')
     QtCore.QCoreApplication.instance().processEvents()
 
-
 class AuxFunctions:
 
-  def trapSum(
-      relevantIndex,
-      time,
-      data,
-      ele,
-      IT=None
-  ):
-    #TODO - update for new scheme, probably just a little bit of code to filter zeros
-    #function uses trapz to integrate
-    #non uniform sampled quantities
-    #by breaking them into segments
-    #designed to integrate SSPM signals
+  #trapezoidal integration, presumably this is
+  #for square-like pulses of material
+  def trapSum(relevantIndex,time,data,ele,TS,IT=None):
 
-    #note strange things can happen with non-square
-    #pulses
-
-    #note, there are several repeating statements
-    #that are if IT is not None, this is basically done
-    #due to how different stats tests call the integral
-    #function, some process all iterations once, others
-    #dont, so if there's an iteration specified the data
-    #matrix has one less axis so that needs to be
-    #accounted for
-
-    #find the relevant segment of time
-
-    if len(relevantIndex) == 0:
+      #this is for indexing the data array
+      #sometimes specific positions are
+      #required by other functions
       if IT is not None:
-        trapTot = 0
-      else:
-        trapTot = np.zeros((np.shape(data)[0]))
-    else:
-
-      relTime = time.reshape((-1,)) * relevantIndex  # relevantTimes
-
-      timeSegs = []
-      dataSegs = []
-
-      #generally speaking, inputs and outputs from simulink
-      #are discontunities. It's assumed that they are sampled
-      #with inhereted time and largely only when the signal is
-      #positive, else the signals would be large for memory.
-
-      #this diffS represents the right side of pulses
-      #so recorded time might be like;
-      #[0, 0.001, 0.003, 0.005, 10, 10.001]
-      #obviously time 10 is a new pulse
-      #note it is the RIGHT side of the pulse
-      #this will be important later
-
-      diffS = np.ediff1d(relTime)
-      relTimeIndex = np.squeeze(np.argwhere(diffS > 1) + 1)
-
-      #TODO - need some logic for when size of relTimeIndex is 0
-      #also potential bug with IT not being passed on MUF line 1055?
-
-      #in the event there's only one pulse of input material
-      #during the first MBP
-      if np.size(relTimeIndex) == 0:
-        relTimeIndex = np.argmin(diffS)
-
-      indSeg = np.zeros(2,)
-
-      #in some edge cases relTimeIndex can be a scalar
-      relTimeIndex = np.asarray(relTimeIndex).reshape((-1, 1))
-
-      #The A and B function help for when the pulse is the first.
-      #suppose we have an interval of recorded like so;
-      #time [0,0.3,0.6,0.9,1.2,5.3,5.6,5.9 ...]
-      #that represents the first pulse, but the diffS
-      #will only record a spike between 1.2 and 5.3,
-      #but we need to acount for the left side of the pulse
-      #on the other hand, when the pulse starts at a non-zero
-      #value there is one less segment
-
-      #indSeg is just the last index of the relevant pulse basically,
-      #and it does that by looking at the values about 5e-5 in
-      #the relevant interal. The reason for 5e-5 rather than 0
-      #is because sometimes small values (<5e-5) will be
-      #recorded and can't be well approximated by a trapezoid.
-
-      #note that there are SOME zero values recorded after the output
-      #and inputs using the recommended sample block in Simulink.
-      #this is a rather detailed technical reason, but a pulse is essentially
-      # a discontunity. At the right edge of the pulse Simulink records a value
-      #of zero, but on the left edge it records the pulse height. The issue is that
-      #the last slice of the pulse in the Riemann sum isn't really a trapezoid, but
-      #a rectangle. So we to trap integration for all slices except the right
-      #most slice, which we approximate as a rectangle instead. Approximating
-      #as a trapezoid actually gives the wrong answer. There's some more
-      #details on this on the gitlab issue page.
-
-      #IT = None means process as entire set,
-      #It is Not None means process individual runs
-
-      if relTimeIndex[
-          0,
-          0] != 0:  #if material is actually present in the requested interval
-        maxIndex = np.argmax(np.where(relevantIndex == True))
-        # is there an extra pulse?
-        OP = 0
-        if maxIndex < np.max(
-            np.argwhere(data[0, :int(maxIndex), ele] > 5e-5)) + 1:
-          OP = 1
-
-        if IT is not None:
           IDXC = IT
-        else:
+      else:
           IDXC = 0
 
-        if int(np.min(
-            np.argwhere(data[IDXC, :, ele] *
-                        relevantIndex > 5e-5))) == 0:  #is this the first MBP?
-          isFirstMBP = 1
-          loopCalcs = len(relTimeIndex)
-        else:
-          isFirstMBP = 0
-          loopCalcs = len(relTimeIndex) - 1
 
-        #the loop count changes if it's the first MBP
-        #imagine MBP1: [30, 60, 90]
-        #and MBP2: [120, 150, 180] (relevant times for pulses of material)
-        # indSeg[0] is first at [0] for MBP1
-        #but at 120 for MBP2 so there's a different number of intervals
-        #to loop over (0,30 ... 30,60 ... 60,90)
-        #versus (120,150 ... 150,180)
 
-        for i in range(0, loopCalcs):
+      #these are actually fairly expensive to keep computing
+      #calculate them here rather than in loop
+      relevantDataVals = data[IDXC,relevantIndex,ele]
+      relevantTimeVals = time[relevantIndex]
 
-          if i == 0:  # if first interval
-            # left side
-            indSeg[0] = int(
-                np.min(np.argwhere(data[IDXC, :, ele] * relevantIndex > 5e-5)))
-          else:
-            if isFirstMBP == 1:
-              indSeg[0] = int(
-                  np.min(
-                      np.where(data[IDXC,
-                                    int(indSeg[1]):int(relTimeIndex[i]),
-                                    ele])) + indSeg[1])
-            else:
-              indSeg[0] = int(
-                  np.min(
-                      np.where(data[IDXC,
-                                    int(indSeg[1]):int(relTimeIndex[i + 1]),
-                                    ele])) + indSeg[1])
+      if np.sum(relevantDataVals.shape) == 0:
+        return np.zeros((np.shape(data)[0],))
 
-          # right side
-          if isFirstMBP == 1:
-            indSeg[1] = int(
-                np.max(
-                    np.where(data[IDXC,
-                                  int(indSeg[0]):int(relTimeIndex[i]), ele])) +
-                indSeg[0] + 1)
-          else:
-            indSeg[1] = int(
-                np.max(
-                    np.where(data[IDXC,
-                                  int(indSeg[0]):int(relTimeIndex[i + 1]),
-                                  ele])) + indSeg[0] + 1)
-
-          timeSegs.append(time[int(indSeg[0]):int(indSeg[1] +
-                                                  1)])  # length of time
-
-          if IT is not None:
-            dataSegs.append(data[IT, int(indSeg[0]):int(indSeg[1] + 1),
-                                 ele])  #iterations, length of data
-          else:
-            dataSegs.append(
-                data[:, int(indSeg[0]):int(indSeg[1] + 1), ele]
-            )  #iterations, length of data, +1 is because need the final piece of the pulse (at 0) to integrate
-
-        # final pulse
-        indSeg[0] = int(
-            np.min(np.argwhere(data[0, int(indSeg[1]):, ele] > 5e-5)) +
-            indSeg[1])
-        if indSeg[0] < maxIndex:
-          indSeg[1] = int(
-              np.max(np.where(data[IDXC,
-                                   int(indSeg[0]):int(maxIndex), ele])) +
-              indSeg[0] + 1)
-
-          timeSegs.append(time[int(indSeg[0]):int(indSeg[1] +
-                                                  1)])  # length of time
-          if IT is not None:
-            dataSegs.append(data[IT, int(indSeg[0]):int(indSeg[1] + 1),
-                                 ele])  # iterations, length of data
-          else:
-            dataSegs.append(
-                data[:, int(indSeg[0]):int(indSeg[1] + 1), ele]
-            )  # iterations, length of data, +1 is because need the final piece of the pulse (at 0) to integrate
-
-        if IT is not None:
-          trapTot = np.zeros((len(dataSegs,)))
-
-        else:
-          trapTot = np.zeros((len(dataSegs), int(np.shape(dataSegs[0])[0])))
-
-        #technically don't need to have separate rows for the trapTots, but
-        #it helps for debugging purposes
-
-        if IT is not None:
-          for i in range(0, len(dataSegs)):
-
-            trapTot[i] = trapz(dataSegs[i][:-1], timeSegs[i][:-1].T) + (timeSegs[i][-1] - timeSegs[i][-2]) * \
-                         dataSegs[i][-2]
-
-        else:
-          for i in range(0, len(dataSegs)):
-            trapTot[i] = trapz(dataSegs[i][:, :-1], timeSegs[i][:-1].T,axis=1) + (timeSegs[i][-1] - timeSegs[i][-2]) * \
-                         dataSegs[i][:, -2]
-
-        trapTot = np.sum(trapTot, axis=0)
-
+      #find pairs
+      #this uses regions where the dataset is zero and not zero
+      #(note this could be problematic with noisy zero signals)
+      # to find the bounds of individual pulses
+      #the intersection of area = 0 and != 0 should be able
+      #to provide the left and right bounds of pulses
+      ZZ = np.argwhere(relevantDataVals == 0).reshape((-1,))
+      NZ = np.argwhere(relevantDataVals != 0).reshape((-1,))
+      ZZ +=1
+      LI = np.intersect1d(ZZ,NZ)
+      ZZ -=2
+      RI = np.intersect1d(ZZ,NZ)
+      LI = LI.reshape((-1,1))
+      RI = RI.reshape((-1,1))
+      if np.shape(LI)[0] > np.shape(RI)[0]:
+        pairs = np.concatenate((LI[:-1],RI),axis=1)
+      elif np.shape(LI)[0] < np.shape(RI)[0]:
+        pairs = np.concatenate((LI,RI[1:]),axis=1)
       else:
-        if IT is not None:
-          trapTot = 0
-        else:
-          trapTot = np.zeros((np.shape(data)[0]))
+        pairs = np.concatenate((LI[:-1],RI[1:]),axis=1)
 
-    return trapTot
+      pairs[:,1] += 1 #this ensures a zero is included which facilitates proper
+                      #integration using the trapz function
+
+
+      if IT is not None:
+        dataArray = relevantDataVals.reshape((1,-1))
+        timeArray = relevantTimeVals
+        S0 = 1
+      else:
+        dataArray = np.swapaxes(data[:,relevantIndex,ele],0,1)
+        bt = relevantTimeVals
+        S0 = dataArray.shape[1]
+        timeArray = np.repeat(bt,S0,axis=1)
+
+      #look for nonzero locations in the data
+      RR = relevantDataVals[relevantDataVals!=0]
+      T = np.mean(RR)*0.10
+
+
+
+
+      timesegs=[]
+      datasegs=[]
+
+
+      #time to collect the segments using the previously calculated pairs
+      for i in range(len(pairs)):
+
+          #this checks for the time difference for the pulse trailing zero
+          #sometimes it can be recorded quite a bit after the
+          #actual pulse end, and if so, needs to be accounted for
+          G = np.ediff1d(np.asarray(relevantTimeVals[pairs[i][0]:pairs[i][1]]))
+          if relevantDataVals[pairs[i][1]] == 0 and relevantTimeVals[pairs[i][1]] - relevantTimeVals[pairs[i][1]-1] < np.max(G):
+            offset = 1
+          else:
+            offset = 0
+          timesegs.append(np.swapaxes(timeArray[pairs[i,0]:pairs[i,1]+offset,],0,1))
+          datasegs.append(np.swapaxes(dataArray[pairs[i,0]:pairs[i,1]+offset,],0,1))
+
+      #look to see if there was a pulse on the left of the timeseries
+      #that wasn't quite accounted for
+      if np.sum(relevantDataVals[0:pairs[0,0]]) > T:
+          RS = np.max(np.where(relevantDataVals[0:pairs[0,0]] > T))
+          LS = np.min(np.where(relevantDataVals[0:pairs[0,0]] > T))
+          seg = np.array([LS,RS]).reshape((1,-1))
+          pairs = np.concatenate((seg,pairs),axis=0)
+          timesegs.append(np.swapaxes(timeArray[LS:RS+1],0,1))
+          datasegs.append(np.swapaxes(dataArray[LS:RS+1,],0,1))
+
+      #look for a final pulse on the right of the timeseries that
+      #might not have been accounted for
+      if np.sum(data[0,relevantIndex,0][pairs[-1,1]+5:]) > T:
+          RS = pairs[-1][1] + np.max(np.where(relevantDataVals[pairs[-1,1]:] > T))
+          LS = pairs[-1][1] + np.min(np.where(relevantDataVals[pairs[-1,1]+5:] > T)) #the +5 helps prevent an edge case where the final pairing cuts off a little of the data (this can occur
+          #if the pulse takes a long time to decrease (which makes it not really a pulse))
+          seg = np.array([LS+5,RS]).reshape((1,-1))
+          pairs = np.concatenate((pairs,seg),axis=0)
+          timesegs.append(np.swapaxes(timeArray[LS+5:RS],0,1))
+          datasegs.append(np.swapaxes(dataArray[LS+5:RS,],0,1))
+
+      #if there's a phantom final pulse, remove it
+      if np.shape(datasegs[-1])[1] == 0:
+          del timesegs[-1]
+          del datasegs[-1]
+          pairs = pairs[:-1,:]
+
+      traptot = np.zeros((S0,))
+      #peform the numerical integration
+      #the second term accounts for how the pulse is expressed in the trapz function
+      #if not included it would underestimate the area
+      for i in range(len(datasegs)):
+          # traptot.append(np.trapz(datasegs[i],timesegs[i]) + 0.5*(timesegs[i][:,-1]-timesegs[i][:,-2])*datasegs[i][:,-2])
+
+          traptot += (np.trapz(datasegs[i],timesegs[i]) + 0.5*(timesegs[i][:,-1]-timesegs[i][:,-2])*datasegs[i][:,-2])
+
+      #traptot = np.sum(traptot) #sum across all segments
+
+      return traptot
