@@ -7,3 +7,5 @@ defaults:
       path: "assets/scenescreenshots"
     values:
       image: true
+
+baseurl: "/MAPIT"
