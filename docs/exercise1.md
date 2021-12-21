@@ -100,3 +100,15 @@
 > :tada: Congrats :tada:
 
 > You have finished the first MAPIT exercise. Continue to [exercise 2](../docs/exercise2.md)
+
+> You have finished the first MAPIT exercise. Continue to [exercise 2](/docs/exercise2.md)
+
+> You have finished the first MAPIT exercise. Continue to [exercise 2](docs/exercise2.md)
+
+> You have finished the first MAPIT exercise. Continue to [exercise 2](exercise2.md)
+
+> You have finished the first MAPIT exercise. Continue to [exercise 2](../assets/codeAssets/pause.png)
+
+> You have finished the first MAPIT exercise. Continue to [exercise 2](/assets/codeAssets/pause.png)
+
+> You have finished the first MAPIT exercise. Continue to [exercise 2](assets/codeAssets/pause.png)
