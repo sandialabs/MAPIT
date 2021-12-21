@@ -940,7 +940,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     #
     x = Path(sys.argv[0]).resolve().parents[1]
-    F = os.path.join(x, 'assets', 'codeAssets', 'SNL_Horizontal_Black2.jpg')
+    F = os.path.join(x, 'docs','assets', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
     self.setWindowIcon(QtGui.QIcon(F))
 
     loadDlgBox = QtWidgets.QMessageBox()
@@ -2374,7 +2374,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     label = QtWidgets.QLabel()
 
     x = Path(sys.argv[0]).resolve().parents[1]
-    F = os.path.join(x, 'assets', 'codeAssets', 'SNL_Horizontal_Black_Blue.jpg')
+    F = os.path.join(x, 'docs','assets', 'codeAssets', 'SNL_Horizontal_Black_Blue.jpg')
     banner = QtGui.QPixmap(F)
 
     banner = banner.scaled(banner.size() * 0.6)
@@ -3426,7 +3426,7 @@ if __name__ == "__main__":
 
   #splash
   x = Path(sys.argv[0]).resolve().parents[1]
-  F = os.path.join(x, 'assets', 'codeAssets', 'splashV2.png')
+  F = os.path.join(x, 'docs','assets', 'codeAssets', 'splashV2.png')
   splash_pix = QtGui.QPixmap(F)
   splash = QtWidgets.QSplashScreen(splash_pix)
   splash.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint

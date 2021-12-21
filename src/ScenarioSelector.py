@@ -94,7 +94,7 @@ class MPLCanvas(FigureCanvas):
 
     #load the background image
     x = Path(sys.argv[0]).resolve().parents[1]
-    F = os.path.join(x, 'assets', 'codeAssets', 'FuelFabBase.png')
+    F = os.path.join(x, 'docs','assets', 'codeAssets', 'FuelFabBase.png')
     self.axes.imshow(Image.open(F), interpolation='catrom')
 
     self.axes.set_ylim(self.axes.get_ylim()[0], self.axes.get_ylim()[1] - 500)
@@ -305,7 +305,7 @@ class SceneSelect(QtWidgets.QDialog):
     ICBL = QtWidgets.QGridLayout(ICBContainer)
 
     x = Path(sys.argv[0]).resolve().parents[1]
-    F = os.path.join(x, 'assets', 'codeAssets', pName)
+    F = os.path.join(x, 'docs','assets', 'codeAssets', pName)
     IC = QtGui.QPixmap(F)
 
     ICB = QtWidgets.QPushButton()
@@ -314,7 +314,7 @@ class SceneSelect(QtWidgets.QDialog):
     ICB.clicked.connect(self.PlayButton)
 
     SCB = QtWidgets.QPushButton()
-    F = os.path.join(x, 'assets', 'codeAssets', ppName)
+    F = os.path.join(x, 'docs','assets', 'codeAssets', ppName)
     SCBL = QtGui.QPixmap(F)
 
     SCB.setIcon(SCBL)

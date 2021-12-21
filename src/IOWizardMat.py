@@ -29,7 +29,7 @@ class IOWizardMainMat(QtWidgets.QWizard):
     self.button(QtWidgets.QWizard.FinishButton).clicked.connect(self.SavePages)
 
     x = str(Path(os.getcwd()).parents[0])
-    F = os.path.join(x, 'assets', 'codeAssets', 'SNL_Horizontal_Black.jpg')
+    F = os.path.join(x, 'docs','assets', 'codeAssets', 'SNL_Horizontal_Black.jpg')
     res = QtGui.QPixmap(F)
     res = res.scaledToWidth(500)
     self.setPixmap(QtWidgets.QWizard.BannerPixmap, res)
