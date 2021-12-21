@@ -26,15 +26,15 @@
   * Selecting this option should bring you to the scenario selection screen (shown below)
 
 <p align="center">
-<img src="/assets/exercise1/sceneselect.png" width="50%" height="100%">
+<img src="./assets/exercise1/sceneselect.png" width="50%" height="100%">
 </p>
 
 > :information_source: The scenario selection block provides tools to become familiar with the included datasets developed by SNL (based on IAEA STR-150). The datasets contain simulated data from key measurement points in material balance area 2.
 
-3. Begin by starting the animated plots by pressing the play button, ![](/assets/codeAssets/play.png), in the top right of the window.
+3. Begin by starting the animated plots by pressing the play button, ![](./assets/codeAssets/play.png), in the top right of the window.
   * Note that MAPIT shows an animated plot of the time-dependent behavior of several key measurement points.
   * A description for the default scenario, 'Normal', is provided in the middle window.
-  * Press the pause button, ![](/assets/codeAssets/pause.png), when finished.
+  * Press the pause button, ![](./assets/codeAssets/pause.png), when finished.
 
 <br>
 
@@ -53,7 +53,7 @@
     * These can be toggled at any time using the `theme` dropdown menu
 
 <p align="center">
-<img src="/assets/exercise1/MAPITmain.png" width="50%" height="100%">
+<img src="./assets/exercise1/MAPITmain.png" width="50%" height="100%">
 </p>
 
 > :information_source: The status bar in the bottom left, progress bar in the bottom right, GUI animations, and tooltips are all used within MAPIT to help understand the safeguards analysis flow. Initially, the tests and statistics boxes are highlighted in blue, which indicate those inputs are required for analysis. Further, note the status bar which is waiting for the calculation setup.
