@@ -2,7 +2,7 @@
 
 <br>
 
-#### Goal: Understand how MAPIT can be used to evaluate probability of detection.
+## Goal: Understand how MAPIT can be used to evaluate probability of detection.
 
 > :information_source: So far, exercises have focused on exploring qualitative changes that are induced by changes in measurement uncertainty or material loss. This section will focus on developing quantitative metrics for safeguards performance.
 

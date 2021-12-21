@@ -2,7 +2,7 @@
 
 <br>
 
-#### Goal: Optimized a hypothetical safeguards system.
+## Goal: Optimized a hypothetical safeguards system.
 
 > :information_source: Exercises so far have focused on guided examples of MAPIT functionality. Here, you will be working on your own to develop a notional safeguards system using a previously unconsidered example included in MAPIT. Solutions can be found [here](exercise5S.md).
 
