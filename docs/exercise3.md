@@ -2,11 +2,11 @@
 
 <br>
 
-#### Goal: Gain familiarity with the notional material losses.
+## Goal: Gain familiarity with the notional material losses.
 
 > :information_source: This exercise will prepare you for using MAPIT to evaluate safeguards systems.
 
-> :exclamation: This exercise assumes that you are familiar with MAPIT and can perform tasks discussed in the previous exercises; [exercise 1](../docs/exercise1.md) and [exercise 2](../docs/exercise2.md).
+> :exclamation: This exercise assumes that you are familiar with MAPIT and can perform tasks discussed in the previous exercises; [exercise 1](exercise1.md) and [exercise 2](exercise2.md).
 
 ---
 ## Problem setup
@@ -39,16 +39,18 @@
 ## Baseline data exploration
 ---
 
+{:start="6"}
+
 6. Start by plotting the various statistical quantities (i.e. MUF, SEID, SITMUF, and Page's trend test)
   * Note that the results look similar to the `Normal` dataset.
   * MUF plot should look similar to the image below.
 
 
 <p align="center">
-<img src="../assets/exercise3/muf1.png" width="50%" height="100%">
+<img src="./assets/exercise3/muf1.png" width="65%" height="65%">
 </p>
 
-<br>
+{:start="7"}
 
 
 7. Continue by examining the fuel pins. Do so by selecting `Ground Truth Data` for the data type and `Fuel Pins (output)` for the location.
@@ -58,10 +60,10 @@
 
 
 <p align="center">
-<img src="../assets/exercise3/pins1.png" width="50%" height="100%">
+<img src="./assets/exercise3/pins1.png" width="65%" height="65%">
 </p>
 
-<br>
+{:start="8"}
 
 8. Notice that starting around 1010 hours material is removed for about the next 100 hours. However, the statistical quantities did not reflect this material loss.
 
@@ -70,6 +72,7 @@
 ## Explore impact of lower uncertainty
 ---
 
+{:start="9"}
 
 9. Perform the calculations again using a value of **0.5%** for **all random and systematic errors**.
   * MAPIT does not need to be restarted. Simply press `Select Errors` and use the dropdown menus to select the new error values. Then press `Run`.
@@ -80,10 +83,10 @@
   * SEID, SITMUF, and Page's trend test on SITMUF should all exhibit changes due to the presence of the material loss.
 
 <p align="center">
-<img src="../assets/exercise3/muf2.png" width="50%" height="100%">
+<img src="./assets/exercise3/muf2.png" width="65%" height="65%">
 </p>
 
-<br>
+
 
 > :information_source: This example demonstrates the importance of precise measurement systems. This particular loss was too small to be reliably detected at the 3% uncertainty level.  
 
@@ -91,4 +94,4 @@
 
 > :tada: Congrats :tada:
 
-> You have finished the third MAPIT exercise. Continue to [exercise 4](../docs/exercise4.md).
+> You have finished the third MAPIT exercise. Continue to [exercise 4](exercise4.md).

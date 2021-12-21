@@ -2,9 +2,10 @@
 
 > :information_source: It's impossible for us to explore the entire potential solution space, so if you develop a better answer feel free to let us know!
 
-> :information_source: An error config for this setup can be found [here](../assets/exercise5/errorConfig.csv). Place this in the /MAPIT/src/ folder (so that it is in the same folder as `MAPIT.py`) which will enable loading the configuration in MAPIT using the `Load Error Config` after pressing the `Select Errors` button.
+> :information_source: An error config for this setup can be found [here](./assets/exercise5/errorConfig.csv). Place this in the /MAPIT/src/ folder (so that it is in the same folder as `MAPIT.py`) which will enable loading the configuration in MAPIT using the `Load Error Config` after pressing the `Select Errors` button.
 
-#### Cost
+### Cost
+
 | Sensor | Quantity | Cost ($) |
 |:---:|:---:|:---:|
 | A | 26 | 260 |
@@ -15,7 +16,8 @@
 | **Total Cost** | | 490 |
 
 
-#### Performance
+### Performance
+
 > Threshold = 2.1
 
 >Values are approximate and may fluctuate to some degree. However, these values were calculated using 250 iterations, which should provide a relatively high level of certainty.
@@ -24,7 +26,7 @@
 |:---:|:---:|
 | 4.8 | 72.4 |
 
-#### Placement
+### Placement
 
 | Location | Uncertainty (%) | Sensor |
 |---|:---:|:---:|

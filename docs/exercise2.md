@@ -2,13 +2,15 @@
 
 <br>
 
-#### Goal: Explore the impact of measurement error on safeguards metrics.
+## Goal: Explore the impact of measurement error on safeguards metrics.
+
+<br>
 
 > :information_source: Recall that measurement error negatively impacts the ability to detect anomalies such as material loss.
 
 
 
-> :exclamation: This exercise assumes that you are familiar with MAPIT and can perform tasks discussed in the previous [exercise](../docs/exercise1.md) (i.e. launching MAPIT, loading the included scenarios, setting up MAPIT to perform analyses, etc).
+> :exclamation: This exercise assumes that you are familiar with MAPIT and can perform tasks discussed in the previous [exercise](exercise1.md) (i.e. launching MAPIT, loading the included scenarios, setting up MAPIT to perform analyses, etc).
 
 
 ---
@@ -22,11 +24,11 @@
   * This tutorial starts by assuming you are at the main MAPIT interface (similar to the image below)
 
 <p align="center">
-<img src="../assets/exercise1/MAPITmain.png" width="50%" height="100%">
+<img src="./assets/exercise1/MAPITmain.png" width="100%" height="100%">
 </p>
 
-<br>
 
+{:start="2"}
 2. Select all the options in the Tests/Uranium box
   * There should be four in total
 
@@ -48,14 +50,16 @@
 
 ---
 
+{:start="6"}
 6. After running, several plot options should be available under the plot controls option (similar to image below).
 
 <p align="center">
-<img src="../assets/exercise2/MAPITplot1.png" width="50%" height="100%">
+<img src="./assets/exercise2/MAPITplot1.png" width="100%" height="100%">
 </p>
 
 > :pushpin: **Note** :pushpin: MAPIT can export any figures for later use. Simply click the floppy disc icon at the bottom of the plot.
 
+{:start="7"}
 7. Start by observing the calculated MUF values
   * Plotting options dynamically change based on the data type selected and number of iterations considered
   * Since `Iterations` were set to `50` (a relatively small number), start by plotting them all.
@@ -63,11 +67,11 @@
 
 
   <p align="center">
-  <img src="../assets/exercise2/muf1.png" width="50%" height="100%">
+  <img src="./assets/exercise2/muf1.png" width="65%" height="65%">
   </p>
 
-
-8. Next, plot the U SEID (i.e. $`\sigma$` MUF) and notice that it tends to remain around 95 kg.
+{:start="8"}
+8. Next, plot the U SEID (i.e. sigma MUF) and notice that it tends to remain around 95 kg.
   * The first balance period has a smaller SEID due to startup conditions
 
 
@@ -78,7 +82,7 @@
 
 
   <p align="center">
-  <img src="../assets/exercise2/sitmuf1.png" width="50%" height="100%">
+  <img src="./assets/exercise2/sitmuf1.png" width="65%" height="65%">
   </p>
 
 > The results seen when plotting SITMUF match the description from earlier lessons. That is, that SITMUF is the independent MUF sequence. However, notice that the SITMUF values start larger than their final, steady state values.
@@ -86,10 +90,12 @@
 > Recall that the transformation from MUF to SITMUF uses an estimate of the covariance matrix (shown below).
 
 <p align="center">
-<img src="../assets/exercise2/sigma.png">
+<img src="./assets/exercise2/sigma.png">
 </p>
 
 > The covariance matrix grows as repeated material balance calculations are made and observed, which results in a better approximation of the true covariance matrix. In fact, the approximation will converge on the true value as the number of measurements approaches infinity. **Consequently, the variance and mean of the transformed sequence, SITMUF, converge to 1 and 0 respectively as the covariance estimate improves.**
+
+{:start="10"}
 
 10. Finally, try plotting the Page U SITMUF. This is Page's trend test on SITMUF which is used to detect subtle trends in SITMUF that could indicate a material loss.
   * Page's test will be discussed further in the next exercise.
@@ -102,20 +108,22 @@
 
 ---
 
+{:start="11"}
 11. After examining the different quantities calculated by MAPIT, open the error contribution table to better understand the contributions of different KMPs to the material balance uncertainty. Do this by selecting the `Tabular Data View` drop down at the top of the main MAPIT window and selecting `Error Contribution`.
 
 12. The error contribution table should display all the locations in addition to their random and systematic contributions to SEID. Your table should look similar to the image below.
   * The `inventory` column refers to the actual mass at the selected material balance period
-      * For flows (e.g. inputs and outputs) this is the time integrated flow over the period
-      * For inventories this is the instantneous inventory value
+        * For flows (e.g. inputs and outputs) this is the time integrated flow over the period
+        * For inventories this is the instantneous inventory value
   * The random and systematic contribution are the contributions to SEID
 
 <p align="center">
-<img src="../assets/exercise2/table1.png" width="50%" height="100%">
+<img src="./assets/exercise2/table1.png" width="75%" height="75%">
 </p>
 
 > :pushpin: **Note** :pushpin: that only a single material is listed for this exercise (uranium) as other species are not tracked. However, if using imported datasets, there could potentially be other material options.
 
+{:start="13"}
 13. Try looking at different material balance periods.
   * The `Cylinder (input)` and `Fuel Pins (output)` have the largest inventory terms and consequently the largest contribution
 
@@ -137,4 +145,4 @@
 
 > :tada: Congrats :tada:
 
-> You have finished the second MAPIT exercise. Continue to [exercise 3](../docs/exercise3.md).
+> You have finished the second MAPIT exercise. Continue to [exercise 3](exercise3.md).

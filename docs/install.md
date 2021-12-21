@@ -29,6 +29,8 @@ Further documentation on getting started with Python can be found [here](https:/
 ### Requirements install
 MAPIT relies on a number of third party libraries that must be installed before use. We have generated a list of [requirements](requirements.txt).
 
+> We highly recommend creating an environment to install `MAPIT`. Details for venv [here](https://docs.python.org/3/library/venv.html) and conda [here](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
+
 #### Pip
 `pip install -r /path/to/requirements.txt`
 

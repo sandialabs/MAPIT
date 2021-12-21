@@ -6,7 +6,7 @@
 
 > :information_source: So far, exercises have focused on exploring qualitative changes that are induced by changes in measurement uncertainty or material loss. This section will focus on developing quantitative metrics for safeguards performance.
 
-> :exclamation: This exercise assumes that you are familiar with MAPIT and can perform tasks discussed in the previous exercises; [exercise 1](../docs/exercise1.md), [exercise 2](../docs/exercise2.md) and [exercise 3](../docs/exercise3.md).
+> :exclamation: This exercise assumes that you are familiar with MAPIT and can perform tasks discussed in the previous exercises; [exercise 1](exercise1.md), [exercise 2](exercise2.md) and [exercise 3](exercise3.md).
 
 ---
 ## Problem setup
@@ -43,6 +43,8 @@
 ## Determining statistical thresholds
 ---
 
+{:start="6"}
+
 6. Plot Page's trend test on SITMUF
   * This is labeled as `Page U SITMUF` in MAPIT
   * Plotting a quantity is necessary to use the threshold functionality
@@ -51,20 +53,20 @@
 7. Use the `Statistical Thresholds` box to determine an appropriate threshold (i.e. 5% FAP)
   * This is performed by entering values in the `Enter Threshold` box
   * MAPIT returns the number of iterations that exceed this threshold
-      * MAPIT operates on the entire dataset, not just the iterations that are plotted. This can be important in cases where many iterations are calculated and only a few are plotted.
+        * MAPIT operates on the entire dataset, not just the iterations that are plotted. This can be important in cases where many iterations are calculated and only a few are plotted.
 
 
 8. Your threshold should be near 1.34
   * Due to the randomness of the calculations, your threshold might be slightly different
   * Increasing the number of iterations can help obtain a more precise estimate of the threshold
-    * The uncertainty in the threshold itself should roughly decrease with sqrt(iterations).
+        * The uncertainty in the threshold itself should roughly decrease with sqrt(iterations).
 
 
 ---
 ## Evaluating probability of detection
 ---
 
-
+{:start="9"}
 
 9. Close and restart MAPIT. Again, select the `SNL curated dataset`. However, this time select the `Abrupt` dataset.
 
@@ -91,4 +93,4 @@
 
 > :tada: Congrats :tada:
 
-> You have finished the foruth MAPIT exercise. For an optional challenge, continue to [exercise 5](../docs/exercise5.md).
+> You have finished the foruth MAPIT exercise. For an optional challenge, continue to [exercise 5](exercise5.md).

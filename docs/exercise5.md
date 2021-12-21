@@ -4,7 +4,7 @@
 
 #### Goal: Optimized a hypothetical safeguards system.
 
-> :information_source: Exercises so far have focused on guided examples of MAPIT functionality. Here, you will be working on your own to develop a notional safeguards system using a previously unconsidered example included in MAPIT. Solutions can be found [here](../docs/exercise5S.md).
+> :information_source: Exercises so far have focused on guided examples of MAPIT functionality. Here, you will be working on your own to develop a notional safeguards system using a previously unconsidered example included in MAPIT. Solutions can be found [here](exercise5S.md).
 
 
 ---
@@ -24,6 +24,7 @@ An optimal solution will consist of the cheapest set of sensors that can reach t
 > :information_source: Try to use 100 iterations or more for better probability estimates
 
 ### Sensor costs
+
 | Sensor | Uncertainty (%) | Cost ($) |
 |:---:|:---:|:---:|
 | A | 5.0 | 10 |
@@ -38,9 +39,9 @@ An optimal solution will consist of the cheapest set of sensors that can reach t
 
 For the baseline assumption, it was assumed that all measurement locations have a 3% uncertainty, implying that only Sensor Cs were used.
 
-<br>
 
-#### Cost
+### Cost
+
 | Sensor | Quantity | Cost ($) |
 |:---:|:---:|:---:|
 | A | 0 | 0 |
@@ -50,10 +51,10 @@ For the baseline assumption, it was assumed that all measurement locations have 
 | E | 0 | 0 |
 | **Total Cost** | | **775** |
 
-<br>
-<br>
 
-#### Performance
+
+
+### Performance
 
 >Threshold = 1.50
 
