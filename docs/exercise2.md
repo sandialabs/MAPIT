@@ -36,6 +36,7 @@
 3. Next, configure the required parameters in the statistical box using the same parameters from exercise 1:
   * `MBP = 416`
   * `Iterations = 50`
+      * :exclamation: If running on a lower performance device, try running with `Interations = 20`
   * `Generic Element Index = empty`
   * `Temporal Offset = empty`
 
@@ -62,7 +63,7 @@
 {:start="7"}
 7. Start by observing the calculated MUF values
   * Plotting options dynamically change based on the data type selected and number of iterations considered
-  * Since `Iterations` were set to `50` (a relatively small number), start by plotting them all.
+  * Since `Iterations` were set to `<= 50` (a relatively small number), start by plotting them all.
   * The plot should *generally* look like the image below, but will vary due to the inherent randomness of the calculation.
 
 
@@ -144,5 +145,15 @@
 ---
 
 > :tada: Congrats :tada:
+
+---
+
+## Summary
+
+In this exercise, you learned about how to change simulated measurement errors in MAPIT and their impact on calculated statistical quantities. Further, the capability of MAPIT to show individual error components was also introduced.
+
+* Higher measurement error leads to larger SEID values
+* Uncertainty contributions rely on both measurement error and inventory size
+
 
 > You have finished the second MAPIT exercise. Continue to [exercise 3](exercise3.md).

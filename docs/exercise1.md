@@ -4,7 +4,7 @@
 
 ## Goal: Gain familiarize with basic MAPIT functionality.
 
-
+> :information_source: If you are having trouble viewing MAPIT on your screen, try maximizing the window.
 ---
 
 ## Opening MAPIT
@@ -80,6 +80,7 @@
   * `Iterations = 50`
         * The number of realizations to run.
         * Note that in practice, only a single iterations would be observable.
+        * :exclamation: If running on a lower performance device, try running with `Interations = 20`
   * `Generic Element Index = empty`
         * MAPIT can perform statistical tests on general datasets (i.e. not just uranium and plutonium)
         * In such scenarios, information must be provided about the element in the dataset that tests should be performed on
@@ -106,6 +107,16 @@
 ---
 
 > :tada: Congrats :tada:
+
+---
+
+## Summary
+
+In this exercise you learned the about the basic functionality of MAPIT:
+* Opening MAPIT
+* How to load included datasets
+* How to run MAPIT
+* How to input required parameters to run MAPIT
 
 
 

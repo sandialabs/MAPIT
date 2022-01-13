@@ -26,6 +26,7 @@
 3. Next, configure the required parameters in the statistical box using the same parameters from exercise 1 and 2:
   * `MBP = 416`
   * `Iterations = 50`
+      * :exclamation: If running on a lower performance device, try running with `Interations = 20`
   * `Generic Element Index = empty`
   * `Temporal Offset = empty`
 
@@ -93,5 +94,15 @@
 ---
 
 > :tada: Congrats :tada:
+
+---
+
+## Summary
+
+This exercise introduced concepts related to notional material loss. The abrupt material loss was originally not visible at the 3% measurement uncertainty level. However, after lowering the uncertainty, the change in MUF was clearly visible. This is an important phenomena in safeguards that must be considered when selecting measurement systems for key measurement points. In this exercise you:
+
+* Explored MUF
+* Used MAPIT to look at the ground truth data
+* Explored the impact of measurement uncertainty
 
 > You have finished the third MAPIT exercise. Continue to [exercise 4](exercise4.md).

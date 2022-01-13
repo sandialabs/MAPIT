@@ -254,8 +254,11 @@ class ErrorHandle:
         # outputs
         outFrame = list(self.SS.Outputs)
 
-        liH = ['U', 'Pu', 'Cs', 'Xe', 'Eu']  #predetermined elements
-        self.GuessEles = 5
+        #liH = ['U', 'Pu', 'Cs', 'Xe', 'Eu']  #predetermined elements
+        #self.GuessEles = 5
+
+        liH = ['U'] #the fuel fab only has U, other scenarios not yet included
+        self.GuessEles = 1
 
       self.liH = liH
 

@@ -27,6 +27,7 @@
 3. Next, configure the required parameters in the statistical box using the same parameters from exercise 1 and 2:
   * `MBP = 416`
   * `Iterations = 50`
+        * :exclamation: If running on a lower performance device, try running with `Interations = 20`
   * `Generic Element Index = empty`
   * `Temporal Offset = empty`
 
@@ -76,6 +77,7 @@
   * Select a value of **0.5%** for **all random and systematic errors**
   * `MBP = 416`
   * `Iterations = 50`
+        * :exclamation: If running on a lower performance device, try running with `Interations = 20`
   * `Generic Element Index = empty`
   * `Temporal Offset = empty`
 
@@ -92,5 +94,16 @@
 ---
 
 > :tada: Congrats :tada:
+
+---
+
+## Summary
+
+This exercise introduced the the SITMUF test in MAPIT along with the capability to set threshold and evaluate probability of detection. In this exercise you:
+
+* Set a threshold based on a false alarm probability
+* Evaluated probabilities of detection
+* Explored the SITMUF transform
+* Explored Page's trend test on SITMUF
 
 > You have finished the foruth MAPIT exercise. For an optional challenge, continue to [exercise 5](exercise5.md).
