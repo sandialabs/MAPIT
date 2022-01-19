@@ -62,6 +62,18 @@ Install the environment for MAPIT by running the install script for your system:
     * Ensure you run your terminal in the `unix_setup` folder
 
 
-> :question: Having trouble? Try removing MAPIT and trying again.
-> * Windows: Double click the `remove_MAPIT.bat`
-> * Linux: Run `bash remove_MAPIT.sh` in a terminal
+## FAQ's
+
+
+* Having trouble? Try removing MAPIT and trying again.
+    * Windows: Double click the `remove_MAPIT.bat`
+    * Linux: Run `bash remove_MAPIT.sh` in a terminal
+
+* Getting an "unrecognized app" error on windows? (see below)
+
+<p align="center">
+<img src="./assets/codeAssets/error1.png" width="50%" height="50%">
+</p>
+
+* You can continue by pressing `more info` (shown in the red box) and pressing `run anyways`
+    * :exclamation: :exclamation: Note that you Generally shouldn't run scripts from unknown sources. You can verify the actions of these scripts by looking at the raw code. These scripts create a conda environment with the requirements described in `requirements.yml`.
