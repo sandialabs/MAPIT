@@ -16,6 +16,8 @@ The current implementation of MAPIT is largely a GUI-based tool that is based on
 
 > :information_source: Currently MAPIT is only being distributed through this repository as a series of scripts. Internal testing has used [PyInstaller](https://www.pyinstaller.org/) to generate standalone executables. MAPIT may be (optionally) distributed as an executable in the future.
 
+> :exclamation: This guide does not cover proxy and SSL certificate configuration, which may be in place due to organizational policies. If applicable, please find guidance for these topics before installing MAPIT.
+
 ---
 
 ## Install procedure
@@ -38,6 +40,8 @@ MAPIT relies on a several Python packages, which are outlined defined in the [re
 
 We recommend using the included install scripts to make sure MAPIT requirements are installed correctly.
 
+
+
 #### 1. Downloading MAPIT
 
 Download MAPIT from the main [page](https://github.com/sandialabs/MAPIT) by clicking the green code box, and selecting download ZIP. Then, unzip the folder to a location of your choice.
@@ -56,3 +60,8 @@ Install the environment for MAPIT by running the install script for your system:
 * Windows: Double click the `install.bat` located in `\path\to\MAPIT\windows_scripts`
 * Linux: Run `bash install.sh` located in `/path/to/MAPIT/unix_scripts`
     * Ensure you run your terminal in the `unix_setup` folder
+
+
+> :question: Having trouble? Try removing MAPIT and trying again.
+> * Windows: Double click the `remove_MAPIT.bat`
+> * Linux: Run `bash remove_MAPIT.sh` in a terminal
