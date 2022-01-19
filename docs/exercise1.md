@@ -11,10 +11,12 @@
 
 ---
 
-1. Start by launching MAPIT.
-    1. First activate your environment, which has the packages listed in the [requirements](https://github.com/sandialabs/MAPIT/blob/master/requirements.txt) installed.
-    2. Next, enter `python MAPIT.py` into your console
-        * Alternatively, run `MAPIT.py` from an IDE
+1. Start by launching MAPIT:
+    * If new to Python:
+        * Windows: Run `run.bat` located in `\MAPIT\windows_scripts` by double clicking
+        * Unix: Run `bash run.sh` in a console, ensuring that the current working directory is located in `\MAPIT\unix_scripts`
+    * Otherwise:
+        * Run MAPIT from you previously setup environment
 
 ---
 
