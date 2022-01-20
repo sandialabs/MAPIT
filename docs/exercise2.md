@@ -36,7 +36,7 @@
 3. Next, configure the required parameters in the statistical box using the same parameters from exercise 1:
   * `MBP = 416`
   * `Iterations = 50`
-      * :exclamation: If running on a lower performance device, try running with `Interations = 20`
+        * :exclamation: If running on a lower performance device, try running with `Interations = 20`
   * `Generic Element Index = empty`
   * `Temporal Offset = empty`
 
@@ -101,7 +101,7 @@
 10. Finally, try plotting the Page U SITMUF. This is Page's trend test on SITMUF which is used to detect subtle trends in SITMUF that could indicate a material loss.
   * Page's test will be discussed further in the next exercise.
   * Feel free to try entering numbers into the `Enter Threshold` box and pressing `Calculate`. MAPIT will return the number of runs that exceed the user specified threshold, which is useful for analyzing performance of a safeguards system.
-      * MAPIT returns the % of *all* runs over the threshold, even if not all are plotted. For example, even if only one of the 50 runs are plotted, it will still return the same value.
+        * MAPIT returns the % of *all* runs over the threshold, even if not all are plotted. For example, even if only one of the 50 runs are plotted, it will still return the same value.
 
 ---
 

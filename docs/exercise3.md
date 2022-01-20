@@ -26,7 +26,7 @@
 3. Next, configure the required parameters in the statistical box using the same parameters from exercise 1 and 2:
   * `MBP = 416`
   * `Iterations = 50`
-      * :exclamation: If running on a lower performance device, try running with `Interations = 20`
+        * :exclamation: If running on a lower performance device, try running with `Interations = 20`
   * `Generic Element Index = empty`
   * `Temporal Offset = empty`
 

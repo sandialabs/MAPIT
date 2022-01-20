@@ -37,7 +37,7 @@ An optimal solution will consist of the cheapest set of sensors that can reach t
 ## Baseline solution
 ---
 
-For the baseline assumption, it was assumed that all measurement locations have a 3% uncertainty, implying that only Sensor Cs were used.
+For the baseline assumption, it was assumed that all measurement locations have a 3% uncertainty, implying that only Sensor Bs were used.
 
 
 ### Cost

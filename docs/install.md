@@ -14,8 +14,6 @@ The current implementation of MAPIT is largely a GUI-based tool that is based on
 
 * `StatsPackage.py` - Script containing functions pertaining to error propagation and statistics tests
 
-> :information_source: Currently MAPIT is only being distributed through this repository as a series of scripts. Internal testing has used [PyInstaller](https://www.pyinstaller.org/) to generate standalone executables. MAPIT may be (optionally) distributed as an executable in the future.
-
 > :exclamation: This guide does not cover proxy and SSL certificate configuration, which may be in place due to organizational policies. If applicable, please find guidance for these topics before installing MAPIT.
 
 ---
@@ -29,6 +27,7 @@ The current implementation of MAPIT is largely a GUI-based tool that is based on
   * pip: `pip install -r /path/to/requirements.txt`
   * conda: `conda install -c conda-forge --file /path/to/requirements.txt`
         * conda-forge is a required install channel for the required Pyside2 version
+        * Alternatively, install using the `requirements.yml`
 
 
 3. Launch MAPIT by running the main MAPIT file, `MAPIT.py`
