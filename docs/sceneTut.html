@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>MAPIT Introduction &mdash; MAPIT 1.1.0-beta documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Using your own data (.csv)" href="CsvTut.html" />
+    <link rel="prev" title="Tutorials" href="tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MAPIT
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">MAPIT documentation home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">MAPIT Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fuel-fabrication-overview">Fuel fabrication overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#walkthrough">Walkthrough</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting started</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#loading-the-included-dataset">Loading the included dataset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#statistical-test-configuration">Statistical test configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analysis">Analysis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="CsvTut.html">Using your own data (.csv)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MatTut.html">Using your own data (.mat)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guided_exercises.html">Guided exercises</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidocs.html">API home</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MAPIT</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="tutorials.html">Tutorials</a> &raquo;</li>
+        
+      <li>MAPIT Introduction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/sceneTut.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="mapit-introduction">
+<h1>MAPIT Introduction<a class="headerlink" href="#mapit-introduction" title="Permalink to this heading">¶</a></h1>
+<section id="fuel-fabrication-overview">
+<h2>Fuel fabrication overview<a class="headerlink" href="#fuel-fabrication-overview" title="Permalink to this heading">¶</a></h2>
+<p>The purpose of this tutorial is to introduce you to the included example dataset. This dataset was based on a fuel fabrication facility described by <a class="reference external" href="https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216">IAEA-STR150</a>. There are some unique features of MAPIT that are only present when using the included datasets.</p>
+<p>Some information about the fuel fabrication facility is noted below:</p>
+<ul class="simple">
+<li><p>300 MT UO<span class="math notranslate nohighlight">\(_2\)</span></p></li>
+<li><p>3.0% weight percent <span class="math notranslate nohighlight">\(^{235}\)</span>U</p></li>
+<li><p>Final products are LWR fuel assemblies</p></li>
+<li><p>Feed material:</p>
+<ul>
+<li><p>Low enriched UF<span class="math notranslate nohighlight">\(_6\)</span></p></li>
+<li><p>Uranyl nitrate</p></li>
+<li><p>UO<span class="math notranslate nohighlight">\(_2\)</span> powder</p></li>
+<li><p>Material from facility scrap recovery</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="walkthrough">
+<h2>Walkthrough<a class="headerlink" href="#walkthrough" title="Permalink to this heading">¶</a></h2>
+<p>This tutorial describes basic functions of MAPIT and how to get started using the sample dataset that has been included.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This tutorial contains notes that are not necessary to understand the tool’s basic functionality, but may be useful to users looking for more advanced functionality.</p>
+</div>
+</section>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading">¶</a></h2>
+<section id="loading-the-included-dataset">
+<h3>Loading the included dataset<a class="headerlink" href="#loading-the-included-dataset" title="Permalink to this heading">¶</a></h3>
+<p>The pre-generated dataset described in the introduction can be accessed by selecting <code class="docutils literal notranslate"><span class="pre">SNL</span> <span class="pre">curated</span> <span class="pre">dataset</span></code> button when MAPIT is first loaded and prompts for data to be analyzed. This will open the scenario examiner area. The scenario examiner enables a detailed look of MBA2 of the fuel fabrication facility described in <a class="reference external" href="https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216">IAEA-STR150</a>.</p>
+<p>It is often difficult to envision individual unit processes at a facility and how they relate to the over safeguards setup. The scenario examiner area has several drop down menus that enable animated plots showing the inventory behavior of various unit operations. Use this area before selecting the <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">data</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">to</span> <span class="pre">plots</span></code> button to gain an intuition of the fuel fabrication facility’s normal operation.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This dataset only has data for Uranium. Selecting some of the other interactive plot options such as Plutonium or Xenon will plot a series of zeros. Future updates may add another scenario for reprocessing under the PUREX tab which would include these elements.</p>
+</div>
+<p>After selecting <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">data</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">to</span> <span class="pre">plots</span></code> you will be returned to the main MAPIT area where other options will be available (highlighted in blue - see below).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Importing data only needs to be performed once. You can repeat the following steps below multiple times without needing to import the data again. For example, changing the simulated error can be done by selecting <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> followed by <code class="docutils literal notranslate"><span class="pre">Run</span></code>.</p>
+</div>
+<a class="bg-primary reference internal image-reference" href="_images/MAPITmain2.png"><img alt="_images/MAPITmain2.png" class="bg-primary align-center" src="_images/MAPITmain2.png" style="width: 100%;" /></a>
+<br>
+</section>
+<section id="statistical-test-configuration">
+<h3>Statistical test configuration<a class="headerlink" href="#statistical-test-configuration" title="Permalink to this heading">¶</a></h3>
+<p>The boxes with blue borders are the next steps in the MAPIT workflow. The currently available statistical tests are denoted by check boxes, go ahead and select all of them.</p>
+<p>The suggest parameters for the statistics parameters are as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MBP</span></code> (Material Balance Period, units of hours) : <strong>320</strong></p></li>
+<li><p>Try different <code class="docutils literal notranslate"><span class="pre">MBP</span></code> lengths to see how performance statistics change</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Iterations</span></code> (Number of statistical realizations to run): <strong>100</strong></p>
+<ul>
+<li><p>Increasing the number of <code class="docutils literal notranslate"><span class="pre">Iterations</span></code> can reduce the simulation uncertainty in the probability of detection</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Generic</span> <span class="pre">Element</span> <span class="pre">Index</span></code>: <em><strong>Empty</strong></em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Temporal</span> <span class="pre">Offset</span></code>: <em><strong>Empty</strong></em></p></li>
+</ul>
+<p>After setting the required statistics inputs the final step before starting the calculation is setting the errors. As no measurements are perfect it is impossible to know the true value of some quantity of interest (in this case Uranium) at a particular location. Use <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> to open an interactive dialog to set measurement errors. These can be set individually or as a group. Press <code class="docutils literal notranslate"><span class="pre">Done</span></code> when finished.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>One purpose of MAPIT is to understand how these errors impact common safeguards statistical tests, so feel free to choose any value. The <a class="reference external" href="https://inis.iaea.org/search/search.aspx?orig_q=RN:49058823">IAEA ITV</a> (International Target Values) provides a good reference for expected performance for different types of measurement systems.</p>
+</div>
+<!-- :::{note}
+MAPIT has values listed for U, Pu, and Generic measurement errors. For this tutorial, the Pu and Generic measurement errors serve no purpose as we are only interested in Uranium. However, there may be situations where you want to analyze Uranium, Plutonium, or perhaps some arbitrary element ("Generic") all at once with the same measurement system. The system may have different performance based on the element, hence the flexibility for multiple error specifications.
+::: -->
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Entering a customized error table can be tedious. The included example scenario has 31 different measurement locations! MAPIT allows for loading (<code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">Error</span> <span class="pre">Config</span></code>) that reads a .csv table of errors so that manual specification is not required every time MAPIT is run. Similarly, you can use (<code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">Error</span> <span class="pre">Config</span></code>) to save a specified error configuration to disk.</p>
+</div>
+</section>
+<section id="analysis">
+<h3>Analysis<a class="headerlink" href="#analysis" title="Permalink to this heading">¶</a></h3>
+<p>Once the statistical tests and errors have been configured press <code class="docutils literal notranslate"><span class="pre">Run</span></code> to start the calculation. MAPIT is a lightweight tool that should run fairly quickly for a small number of iterations (~100), but varies based on hardware configuration. Progress can be monitored through the dialog and progress bar at the bottom of the tool (see below).</p>
+<a class="bg-primary reference internal image-reference" href="_images/progress1.png"><img alt="_images/progress1.png" class="bg-primary align-center" src="_images/progress1.png" style="width: 100%;" /></a>
+<br>
+<section id="plotting">
+<h4>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">¶</a></h4>
+<p>The first step in many analytical workflows is to plot data to gain an intuition for what is happening. MAPIT has multiple plot options (shown below) that dynamically change based on the option selected. Try plotting different quantities of interest (also make sure to note how these change with the selected errors).</p>
+<a class="bg-primary reference internal image-reference" href="_images/plot1.png"><img alt="_images/plot1.png" class="bg-primary align-center" src="_images/plot1.png" style="width: 25%;" /></a>
+<br>
+<p>The various options are as follows:</p>
+<ul class="simple">
+<li><p><strong>Plot Data Type</strong></p>
+<ul>
+<li><p>Varies depending on selected statistical tests</p></li>
+<li><p>Always includes the “ground truth data” and “observed data”</p>
+<ul>
+<li><p>Ground truth is the data before errors are applied by MAPIT</p></li>
+<li><p>Observed data is the ground truth after errors have been applied</p></li>
+</ul>
+</li>
+<li><p>Requested statistical tests will also be available here</p></li>
+</ul>
+</li>
+<li><p><strong>Plot Data Location</strong></p>
+<ul>
+<li><p>Only relevant for “ground truth data” and “observed data”</p>
+<ul>
+<li><p>Location doesn’t apply to the statistical tests at the moment as MAPIT only supports analysis of one material balance area at a time</p></li>
+</ul>
+</li>
+<li><p>Lists locations based data used</p>
+<ul>
+<li><p>Included dataset has locations baked in</p></li>
+<li><p>Attempts to use user provided locations if data was imported</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Plot Data Nuclide</strong></p>
+<ul>
+<li><p>Only relevant for “ground truth data” and “observed data”</p></li>
+<li><p>Used to plot specific nuclide at a location of interest within the material balance</p></li>
+</ul>
+</li>
+<li><p><strong>Iterations to Plot</strong></p>
+<ul>
+<li><p>Not relevant for “ground truth data”</p></li>
+<li><p>Used to control how many iterations are plotted</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="thresholds">
+<h4>Thresholds<a class="headerlink" href="#thresholds" title="Permalink to this heading">¶</a></h4>
+<p>Statistical tests used in safeguards usually require adjustment of at least one tunable parameter. For example, Page’s trend test actually has two (h and k) of which one is made available to users (h).</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Page’s trend test currently uses k=0 which is the ideal statistic for a one unit shift in SITMUF</p>
+</div>
+<p>The statistical threshold area of MAPIT (shown below) allows users to input a value and see how many times that threshold has been crossed. The threshold calculation is generic and can be applied to any of the plot quantities.</p>
+<a class="bg-primary reference internal image-reference" href="_images/Thresh1.png"><img alt="_images/Thresh1.png" class="bg-primary align-center" src="_images/Thresh1.png" style="width: 25%;" /></a>
+<br>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The quantity reported by MAPIT <code class="docutils literal notranslate"><span class="pre">%</span> <span class="pre">Above</span> <span class="pre">Threshold</span></code> reflects <em>all</em> of the runs, even if not plotted. For example, if 1000 iterations were requested, then the max quantity of iterations allowed to be plotted at once is 100. However, the threshold will check all 1000 runs and report the quantity that exceeds the threshold.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The threshold tool reports if a particular iteration of a quantity of interest has past the threshold at <em>any</em> time in the dataset. There may be some desire to check a threshold for a limited window of time, however this capability is not yet implemented. In the meantime, please preprocess your data if desired to circumvent this limitation. For example, if you want to know yearly performance, but your dataset is two years long, split the dataset in half before importing into MAPIT.</p>
+</div>
+</section>
+<section id="error-contributions">
+<h4>Error contributions<a class="headerlink" href="#error-contributions" title="Permalink to this heading">¶</a></h4>
+<p>Understanding the contribution of various facility measurements to the material balance uncertainty is often important. Identifying large sources of error can help prioritize areas for improvement. MAPIT facilitates this analysis by providing tabular data describing the error contribution of various components. This can be accessed through the <code class="docutils literal notranslate"><span class="pre">Tabular</span> <span class="pre">Data</span> <span class="pre">View</span></code> menu in the main MAPIT area and selecting <code class="docutils literal notranslate"><span class="pre">Error</span> <span class="pre">Contribution</span></code>.</p>
+</section>
+<section id="data-export">
+<h4>Data Export<a class="headerlink" href="#data-export" title="Permalink to this heading">¶</a></h4>
+<p>While MAPIT has a wide range of capabilities it may be desirable to save data for secondary analysis or use with a report. MAPIT supports saving of figures generated in the plot area in addition to the raw data itself.</p>
+</section>
+<section id="figure">
+<h4>Figure<a class="headerlink" href="#figure" title="Permalink to this heading">¶</a></h4>
+<p>Figure can be saved in one of two different ways:</p>
+<ul class="simple">
+<li><p>First (recommended) use the save icon at the bottom of the plot (see below) which directly interacts with the <a class="reference external" href="https://matplotlib.org/">Matplotlib</a> backend.</p></li>
+<li><p>Second (not recommended), you can use the <code class="docutils literal notranslate"><span class="pre">Figure</span> <span class="pre">Options</span></code> in the main MAPIT area and select one of the <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">Figure</span></code> options.</p></li>
+<li><p>Plots can be further customized using the options on the navigation bar at the bottom of the plot (see below for an image of the navigation bar).</p></li>
+</ul>
+<a class="bg-primary reference internal image-reference" href="_images/navi1.png"><img alt="_images/navi1.png" class="bg-primary align-center" src="_images/navi1.png" style="width: 40%;" /></a>
+<br>
+</section>
+<section id="data">
+<h4>Data<a class="headerlink" href="#data" title="Permalink to this heading">¶</a></h4>
+<p>The data can be exported by selecting the <code class="docutils literal notranslate"><span class="pre">File</span></code> menu option in the MAPIT main area and selecting <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">Data</span></code>. An option will be presented to save the underlying data used for the safeguards statistical tests (i.e. “observed data”). The default behavior is to save data in <code class="docutils literal notranslate"><span class="pre">.csv</span></code> format with a shape of [time x iterations]. For example, for a case where 100 iterations were requested and the time was 5000, then the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> would be of shape <code class="docutils literal notranslate"><span class="pre">(5000,100)</span></code>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The default behavior is to create a folder called “MAPIT_Output” containing output files in the same location where <code class="docutils literal notranslate"><span class="pre">MAPIT.py</span></code> is located.</p>
+</div>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>Do not expect reliable performance of this capability when using irregularly sampled data. Although MAPIT can handle this type of data, validation efforts are ongoing and have not yet been completed.</p>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="CsvTut.html" class="btn btn-neutral float-right" title="Using your own data (.csv)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, National Technology and Engineering Solutions of Sandia, LLC (NTESS).
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

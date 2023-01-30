@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Exercise 1: General MAPIT Familiarity &mdash; MAPIT 1.1.0-beta documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Exercise 2: Impacts of measurement error" href="exercise2.html" />
+    <link rel="prev" title="Guided exercises" href="guided_exercises.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MAPIT
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">MAPIT documentation home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="guided_exercises.html">Guided exercises</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Exercise 1: General MAPIT Familiarity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#objective">Objective</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#opening-mapit">Opening MAPIT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-the-scenario-selector">Using the scenario selector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mapit-main-interface">MAPIT main interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="exercise2.html">Exercise 2: Impacts of measurement error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise3.html">Exercise 3: Material Loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise4.html">Exercise 4: Quantifying probability of detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5.html">Exercise 5: System Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5S.html">Exercise 5 Solution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidocs.html">API home</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MAPIT</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="guided_exercises.html">Guided exercises</a> &raquo;</li>
+        
+      <li>Exercise 1: General MAPIT Familiarity</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/exercise1.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="exercise-1-general-mapit-familiarity">
+<h1>Exercise 1: General MAPIT Familiarity<a class="headerlink" href="#exercise-1-general-mapit-familiarity" title="Permalink to this heading">¶</a></h1>
+<section id="objective">
+<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this heading">¶</a></h2>
+<p>The goal of this tutorial is to gain familiarity with basic MAPIT functionality.</p>
+</section>
+<hr class="docutils" />
+<section id="opening-mapit">
+<h2>Opening MAPIT<a class="headerlink" href="#opening-mapit" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Start by launching MAPIT</p>
+<ul>
+<li><p>If new to Python:</p>
+<ul>
+<li><p>Windows: Run <code class="docutils literal notranslate"><span class="pre">run.bat</span></code> located in <code class="docutils literal notranslate"><span class="pre">\MAPIT\windows_scripts</span></code> by double clicking</p></li>
+<li><p>Unix: Run <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">run.sh</span></code> in a console, ensuring that the current working directory is located in <code class="docutils literal notranslate"><span class="pre">\MAPIT\unix_scripts</span></code></p></li>
+</ul>
+</li>
+<li><p>Otherwise:</p>
+<ul>
+<li><p>Run MAPIT from you previously setup environment</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you are having trouble viewing MAPIT on your screen, try maximizing the window.</p>
+</div>
+</section>
+<hr class="docutils" />
+<section id="using-the-scenario-selector">
+<h2>Using the scenario selector<a class="headerlink" href="#using-the-scenario-selector" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<p>MAPIT will prompt for data to be analyzed. Select the <code class="docutils literal notranslate"><span class="pre">SNL</span> <span class="pre">curated</span> <span class="pre">dataset</span></code> option. Selecting this option should bring you to the scenario selection screen (shown below).</p>
+<!-- <p align="center">
+<img src="./assets/exercise1/sceneselect.png" width="100%" height="100%">
+</p> -->
+<a class="bg-primary reference internal image-reference" href="_images/sceneselect.png"><img alt="_images/sceneselect.png" class="bg-primary align-center" src="_images/sceneselect.png" style="width: 100%;" /></a>
+<br>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The scenario selection block provides tools to become familiar with the included datasets developed by SNL (based on IAEA STR-150). The datasets contain simulated data from key measurement points in material balance area 2.</p>
+</div>
+<ul class="simple">
+<li><p>Begin by starting the animated plots by pressing the play button, <img alt="" src="_images/play.png" />, in the top right of the window.</p>
+<ul>
+<li><p>Note that MAPIT shows an animated plot of the time-dependent behavior of several key measurement points.</p></li>
+<li><p>A description for the default scenario, ‘Normal’, is provided in the middle window.</p></li>
+<li><p>Press the pause button, <img alt="" src="_images/pause.png" />, when finished viewing the animation.</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Try adjusting the sliders for the animation start and stop times. Note that the behavior repeats regardless of the selected window. This is expected for normal facility operation.</p></li>
+</ul>
+<ul class="simple">
+<li><p>When finished, press the button labeled <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">data</span> <span class="pre">and</span> <span class="pre">Return</span> <span class="pre">to</span> <span class="pre">Plots</span></code></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="mapit-main-interface">
+<h2>MAPIT main interface<a class="headerlink" href="#mapit-main-interface" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>The main window of MAPIT should now be shown (see below for light theme example)</p>
+<ul>
+<li><p>MAPIT has both light and dark themes available</p>
+<ul>
+<li><p>These can be toggled at any time using the <code class="docutils literal notranslate"><span class="pre">theme</span></code> dropdown menu</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<a class="bg-primary reference internal image-reference" href="_images/MAPITmain.png"><img alt="_images/MAPITmain.png" class="bg-primary align-center" src="_images/MAPITmain.png" style="width: 100%;" /></a>
+<br>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The status bar in the bottom left, progress bar in the bottom right, GUI animations, and tooltips are all used within MAPIT to help understand the safeguards analysis flow. Initially, the tests and statistics boxes are highlighted in blue, which indicate those inputs are required for analysis. Further, note the status bar which is waiting for the calculation setup.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently, only options for statistical tests on uranium are available as it is the only element tracked in the fuel fabrication facility examples.</p>
+</div>
+<ul class="simple">
+<li><p>Continue by selecting all the checkboxes for available statistical tests.</p>
+<ul>
+<li><p>A total of five (5) checkboxes should be checked</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Next, configure required parameters in the statistical box:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">MBP</span></code>: <strong>416</strong></p>
+<ul>
+<li><p>MBP is the material balance period</p></li>
+<li><p>For this exercise, the MBP least common multiple of the facility’s input and output stream period</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Iterations</span></code>: <strong>50</strong></p>
+<ul>
+<li><p>The number of realizations to run.</p></li>
+<li><p>Note that in practice, only a single iterations would be observable.</p></li>
+<li><p>If running on a lower performance device, try running with <code class="docutils literal notranslate"><span class="pre">Interations</span></code>: <strong>20</strong></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Analysis</span> <span class="pre">Element/Index</span></code>: <strong>U</strong></p>
+<ul>
+<li><p>MAPIT can perform statistical tests on general datasets (i.e. not just uranium and plutonium)</p></li>
+<li><p>In such scenarios, information must be provided about the element in the dataset that tests should be performed on</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Temporal</span> <span class="pre">Offset</span></code>: <em><strong>Empty</strong></em></p>
+<ul>
+<li><p>In some cases, it may be desirable to ignore a startup period</p></li>
+<li><p>The offset rebases the calculations to a new zero</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Setup errors by clicking the <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> button in the statistics box.</p>
+<ul>
+<li><p>This opens the error selection pane</p></li>
+<li><p>All errors are in percents</p>
+<ul>
+<li><p>For example, a value of 1 is a 1% error</p></li>
+</ul>
+</li>
+<li><p>Options are provided to adjust measurement errors for various KMPs</p></li>
+<li><p>Users can manually enter values in the boxes</p></li>
+<li><p>Alternatively, the drop down boxes can change all values for that measurement type automatically</p>
+<ul>
+<li><p>For example, all random input errors can be changed at once, or all systematic errors</p></li>
+</ul>
+</li>
+<li><p>Some error configurations can be tedious to input. Functionality is provided to save and load configurations using the <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">Error</span> <span class="pre">Config</span></code> and <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">Error</span> <span class="pre">Config</span></code> buttons.</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>For now, select 1% errors for all values using the drop down options.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Press the run button to run MAPIT</p></li>
+</ul>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h2>
+<p>In this exercise you learned the about the basic functionality of MAPIT:</p>
+<ul class="simple">
+<li><p>Opening MAPIT</p></li>
+<li><p>How to load included datasets</p></li>
+<li><p>How to run MAPIT</p></li>
+<li><p>How to input required parameters to run MAPIT</p></li>
+</ul>
+<p>🎉 You have finished the first MAPIT exercise. 🎉</p>
+<p>Continue to <a class="reference internal" href="exercise2.html"><span class="doc std std-doc">exercise 2</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="exercise2.html" class="btn btn-neutral float-right" title="Exercise 2: Impacts of measurement error" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="guided_exercises.html" class="btn btn-neutral float-left" title="Guided exercises" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, National Technology and Engineering Solutions of Sandia, LLC (NTESS).
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

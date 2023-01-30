@@ -1,0 +1,429 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Exercise 2: Impacts of measurement error &mdash; MAPIT 1.1.0-beta documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Exercise 3: Material Loss" href="exercise3.html" />
+    <link rel="prev" title="Exercise 1: General MAPIT Familiarity" href="exercise1.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MAPIT
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">MAPIT documentation home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="guided_exercises.html">Guided exercises</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="exercise1.html">Exercise 1: General MAPIT Familiarity</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Exercise 2: Impacts of measurement error</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#objective">Objective</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#problem-setup">Problem setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-exploration">Data exploration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#understanding-error-contribution">Understanding error contribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="exercise3.html">Exercise 3: Material Loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise4.html">Exercise 4: Quantifying probability of detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5.html">Exercise 5: System Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5S.html">Exercise 5 Solution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidocs.html">API home</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MAPIT</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="guided_exercises.html">Guided exercises</a> &raquo;</li>
+        
+      <li>Exercise 2: Impacts of measurement error</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/exercise2.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="exercise-2-impacts-of-measurement-error">
+<h1>Exercise 2: Impacts of measurement error<a class="headerlink" href="#exercise-2-impacts-of-measurement-error" title="Permalink to this heading">¶</a></h1>
+<section id="objective">
+<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this heading">¶</a></h2>
+<p>Explore the impact of measurement error on safeguards metrics. Recall that measurement error negatively impacts the ability to detect anomalies such as material loss.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This exercise assumes that you are familiar with MAPIT and can perform tasks discussed in the previous <a class="reference internal" href="exercise1.html"><span class="doc std std-doc">exercise</span></a> (i.e. launching MAPIT, loading the included scenarios, setting up MAPIT to perform analyses, etc).</p>
+</div>
+</section>
+<hr class="docutils" />
+<section id="problem-setup">
+<h2>Problem setup<a class="headerlink" href="#problem-setup" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Start this exercise by launching MAPIT, selecting the <code class="docutils literal notranslate"><span class="pre">SNL</span> <span class="pre">curated</span> <span class="pre">dataset</span></code> option, and loading the <code class="docutils literal notranslate"><span class="pre">Normal</span></code> dataset.</p>
+<ul>
+<li><p>This tutorial starts by assuming you are at the main MAPIT interface (similar to the image below)</p></li>
+</ul>
+</li>
+</ul>
+<a class="bg-primary reference internal image-reference" href="_images/MAPITmain.png"><img alt="_images/MAPITmain.png" class="bg-primary align-center" src="_images/MAPITmain.png" style="width: 100%;" /></a>
+<br>
+<ul class="simple">
+<li><p>Select all the checkboxes for available statistical tests</p>
+<ul>
+<li><p>A total of five (5) checkboxes should be checked</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Next, configure the required parameters in the statistical box using the same parameters from exercise 1:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">MBP</span></code>: <strong>416</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Iterations</span></code>: <strong>50</strong></p>
+<ul>
+<li><p>If running on a lower performance device, try running with <code class="docutils literal notranslate"><span class="pre">Iterations</span></code>: <strong>20</strong></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Analysis</span> <span class="pre">Element/Index</span></code>: <strong>U</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Temporal</span> <span class="pre">Offset</span></code>: <em><strong>Empty</strong></em></p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Set the measurement errors by pressing the <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> button.</p>
+<ul>
+<li><p>Choose <strong>3%</strong> for <strong>all random and systematic errors</strong>.</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Run MAPIT by pressing the <code class="docutils literal notranslate"><span class="pre">Run</span></code> button.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="data-exploration">
+<h2>Data exploration<a class="headerlink" href="#data-exploration" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>After running, several plot options should be available under the plot controls option (similar to image below).</p></li>
+</ul>
+<a class="bg-primary reference internal image-reference" href="_images/MAPITplot1.png"><img alt="_images/MAPITplot1.png" class="bg-primary align-center" src="_images/MAPITplot1.png" style="width: 100%;" /></a>
+<br>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>MAPIT can export any figures for later use. Simply click the floppy disc icon at the bottom of the plot.</p>
+</div>
+<ul class="simple">
+<li><p>Start by observing the calculated MUF values</p>
+<ul>
+<li><p>Plotting options dynamically change based on the data type selected and number of iterations considered</p></li>
+<li><p>Since <code class="docutils literal notranslate"><span class="pre">Iterations</span></code> were set to <code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">50</span></code> (a relatively small number), start by plotting them all.</p></li>
+<li><p>The plot should <em>generally</em> look like the image below, but will vary due to the inherent randomness of the calculation.</p></li>
+</ul>
+</li>
+</ul>
+<a class="bg-primary reference internal image-reference" href="_images/muf1.png"><img alt="_images/muf1.png" class="bg-primary align-center" src="_images/muf1.png" style="width: 65%;" /></a>
+<ul class="simple">
+<li><p>Next, plot the U SEID (i.e. <span class="math notranslate nohighlight">\(\sigma_\text{MUF}\)</span>) and notice that it tends to remain around 95 kg.</p>
+<ul>
+<li><p>The first balance period has a smaller SEID due to startup conditions</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Try plotting the U SITMUF data.</p>
+<ul>
+<li><p>Your plot should look similar to the one below</p></li>
+<li><p>Notice that U SITMUF tends to decrease overtime and then reaches a steady state value</p></li>
+<li><p>Also, SITMUF has (approximately) a mean of zero and standard deviation of one</p></li>
+</ul>
+</li>
+</ul>
+<a class="bg-primary reference internal image-reference" href="_images/sitmuf1.png"><img alt="_images/sitmuf1.png" class="bg-primary align-center" src="_images/sitmuf1.png" style="width: 65%;" /></a>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The results seen when plotting SITMUF match the description from earlier lessons. That is, that SITMUF is the independent MUF sequence. However, notice that the SITMUF values start larger than their final, steady state values. Recall that the transformation from MUF to SITMUF uses an estimate of the covariance matrix (shown below).</p>
+</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align}
+	\Sigma &amp;= \begin{pmatrix}
+		{\sigma}_{11}^2 &amp; {\sigma}_{12}^2 &amp; \ldots &amp; {\sigma}_{1n}^2 \\
+    {\sigma}_{21}^2 &amp; {\sigma}_{22}^2 &amp; \ldots &amp; {\sigma}_{2n}^2 \\
+    \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+    {\sigma}_{n1}^2 &amp; {\sigma}_{n2}^2 &amp; \ldots &amp; {\sigma}_{nn}^2 \\
+	\end{pmatrix}
+\end{align}
+\end{split}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The covariance matrix grows as repeated material balance calculations are made and observed, which results in a better approximation of the true covariance matrix. In fact, the approximation will converge on the true value as the number of measurements approaches infinity. <strong>Consequently, the variance and mean of the transformed sequence, SITMUF, converge to 1 and 0 respectively as the covariance estimate improves.</strong></p>
+</div>
+<ul class="simple">
+<li><p>Finally, try plotting the Page U SITMUF. This is Page’s trend test on SITMUF which is used to detect subtle trends in SITMUF that could indicate a material loss.</p>
+<ul>
+<li><p>Page’s test will be discussed further in the next exercise.</p></li>
+<li><p>Feel free to try entering numbers into the <code class="docutils literal notranslate"><span class="pre">Enter</span> <span class="pre">Threshold</span></code> box and pressing <code class="docutils literal notranslate"><span class="pre">Calculate</span></code>. MAPIT will return the number of runs that exceed the user specified threshold, which is useful for analyzing performance of a safeguards system.</p>
+<ul>
+<li><p>MAPIT returns the % of <em>all</em> runs over the threshold, even if not all are plotted. For example, even if only one of the 50 runs are plotted, it will still return the same value.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="understanding-error-contribution">
+<h2>Understanding error contribution<a class="headerlink" href="#understanding-error-contribution" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>After examining the different quantities calculated by MAPIT, open the error contribution table to better understand the contributions of different KMPs to the material balance uncertainty. Do this by selecting the <code class="docutils literal notranslate"><span class="pre">Tabular</span> <span class="pre">Data</span> <span class="pre">View</span></code> drop down at the top of the main MAPIT window and selecting <code class="docutils literal notranslate"><span class="pre">Error</span> <span class="pre">Contribution</span></code>.</p></li>
+</ul>
+<ul class="simple">
+<li><p>The error contribution table should display all the locations in addition to their random and systematic contributions to SEID. Your table should look similar to the image below.</p>
+<ul>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">inventory</span></code> column refers to the actual mass at the selected material balance period</p>
+<ul>
+<li><p>For flows (e.g. inputs and outputs) this is the time integrated flow over the period</p></li>
+<li><p>For inventories this is the instantneous inventory value</p></li>
+</ul>
+</li>
+<li><p>The random and systematic contribution are the contributions to SEID</p></li>
+</ul>
+</li>
+</ul>
+<a class="bg-primary reference internal image-reference" href="_images/table1.png"><img alt="_images/table1.png" class="bg-primary align-center" src="_images/table1.png" style="width: 75%;" /></a>
+<br>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>that only a single material is listed for this exercise (uranium) as other species are not tracked. However, if using imported datasets, there could potentially be other material options.</p>
+</div>
+<ul class="simple">
+<li><p>Try looking at different material balance periods.</p>
+<ul>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">Cylinder</span> <span class="pre">(input)</span></code> and <code class="docutils literal notranslate"><span class="pre">Fuel</span> <span class="pre">Pins</span> <span class="pre">(output)</span></code> have the largest inventory terms and consequently the largest contribution</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Try running MAPIT again, this time try changing the <code class="docutils literal notranslate"><span class="pre">Cylinder</span> <span class="pre">(input)</span></code> and <code class="docutils literal notranslate"><span class="pre">Fuel</span> <span class="pre">Pins</span> <span class="pre">(output)</span></code> error terms to 1%.</p>
+<ul>
+<li><p>MAPIT does not need to be restarted to perform another calculation on a new dataset, however, note that current results will be lost</p></li>
+<li><p>Press the <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> button and edit the corresponding boxes to reduce the error for the two components.</p></li>
+<li><p>Press <code class="docutils literal notranslate"><span class="pre">Run</span></code> to again calculate the statistical quantities.</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Check the newly calculated values by plotting key quantities such as SEID.</p>
+<ul>
+<li><p>Note that SEID has decreased dramatically from approximately 560 to 210.</p></li>
+<li><p>Examine the <code class="docutils literal notranslate"><span class="pre">Error</span> <span class="pre">Contribution</span></code> and note that the contribution from the <code class="docutils literal notranslate"><span class="pre">Cylinder</span> <span class="pre">(input)</span></code> and <code class="docutils literal notranslate"><span class="pre">Fuel</span> <span class="pre">Pins</span> <span class="pre">(output)</span></code> has similarly fallen in magnitude.</p></li>
+<li><p>The next exercise will consider the impact of measurement error for safeguards more concretely by considering a hypothetical material loss.</p></li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The material balance period can similarly impact key quantities like SEID. Longer balances lead to higher SEIDs whereas shorter balances lead to smaller SEIDs. However, there is a limitation to the gains of shorter material balances. While not explored in this exercise, further details can be found in <a class="reference external" href="https://resources.inmm.org/jnmm/subdividing-material-balances-time-andor-space">this work by Avenhaus and Jaech</a>.</p>
+</div>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h2>
+<p>🎉 You have finished the second MAPIT exercise. 🎉</p>
+<p>In this exercise, you learned about how to change simulated measurement errors in MAPIT and their impact on calculated statistical quantities. Further, the capability of MAPIT to show individual error components was also introduced.</p>
+<ul class="simple">
+<li><p>Higher measurement error leads to larger SEID values</p></li>
+<li><p>Uncertainty contributions rely on both measurement error and inventory size</p></li>
+</ul>
+<p>Continue to <a class="reference internal" href="exercise3.html"><span class="doc std std-doc">exercise 3</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="exercise3.html" class="btn btn-neutral float-right" title="Exercise 3: Material Loss" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="exercise1.html" class="btn btn-neutral float-left" title="Exercise 1: General MAPIT Familiarity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, National Technology and Engineering Solutions of Sandia, LLC (NTESS).
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

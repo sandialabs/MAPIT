@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>MAPIT Reference Manual &mdash; MAPIT 1.1.0-beta documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MAPIT
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">MAPIT documentation home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guided_exercises.html">Guided exercises</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidocs.html">API home</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MAPIT</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>MAPIT Reference Manual</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/main_landing.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="mapit-reference-manual">
+<h1>MAPIT Reference Manual<a class="headerlink" href="#mapit-reference-manual" title="Permalink to this heading">¶</a></h1>
+<p>Welcome to the reference materials for the Materials Accountancy Performance Indicator Toolkit (MAPIT). These documents describe how to install MAPIT, include a few examples, and document the underlying code and theory.</p>
+<section id="construction-mapit-is-in-beta-construction">
+<h2>:construction: MAPIT IS IN BETA :construction:<a class="headerlink" href="#construction-mapit-is-in-beta-construction" title="Permalink to this heading">¶</a></h2>
+</section>
+<p>MAPIT has worked well in internal testing with the included example dataset and with several example <code class="docutils literal notranslate"><span class="pre">.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">.mat</span></code> datasets. However, there may be some unusual edge cases which will cause the tool to fail.</p>
+<p>Further, V&amp;V for MAPIT is ongoing! Users are responsible for performing their own due diligence to ensure results make sense.</p>
+<blockquote>
+<div><dl class="myst field-list simple">
+<dt class="field-odd">warning<span class="colon">:</span></dt>
+<dd class="field-odd"><p>You may notice various bugs and errors. Help contribute to this project by reporting them through our issue page.</p>
+</dd>
+</dl>
+</div></blockquote>
+<blockquote>
+<div><dl class="myst field-list simple">
+<dt class="field-odd">warning<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Take care when using MAPIT to perform calculations with many iterations. MAPIT uses single precision to help reduce memory footprint, however, arrays consisting of 100s of iterations can take multiple GBs of data.</p>
+</dd>
+</dl>
+</div></blockquote>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="install.html"><span class="doc std std-doc">Installation</span></a></p></li>
+</ul>
+</section>
+<section id="tutorials">
+<h2>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="sceneTut.html"><span class="doc std std-doc">General Introduction</span></a></p></li>
+<li><p><a class="reference internal" href="CsvTut.html"><span class="doc std std-doc">Using own data (.csv)</span></a></p></li>
+<li><p><a class="reference internal" href="MatTut.html"><span class="doc std std-doc">Using own data (.mat)</span></a></p></li>
+</ul>
+</section>
+<section id="guided-exercises">
+<h2>Guided Exercises<a class="headerlink" href="#guided-exercises" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="exercise1.html"><span class="doc std std-doc">Exercise 1: MAPIT Basics</span></a></p></li>
+<li><p><a class="reference internal" href="exercise2.html"><span class="doc std std-doc">Exercise 2: Measurement Error</span></a></p></li>
+<li><p><a class="reference internal" href="exercise3.html"><span class="doc std std-doc">Exercise 3: Material Loss</span></a></p></li>
+<li><p><a class="reference internal" href="exercise4.html"><span class="doc std std-doc">Exercise 4: Probability of Detection</span></a></p></li>
+<li><p><a class="reference internal" href="exercise5.html"><span class="doc std std-doc">Exercise 5: System Optimization</span></a></p></li>
+</ul>
+</section>
+<section id="benchmarks">
+<h2>Benchmarks<a class="headerlink" href="#benchmarks" title="Permalink to this heading">¶</a></h2>
+<p>In progress!</p>
+</section>
+<section id="function-guide">
+<h2>Function Guide<a class="headerlink" href="#function-guide" title="Permalink to this heading">¶</a></h2>
+<p>In progress!</p>
+</section>
+<section id="theory">
+<h2>Theory<a class="headerlink" href="#theory" title="Permalink to this heading">¶</a></h2>
+<p>In progress!</p>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, National Technology and Engineering Solutions of Sandia, LLC (NTESS).
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

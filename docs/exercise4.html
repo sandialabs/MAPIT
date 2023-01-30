@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Exercise 4: Quantifying probability of detection &mdash; MAPIT 1.1.0-beta documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Exercise 5: System Optimization" href="exercise5.html" />
+    <link rel="prev" title="Exercise 3: Material Loss" href="exercise3.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MAPIT
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">MAPIT documentation home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="guided_exercises.html">Guided exercises</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="exercise1.html">Exercise 1: General MAPIT Familiarity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise2.html">Exercise 2: Impacts of measurement error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise3.html">Exercise 3: Material Loss</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Exercise 4: Quantifying probability of detection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#goal">Goal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#problem-setup">Problem setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#determining-statistical-thresholds">Determining statistical thresholds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evaluating-probability-of-detection">Evaluating probability of detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5.html">Exercise 5: System Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5S.html">Exercise 5 Solution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidocs.html">API home</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MAPIT</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="guided_exercises.html">Guided exercises</a> &raquo;</li>
+        
+      <li>Exercise 4: Quantifying probability of detection</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/exercise4.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="exercise-4-quantifying-probability-of-detection">
+<h1>Exercise 4: Quantifying probability of detection<a class="headerlink" href="#exercise-4-quantifying-probability-of-detection" title="Permalink to this heading">¶</a></h1>
+<br>
+<section id="goal">
+<h2>Goal<a class="headerlink" href="#goal" title="Permalink to this heading">¶</a></h2>
+<p>Understand how MAPIT can be used to evaluate probability of detection. So far, exercises have focused on exploring qualitative changes that are induced by changes in measurement uncertainty or material loss. This section will focus on developing quantitative metrics for safeguards performance.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This exercise assumes that you are familiar with MAPIT and can perform tasks discussed in the previous exercises; <a class="reference internal" href="exercise1.html"><span class="doc std std-doc">exercise 1</span></a>, <a class="reference internal" href="exercise2.html"><span class="doc std std-doc">exercise 2</span></a> and <a class="reference internal" href="exercise3.html"><span class="doc std std-doc">exercise 3</span></a>.</p>
+</div>
+</section>
+<hr class="docutils" />
+<section id="problem-setup">
+<h2>Problem setup<a class="headerlink" href="#problem-setup" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Start this exercise by launching MAPIT, selecting the <code class="docutils literal notranslate"><span class="pre">SNL</span> <span class="pre">curated</span> <span class="pre">dataset</span></code> option, and loading the <code class="docutils literal notranslate"><span class="pre">Normal</span></code> dataset.</p>
+<ul>
+<li><p>This tutorial starts by assuming you are at the main MAPIT interface</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Select all the checkboxes for available statistical tests</p>
+<ul>
+<li><p>A total of five (5) checkboxes should be checked</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Next, configure the required parameters in the statistical box using the same parameters from exercise 1 and 2:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">MBP</span></code>: <strong>416</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Iterations</span></code>: <strong>50</strong></p>
+<ul>
+<li><p>If running on a lower performance device, try running with <code class="docutils literal notranslate"><span class="pre">Iterations</span></code>: <strong>20</strong></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Analysis</span> <span class="pre">Element/Index</span></code>: <strong>U</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Temporal</span> <span class="pre">Offset</span> <span class="pre">=</span> <span class="pre">empty</span></code>: <em><strong>Empty</strong></em></p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Set the measurement errors by pressing the <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> button. Choose <strong>0.5%</strong> for <strong>all random and systematic errors</strong>.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Run MAPIT by pressing the <code class="docutils literal notranslate"><span class="pre">Run</span></code> button.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Recall from the lecture notes that safeguards statistical tests are often tuned to have an average of 5% false alarm probability per year. The next steps will use MAPIT functionality to determine this threshold for Page’s trend test on SITMUF.</p>
+</div>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>The data provided in these examples are 6480 hours long, which translate to about 270 days (a reasonable estimate of an operational year). Therefore, one iteration is a single year of simulated operation. When using your own data, use caution in determining statistical thresholds if your datasets have different lengths of time.</p>
+</div>
+</section>
+<hr class="docutils" />
+<section id="determining-statistical-thresholds">
+<h2>Determining statistical thresholds<a class="headerlink" href="#determining-statistical-thresholds" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Plot Page’s trend test on SITMUF</p>
+<ul>
+<li><p>This is labeled as <code class="docutils literal notranslate"><span class="pre">Page</span> <span class="pre">U</span> <span class="pre">SITMUF</span></code> in MAPIT</p></li>
+<li><p>Plotting a quantity is necessary to use the threshold functionality</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Use the <code class="docutils literal notranslate"><span class="pre">Statistical</span> <span class="pre">Thresholds</span></code> box to determine an appropriate threshold (i.e. 5% FAP)</p>
+<ul>
+<li><p>This is performed by entering values in the <code class="docutils literal notranslate"><span class="pre">Enter</span> <span class="pre">Threshold</span></code> box</p></li>
+<li><p>MAPIT returns the number of iterations that exceed this threshold</p>
+<ul>
+<li><p>MAPIT operates on the entire dataset, not just the iterations that are plotted. This can be important in cases where many iterations are calculated and only a few are plotted.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Your threshold should be near 1.34</p>
+<ul>
+<li><p>Due to the randomness of the calculations, your threshold might be slightly different</p></li>
+<li><p>Increasing the number of iterations can help obtain a more precise estimate of the threshold</p>
+<ul>
+<li><p>The uncertainty in the threshold itself should roughly decrease with sqrt(iterations).</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="evaluating-probability-of-detection">
+<h2>Evaluating probability of detection<a class="headerlink" href="#evaluating-probability-of-detection" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Close and restart MAPIT. Again, select the <code class="docutils literal notranslate"><span class="pre">SNL</span> <span class="pre">curated</span> <span class="pre">dataset</span></code>. However, this time select the <code class="docutils literal notranslate"><span class="pre">Abrupt</span></code> dataset.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Select the same options from steps 2, 3, and 4 then run MAPIT.</p>
+<ul>
+<li><p>Select all the options in the Tests/Uranium box</p></li>
+<li><p>Select a value of <strong>0.5%</strong> for <strong>all random and systematic errors</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MBP</span></code>: <strong>416</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Iterations</span></code>: <strong>50</strong></p>
+<ul>
+<li><p>If running on a lower performance device, try running with <code class="docutils literal notranslate"><span class="pre">Iterations</span></code>: <strong>20</strong></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Analysis</span> <span class="pre">Element/Index</span></code>: <strong>U</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Temporal</span> <span class="pre">Offset</span> <span class="pre">=</span> <span class="pre">empty</span></code>: <em><strong>Empty</strong></em></p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Plot Page’s trend test on U SITMUF</p>
+<ul>
+<li><p>This is labeled as <code class="docutils literal notranslate"><span class="pre">Page</span> <span class="pre">U</span> <span class="pre">SITMUF</span></code> in MAPIT</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Enter in the previously determined threshold to determine the probability of detection for this material loss.</p>
+<ul>
+<li><p>The value should be approximately 69%</p></li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this exercise, we changed the measurement uncertainties for all locations to be the same value. However, in practice, different measurement technologies are deployed based on safeguards need. On your own, try changing just some high impact measurement locations to 0.5% while leaving others at higher levels to see if you can reach similar results.</p>
+</div>
+</section>
+<hr class="docutils" />
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h2>
+<p>🎉 You have finished the fourth MAPIT exercise. 🎉</p>
+<p>This exercise introduced the the SITMUF test in MAPIT along with the capability to set threshold and evaluate probability of detection. In this exercise you:</p>
+<ul class="simple">
+<li><p>Set a threshold based on a false alarm probability</p></li>
+<li><p>Evaluated probabilities of detection</p></li>
+<li><p>Explored the SITMUF transform</p></li>
+<li><p>Explored Page’s trend test on SITMUF</p></li>
+</ul>
+<p>For an optional challenge, continue to <a class="reference internal" href="exercise5.html"><span class="doc std std-doc">exercise 5</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="exercise5.html" class="btn btn-neutral float-right" title="Exercise 5: System Optimization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="exercise3.html" class="btn btn-neutral float-left" title="Exercise 3: Material Loss" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, National Technology and Engineering Solutions of Sandia, LLC (NTESS).
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Exercise 3: Material Loss &mdash; MAPIT 1.1.0-beta documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Exercise 4: Quantifying probability of detection" href="exercise4.html" />
+    <link rel="prev" title="Exercise 2: Impacts of measurement error" href="exercise2.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MAPIT
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">MAPIT documentation home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="guided_exercises.html">Guided exercises</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="exercise1.html">Exercise 1: General MAPIT Familiarity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise2.html">Exercise 2: Impacts of measurement error</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Exercise 3: Material Loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#objective">Objective</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#problem-setup">Problem setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#baseline-data-exploration">Baseline data exploration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#explore-impact-of-lower-uncertainty">Explore impact of lower uncertainty</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="exercise4.html">Exercise 4: Quantifying probability of detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5.html">Exercise 5: System Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5S.html">Exercise 5 Solution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidocs.html">API home</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MAPIT</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="guided_exercises.html">Guided exercises</a> &raquo;</li>
+        
+      <li>Exercise 3: Material Loss</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/exercise3.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="exercise-3-material-loss">
+<h1>Exercise 3: Material Loss<a class="headerlink" href="#exercise-3-material-loss" title="Permalink to this heading">¶</a></h1>
+<br>
+<section id="objective">
+<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this heading">¶</a></h2>
+<p>Gain familiarity with the notional material losses. This exercise will prepare you for using MAPIT to evaluate safeguards systems.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>This exercise assumes that you are familiar with MAPIT and can perform tasks discussed in the previous exercises; <a class="reference internal" href="exercise1.html"><span class="doc std std-doc">exercise 1</span></a> and <a class="reference internal" href="exercise2.html"><span class="doc std std-doc">exercise 2</span></a>.</p>
+</div>
+</section>
+<hr class="docutils" />
+<section id="problem-setup">
+<h2>Problem setup<a class="headerlink" href="#problem-setup" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Start this exercise by launching MAPIT, selecting the <code class="docutils literal notranslate"><span class="pre">SNL</span> <span class="pre">curated</span> <span class="pre">dataset</span></code> option, and loading the <code class="docutils literal notranslate"><span class="pre">Abrupt</span></code> dataset.</p>
+<ul>
+<li><p>This tutorial starts by assuming you are at the main MAPIT interface</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Select all the checkboxes for available statistical tests</p>
+<ul>
+<li><p>A total of five (5) checkboxes should be checked</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Next, configure the required parameters in the statistical box using the same parameters from exercise 1 and 2:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">MBP</span> <span class="pre">=</span> <span class="pre">416</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Iterations</span> <span class="pre">=</span> <span class="pre">50</span></code></p>
+<ul>
+<li><p>If running on a lower performance device, try running with <code class="docutils literal notranslate"><span class="pre">Interations</span> <span class="pre">=</span> <span class="pre">20</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Analysis</span> <span class="pre">Element/Index</span></code>: <strong>U</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Temporal</span> <span class="pre">Offset</span> <span class="pre">=</span> <span class="pre">empty</span></code></p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Set the measurement errors by pressing the <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> button. Choose <strong>3%</strong> for <strong>all random and systematic errors</strong>.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Run MAPIT by pressing the <code class="docutils literal notranslate"><span class="pre">Run</span></code> button.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="baseline-data-exploration">
+<h2>Baseline data exploration<a class="headerlink" href="#baseline-data-exploration" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Start by plotting the various statistical quantities (i.e. MUF, CUMUF, SEID, SITMUF, and Page’s trend test)</p>
+<ul>
+<li><p>Note that the results look similar to the <code class="docutils literal notranslate"><span class="pre">Normal</span></code> dataset.</p></li>
+<li><p>MUF plot should look similar to the image below.</p></li>
+</ul>
+</li>
+</ul>
+<a class="bg-primary reference internal image-reference" href="_images/muf11.png"><img alt="_images/muf11.png" class="bg-primary align-center" src="_images/muf11.png" style="width: 65%;" /></a>
+<br>
+<ul class="simple">
+<li><p>Continue by examining the fuel pins. Do so by selecting <code class="docutils literal notranslate"><span class="pre">Ground</span> <span class="pre">Truth</span> <span class="pre">Data</span></code> for the data type and <code class="docutils literal notranslate"><span class="pre">Fuel</span> <span class="pre">Pins</span> <span class="pre">(output)</span></code> for the location.</p>
+<ul>
+<li><p>Here, <code class="docutils literal notranslate"><span class="pre">Ground</span> <span class="pre">Truth</span> <span class="pre">Data</span></code> refers to the true value of the fuel pins (output), which can never be observed in practice.</p></li>
+<li><p><strong>Note</strong> : There are many fuel pins that are generated at a fuel fabrication facility. Plotting <code class="docutils literal notranslate"><span class="pre">Fuel</span> <span class="pre">Pins</span> <span class="pre">(output)</span></code> could take several seconds depending on your hardware.</p></li>
+<li><p>Your plot should look similar to the image below.</p></li>
+</ul>
+</li>
+</ul>
+<a class="bg-primary reference internal image-reference" href="_images/pins1.png"><img alt="_images/pins1.png" class="bg-primary align-center" src="_images/pins1.png" style="width: 65%;" /></a>
+<br>
+<ul class="simple">
+<li><p>Notice that starting around 1010 hours material is removed for about the next 100 hours. However, the statistical quantities did not reflect this material loss.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="explore-impact-of-lower-uncertainty">
+<h2>Explore impact of lower uncertainty<a class="headerlink" href="#explore-impact-of-lower-uncertainty" title="Permalink to this heading">¶</a></h2>
+<hr class="docutils" />
+<ul class="simple">
+<li><p>Perform the calculations again using a value of <strong>0.5%</strong> for <strong>all random and systematic errors</strong>.</p>
+<ul>
+<li><p>MAPIT does not need to be restarted. Simply press <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> and use the dropdown menus to select the new error values. Then press <code class="docutils literal notranslate"><span class="pre">Run</span></code>.</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>After MAPIT has run with the updated error values, try plotting the statistical quantities again. You should notice some observable changes have occurred.</p>
+<ul>
+<li><p>MUF shows a distinct change during the material balance period in which the material loss occurs (see image below).</p></li>
+<li><p>CUMUF, SEID, SITMUF, and Page’s trend test on SITMUF should all exhibit changes due to the presence of the material loss.</p></li>
+</ul>
+</li>
+</ul>
+<a class="bg-primary reference internal image-reference" href="_images/muf2.png"><img alt="_images/muf2.png" class="bg-primary align-center" src="_images/muf2.png" style="width: 65%;" /></a>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This example demonstrates the importance of precise measurement systems. This particular loss was too small to be reliably detected at the 3% uncertainty level.</p>
+</div>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h2>
+<p>🎉 You have finished the third MAPIT exercise. 🎉</p>
+<p>This exercise introduced concepts related to notional material loss. The abrupt material loss was originally not visible at the 3% measurement uncertainty level. However, after lowering the uncertainty, the change in MUF was clearly visible. This is an important phenomena in safeguards that must be considered when selecting measurement systems for key measurement points. In this exercise you:</p>
+<ul class="simple">
+<li><p>Explored MUF</p></li>
+<li><p>Used MAPIT to look at the ground truth data</p></li>
+<li><p>Explored the impact of measurement uncertainty</p></li>
+</ul>
+<p>Continue to <a class="reference internal" href="exercise4.html"><span class="doc std std-doc">exercise 4</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="exercise4.html" class="btn btn-neutral float-right" title="Exercise 4: Quantifying probability of detection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="exercise2.html" class="btn btn-neutral float-left" title="Exercise 2: Impacts of measurement error" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, National Technology and Engineering Solutions of Sandia, LLC (NTESS).
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
