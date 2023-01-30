@@ -19,6 +19,7 @@ MAPIT is a toolkit written based in Python designed to function as a desktop app
 * Automated calculation of common safeguards statistical tests
   * Material Unaccounted For (MUF) / Inventory Difference (ID)
   * Standard Error of MUF (sigma MUF) / Standard Error of ID (SEID)
+  * Cumulative MUF (CUMUF)
   * Standardized Independent Transformed MUF (SITMUF)
   * Page's Trend Test on SITMUF
 
@@ -26,12 +27,13 @@ MAPIT is a toolkit written based in Python designed to function as a desktop app
 * Built in threshold optimization tools
 * Visualization tools
 * Data export capabilities
+* Standalone Python-based API
 
 
 
 ## Library
 ### Information
-[![platform](https://img.shields.io/badge/platform-linux--64%20%7C%20win--64-lightgrey?style=flat-square&logo=appveyor)]() [![python](https://img.shields.io/badge/python-3.X-blue?style=flat-square&logo=appveyor)](https://www.python.org/) [![license](https://img.shields.io/badge/license-GPL-green?style=flat-square&logo=appveyor)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![platform](https://img.shields.io/badge/platform-linux--64%20|%20win--64%20|%20macos--64-blue?style=flat-square)]() [![python](https://img.shields.io/badge/python-3.X-blue?style=flat-square)](https://www.python.org/) [![license](https://img.shields.io/badge/license-GPL-green?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 
 
@@ -48,14 +50,14 @@ TBD
 
 
 
-MAPIT is primarily a GUI-based tool so launching the program is as simple as running ``MAPIT_main.py``. To get started, it is suggested that users try to use the included dataset to gain some familiarity with the tool. To do this, select the ``SNL curated dataset`` option when MAPIT starts and prompts for a dataset to be analyzed.
+MAPIT is primarily a GUI-based tool so launching the program is as simple as running ``MAPIT.py``. To get started, it is suggested that users try to use the included dataset to gain some familiarity with the tool. To do this, select the ``SNL curated dataset`` option when MAPIT starts and prompts for a dataset to be analyzed.
 
 
 
 
 The ``SNL curated dataset`` allows users to explore the underlying process model used to generate the included example dataset that is based on IAEA-STR150 ([4](https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216)). After loading the data (see below) the general workflow involves analysis of the loaded dataset.
 
-![Scenario selection menu](assets/screenshots/SceneSelect2.png?raw=false "Scenario selection menu")
+![Scenario selection menu](docs_v2/source/assets/screenshots/SceneSelect2.png?raw=false "Scenario selection menu")
 
 A general workflow is as follows:
 
@@ -69,12 +71,13 @@ A general workflow is as follows:
 
 ## Documentation
 * [User Guide](https://sandialabs.github.io/MAPIT/)
-* [References - WIP]()
+<!-- * [References - WIP]() -->
 
 
 ## Contact
 
 * Nathan Shoman, Sandia National Laboratories, nshoman@sandia.gov
+* Michael Higgins, Sandia National Laboratories, mhiggin@sandia.gov
 
 ## Data Privacy
 

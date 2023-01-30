@@ -15,7 +15,7 @@ from pathlib import Path
 class IOWizardMain(QtWidgets.QWizard):
   """
         QWizard used for importing
-        .csv data for use with
+        .csv, .mat, or .npz data for use with
         MAPIT
   """
 
@@ -30,8 +30,8 @@ class IOWizardMain(QtWidgets.QWizard):
     self.button(QtWidgets.QWizard.FinishButton).clicked.connect(self.SavePages)
 
     #bring in the first page banner
-    x = str(Path(os.getcwd()).parents[0])
-    F = os.path.join(x, 'docs','assets', 'codeAssets', 'SNL_Horizontal_Black.jpg')
+    x = Path(sys.argv[0]).resolve().parents[1]
+    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Horizontal_Black.jpg')
     res = QtGui.QPixmap(F)
     res = res.scaledToWidth(500)
     self.setPixmap(QtWidgets.QWizard.BannerPixmap, res)
@@ -69,11 +69,9 @@ class IOWizardMain(QtWidgets.QWizard):
     self.InvDir = self.page(2).InvDirDisp.text()
     self.OutDir = self.page(2).OutDirDisp.text()
 
-    self.EleVec_IN = self.page(1).EleVec.text()
+
     self.TempVec_IN = self.page(1).TimeUnitVec.text()
-    self.InKMP = self.page(1).InpVec.text()
-    self.InvKMP = self.page(1).InvVec.text()
-    self.OutKMP = self.page(1).OutVec.text()
+
 
     self.InKMP_names = self.page(1).InpLabels.text()
     self.InvKMP_names = self.page(1).InvLabels.text()
@@ -82,18 +80,16 @@ class IOWizardMain(QtWidgets.QWizard):
     self.TimeUnitVec = self.page(1).TimeUnitVec.text()
     self.MassUnitVec = self.page(1).MassUnitVec.text()
 
+    self.dataType = self.page(1).inpFmt.currentText()
+
 
 class IntroPage(QtWidgets.QWizardPage):
 
   def __init__(self, parent=None):
     super(IntroPage, self).__init__()
     self.IntroTxt = QtWidgets.QLabel(
-        "This wizard will help you inport the "
-        "relevant data to perform the safeguards analysis. Please ensure "
-        "your data is in csv format in the shape [time x element] with "
-        "each file holding data from a different key measurement point. "
-        "This wizard currently assumes inputs and outputs are measured "
-        "as flows with inventories measured as masses")
+      """This wizard will help you import the relevant data for use within MAPIT. It is assumed that your data is organized into folders reflecting different key measurement point types (e.g., inputs, inventories, and outputs). It is also assumed that each file will be of shape [2,n] or [n,2] where n is the total number of samples, and the 2 is the time and data respectively. It is important that the time be the first row or column in your dataset. See the input guide for  more information.
+      """)
     self.IntroTxt.setWordWrap(1)
     self.setSubTitle('   ')
 
@@ -131,11 +127,13 @@ class InitPage(QtWidgets.QWizardPage):
     layout.addWidget(ReqForms)
     layout.addWidget(OptForms)
 
-    self.EleVec = QtWidgets.QLineEdit(self, "")
-    layoutO.addWidget(self.EleVec, 0, 1)
+    self.inpFmt = QtWidgets.QComboBox()
+    self.inpFmt.addItem('.csv')
+    self.inpFmt.addItem('.mat')
+    self.inpFmt.addItem('.npz')
+    self.InpVecTxt = QtWidgets.QLabel(
+        "Select data format")
 
-    self.EleTxt = QtWidgets.QLabel("Enter the elemental ordering", self)
-    layoutO.addWidget(self.EleTxt, 0, 0)
 
     self.TimeUnitVec = QtWidgets.QLineEdit(self, "")
     layoutO.addWidget(self.TimeUnitVec, 1, 1)
@@ -149,13 +147,9 @@ class InitPage(QtWidgets.QWizardPage):
     self.MassUnitTxt = QtWidgets.QLabel("Enter the mass units", self)
     layoutO.addWidget(self.MassUnitTxt, 2, 0)
 
-    self.InpVec = QtWidgets.QLineEdit(self, "")
-    self.onlyInt = QtGui.QIntValidator()
-    self.InpVec.setValidator(self.onlyInt)
-    self.InpVecTxt = QtWidgets.QLabel(
-        "Enter number of input key measurement points")
 
-    layoutR.addWidget(self.InpVec, 2, 1)
+
+    layoutR.addWidget(self.inpFmt, 2, 1)
     layoutR.addWidget(self.InpVecTxt, 2, 0)
 
     self.InpLabels = QtWidgets.QLineEdit(self, "")
@@ -164,13 +158,8 @@ class InitPage(QtWidgets.QWizardPage):
     layoutO.addWidget(self.InpLabels, 3, 1)
     layoutO.addWidget(self.InpLabelsTxt, 3, 0)
 
-    self.InvVec = QtWidgets.QLineEdit(self, "")
-    self.InvVec.setValidator(self.onlyInt)
-    self.InvVecTxt = QtWidgets.QLabel(
-        "Enter number of inventory key measurement points")
 
-    layoutR.addWidget(self.InvVec, 4, 1)
-    layoutR.addWidget(self.InvVecTxt, 4, 0)
+
 
     self.InvLabels = QtWidgets.QLineEdit(self, "")
     self.InvLabelsTxt = QtWidgets.QLabel("Enter inventory labels")
@@ -178,13 +167,7 @@ class InitPage(QtWidgets.QWizardPage):
     layoutO.addWidget(self.InvLabels, 5, 1)
     layoutO.addWidget(self.InvLabelsTxt, 5, 0)
 
-    self.OutVec = QtWidgets.QLineEdit(self, "")
-    self.OutVec.setValidator(self.onlyInt)
-    self.OutVecTxt = QtWidgets.QLabel(
-        "Enter number of output key measurement points")
 
-    layoutR.addWidget(self.OutVec, 6, 1)
-    layoutR.addWidget(self.OutVecTxt, 6, 0)
 
     self.OutLabels = QtWidgets.QLineEdit(self, "")
     self.OutLabelTxt = QtWidgets.QLabel("Enter output labels")
@@ -305,36 +288,33 @@ class DirPage(QtWidgets.QWizardPage):
     """
 
     x = [None]
-    outdir = os.path.join(os.getcwd(), 'IOsaveconfig.txt')
+    p = Path(sys.argv[0]).resolve().parents[1]
+    outdir = os.path.join(p, 'IOsaveconfig.txt')
     with open(outdir, 'r') as f:
       x = f.read().splitlines()
 
-    self.wizard().page(1).EleVec.setText(x[0]) if x[0] != 'null' else None
+    self.wizard().page(1).inpFmt.setCurrentIndex(int(x[0])) if x[0] != 'null' else None
     self.wizard().page(1).TimeUnitVec.setText(x[1]) if x[1] != 'null' else None
     self.wizard().page(1).MassUnitVec.setText(x[2]) if x[2] != 'null' else None
-    self.wizard().page(1).InpVec.setText(x[3]) if x[3] != 'null' else None
-    self.wizard().page(1).InvVec.setText(x[4]) if x[4] != 'null' else None
-    self.wizard().page(1).OutVec.setText(x[5]) if x[5] != 'null' else None
-    self.wizard().page(2).InpDirDisp.setText(x[6]) if x[6] != 'null' else None
-    self.wizard().page(2).InvDirDisp.setText(x[7]) if x[7] != 'null' else None
-    self.wizard().page(2).OutDirDisp.setText(x[8]) if x[8] != 'null' else None
-    self.wizard().page(1).InpLabels.setText(x[9]) if x[9] != 'null' else None
-    self.wizard().page(1).InvLabels.setText(x[10]) if x[10] != 'null' else None
-    self.wizard().page(1).OutLabels.setText(x[11]) if x[11] != 'null' else None
+    self.wizard().page(2).InpDirDisp.setText(x[3]) if x[3] != 'null' else None
+    self.wizard().page(2).InvDirDisp.setText(x[4]) if x[4] != 'null' else None
+    self.wizard().page(2).OutDirDisp.setText(x[5]) if x[5] != 'null' else None
+    self.wizard().page(1).InpLabels.setText(x[6]) if x[6] != 'null' else None
+    self.wizard().page(1).InvLabels.setText(x[7]) if x[7] != 'null' else None
+    self.wizard().page(1).OutLabels.setText(x[8]) if x[8] != 'null' else None
 
   def SaveCfg(self):
     """
             Function to save a specified
             configuration of input information.
     """
+    p = Path(sys.argv[0]).resolve().parents[1]
+
 
     x = [
-        self.wizard().page(1).EleVec.text(),
+        self.wizard().page(1).inpFmt.currentIndex(),
         self.wizard().page(1).TimeUnitVec.text(),
         self.wizard().page(1).MassUnitVec.text(),
-        self.wizard().page(1).InpVec.text(),
-        self.wizard().page(1).InvVec.text(),
-        self.wizard().page(1).OutVec.text(),
         self.InpDirDisp.text(),
         self.InvDirDisp.text(),
         self.OutDirDisp.text(),
@@ -343,11 +323,11 @@ class DirPage(QtWidgets.QWizardPage):
         self.wizard().page(1).OutLabels.text()
     ]
 
-    for i in range(0, 12):
+    for i in range(len(x)):
       if x[i] == '':
         x[i] = 'null'
 
-    outdir = os.path.join(os.getcwd(), 'IOsaveconfig.txt')
+    outdir = os.path.join(p, 'IOsaveconfig.txt')
 
     with open(outdir, 'w') as f:
       for item in x:

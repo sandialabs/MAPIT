@@ -94,7 +94,7 @@ class MPLCanvas(FigureCanvas):
 
     #load the background image
     x = Path(sys.argv[0]).resolve().parents[1]
-    F = os.path.join(x, 'docs','assets', 'codeAssets', 'FuelFabBase.png')
+    F = os.path.join(x, 'docs_v2','source','assets', 'codeAssets', 'FuelFabBase.png')
     self.axes.imshow(Image.open(F), interpolation='catrom')
 
     self.axes.set_ylim(self.axes.get_ylim()[0], self.axes.get_ylim()[1] - 500)
@@ -262,19 +262,23 @@ class SceneSelect(QtWidgets.QDialog):
     #load the data
     x = Path(sys.argv[0]).resolve().parents[1]
     F = os.path.join(x, 'data', 'fuel_fab', 'Normal', 'data.mat')
-    x1 = scipy.io.loadmat(F)
+    x1 = scipy.io.loadmat(F,squeeze_me=True)
 
 
-    self.Inventories = x1['invn']['data'][0]
-    self.InventoriesT = x1['invn']['time'][0]
+    self.Inventories = x1['invn']['data']
+    self.InventoriesT = x1['invn']['time']
 
-    self.Inputs = x1['in']['data'][0]
-    self.InputsT = x1['in']['time'][0]
+    self.Inputs = x1['in']['data']
+    self.InputsT = x1['in']['time']
 
-    self.Outputs = x1['outn']['data'][0]
-    self.OutputsT = x1['outn']['time'][0]
+    self.Outputs = x1['outn']['data']
+    self.OutputsT = x1['outn']['time']
 
     self.sceneName = 'Normal'
+
+    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
+    self.setWindowIcon(QtGui.QIcon(F))
+
 
     #setup the animation control buttons
     self.XX = np.linspace(0, 249, 250)
@@ -305,7 +309,7 @@ class SceneSelect(QtWidgets.QDialog):
     ICBL = QtWidgets.QGridLayout(ICBContainer)
 
     x = Path(sys.argv[0]).resolve().parents[1]
-    F = os.path.join(x, 'docs','assets', 'codeAssets', pName)
+    F = os.path.join(x, 'docs_v2','source','assets', 'codeAssets', pName)
     IC = QtGui.QPixmap(F)
 
     ICB = QtWidgets.QPushButton()
@@ -314,7 +318,7 @@ class SceneSelect(QtWidgets.QDialog):
     ICB.clicked.connect(self.PlayButton)
 
     SCB = QtWidgets.QPushButton()
-    F = os.path.join(x, 'docs','assets', 'codeAssets', ppName)
+    F = os.path.join(x, 'docs_v2','source','assets', 'codeAssets', ppName)
     SCBL = QtGui.QPixmap(F)
 
     SCB.setIcon(SCBL)
@@ -445,6 +449,8 @@ class SceneSelect(QtWidgets.QDialog):
 
     self.SceneDictShort = {0:'Normal',1:'Abrupt',2:'Protract'}
 
+
+
   def SceneChanged(self):
     """
             Function for changing GUI elements
@@ -541,6 +547,7 @@ class SceneSelect(QtWidgets.QDialog):
     # params saved to self.SS
 
     self.close()
+    return 0
 
   def TMU(self):
     """
