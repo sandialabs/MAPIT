@@ -10,7 +10,7 @@
 
 @echo off
 curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe --ssl-no-revoke
-start /wait ./Windows/Miniconda3-latest-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%userprofile%\Miniconda3
+start /wait Miniconda3-latest-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%userprofile%\Miniconda3
 
 echo Creating environment
 call %userprofile%\Miniconda3\condabin\activate.bat
