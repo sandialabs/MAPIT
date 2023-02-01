@@ -93,7 +93,8 @@ class MPLCanvas(FigureCanvas):
       DB = 0
 
     #load the background image
-    x = Path(sys.argv[0]).resolve().parents[1]
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
     F = os.path.join(x, 'docs_v2','source','assets', 'codeAssets', 'FuelFabBase.png')
     self.axes.imshow(Image.open(F), interpolation='catrom')
 
@@ -260,7 +261,8 @@ class SceneSelect(QtWidgets.QDialog):
     SS = QtWidgets.QHBoxLayout(self)
 
     #load the data
-    x = Path(sys.argv[0]).resolve().parents[1]
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
     F = os.path.join(x, 'data', 'fuel_fab', 'Normal', 'data.mat')
     x1 = scipy.io.loadmat(F,squeeze_me=True)
 
@@ -308,7 +310,8 @@ class SceneSelect(QtWidgets.QDialog):
     ICBContainer.setTitle('Animation Controls')
     ICBL = QtWidgets.QGridLayout(ICBContainer)
 
-    x = Path(sys.argv[0]).resolve().parents[1]
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
     F = os.path.join(x, 'docs_v2','source','assets', 'codeAssets', pName)
     IC = QtGui.QPixmap(F)
 
@@ -479,7 +482,8 @@ class SceneSelect(QtWidgets.QDialog):
     self.TimeBox.setText('0')
     self.EndBox.setText('250')
 
-    x = Path(sys.argv[0]).resolve().parents[1]
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
     F = os.path.join(x, 'data', 'fuel_fab', datype, 'data.mat')
     x1 = scipy.io.loadmat(F)
 
