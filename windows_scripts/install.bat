@@ -12,6 +12,11 @@
 curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe --ssl-no-revoke
 start /wait Miniconda3-latest-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%userprofile%\Miniconda3
 
+set MAPIT_install_folder = %CD%
+call cd ../../
+ren MAPIT-master MAPIT
+cd %MAPIT_install_folder%
+
 echo Creating environment
 call %userprofile%\Miniconda3\condabin\activate.bat
 call conda env create -f ../requirements.yml >nul 2>&1
