@@ -27,14 +27,14 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import numpy as np
 import time
 
-import MAPIT_internal.core.Preprocessing as Preprocessing
+import MAPIT.core.Preprocessing as Preprocessing
 
-from MAPIT_internal.core import StatsTests as Tests
-from MAPIT_internal.core import AuxFunctions as Aux
+from MAPIT.core import StatsTests as Tests
+from MAPIT.core import AuxFunctions as Aux
 
-from MAPIT_internal.GUI.IOWizard import IOWizardMain 
-#from MAPIT_internal.GUI.IOWizardMat import IOWizardMainMat
-from MAPIT_internal.GUI import PlotOps, StyleOps, GeneralOps, DialogComponents, StatsPanelOps, ScenarioSelector, AnimationTools, ErrorPanelOps
+from MAPIT.GUI.IOWizard import IOWizardMain 
+#from MAPIT.GUI.IOWizardMat import IOWizardMainMat
+from MAPIT.GUI import PlotOps, StyleOps, GeneralOps, DialogComponents, StatsPanelOps, ScenarioSelector, AnimationTools, ErrorPanelOps
 
 
 

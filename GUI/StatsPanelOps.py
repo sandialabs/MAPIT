@@ -1,8 +1,8 @@
 from PySide2 import  QtCore
 import matplotlib
 import numpy as np
-from MAPIT_internal.GUI import PlotOps
-from MAPIT_internal.GUI import DialogComponents
+from MAPIT.GUI import PlotOps
+from MAPIT.GUI import DialogComponents
 
 
 def verifyGUIRequests(GUIObject,GUIparams):

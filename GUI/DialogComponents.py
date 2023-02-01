@@ -1,5 +1,5 @@
 from PySide2 import QtWidgets
-from MAPIT_internal.core import AuxFunctions as Aux
+from MAPIT.core import AuxFunctions as Aux
 
 class MissingIndex(QtWidgets.QDialog):
   """

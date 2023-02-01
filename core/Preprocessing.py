@@ -4,7 +4,7 @@ import os
 import string
 import copy
 from scipy.io import loadmat
-from MAPIT_internal.GUI import StatsPanelOps, GeneralOps
+from MAPIT.GUI import StatsPanelOps, GeneralOps
 
 
 
