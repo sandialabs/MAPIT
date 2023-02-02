@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 import time
 
-sys.path.append(str(Path(sys.argv[0]).resolve().parents[2]))
+# sys.path.append(str(Path(sys.argv[0]).resolve().parents[2]))
 
 
 
