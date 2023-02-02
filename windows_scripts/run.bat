@@ -12,4 +12,4 @@
 echo Loading MAPIT, please wait
 call %userprofile%\Miniconda3\condabin\activate.bat
 call conda activate MAPIT_env
-call python ../GUI/MAPIT_main.py
+call python -c "from MAPIT.GUI.mainGUI import mainrun; mainrun()"
