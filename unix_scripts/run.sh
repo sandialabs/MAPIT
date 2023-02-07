@@ -2,7 +2,7 @@
 {
   source $HOME/miniconda/etc/profile.d/conda.sh
   conda activate MAPIT_env
-  python ../GUI/MAPIT_main.py
+  python -c "from MAPIT.GUI.mainGUI import mainrun; mainrun()"
 } || { echo Something went wrong
 
 }
