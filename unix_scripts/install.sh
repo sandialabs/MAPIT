@@ -15,6 +15,12 @@
   rm -rf $HOME/miniconda.sh
   source $HOME/miniconda/etc/profile.d/conda.sh
   conda env create -f ../requirements.yml &> /dev/null && echo MAPIT environment install completed.
+  echo Making MAPIT module 
+  cd ../../
+  cp -R MAPIT-master $HOME/miniconda/envs/MAPIT_env/Lib/site-packages/MAPIT
+  rm -r $HOME/miniconda/envs/MAPIT_env/Lib/site-packages/MAPIT/windows-scripts
+  rm -r $HOME/miniconda/envs/MAPIT_env/Lib/site-packages/MAPIT/unix-scripts
+
 } || { echo Something went wrong: Install failed
 
 }
