@@ -18,8 +18,8 @@
   echo Making MAPIT module 
   cd ../../
   cp -R MAPIT-master $HOME/miniconda/envs/MAPIT_env/Lib/site-packages/MAPIT
-  rm -r $HOME/miniconda/envs/MAPIT_env/Lib/site-packages/MAPIT/windows-scripts
-  rm -r $HOME/miniconda/envs/MAPIT_env/Lib/site-packages/MAPIT/unix-scripts
+  rm -rf $HOME/miniconda/envs/MAPIT_env/Lib/site-packages/MAPIT/windows-scripts
+  rm -rf $HOME/miniconda/envs/MAPIT_env/Lib/site-packages/MAPIT/unix-scripts
 
 } || { echo Something went wrong: Install failed
 
