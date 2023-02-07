@@ -8,7 +8,7 @@
 :: conda installs.
 ::----------------------------------------------
 
-echo off
+@echo off
 call %userprofile%\Miniconda3\condabin\activate.bat
 echo removing MAPIT environment...
 call conda remove --name MAPIT_env --all -y >nul 2>&1
