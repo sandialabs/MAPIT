@@ -14,7 +14,7 @@ start /wait Miniconda3-latest-Windows-x86_64.exe /InstallationType=JustMe /Regis
 
 echo Creating environment
 call %userprofile%\Miniconda3\condabin\activate.bat
-call conda env create -f ../requirements.yml >nul 2>&1
+call conda env create -f ../requirements.yml
 if  errorlevel 1 goto ERROR
 echo Install complete
 echo Creating MAPIT module 
