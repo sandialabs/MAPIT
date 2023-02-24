@@ -4,7 +4,7 @@ import os
 import string
 import copy
 from scipy.io import loadmat
-from MAPIT.GUI import StatsPanelOps, GeneralOps
+from MAPIT_internal.GUI import StatsPanelOps, GeneralOps
 
 
 
@@ -403,7 +403,7 @@ def SimErrors(input,ErrorMatrix,iterations,GUIObject=None,GUIDispString=None):
       else:
           sysRSD = np.random.normal(size=(iterations,1,1),loc=0,scale=ErrorMatrix[i,1])
           randRSD = np.random.normal(size=(iterations,input[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
-          AppliedError[i][:,:,0] = input[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((10,-1))
+          AppliedError[i][:,:,0] = input[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((iterations,-1))
           GUIObject, _ = GeneralOps.updatePB(GUIObject,0,1*len(input))   
 
 
