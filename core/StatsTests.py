@@ -3,9 +3,9 @@ import numpy as np
 from itertools import chain
 from scipy.integrate import trapz
 import sys
-#from MAPIT.GUI import GeneralOps
-import MAPIT.core.AuxFunctions as AuxFunctions
-import MAPIT.GUI.GeneralOps as GeneralOps
+#from MAPIT_internal.GUI import GeneralOps
+import MAPIT_internal.core.AuxFunctions as AuxFunctions
+import MAPIT_internal.GUI.GeneralOps as GeneralOps
 
 
 def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None):
@@ -93,7 +93,7 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
     if GUIObject is not None:
         Loc = GUIparams.Loc
         GUIObject.PB.setValue(0)
-        GUIObject.StatDlg.UpdateDispText('Calculating MUF')
+        GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box12L'])
         QtCore.QCoreApplication.instance().processEvents()
         GUIObject.PB.setValue(0)
 
@@ -149,6 +149,9 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
     #------------------------------  MUF Calculation  ------------------------------#
     #-------------------------------------------------------------------------------#
 
+    MUFTermHolder0 = []
+    MUFTermHolder1 = []
+
     for i in range(1, int(MBPs)):  #each MBP
 
 
@@ -167,6 +170,7 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
         MUF[:, i * MBP:(i + 1) * MBP] += \
         np.tile(AuxFunctions.trapSum(logicalInterval,processedInputTimes[j],inputAppliedError[j]), (MBP, 1)).transpose()
 
+
       #------------ Output terms ------------#
       for j in range(0, len(outputAppliedError)):
         
@@ -179,6 +183,7 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
 
         MUF[:, i * MBP:(i + 1) * MBP] -= \
         np.tile(AuxFunctions.trapSum(logicalInterval,processedOutputTimes[j],outputAppliedError[j]), (MBP, 1)).transpose()
+
 
       #------------ Inventory terms ------------#
       for j in range(0, len(inventoryAppliedError)):
@@ -201,11 +206,99 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
 
 
     if GUIObject is not None:
-      GUIObject.StatDlg.UpdateDispText('Finished MUF Calculation')
+      GUIObject.StatDlg.UpdateDispText('Finished '+ GUIparams.labels['Box12L'] +  ' Calculation')
       GUIObject.PB.setValue(100)      
       QtCore.QCoreApplication.instance().processEvents()
 
     return MUF
+
+
+def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None):
+
+    if GUIObject is not None:
+        Loc = GUIparams.Loc
+        GUIObject.PB.setValue(0)
+        GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box13L'])
+        QtCore.QCoreApplication.instance().processEvents()
+        GUIObject.PB.setValue(0)
+
+
+    inputAppliedError, \
+    inventoryAppliedError, \
+    outputAppliedError = AuxFunctions.removeExtraDims(inputAppliedError,
+                                                        inventoryAppliedError,
+                                                        outputAppliedError)  
+    
+    #if one of the datasets are a list
+    #then need check them all to figure
+    #out how long the imported data is
+    #as it cannot be assumed (len(data)) = time
+
+    iterations = inputAppliedError[0].shape[0]
+
+    A1 = np.max(np.asarray(list(chain.from_iterable(processedInputTimes))))  #unroll list
+    A2 = np.max(np.asarray(list(chain.from_iterable(processedInventoryTimes))))
+    A3 = np.max(np.asarray(list(chain.from_iterable(processedOutputTimes))))
+
+
+    timeSteps = np.round(np.max(np.array([A1, A2, A3])))
+
+    MBPs = np.ceil(timeSteps / MBP)
+    AI = np.zeros((iterations, int(MBP * MBPs)))
+
+    loopcounter = 0
+    totalloops = ((MBPs-1)*(len(inputAppliedError)+len(outputAppliedError)+len(inventoryAppliedError)))
+
+    for i in range(1, int(MBPs)):  #each MBP
+        for j in range(0, len(inputAppliedError)):  
+
+          if GUIObject is not None:
+            GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+
+          logicalInterval = np.logical_and(
+              processedInputTimes[j] >= MBP * (i - 1),
+              processedInputTimes[j] <= MBP * i).reshape((-1,))  
+
+          AI[:, i * MBP:(i + 1) * MBP] += \
+          np.tile(AuxFunctions.trapSum(logicalInterval,processedInputTimes[j],inputAppliedError[j]), (MBP, 1)).transpose()
+
+        
+        for j in range(0, len(outputAppliedError)):
+
+          if GUIObject is not None:
+            GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+
+          logicalInterval = np.logical_and(
+              processedOutputTimes[j] >= MBP * (i - 1),
+              processedOutputTimes[j] <= MBP * i).reshape((-1,))
+
+          AI[:, i * MBP:(i + 1) * MBP] += \
+          np.tile(AuxFunctions.trapSum(logicalInterval,processedOutputTimes[j],outputAppliedError[j]), (MBP, 1)).transpose()
+        
+        for j in range(0, len(inventoryAppliedError)):
+
+          if GUIObject is not None:
+            GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+          startIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) - MBP *
+                          (i - 1)).argmin()
+          endIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) -
+                         MBP * i).argmin()
+
+          if i == 1:
+              AI[:, i * MBP:(i + 1) * MBP] += \
+              np.tile((inventoryAppliedError[j][:, endIdx]), (MBP, 1)).transpose()
+
+          else:
+              AI[:, i * MBP:(i + 1) * MBP] += \
+              np.tile((inventoryAppliedError[j][:, endIdx] - inventoryAppliedError[j][:, startIdx]), (MBP, 1)).transpose()
+
+    if GUIObject is not None:
+      GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box13L'] + ' Calculation')
+      GUIObject.PB.setValue(100)      
+      QtCore.QCoreApplication.instance().processEvents()
+
+    return AI
+
 
 def CUMUF(MUF,GUIObject=None, GUIparams=None):
   """
@@ -229,7 +322,7 @@ def CUMUF(MUF,GUIObject=None, GUIparams=None):
 
   if GUIObject is not None:
     GUIObject.PB.setValue(0)
-    GUIObject.StatDlg.UpdateDispText('Calculating CUMUF')
+    GUIObject.StatDlg.UpdateDispText('Calculating ' +  GUIparams.labels['Box14L'])
     QtCore.QCoreApplication.instance().processEvents()
     GUIObject.PB.setValue(0)
   
@@ -252,7 +345,7 @@ def CUMUF(MUF,GUIObject=None, GUIparams=None):
   cumuf[:,-1] = cumuf[:,-2]
 
   if GUIObject is not None:
-    GUIObject.StatDlg.UpdateDispText('Finished CUMUF Calculation')
+    GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box14L'] + ' Calculation')
     GUIObject.PB.setValue(100)      
     QtCore.QCoreApplication.instance().processEvents()
   
@@ -310,7 +403,7 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
       """
 
       if GUIObject is not None:
-        GUIObject.StatDlg.UpdateDispText('Calculating SEID')
+        GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box15L'])
         QtCore.QCoreApplication.instance().processEvents()
         Loc = GUIparams.Loc
 
@@ -447,15 +540,31 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
 
 
       if GUIObject is not None:
-        GUIObject.StatDlg.UpdateDispText('SEID Finished')        
+        GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box15L'] + ' Calculation')        
         QtCore.QCoreApplication.instance().processEvents()
 
       return SEMUFCalcs, SEMUFContribR, SEMUFContribS, SEMUFContribI
 
 
+def SEMUFAI(AI, SEMUF,GUIObject=None,GUIparams=None):
 
+  if GUIObject is not None:
+    Loc = GUIparams.Loc
+    GUIObject.PB.setValue(0)
+    GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box16L'])
+    QtCore.QCoreApplication.instance().processEvents()
+    GUIObject.PB.setValue(0)
 
-def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,ErrorMatrix,MUF,MBP,GUIObject=None,GUIparams=None,):
+  SEMUFAI = SEMUF/AI*100
+
+  if GUIObject is not None:
+    GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box16L'] + ' Calculation')
+    GUIObject.PB.setValue(100)      
+    QtCore.QCoreApplication.instance().processEvents()
+
+  return SEMUFAI
+
+def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,ErrorMatrix,MUF,MBP,GUIObject=None,GUIparams=None):
       """
        Function that carries out the standardized independent transformation of MUF. More detailed information can be found in the guide XX. 
 
@@ -510,7 +619,7 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
 
       if GUIObject is not None:
         GUIObject.statusBar().clearMessage()
-        GUIObject.StatDlg.UpdateDispText('Calculating SITMUF')
+        GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box17L'])
         GUIObject.PB.setValue(0)
         QtCore.QCoreApplication.instance().processEvents()
 
@@ -733,13 +842,13 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
 
 
       if GUIObject is not None:
-        GUIObject.StatDlg.UpdateDispText('SITMUF Finished')        
+        GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box17L'] + ' Calculation')        
         QtCore.QCoreApplication.instance().processEvents()
 
       return SITMUFCalcs
 
 
-def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None):
+def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,GUIparams=None):
   """
   Function for calculating Page's trend test, which is commonly applied to the SITMUF sequence. Formally compares the null hypothesis that there is no trend versus the alternate trend where there is a trend.
 
@@ -755,19 +864,24 @@ def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None):
 
     GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
 
+    GUIParams (object, default=None): An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI. 
+
   Returns:
     ndarray: The results of the trend test which has shape :math:`[m,n]`. 
 
   """
+
+  PageCalcs = np.zeros((inQty.shape[0:2]))
+
   if GUIObject is not None:
       GUIObject.statusBar().clearMessage()
-      GUIObject.StatDlg.UpdateDispText('Calculating Page trend test')
+      GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box18L'])
       GUIObject.PB.setValue(0)
       QtCore.QCoreApplication.instance().processEvents()
       loopcounter = 0
       nloops = int(MBPs) * PageCalcs.shape[0]
 
-  PageCalcs = np.zeros((inQty.shape[0:2]))
+ 
   for k in range(PageCalcs.shape[0]):
     for P in range(1,int(MBPs)):
       
@@ -783,6 +897,8 @@ def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None):
 
       if GUIObject is not None:
         GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,nloops)
+        GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box18L'] + ' Calculation')        
+        QtCore.QCoreApplication.instance().processEvents()
 
   return PageCalcs
     
