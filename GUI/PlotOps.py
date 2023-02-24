@@ -292,18 +292,23 @@ def getData(GUIObject,GUIparams,AnalysisData):
 
     else:
       currentText = GUIObject.metricBox.currentText()
-      if currentText[-11:] == 'Page SITMUF':
+      if currentText.endswith(GUIparams.labels["Box18L"]):
         inp = AnalysisData.Page
         CanvasElements.ylabel = 'Unitless'
-      elif currentText[-6:] == 'SITMUF':
+      elif currentText.endswith(GUIparams.labels["Box15L"]):
+        inp = AnalysisData.SEMUF
+      elif currentText.endswith(GUIparams.labels["Box17L"]):
         inp = AnalysisData.SITMUF
         CanvasElements.ylabel = 'Unitless'
-      elif currentText[-4:] == 'SEID':
-        inp = AnalysisData.SEMUF
-      elif currentText[-5:] == 'CUMUF':
+      elif currentText.endswith(GUIparams.labels["Box14L"]):
         inp = AnalysisData.CUMUF
-      elif currentText[-3:] == 'MUF':
+      elif currentText.endswith(GUIparams.labels["Box12L"]):
         inp = AnalysisData.MUF
+      elif currentText.endswith(GUIparams.labels["Box16L"]):
+        inp = AnalysisData.SEMUFAI
+        CanvasElements.ylabel = '% Active Inventory'
+      elif currentText.endswith(GUIparams.labels["Box13L"]):
+        inp = AnalysisData.AI
 
       dat, datT = getDataWithoutLocations(inp,numToPlot)
     dh = []
@@ -862,8 +867,8 @@ def UpdateLocOpts(self,GUIparams):
    "border-width: 2px;" +\
    "border-style: solid;" +\
    "padding: 0px;" +\
-   "border-radius: 3px;" +\
-   "margin-top: 10px;" +\
+   "border-radius: 7px;" +\
+   "margin-top: 20px;" +\
    "background-color: rgb(239,239,239);" +\
     "}"
 
@@ -871,8 +876,8 @@ def UpdateLocOpts(self,GUIparams):
    "border-width: 2px;" +\
    "border-style: solid;" +\
    "padding: 0px;" +\
-   "border-radius: 3px;" +\
-   "margin-top: 10px;" +\
+   "border-radius: 7px;" +\
+   "margin-top: 20px;" +\
    "background-color: rgb(239,239,239);" +\
     "}"
 
@@ -894,8 +899,7 @@ def UpdateLocOpts(self,GUIparams):
       self.mb4.ChangeActive(0)
       self.mb4.setStyleSheet(
           "QWidget#{VAL}".format(VAL=self.mb4.Loc) + "{" + grad2 +
-          "QWidget#{VAL}".format(VAL=self.mb4.Loc) +
-          ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+          "QWidget#{VAL}".format(VAL=self.mb4.Loc) )
     # OD add iterations
     elif self.metricBox.currentText() == 'Observed Data':
       if int(self.IterBox.text()) <= 100:
@@ -919,8 +923,7 @@ def UpdateLocOpts(self,GUIparams):
       self.mb4.ChangeActive(1)
       self.mb4.setStyleSheet(
           "QWidget#{VAL}".format(VAL=self.mb4.Loc) + "{" + grad +
-          "QWidget#{VAL}".format(VAL=self.mb4.Loc) +
-          ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+          "QWidget#{VAL}".format(VAL=self.mb4.Loc) )
     else:
       None
 
@@ -937,21 +940,19 @@ def UpdateLocOpts(self,GUIparams):
         self.mb2.ChangeActive(1)
         self.mb2.setStyleSheet(
             "QWidget#{VAL}".format(VAL=self.mb2.Loc) + "{" + grad +
-            "QWidget#{VAL}".format(VAL=self.mb2.Loc) +
-            ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+            "QWidget#{VAL}".format(VAL=self.mb2.Loc) )
 
         self.NucIDBox.setEnabled(1)
         self.mb3.ChangeActive(1)
         self.mb3.setStyleSheet(
             "QWidget#{VAL}".format(VAL=self.mb3.Loc) + "{" + grad +
-            "QWidget#{VAL}".format(VAL=self.mb3.Loc) +
-            ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+            "QWidget#{VAL}".format(VAL=self.mb3.Loc) )
 
       else:
         None
     else:
-      self.mb2.setStyleSheet('QGroupBox:title {' 'padding-right: 10px}')
-      self.mb3.setStyleSheet('QGroupBox:title {' 'padding-right: 10px}')
+      #self.mb2.setStyleSheet('QGroupBox:title {' 'padding-right: 10px}')
+      #self.mb3.setStyleSheet('QGroupBox:title {' 'padding-right: 10px}')
       if self.LocBox.count(
       ) != 0:  # statistical test boxes - add iterations and remove location / ele ID
         for i in range(0, int(self.LocBox.count())):
@@ -963,15 +964,13 @@ def UpdateLocOpts(self,GUIparams):
         self.mb2.ChangeActive(0)
         self.mb2.setStyleSheet(
             "QWidget#{VAL}".format(VAL=self.mb2.Loc) + "{" + grad2 +
-            "QWidget#{VAL}".format(VAL=self.mb2.Loc) +
-            ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+            "QWidget#{VAL}".format(VAL=self.mb2.Loc))
 
         self.NucIDBox.setEnabled(0)
         self.mb3.ChangeActive(0)
         self.mb3.setStyleSheet(
             "QWidget#{VAL}".format(VAL=self.mb3.Loc) + "{" + grad2 +
-            "QWidget#{VAL}".format(VAL=self.mb3.Loc) +
-            ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+            "QWidget#{VAL}".format(VAL=self.mb3.Loc) )
 
         if int(self.IterBox.text()) <= 100:  #check options for iterations
           if self.NumToPlot.count() > 0:
@@ -990,17 +989,14 @@ def UpdateLocOpts(self,GUIparams):
         self.mb4.ChangeActive(1)
         self.mb4.setStyleSheet(
             "QWidget#{VAL}".format(VAL=self.mb4.Loc) + "{" + grad +
-            "QWidget#{VAL}".format(VAL=self.mb4.Loc) +
-            ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+            "QWidget#{VAL}".format(VAL=self.mb4.Loc) )
       else:
         #if not included then style will look weird when no changes
         #are made to the options, due to the style sheet change
         #at the top of this if block
         self.mb2.setStyleSheet(
             "QWidget#{VAL}".format(VAL=self.mb2.Loc) + "{" + grad2 +
-            "QWidget#{VAL}".format(VAL=self.mb2.Loc) +
-            ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+            "QWidget#{VAL}".format(VAL=self.mb2.Loc) )
         self.mb3.setStyleSheet(
             "QWidget#{VAL}".format(VAL=self.mb3.Loc) + "{" + grad2 +
-            "QWidget#{VAL}".format(VAL=self.mb3.Loc) +
-            ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+            "QWidget#{VAL}".format(VAL=self.mb3.Loc) )

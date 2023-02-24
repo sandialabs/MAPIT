@@ -81,6 +81,8 @@ class StatGUIInterface:
     mbaTime = int(self.MBPBox.text())
     IT = int(self.IterBox.text())
 
+    doError, doMUF, doAI, doCUMUF, doSEID, doSEIDAI, doSITMUF, doPage = StatsPanelOps.getRequestedTests(GUIObject = self)
+
     #processed terms have been adjusted according to offset (if applicable)
     #AnalysisData should be loaded prior to this either from the scene select
     #or a csv/mat loader (not currently implemented)
@@ -110,33 +112,49 @@ class StatGUIInterface:
                                                             GLoc)   
 
     
-
-
-    AnalysisData.inputAppliedError = Preprocessing.SimErrors(input = processedInput, 
-                                                              ErrorMatrix =  AnalysisData.ErrorMatrix, 
-                                                              iterations = IT,
-                                                              GUIObject = self,
-                                                              GUIDispString = 'input errors')
-
-    AnalysisData.inventoryAppliedError = Preprocessing.SimErrors(input = processedInventory,
+    if doError == 1:
+      AnalysisData.inputAppliedError = Preprocessing.SimErrors(input = processedInput, 
                                                                 ErrorMatrix =  AnalysisData.ErrorMatrix, 
                                                                 iterations = IT,
                                                                 GUIObject = self,
-                                                                GUIDispString = 'inventory errors')
+                                                                GUIDispString = 'input errors')
+
+      AnalysisData.inventoryAppliedError = Preprocessing.SimErrors(input = processedInventory,
+                                                                  ErrorMatrix =  AnalysisData.ErrorMatrix, 
+                                                                  iterations = IT,
+                                                                  GUIObject = self,
+                                                                  GUIDispString = 'inventory errors')
 
 
-    AnalysisData.outputAppliedError = Preprocessing.SimErrors(input = processedOutput, 
-                                                              ErrorMatrix =  AnalysisData.ErrorMatrix, 
-                                                              iterations = IT,
-                                                              GUIObject = self,
-                                                              GUIDispString = 'output errors')
+      AnalysisData.outputAppliedError = Preprocessing.SimErrors(input = processedOutput, 
+                                                                ErrorMatrix =  AnalysisData.ErrorMatrix, 
+                                                                iterations = IT,
+                                                                GUIObject = self,
+                                                                GUIDispString = 'output errors')
+
+    else:
+      #if no sim error, use what user supplied
+      AnalysisData.inputAppliedError = processedInput
+      AnalysisData.inventoryAppliedError = processedInventory
+      AnalysisData.outputAppliedError = processedOutput
 
 
 
-    doMUF, doCUMUF, doSEID, doSITMUF, doPage = StatsPanelOps.getRequestedTests(GUIObject = self)
+    
 
     if doMUF == 1:
       AnalysisData.MUF = Tests.MUF(inputAppliedError = AnalysisData.inputAppliedError,
+                                  inventoryAppliedError= AnalysisData.inventoryAppliedError,
+                                  outputAppliedError = AnalysisData.outputAppliedError,
+                                  processedInputTimes = processedInputTimes,
+                                  processedInventoryTimes = processedInventoryTimes,
+                                  processedOutputTimes = processedOutputTimes,
+                                  MBP = mbaTime,
+                                  GUIObject = self,
+                                  GUIparams = GUIparams)
+
+    if doAI == 1:
+      AnalysisData.AI = Tests.ActiveInventory(inputAppliedError = AnalysisData.inputAppliedError,
                                   inventoryAppliedError= AnalysisData.inventoryAppliedError,
                                   outputAppliedError = AnalysisData.outputAppliedError,
                                   processedInputTimes = processedInputTimes,
@@ -166,6 +184,12 @@ class StatGUIInterface:
                                               GUIObject = self,
                                               GUIparams= GUIparams)
 
+    if doSEIDAI == 1:
+      AnalysisData.SEMUFAI = Tests.SEMUFAI(AnalysisData.AI,
+                                        AnalysisData.SEMUF,
+                                        GUIObject = self,
+                                        GUIparams= GUIparams)
+
     if doSITMUF == 1:
 
       AnalysisData.SITMUF = Tests.SITMUF(inputAppliedError = AnalysisData.inputAppliedError,
@@ -181,13 +205,13 @@ class StatGUIInterface:
                                                             GUIparams= GUIparams)  
 
       MBPs = Aux.getMBPs(processedInputTimes,processedInventoryTimes,processedOutputTimes,mbaTime)
-      AnalysisData.Page = Tests.PageTrendTest(AnalysisData.SITMUF,mbaTime,MBPs)
+      AnalysisData.Page = Tests.PageTrendTest(AnalysisData.SITMUF,mbaTime,MBPs,GUIObject = self, GUIparams = GUIparams)
 
 
                                                                        
 
 
-    StatsPanelOps.preparePlotterOptions(self, doMUF,doCUMUF,doSEID,doSITMUF,doPage,GUIparams)
+    StatsPanelOps.preparePlotterOptions(self, doMUF, doAI, doCUMUF,doSEID, doSEIDAI,doSITMUF,doPage,GUIparams,AnalysisData)
     self.CalcThresh.PassLoc('CTB')
     self.CalcThresh._animation.start()
     self.CalcThresh.setEnabled(1)
@@ -284,23 +308,27 @@ class AniButton(QtWidgets.QPushButton):
     self._animation2.valueChanged.connect(
         lambda: AnimationTools.GradButtonChange(self))
 
+    self.doGradientAni = 1
+
   def UpdateIState(self):
     #check if the initial border animation
     #has finished
     self.IsDone = 1
 
   def enterEvent(self, event):
-    self._animation2.setDirection(QtCore.QAbstractAnimation.Forward)
-    self._animation2.start()
+    if self.doGradientAni == 1:
+      self._animation2.setDirection(QtCore.QAbstractAnimation.Forward)
+      self._animation2.start()
 
-    super().enterEvent(event)
+      super().enterEvent(event)
 
   def leaveEvent(self, event):
 
-    self._animation2.setDirection(QtCore.QAbstractAnimation.Backward)
-    self._animation2.start()
+    if self.doGradientAni == 1:
+      self._animation2.setDirection(QtCore.QAbstractAnimation.Backward)
+      self._animation2.start()
 
-    super().enterEvent(event)
+      super().enterEvent(event)
 
   def PassLoc(self, loc):
     self.Loc = loc
@@ -343,16 +371,16 @@ class AniGBox(QtWidgets.QGroupBox):
      "border-width: 5px;" +\
     "border-style: solid;" +\
     "padding: 6px;" +\
+    "margin-top: 20px;" +\
     "color: black;" +\
-    "border-radius: 3px;}"
+    "border-radius: 7px;}"
 
       if self.window().MakeLight.isChecked() == 0:
         grad2 = grad2.replace('rgb(211,211,211)', 'rgb(66,66,66)')
 
       self.setStyleSheet(
           "QWidget#{VAL}".format(VAL=self.Loc) + "{" + grad2 +
-          "QWidget#{VAL}".format(VAL=self.Loc) +
-          ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+          "QWidget#{VAL}".format(VAL=self.Loc) )
 
 
 class MssgRunner(QtWidgets.QLineEdit):
@@ -396,7 +424,7 @@ class MssgRunner(QtWidgets.QLineEdit):
            "border-width: 5px;" +\
           "border-style: solid;" +\
           "padding: 6px;" +\
-          "border-radius: 3px;"
+          "border-radius: 7px;"
 
     qss += grad
 
@@ -428,7 +456,71 @@ class LaunchGUI(QtWidgets.QMainWindow):
     super(LaunchGUI, self).__init__()
 
     global GUIparams
-    global AnalysisData
+
+    intdictlab = {
+      "OuterL" : "Analysis",
+      "Box1L" : "Operations",
+      "Box11L" : "Simulate measurement error",
+      "Box12L" : "MUF",
+      "Box13L" : "Active Inventory",
+      "Box14L" : "CUMUF",
+      "Box15L" : "Sigma MUF",
+      "Box16L" : "Sigma MUF(Active Inventory)",
+      "Box17L" : "SITMUF",
+      "Box18L" : "Page's test on SITMUF",
+      "Box2L" : "Statistics",
+      "Box21L" : "MBP",
+      "Box22L" : "Iterations",
+      "Box23L" : "Analysis Elements/Index",
+      "Box24L" : "Temporal Offset",
+      "Box25L" : "Set Simulated Errors",
+      "Box26L" : "Run",
+      "Box3L" : "Plot Controls",
+      "Box31L" : "Plot Data Type",
+      "Box32L" : "Plot Data Location",
+      "Box33L" : "Plot Data Nuclide",
+      "Box34L" : "Iterations to Plot",
+      "Box4L" : "Statistical Thresholds",
+      "Box41L" : "Enter Threshold",
+      "Box42L" : "% Above Threshold",
+      "Box43L" : "Calculate"
+    }
+
+    domdictlab = {
+      "OuterL" : "Analysis",
+      "Box1L" : "Operations",
+      "Box11L" : "Simulate measurement error",
+      "Box12L" : "ID",
+      "Box13L" : "Active Inventory",
+      "Box14L" : "CUMUF",
+      "Box15L" : "SEID",
+      "Box16L" : "SEID(Active Inventory)",
+      "Box17L" : "SITMUF",
+      "Box18L" : "Page's test on SITMUF",
+      "Box2L" : "Statistics",
+      "Box21L" : "MBP",
+      "Box22L" : "Iterations",
+      "Box23L" : "Analysis Elements/Index",
+      "Box24L" : "Temporal Offset",
+      "Box25L" : "Set Simulated Errors",
+      "Box26L" : "Run",
+      "Box3L" : "Plot Controls",
+      "Box31L" : "Plot Data Type",
+      "Box32L" : "Plot Data Location",
+      "Box33L" : "Plot Data Nuclide",
+      "Box34L" : "Iterations to Plot",
+      "Box4L" : "Statistical Thresholds",
+      "Box41L" : "Enter Threshold",
+      "Box42L" : "% Above Threshold",
+      "Box43L" : "Calculate"
+    }
+
+    international = False
+    if international == True:
+      GUIparams.labels = intdictlab
+    else:
+      GUIparams.labels = domdictlab
+    
 
 
     self.CBHolder = []  #this is just for some of the style stuff later on
@@ -440,15 +532,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.HasRunErrors = 0
     self.launch_master_window()
 
-
-
     self.RunStats.clicked.connect(lambda: StatGUIInterface.runAnalysisPipe(self))
     self.ErrorS.clicked.connect(self.InitErrors)
     self.PlotRunner.clicked.connect(lambda: PlotOps.ExecPlot(self,GUIparams,AnalysisData))
-    self.metricBox.activated.connect(lambda: PlotOps.UpdateLocOpts(self,GUIparams)) #TODO: CUMUF here
-
-
-    
+    self.metricBox.activated.connect(lambda: PlotOps.UpdateLocOpts(self,GUIparams)) #TODO: CUMUF here  
 
 
     
@@ -513,6 +600,17 @@ class LaunchGUI(QtWidgets.QMainWindow):
       self.CB_MUF.setEnabled(1)
       self.CB_SITMUF.setEnabled(1)
 
+  def force_SEMUFAI_reqs(self):
+    if self.CB_SMUFAI.isChecked():
+      self.CB_AI.setChecked(1)
+      self.CB_SMUF.setChecked(1)
+
+  def update_errorB_text(self):
+    if self.CB_ErrorProp.isChecked() == 1:
+      self.ErrorS.setText('Set Simulated Errors')
+    else:
+      self.ErrorS.setText('Set Estimated Errors')
+
 
   def InitErrors(self):
     """
@@ -555,7 +653,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     # errors for dropdown
     ErrorBox = [
-        '0.5', '1.0', '3.0', '5.0', '10.0', '15.0', '20.0', '25.0', '50.0'
+        '0.05', '0.1', '0.5', '1.0', '3.0', '5.0', '10.0', '15.0', '20.0', '25.0', '50.0'
     ]
 
     # pane for all errors, all ins, outs, invs
@@ -756,6 +854,9 @@ class LaunchGUI(QtWidgets.QMainWindow):
     GUIparams.nInventoryLocations =  np.shape(AnalysisData.rawInventory)[0]
     GUIparams.nOutputLocations = np.shape(AnalysisData.rawOutput)[0]
     GUIparams.nTotalLocations = np.shape(AnalysisData.rawInput)[0] + np.shape(AnalysisData.rawInventory)[0] + np.shape(AnalysisData.rawOutput)[0]
+    GUIparams.ExtData = False
+    self.CB_ErrorProp.setEnabled(0)
+    self.CB_ErrorProp.setChecked(1)
 
     F = os.path.join(x, 'data', 'fuel_fab', GUIparams.sceneName, 'auxData.npz')
     A = np.load(F)
@@ -823,6 +924,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     GUIparams.nInputLocations, GUIparams.nInventoryLocations, \
     GUIparams.nOutputLocations, GUIparams.nTotalLocations, \
     GUIparams.rowNames = GeneralOps.processWizardGUI(AnalysisData,Wizard)
+    GUIparams.ExtData = True
 
     eleNames = []
     eleMax = 1
@@ -841,6 +943,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
     GUIparams.nInferredEles = eleMax
     GUIparams.eleList = eleNames
 
+    self.CB_ErrorProp.setEnabled(1)
+    self.CB_ErrorProp.setChecked(1)
 
     self.StatDlg._animation.stop()
     self.StatDlg._animation.updateCurrentValue(2)
@@ -928,7 +1032,9 @@ class LaunchGUI(QtWidgets.QMainWindow):
     res = dlg.exec_()
 
 
-
+  def RunHPCDlg(self):
+    dlg = DialogComponents.HPCWindow(self, AnalysisData)
+    res = dlg.exec_()
 
 
   def launch_master_window(self):
@@ -1016,8 +1122,11 @@ class LaunchGUI(QtWidgets.QMainWindow):
     themeOpt.addAction(self.MakeLight)
     self.MakeDark = TG.addAction(QtWidgets.QAction("Dark", self, checkable=True))
     themeOpt.addAction(self.MakeDark)
-    self.MakeLight.setChecked(1)
+    #HACK: theme here
+    self.MakeDark.setChecked(1)
+    StyleOps.setInitialStyle(self)
     TG.triggered.connect(lambda: StyleOps.ChangeColor(self))
+   
 
     # IOAction = QtWidgets.QAction("Load Data (.csv)", self)
     # IOAction.setStatusTip("Select .csv data to load for analysis")
@@ -1034,6 +1143,11 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.ExportDat.triggered.connect( lambda: GeneralOps.SaveStats(self,AnalysisData,GUIparams))
     self.ExportDat.setEnabled(0)
 
+    self.HPC_opts = QtWidgets.QAction("High performance options",self)
+    menu.addAction(self.HPC_opts)
+    self.HPC_opts.triggered.connect(self.RunHPCDlg)
+
+
 
 
     add_stats_box(self)
@@ -1048,12 +1162,15 @@ class LaunchGUI(QtWidgets.QMainWindow):
     #self.CBHolder.append(menu)
 
 
-    StyleOps.setInitialStyle(self)
+    
     sysPalette = QtGui.QPalette()
     if sum(sysPalette.base().color().getRgb()[0:3]) != 765:
       self.MakeLight.setChecked(0)
       self.MakeDark.setChecked(1)
       StyleOps.ChangeColor(self)
+
+    #HACK: theme here
+    StyleOps.ChangeColor(self)
 
   def RunStatThresh(self):
     #call the function to update the threshold statistics
@@ -1068,7 +1185,7 @@ def add_stats_box(self):
     """
 
   statContainer = QtWidgets.QGroupBox(self.main_CF)
-  statContainer.setTitle('Safeguards Analysis')
+  statContainer.setTitle(GUIparams.labels['Box1L'])
   self.CBHolder.append(statContainer)
   self.main_CL.addWidget(statContainer, 0, 1)
   statContainerL = QtWidgets.QGridLayout(statContainer)
@@ -1076,7 +1193,7 @@ def add_stats_box(self):
   # iterations and so on
   #self.SGSetContainer = QtWidgets.QGroupBox(statContainer)
   self.SGSetContainer = AniGBox(statContainer)
-  self.SGSetContainer.setTitle('Statistics')
+  self.SGSetContainer.setTitle(GUIparams.labels["Box2L"])
   self.SGSetContainer.setObjectName('PB6')
   self.SGSetContainer.PassLoc('PB6')
   statContainerL.addWidget(self.SGSetContainer, 1, 0, 1, 1)
@@ -1088,7 +1205,7 @@ def add_stats_box(self):
   LIL = QtWidgets.QGridLayout(LIContainer)
 
   # iteration label and edit box
-  IterLabel = QtWidgets.QLabel("Iterations", LIContainer)
+  IterLabel = QtWidgets.QLabel(GUIparams.labels["Box22L"], LIContainer)
   LIL.addWidget(IterLabel, 1, 0)
   self.IterBox = QtWidgets.QLineEdit("", LIContainer)
   self.IterBox.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
@@ -1101,7 +1218,7 @@ def add_stats_box(self):
   #self.IterBox.setFixedWidth(45)
   LIL.addWidget(self.IterBox, 1, 1)
 
-  MBPLabel = QtWidgets.QLabel("MBP", LIContainer)
+  MBPLabel = QtWidgets.QLabel(GUIparams.labels["Box21L"], LIContainer)
   self.MBPBox = QtWidgets.QLineEdit("", LIContainer)
   self.MBPBox.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
   self.MBPBox.setMaxLength(4)
@@ -1116,17 +1233,19 @@ def add_stats_box(self):
   # generic element index
   self.GESelector = QtWidgets.QComboBox()
   self.GESelector.setFrame(0)
-  GELabel = QtWidgets.QLabel("Analysis Element/Index", LIContainer)
+  GELabel = QtWidgets.QLabel(GUIparams.labels["Box23L"], LIContainer)
   #self.GESelector.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
  
   LIL.addWidget(GELabel, 2, 0)
   LIL.addWidget(self.GESelector, 2, 1)
+
+
   self.CBHolder.append(GELabel)
   self.CBHolder.append(self.GESelector)
   self.GESelector.setToolTip('*Optional* - Index (row) \n of element to be analyzed')
 
   #offset index (optional)
-  OLabel = QtWidgets.QLabel("Temporal Offset", LIContainer)
+  OLabel = QtWidgets.QLabel(GUIparams.labels["Box24L"], LIContainer)
   self.OBox = QtWidgets.QLineEdit("", LIContainer)
   self.OBox.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
   self.OBox.setMaxLength(4)
@@ -1141,7 +1260,7 @@ def add_stats_box(self):
 
   # error push button
   self.ErrorS = AniButton(self)
-  self.ErrorS.setText('Select Errors')
+  self.ErrorS.setText(GUIparams.labels["Box25L"])
   self.ErrorS.setObjectName('EAB')
   # self.ErrorS.setStyleSheet('border:2px solid rgb(255,170,255);')
   SGS_L.addWidget(self.ErrorS)
@@ -1165,7 +1284,7 @@ def add_stats_box(self):
          "border-width: 2px;" +\
          "border-style: solid;" +\
          "padding: 6px;" +\
-         "border-radius: 3px;" +\
+         "border-radius: 7px;" +\
          "color: black;}"
 
   grad2 = """QToolTip {
@@ -1173,7 +1292,7 @@ def add_stats_box(self):
                           border-width: 3px;
                           border-color: rgb(153,200,221);
                           border-style: solid;
-                          border-radius: 3px;
+                          border-radius: 7px;
                           color: black;
                           }"""
 
@@ -1184,7 +1303,7 @@ def add_stats_box(self):
   self.RunStats.setObjectName('RSB')
   self.RunStats.PassLoc('RSB')
   self.RunStats._animation.setLoopCount(3)
-  self.RunStats.setText('Run')
+  self.RunStats.setText(GUIparams.labels["Box26L"])
   SGS_L.addWidget(self.RunStats)
   self.RunStats.setEnabled(0)
   self.RunStats.setStyleSheet(grad)
@@ -1194,7 +1313,8 @@ def add_stats_box(self):
 
   # Tests to run
   self.AnalysisContainer = AniGBox(statContainer)
-  self.AnalysisContainer.setTitle('Tests')
+  self.AnalysisContainer.setTitle(GUIparams.labels['OuterL'])
+  # self.AnalysisContainer.setTitle('Operations')
   self.AnalysisContainer.setObjectName('PB7')
   self.AnalysisContainer.PassLoc('PB7')
   statContainerL.addWidget(self.AnalysisContainer, 0, 0, 1, 1)
@@ -1213,15 +1333,20 @@ def add_stats_box(self):
   # GEContain.setTitle("Generic Element")
   # glay = QtWidgets.QVBoxLayout(GEContain)
 
-  self.CB_MUF = QtWidgets.QCheckBox("MUF", self.AnalysisContainer)
-  self.CB_CUMUF = QtWidgets.QCheckBox("CUMUF",self.AnalysisContainer)
-  self.CB_SMUF = QtWidgets.QCheckBox("Sigma MUF", self.AnalysisContainer)
-  self.CB_SITMUF = QtWidgets.QCheckBox("SITMUF", self.AnalysisContainer)
-  self.CB_PAGE = QtWidgets.QCheckBox("Page's test SITMUF",
+  self.CB_ErrorProp = QtWidgets.QCheckBox(GUIparams.labels["Box11L"],self.AnalysisContainer)
+  self.CB_MUF = QtWidgets.QCheckBox(GUIparams.labels["Box12L"], self.AnalysisContainer)
+  self.CB_AI = QtWidgets.QCheckBox(GUIparams.labels["Box13L"], self.AnalysisContainer)
+  self.CB_CUMUF = QtWidgets.QCheckBox(GUIparams.labels["Box14L"],self.AnalysisContainer)
+  self.CB_SMUF = QtWidgets.QCheckBox(GUIparams.labels["Box15L"], self.AnalysisContainer)
+  self.CB_SMUFAI = QtWidgets.QCheckBox(GUIparams.labels["Box16L"], self.AnalysisContainer)
+  self.CB_SITMUF = QtWidgets.QCheckBox(GUIparams.labels["Box17L"], self.AnalysisContainer)
+  self.CB_PAGE = QtWidgets.QCheckBox(GUIparams.labels["Box18L"],
                                        self.AnalysisContainer)
 
+  self.CB_ErrorProp.clicked.connect(self.update_errorB_text)
   self.CB_CUMUF.clicked.connect(self.force_muf_enabled)
   self.CB_SITMUF.clicked.connect(self.force_muf_enabled)
+  self.CB_SMUFAI.clicked.connect(self.force_SEMUFAI_reqs)
   self.CB_PAGE.clicked.connect(self.force_page_reqs)
 #  self.CBHolder.append(self.CB_MUF)
 #  self.CBHolder.append(self.CB_SMUF)
@@ -1232,9 +1357,12 @@ def add_stats_box(self):
   #self.AnalysisContainerL.addWidget(UContain)
   #self.AnalysisContainerL.addWidget(GEContain)
 
+  self.AnalysisContainerL.addWidget(self.CB_ErrorProp)
   self.AnalysisContainerL.addWidget(self.CB_MUF)
+  self.AnalysisContainerL.addWidget(self.CB_AI)
   self.AnalysisContainerL.addWidget(self.CB_CUMUF)
   self.AnalysisContainerL.addWidget(self.CB_SMUF)
+  self.AnalysisContainerL.addWidget(self.CB_SMUFAI)
   self.AnalysisContainerL.addWidget(self.CB_SITMUF)
   self.AnalysisContainerL.addWidget(self.CB_PAGE)
 
@@ -1245,10 +1373,9 @@ def add_stats_box(self):
 
 
 
-
   # Add plot location locs
   self.PlotControls = AniGBox(self)
-  self.PlotControls.setTitle("Plot Controls")
+  self.PlotControls.setTitle(GUIparams.labels["Box3L"])
   self.PlotControls.setObjectName('PB5')
   self.PlotControls.PassLoc('PB5')
 
@@ -1263,7 +1390,8 @@ def add_stats_box(self):
   self.mb1L = QtWidgets.QHBoxLayout(self.mb1)
   self.mb1.setObjectName('PB1')
   self.mb1.PassLoc('PB1')
-  self.mb1.setTitle('Plot Data Type')
+  self.mb1.setTitle(GUIparams.labels['Box31L'])
+
 
 
   gradA = "QWidget#{VAL}"
@@ -1271,11 +1399,11 @@ def add_stats_box(self):
          "border-width: 2px;" +\
          "border-style: solid;" +\
          "padding: 0px;" +\
-         "border-radius: 3px;" +\
-         "margin-top: 10px;" +\
+         "border-radius: 7px;" +\
+         "margin-top: 20px;" +\
          "background-color: rgb(239,239,239);}"
   gradC = "QWidget#{VAL}"
-  gradD = ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}"
+  gradD = ""
 
   if self.window().MakeLight.isChecked() == 0:
     gradB = gradB.replace('rgb(239,239,239)', 'rgb(52,52,52)')
@@ -1293,7 +1421,7 @@ def add_stats_box(self):
   PlotControlL.addWidget(self.mb1, 1, 1)
 
   self.mb2 = SubBoxAni(self)
-  self.mb2.setTitle('Plot Data Location')
+  self.mb2.setTitle(GUIparams.labels["Box32L"])
   self.mb2.setObjectName('PB2')
   self.mb2.PassLoc('PB2')
 
@@ -1311,7 +1439,7 @@ def add_stats_box(self):
   self.mb3L = QtWidgets.QHBoxLayout(self.mb3)
   self.mb3.setObjectName('PB3')
   self.mb3.PassLoc('PB3')
-  self.mb3.setTitle('Plot Data Nuclide')
+  self.mb3.setTitle(GUIparams.labels["Box33L"])
   self.mb3.setStyleSheet(
       gradA.format(VAL='PB3') + gradB + gradC.format(VAL='PB3') + gradD)
   self.NucIDBox = QtWidgets.QComboBox(self.PlotControls)
@@ -1326,7 +1454,7 @@ def add_stats_box(self):
   self.mb4L.setContentsMargins(10,15,10,15)
   self.mb4.setObjectName('PB4')
   self.mb4.PassLoc('PB4')
-  self.mb4.setTitle('Iterations to Plot')
+  self.mb4.setTitle(GUIparams.labels["Box34L"])
   self.mb4.setStyleSheet(
       gradA.format(VAL='PB4') + gradB + gradC.format(VAL='PB4') + gradD)
   self.NumToPlot = QtWidgets.QComboBox(self.PlotControls)
@@ -1360,15 +1488,16 @@ def add_stats_box(self):
          "border-width: 2px;" +\
          "border-style: solid;" +\
          "padding: 6px;" +\
-         "border-radius: 3px;" +\
+         "border-radius: 7px;" +\
          "color: black;"
 
   self.PlotRunner.setStyleSheet(grad)
 
+
   # add threshold box
   self.threshContainer = AniGBox(self)
   statContainerL.addWidget(self.threshContainer, 1, 1, 1, 1)
-  self.threshContainer.setTitle("Statistical Thresholds")
+  self.threshContainer.setTitle(GUIparams.labels["Box4L"])
   self.threshContainer.setObjectName('PB8')
   self.threshContainer.PassLoc('PB8')
   threshContainerL = QtWidgets.QGridLayout(self.threshContainer)
@@ -1378,14 +1507,14 @@ def add_stats_box(self):
   self.StatThresh = QtWidgets.QLineEdit("", self.threshContainer)
   self.StatThresh.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
   threshContainerL.addWidget(self.StatThresh, 2, 1)
-  self.STL = QtWidgets.QLabel("Enter Threshold", self.threshContainer)
+  self.STL = QtWidgets.QLabel(GUIparams.labels["Box41L"], self.threshContainer)
   threshContainerL.addWidget(self.STL, 2, 0)
   self.StatThresh.setMaxLength(4)
   self.StatThresh.setMinimumWidth(75)
 
 
   # threshold display
-  self.STL2 = QtWidgets.QLabel("% Above Threshold", self.threshContainer)
+  self.STL2 = QtWidgets.QLabel(GUIparams.labels["Box42L"], self.threshContainer)
   threshContainerL.addWidget(self.STL2, 3, 0)
   self.StatThreshDisp = QtWidgets.QLineEdit("0.00", self.threshContainer)
   self.StatThreshDisp.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
@@ -1396,7 +1525,7 @@ def add_stats_box(self):
 
   # calculate button
   self.CalcThresh = AniButton(self)
-  self.CalcThresh.setText('Calculate')
+  self.CalcThresh.setText(GUIparams.labels["Box43L"])
   self.CalcThresh.setObjectName('CTB')
   threshContainerL.addWidget(self.CalcThresh, 4, 0, 4, 2)
   threshContainerL.setVerticalSpacing(threshContainerL.verticalSpacing() * 14)
@@ -1423,7 +1552,7 @@ def add_stats_box(self):
          "border-width: 2px;" +\
          "border-style: solid;" +\
          "padding: 6px;" +\
-         "border-radius: 3px;" +\
+         "border-radius: 7px;" +\
          "color: black;"
 
   self.CalcThresh.setStyleSheet(grad)
@@ -1452,7 +1581,7 @@ def add_plot_box(self):
 
 
 if __name__ == "__main__":
-  app = QtWidgets.QApplication([])
+  app = QtWidgets.QApplication(sys.argv)
 
   #splash
   x = Path(sys.argv[0]).resolve().parents[1]

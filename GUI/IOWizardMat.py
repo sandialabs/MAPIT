@@ -1,5 +1,5 @@
 """
-    Reads in external .mat files
+    Reads in external .csv files
 """
 
 
@@ -7,19 +7,20 @@ from PySide2 import QtCore, QtWidgets, QtGui
 import time
 import numpy as np
 import os
-import glob
 import sys
-from scipy.io import loadmat
 from pathlib import Path
 
 
-class IOWizardMainMat(QtWidgets.QWizard):
+#temp
+class IOWizardMain(QtWidgets.QWizard):
   """
-        Base class for IOWizard (.mat)
+        QWizard used for importing
+        .csv, .mat, or .npz data for use with
+        MAPIT
   """
 
   def __init__(self, parent=None):
-    super(IOWizardMainMat, self).__init__()
+    super(IOWizardMain, self).__init__()
     self.addPage(IntroPage(self))
     self.addPage(InitPage(self))
     self.addPage(DirPage(self))
@@ -28,8 +29,9 @@ class IOWizardMainMat(QtWidgets.QWizard):
     self.setWizardStyle(QtWidgets.QWizard.ModernStyle)
     self.button(QtWidgets.QWizard.FinishButton).clicked.connect(self.SavePages)
 
-    x = str(Path(os.getcwd()).parents[0])
-    F = os.path.join(x, 'docs','assets', 'codeAssets', 'SNL_Horizontal_Black.jpg')
+    #bring in the first page banner
+    x = Path(sys.argv[0]).resolve().parents[1]
+    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Horizontal_Black.jpg')
     res = QtGui.QPixmap(F)
     res = res.scaledToWidth(500)
     self.setPixmap(QtWidgets.QWizard.BannerPixmap, res)
@@ -38,7 +40,9 @@ class IOWizardMainMat(QtWidgets.QWizard):
     self.setFixedSize(500, geometry.height() * 0.5)
 
     #initalize some variables
-    self.MatDir = {}
+    self.InDir = {}
+    self.InvDir = {}
+    self.OutDir = {}
     self.EleVec_IN = {}
     self.TempVec_IN = {}
     self.InKMP = {}
@@ -49,27 +53,25 @@ class IOWizardMainMat(QtWidgets.QWizard):
     self.OutKMP_names = {}
     self.TimeUnitVec = {}
     self.MassUnitVec = {}
-    self.IsMatV = 1  #imported data is a .mat
+
+    #set a flag here to say that imported
+    #data is NOT a mat file
+    self.IsMatV = 0
 
   def SavePages(self):
     """
-            Function that performs the handoff
-            between this IOWizard and the
-            main part of MAPIT
+            Function used to hand off between
+            the wizard and the main part of
+            MAPIT.
     """
 
-    self.MatDir = self.page(2).MatDirDisp.text()
+    self.InDir = self.page(2).InpDirDisp.text()
+    self.InvDir = self.page(2).InvDirDisp.text()
+    self.OutDir = self.page(2).OutDirDisp.text()
 
-    self.EleVec_IN = self.page(1).EleVec.text()
+
     self.TempVec_IN = self.page(1).TimeUnitVec.text()
 
-    #infer number of KMPs by loading a mat
-    #assumes the inp, inv, out all track same # of elements
-
-    Z = loadmat(self.MatDir)
-    self.InKMP = np.shape(Z['in']['data'][0])[0]
-    self.InvKMP = np.shape(Z['invn']['data'][0])[0]
-    self.OutKMP = np.shape(Z['outn']['data'][0])[0]
 
     self.InKMP_names = self.page(1).InpLabels.text()
     self.InvKMP_names = self.page(1).InvLabels.text()
@@ -78,24 +80,16 @@ class IOWizardMainMat(QtWidgets.QWizard):
     self.TimeUnitVec = self.page(1).TimeUnitVec.text()
     self.MassUnitVec = self.page(1).MassUnitVec.text()
 
+    self.dataType = self.page(1).inpFmt.currentText()
+
 
 class IntroPage(QtWidgets.QWizardPage):
-  """
-        Introduction page that (briefly) describes
-        to users the format expected for the .mat
-        files
-  """
 
   def __init__(self, parent=None):
     super(IntroPage, self).__init__()
     self.IntroTxt = QtWidgets.QLabel(
-        "This is a special wizard for "
-        " importing data stored in MATLAB .mat format. It also "
-        " has some unique capabilities to handle non-uniform sampling "
-        " and structured MATLAB outputs with varying sample times. "
-        "Note that this tool expects that the inputs (in) "
-        ", inventories (invn) and outputs (outn) are all in a single directory"
-        "with a single .mat file")
+      """This wizard will help you import the relevant data for use within MAPIT. It is assumed that your data is organized into folders reflecting different key measurement point types (e.g., inputs, inventories, and outputs). It is also assumed that each file will be of shape [2,n] or [n,2] where n is the total number of samples, and the 2 is the time and data respectively. It is important that the time be the first row or column in your dataset. See the input guide for  more information.
+      """)
     self.IntroTxt.setWordWrap(1)
     self.setSubTitle('   ')
 
@@ -106,10 +100,13 @@ class IntroPage(QtWidgets.QWizardPage):
 
 class InitPage(QtWidgets.QWizardPage):
   """
-        Creates the first page seen that collects
-        some optional data that can help the plots
-        and (future) exported data labels look
-        better
+        This page takes in the main
+        data needed by MAPIT. Some
+        information is required to
+        help correctly setup the
+        material balance later on.
+        Other data is just for cosmetic
+        purposes for use with plots.
   """
 
   def __init__(self, parent=None):
@@ -121,10 +118,6 @@ class InitPage(QtWidgets.QWizardPage):
     ReqForms = QtWidgets.QGroupBox(self)
     OptForms = QtWidgets.QGroupBox(self)
 
-    #unlike the .csv import the .mat import doesn't require
-    #any inputs as the format that's required can be used
-    #to infer all necessary parameters
-
     ReqForms.setTitle("Required Inputs")
     OptForms.setTitle("Optional Inputs")
 
@@ -134,11 +127,13 @@ class InitPage(QtWidgets.QWizardPage):
     layout.addWidget(ReqForms)
     layout.addWidget(OptForms)
 
-    self.EleVec = QtWidgets.QLineEdit(self, "")
-    layoutO.addWidget(self.EleVec, 0, 1)
+    self.inpFmt = QtWidgets.QComboBox()
+    self.inpFmt.addItem('.csv')
+    self.inpFmt.addItem('.mat')
+    self.inpFmt.addItem('.npz')
+    self.InpVecTxt = QtWidgets.QLabel(
+        "Select data format")
 
-    self.EleTxt = QtWidgets.QLabel("Enter the elemental ordering", self)
-    layoutO.addWidget(self.EleTxt, 0, 0)
 
     self.TimeUnitVec = QtWidgets.QLineEdit(self, "")
     layoutO.addWidget(self.TimeUnitVec, 1, 1)
@@ -152,17 +147,27 @@ class InitPage(QtWidgets.QWizardPage):
     self.MassUnitTxt = QtWidgets.QLabel("Enter the mass units", self)
     layoutO.addWidget(self.MassUnitTxt, 2, 0)
 
+
+
+    layoutR.addWidget(self.inpFmt, 2, 1)
+    layoutR.addWidget(self.InpVecTxt, 2, 0)
+
     self.InpLabels = QtWidgets.QLineEdit(self, "")
     self.InpLabelsTxt = QtWidgets.QLabel("Enter input labels")
 
     layoutO.addWidget(self.InpLabels, 3, 1)
     layoutO.addWidget(self.InpLabelsTxt, 3, 0)
 
+
+
+
     self.InvLabels = QtWidgets.QLineEdit(self, "")
     self.InvLabelsTxt = QtWidgets.QLabel("Enter inventory labels")
 
     layoutO.addWidget(self.InvLabels, 5, 1)
     layoutO.addWidget(self.InvLabelsTxt, 5, 0)
+
+
 
     self.OutLabels = QtWidgets.QLineEdit(self, "")
     self.OutLabelTxt = QtWidgets.QLabel("Enter output labels")
@@ -175,8 +180,14 @@ class InitPage(QtWidgets.QWizardPage):
 
 class DirPage(QtWidgets.QWizardPage):
   """
-        Page that allows users to pick the
-        location of the .mat to be analyzed.
+        Page responsible for getting directories of .csv data.
+        Since .csv is two dimensional there  will need to be
+        multiple files to describe data that is potentially
+        four dimensional (time, location, and element). It's
+        assumed that there will be a different .csv for each location.
+        Specifying each directory as it relates to the material balance
+        (i.e. folders of inputs, inventories and outputs) is done using
+        this page.
   """
 
   def __init__(self, parent=None):
@@ -185,19 +196,38 @@ class DirPage(QtWidgets.QWizardPage):
 
     layout = QtWidgets.QGridLayout(self)
 
-    self.InputDirLabel = QtWidgets.QLabel("Select location of mat directory")
+    self.InputDirLabel = QtWidgets.QLabel("Select location of input directory")
+    self.InvDirLabel = QtWidgets.QLabel(
+        "Select location of inventory directory")
+    self.OutDirLabel = QtWidgets.QLabel("Select location of output directory")
 
-    self.MatDirButton = QtWidgets.QPushButton("Select Directory")
+    self.InDirButton = QtWidgets.QPushButton("Select Directory")
+    self.InvDirButton = QtWidgets.QPushButton("Select Directory")
+    self.OutDirButton = QtWidgets.QPushButton("Select Directory")
 
-    self.MatDirDisp = QtWidgets.QLineEdit(self, "")
+    self.InpDirDisp = QtWidgets.QLineEdit(self, "")
+    self.InvDirDisp = QtWidgets.QLineEdit(self, "")
+    self.OutDirDisp = QtWidgets.QLineEdit(self, "")
 
-    self.MatDirDisp.setReadOnly(1)
+    self.InpDirDisp.setReadOnly(1)
+    self.InvDirDisp.setReadOnly(1)
+    self.OutDirDisp.setReadOnly(1)
 
     layout.addWidget(self.InputDirLabel, 0, 0)
-    layout.addWidget(self.MatDirDisp, 1, 0)
-    layout.addWidget(self.MatDirButton, 1, 1)
+    layout.addWidget(self.InpDirDisp, 1, 0)
+    layout.addWidget(self.InDirButton, 1, 1)
 
-    self.MatDirButton.clicked.connect(self.GetInDirs)
+    layout.addWidget(self.InvDirLabel, 2, 0)
+    layout.addWidget(self.InvDirDisp, 3, 0)
+    layout.addWidget(self.InvDirButton, 3, 1)
+
+    layout.addWidget(self.OutDirLabel, 4, 0)
+    layout.addWidget(self.OutDirDisp, 5, 0)
+    layout.addWidget(self.OutDirButton, 5, 1)
+
+    self.InDirButton.clicked.connect(self.GetInDirs)
+    self.InvDirButton.clicked.connect(self.GetInvDirs)
+    self.OutDirButton.clicked.connect(self.GetOutDirs)
 
     self.SaveLoadContainer = QtWidgets.QFrame(self)
     self.SaveLoadLayout = QtWidgets.QHBoxLayout(self.SaveLoadContainer)
@@ -214,68 +244,90 @@ class DirPage(QtWidgets.QWizardPage):
 
   def GetInDirs(self):
     """
-            Gets the location of the .mat file containing
-            variables in, invn and outn
+            Displays the selected (input) directory
+            in a GUI element.
     """
 
-    #there is some strange behavior in some Linux distros
-    #when the native dialog is used, so we opt to use
-    #the QT dialog rather than native dialog
-
-    fname = QtWidgets.QFileDialog(
+    #There's some strange behavior on UNIX where
+    #this will only allow file selection
+    #and not folder selection
+    #so the non-native dialog needs to be forced to
+    #ensure correct behavior
+    fname = QtWidgets.QFileDialog.getExistingDirectory(
         self, options=QtWidgets.QFileDialog.DontUseNativeDialog)
 
-    fname.setFileMode(QtWidgets.QFileDialog.ExistingFile)
-    fname.setViewMode(QtWidgets.QFileDialog.List)
-    fname.setNameFilter('MATLAB Container (*.mat)')
+    self.InpDirDisp.setText(fname)
 
-    if fname.exec_():
-      fileNames = fname.selectedFiles()
-      self.MatDirDisp.setText(fileNames[0])
+  def GetInvDirs(self):
+    """
+            Displays the selected (inventory) directory
+            in a GUI element.
+    """
+
+    fname = QtWidgets.QFileDialog.getExistingDirectory(
+        self, options=QtWidgets.QFileDialog.DontUseNativeDialog)
+
+    self.InvDirDisp.setText(fname)
+
+  def GetOutDirs(self):
+    """
+            Displays the selected (output) directory
+            in a GUI element.
+    """
+
+    fname = QtWidgets.QFileDialog.getExistingDirectory(
+        self, options=QtWidgets.QFileDialog.DontUseNativeDialog)
+
+    self.OutDirDisp.setText(fname)
 
   def LoadCfg(self):
     """
-            If there's a pre-saved configuation
-            to load then load it.
+            Function to load a previously
+            recorded configuration of input
+            information.
     """
 
     x = [None]
-    i = 0
-    outdir = os.path.join(os.getcwd(), 'IOsaveconfig.txt')
+    p = Path(sys.argv[0]).resolve().parents[1]
+    outdir = os.path.join(p, 'IOsaveconfig.txt')
     with open(outdir, 'r') as f:
       x = f.read().splitlines()
 
-    self.wizard().page(1).EleVec.setText(x[0]) if x[0] != 'null' else None
+    self.wizard().page(1).inpFmt.setCurrentIndex(int(x[0])) if x[0] != 'null' else None
     self.wizard().page(1).TimeUnitVec.setText(x[1]) if x[1] != 'null' else None
     self.wizard().page(1).MassUnitVec.setText(x[2]) if x[2] != 'null' else None
-    self.wizard().page(2).InpDirDisp.setText(x[6]) if x[6] != 'null' else None
-    self.wizard().page(1).InpLabels.setText(x[9]) if x[9] != 'null' else None
-    self.wizard().page(1).InvLabels.setText(x[10]) if x[10] != 'null' else None
-    self.wizard().page(1).OutLabels.setText(x[11]) if x[11] != 'null' else None
+    self.wizard().page(2).InpDirDisp.setText(x[3]) if x[3] != 'null' else None
+    self.wizard().page(2).InvDirDisp.setText(x[4]) if x[4] != 'null' else None
+    self.wizard().page(2).OutDirDisp.setText(x[5]) if x[5] != 'null' else None
+    self.wizard().page(1).InpLabels.setText(x[6]) if x[6] != 'null' else None
+    self.wizard().page(1).InvLabels.setText(x[7]) if x[7] != 'null' else None
+    self.wizard().page(1).OutLabels.setText(x[8]) if x[8] != 'null' else None
 
   def SaveCfg(self):
     """
-            Function to save the entered
-            dataset parameters for later
-            use.
+            Function to save a specified
+            configuration of input information.
     """
+    p = Path(sys.argv[0]).resolve().parents[1]
+
 
     x = [
-        self.wizard().page(1).EleVec.text(),
+        self.wizard().page(1).inpFmt.currentIndex(),
         self.wizard().page(1).TimeUnitVec.text(),
         self.wizard().page(1).MassUnitVec.text(),
-        self.wizard().page(1).InpVec.text(),
-        self.MatDirDisp.text(),
+        self.InpDirDisp.text(),
+        self.InvDirDisp.text(),
+        self.OutDirDisp.text(),
         self.wizard().page(1).InpLabels.text(),
         self.wizard().page(1).InvLabels.text(),
         self.wizard().page(1).OutLabels.text()
     ]
 
-    for i in range(0, 12):
+    for i in range(len(x)):
       if x[i] == '':
         x[i] = 'null'
 
-    outdir = os.path.join(os.getcwd(), 'IOsaveconfig.txt')
+    outdir = os.path.join(p, 'IOsaveconfig.txt')
 
     with open(outdir, 'w') as f:
       for item in x:
@@ -284,10 +336,9 @@ class DirPage(QtWidgets.QWizardPage):
 
 if __name__ == '__main__':
 
-  #launch the wizard!
-
+  #run the wizard
   import sys
   app = QtWidgets.QApplication()
-  wizard = IOWizardMainMat()
+  wizard = IOWizardMain()
   wizard.show()
   sys.exit(app.exec_())

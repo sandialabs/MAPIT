@@ -726,8 +726,8 @@ class SceneSelect(QtWidgets.QDialog):
     self.dataslice = []
     for i in range(len(ispresent)-1):
       if ispresent[i] == 1:
-        self.dataslice.append(self.Inventories[IDXS[i]][logicalslice[i],ELEI])
-        self.timeslice.append(self.InventoriesT[IDXS[i]][logicalslice[i],ELEI])
+        self.dataslice.append(self.Inventories[IDXS[i]])
+        self.timeslice.append(self.InventoriesT[IDXS[i]])
       else:
         self.dataslice.append(np.zeros((250,)))
         self.timeslice.append(np.zeros((250,)))
@@ -735,11 +735,13 @@ class SceneSelect(QtWidgets.QDialog):
     if ispresent[-1] == 1:
       for i in range(len(IDXS2)):
         if i == 0:
-          Z = self.Inventories[IDXS2[i]][logicalslice[-1],ELEI]
+          Z = self.Inventories[IDXS2[i]]
         else:
-          Z += self.Inventories[IDXS2[i]][logicalslice[-1],ELEI]
+          Z += self.Inventories[IDXS2[i]]
+          
       self.dataslice.append(Z)
-      self.timeslice.append(self.InventoriesT[IDXS2[0]][logicalslice[i],ELEI]) #index doesnt matter since all have same time
+      self.timeslice.append(self.InventoriesT[IDXS2[0]]) #index doesnt matter since all have same time
+
 
     self.canvas.subax_V.plot(self.timeslice[0],self.dataslice[0],color=self.ThemePlotColor)
     self.canvas.subax_CR.plot(self.timeslice[1],self.dataslice[1],color=self.ThemePlotColor)
