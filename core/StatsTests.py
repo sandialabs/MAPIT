@@ -3,9 +3,9 @@ import numpy as np
 from itertools import chain
 from scipy.integrate import trapz
 import sys
-#from MAPIT_internal.GUI import GeneralOps
-import MAPIT_internal.core.AuxFunctions as AuxFunctions
-import MAPIT_internal.GUI.GeneralOps as GeneralOps
+#from MAPIT.GUI import GeneralOps
+import MAPIT.core.AuxFunctions as AuxFunctions
+import MAPIT.GUI.GeneralOps as GeneralOps
 
 
 def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None):

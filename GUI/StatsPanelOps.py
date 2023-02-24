@@ -67,14 +67,23 @@ def UpdatePlotterLocs(GUIObject,GUIparams,addType):
 
 def getRequestedTests(GUIObject):
 
+        doError = 0
         doMUF = 0
+        doAI = 0
         doCUMUF = 0
         doSEID = 0
+        doSEIDAI = 0
         doSITMUF = 0
         doPage = 0
 
+        if (GUIObject.CB_ErrorProp.isChecked()) > 0:
+          doError = 1
+
         if (GUIObject.CB_MUF.isChecked()) > 0:
             doMUF = 1
+
+        if (GUIObject.CB_AI.isChecked()) > 0:
+            doAI = 1
 
         if (GUIObject.CB_CUMUF.isChecked()) > 0:
             doCUMUF = 1
@@ -82,16 +91,19 @@ def getRequestedTests(GUIObject):
         if (GUIObject.CB_SMUF.isChecked()) > 0:
             doSEID = 1
 
+        if (GUIObject.CB_SMUFAI.isChecked()) > 0:
+            doSEIDAI = 1
+
         if (GUIObject.CB_SITMUF.isChecked()) > 0:
             doSITMUF = 1
         
         if (GUIObject.CB_PAGE.isChecked()) > 0:
             doPage = 1
 
-        return doMUF, doCUMUF, doSEID, doSITMUF, doPage
+        return doError, doMUF, doAI, doCUMUF, doSEID, doSEIDAI, doSITMUF, doPage
 
 
-def preparePlotterOptions(GUIObject,doMUF,doCUMUF,doSEID,doSITMUF,doPage,GUIparams):
+def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,doPage,GUIparams,AnalysisData):
       PlotOps.UpdatePlotOpts(GUIObject)
 
       #update style on some dropdown boxes
@@ -102,12 +114,12 @@ def preparePlotterOptions(GUIObject,doMUF,doCUMUF,doSEID,doSITMUF,doPage,GUIpara
         "border-width: 2px;" +\
         "border-style: solid;" +\
         "padding: 0px;" +\
-        "border-radius: 3px;" +\
-        "margin-top: 10px;" +\
+        "border-radius: 7px;" +\
+        "margin-top: 20px;" +\
         "background-color: rgb(239,239,239);" +\
           "}"
       gradC = "QWidget#{VAL}"
-      gradD = ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}"
+      gradD = ":"
 
       if GUIObject.window().MakeLight.isChecked() == 0:
         gradB = gradB.replace('rgb(239,239,239)', 'rgb(51,51,51)')
@@ -124,19 +136,17 @@ def preparePlotterOptions(GUIObject,doMUF,doCUMUF,doSEID,doSITMUF,doPage,GUIpara
       "border-width: 5px;" +\
       "border-style: solid;" +\
       "padding: 6px;" +\
-      "border-radius: 3px;}"
+      "border-radius: 7px;}"
 
       if GUIObject.window().MakeLight.isChecked() == 0:
         grad2 = grad2.replace('rgb(211,211,211)', 'rgb(66,66,66)')
 
       GUIObject.SGSetContainer.setStyleSheet(
           "QWidget#{VAL}".format(VAL=GUIObject.SGSetContainer.Loc) + "{" + grad2 +
-          "QWidget#{VAL}".format(VAL=GUIObject.SGSetContainer.Loc) +
-          ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+          "QWidget#{VAL}".format(VAL=GUIObject.SGSetContainer.Loc) )
       GUIObject.AnalysisContainer.setStyleSheet(
           "QWidget#{VAL}".format(VAL=GUIObject.AnalysisContainer.Loc) + "{" + grad2 +
-          "QWidget#{VAL}".format(VAL=GUIObject.AnalysisContainer.Loc) +
-          ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}")
+          "QWidget#{VAL}".format(VAL=GUIObject.AnalysisContainer.Loc))
 
       #resets button animation and turns off after running, but
       #since the GUI supports new runs without restarting probably
@@ -184,15 +194,19 @@ def preparePlotterOptions(GUIObject,doMUF,doCUMUF,doSEID,doSITMUF,doPage,GUIpara
       GUIObject.hasRunIO = 1   
 
       if doMUF == 1:
-        UpdatePlotterLocs(GUIObject,GUIparams,'MUF')
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box12L"])
+      if doAI == 1:
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box13L"])
       if doCUMUF:
-        UpdatePlotterLocs(GUIObject,GUIparams,'CUMUF')
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box14L"])
       if doSEID == 1:
-        UpdatePlotterLocs(GUIObject,GUIparams,'SEID')
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box15L"])
+      if doSEIDAI == 1:
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box16L"])
       if doSITMUF == 1:
-        UpdatePlotterLocs(GUIObject,GUIparams,'SITMUF')
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box17L"])
       if doPage == 1:
-        UpdatePlotterLocs(GUIObject,GUIparams,'Page SITMUF')
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box18L"])
 
 
 def importDataUpdateUI(GUIObject,GUIparams):

@@ -3,7 +3,7 @@ from itertools import chain
 import warnings
 
 
-def trapSum(relevantIndex,time,data,IT=None):
+def trapSum(relevantIndex,time,data,IT=None,baseline_zero=1e-10):
       """
         Function performs trapezoidal integration on a dataset segment. This is required for bulk facility flows that
         might need integration before use within statistical tests. 
@@ -24,6 +24,8 @@ def trapSum(relevantIndex,time,data,IT=None):
 
           data (ndarray): An array containing the total number of samples under consideration for the analysis. Should have the same shape as **time**.
 
+          baseline_zero (float): A float that expresses the threshold below which values are considered zero. Important as datasets often do not represent zero as exactly zero for a variety of reasons.
+
         Returns:
           ndarray: An array of shape :math:`[1,j]` containing the integrated total for each iteration over the time specified by **time[relevantIndex]**. 
 
@@ -31,136 +33,135 @@ def trapSum(relevantIndex,time,data,IT=None):
 
       """
 
-      #this is for indexing the data array
-      #sometimes specific positions are
-      #required by other functions
       if IT is not None:
           IDXC = IT
       else:
           IDXC = 0
 
-
-
-      #these are actually fairly expensive to keep computing
-      #calculate them here rather than in loop
-      relevantDataVals = data[IDXC,relevantIndex]
+      relevantDataVals = np.abs(data[IDXC,relevantIndex])
       relevantTimeVals = time[relevantIndex]
 
+      #if no relevant data, stop here and return zeros
       if np.sum(relevantDataVals.shape) == 0:
-        return np.zeros((np.shape(data)[0],))
+          None
+          #return np.zeros((np.shape(data)[0],))
 
-      #find pairs
-      #this uses regions where the dataset is zero and not zero
-      #(note this could be problematic with noisy zero signals)
-      # to find the bounds of individual pulses
-      #the intersection of area = 0 and != 0 should be able
-      #to provide the left and right bounds of pulses
-      ZZ = np.argwhere(relevantDataVals == 0).reshape((-1,))
-      NZ = np.argwhere(relevantDataVals != 0).reshape((-1,))
-      ZZ +=1
-      LI = np.intersect1d(ZZ,NZ)
-      ZZ -=2
-      RI = np.intersect1d(ZZ,NZ)
-      LI = LI.reshape((-1,1))
-      RI = RI.reshape((-1,1))
-      if np.shape(LI)[0] > np.shape(RI)[0]:
-        pairs = np.concatenate((LI[:-1],RI),axis=1)
-      elif np.shape(LI)[0] < np.shape(RI)[0]:
-        pairs = np.concatenate((LI,RI[1:]),axis=1)
-      else:
-        pairs = np.concatenate((LI[:-1],RI[1:]),axis=1)
+      #check for different scenarios
+      partialLeft = False
+      partialRight = False
 
-      #HACK: for one pair, the above code can result
-      # in a zero sized array
-      if pairs.size == 0:
-        pairs = np.array([LI[0],RI[0]]).reshape((1,2))
-      
-      pairs[:,1] += 1 #this ensures a zero is included which facilitates proper
-                      #integration using the trapz function
+      if relevantDataVals[0] > baseline_zero:
+          partialLeft = True
 
-      checkRightPulse = np.ones((len(LI),))
+      if relevantDataVals[-1] > baseline_zero:
+          partialRight = True
 
-      #HACK: sometimes there will be a bit hanging on the edge
-      # of the pulse, which is technically a misspecified MBP
-      # we try to resolve it by just ignoring that part
-      for Q in range(pairs.shape[0]):
-        if pairs[Q,0] > pairs[Q,1]:
-          pairs[Q,0] = 0
-          checkRightPulse[Q] = 0
-          warnings.warn("Misspecified MBP, results might be inaccurate")
+      # Find the indicies associated with pulses of material
+      # basically use the intersection between (near) zero regions
+      # and non-zero regions to find bounds of pulses 
+      nonZeroIndex = np.argwhere(relevantDataVals >= baseline_zero).reshape((-1,1))
+      ZeroIndex = np.linspace(0,len(relevantDataVals)-1,len(relevantDataVals))
+      ZeroIndex = np.delete(ZeroIndex,nonZeroIndex)    
+      ZeroIndex += 1
 
-      if IT is not None:
-        dataArray = relevantDataVals.reshape((1,-1))
-        timeArray = relevantTimeVals
-        S0 = 1
-      else:
-        dataArray = np.swapaxes(data[:,relevantIndex],0,1)
-        bt = relevantTimeVals.reshape((-1,1))
-        S0 = dataArray.shape[1]
-        timeArray = np.repeat(bt,S0,axis=1)
+      LeftIndicies=np.intersect1d(ZeroIndex,nonZeroIndex).reshape((-1,1)).astype(int)
+      ZeroIndex -= 2
 
-      #look for nonzero locations in the data
-      RR = relevantDataVals[relevantDataVals!=0]
-      T = np.mean(RR)*0.10
+      RightIndicies=np.intersect1d(ZeroIndex,nonZeroIndex).reshape((-1,1)).astype(int)
 
-
-
-
-      timesegs=[]
-      datasegs=[]
-
-
-      #time to collect the segments using the previously calculated pairs
-      for i in range(len(pairs)):
-
-          #this checks for the time difference for the pulse trailing zero
-          #sometimes it can be recorded quite a bit after the
-          #actual pulse end, and if so, needs to be accounted for
-          G = np.ediff1d(np.asarray(relevantTimeVals[pairs[i][0]:pairs[i][1]]))
-          if relevantDataVals[pairs[i][1]] == 0 and relevantTimeVals[pairs[i][1]] - relevantTimeVals[pairs[i][1]-1] < np.max(G):
-            offset = 1
+      # partialLeft is when a pulse intersects with the left
+      # bounary for time (i.e., pulse in progress during MBP opening)
+      if partialLeft == True:
+          if len(LeftIndicies) > 0:
+              if len(RightIndicies) > 0:
+                  # if indicies have been found, then like len(LeftIndicies) > len(RightIndicies), so only need to specify
+                  # an additional corresponding left index for the first part, which is found at the first non-zero value,
+                  # usually index 0
+                  LeftIndicies = np.insert(LeftIndicies,0,np.array([np.min(np.argwhere(relevantDataVals>baseline_zero))]).astype(int),axis=0)
+              else:
+                  # if the pulse spans the entire window, we need to specify the right index as only
+                  # the left will be found
+                  RightIndicies = np.array([len(relevantDataVals)-2]).reshape((-1,1)).astype(int)
           else:
-            offset = 0
-          timesegs.append(np.swapaxes(timeArray[pairs[i,0]:pairs[i,1]+offset,],0,1))
-          datasegs.append(np.swapaxes(dataArray[pairs[i,0]:pairs[i,1]+offset,],0,1))
+              # if the left index isn't present, establish it. Differs from the earlier case above in that there's
+              # no left indicies found yet for this case
+              LeftIndicies = np.array([np.min(np.where(relevantDataVals>baseline_zero))]).reshape((-1,1)).astype(int)
 
-      #look to see if there was a pulse on the left of the timeseries
-      #that wasn't quite accounted for
-      if np.sum(relevantDataVals[0:pairs[0,0]]) > T and checkRightPulse[i] == 1:
-          RS = np.max(np.where(relevantDataVals[0:pairs[0,0]] > T))
-          LS = np.min(np.where(relevantDataVals[0:pairs[0,0]] > T))
-          seg = np.array([LS,RS]).reshape((1,-1))
-          pairs = np.concatenate((seg,pairs),axis=0)
-          timesegs.append(np.swapaxes(timeArray[LS:RS+1],0,1))
-          datasegs.append(np.swapaxes(dataArray[LS:RS+1,],0,1))
 
-      #look for a final pulse on the right of the timeseries that
-      #might not have been accounted for
-      if np.sum(data[0,relevantIndex][pairs[-1,1]+5:]) > T:
-          RS = pairs[-1][1] + np.max(np.where(relevantDataVals[pairs[-1,1]:] > T))
-          LS = pairs[-1][1] + np.min(np.where(relevantDataVals[pairs[-1,1]+5:] > T)) #the +5 helps prevent an edge case where the final pairing cuts off a little of the data (this can occur
-          #if the pulse takes a long time to decrease (which makes it not really a pulse))
-          seg = np.array([LS+5,RS]).reshape((1,-1))
-          pairs = np.concatenate((pairs,seg),axis=0)
-          timesegs.append(np.swapaxes(timeArray[LS+5:RS],0,1))
-          datasegs.append(np.swapaxes(dataArray[LS+5:RS,],0,1))
 
-      #if there's a phantom final pulse, remove it
-      if np.shape(datasegs[-1])[1] == 0:
-          del timesegs[-1]
-          del datasegs[-1]
-          pairs = pairs[:-1,:]
+      # partialRight is the complementary case to partialLeft
+      # same reasoning follows, just that the pulse stretches past the
+      # MBP rather than streching before
+      if partialRight == True:
+          if len(RightIndicies) > 0:
+              if len(LeftIndicies) > 0:
+                  RightIndicies = np.concatenate((RightIndicies,
+                                              np.array([len(relevantTimeVals)-2]).reshape((1,1)).astype(int)),axis=0)
+          else:
+              RightIndicies = np.array(len(relevantTimeVals)-1).reshape((-1,1)).astype(int)
+              if len(LeftIndicies) == 0:
+                  LeftIndicies = np.array([np.min(np.argwhere(relevantDataVals>baseline_zero))]).reshape((-1,1)).astype(int)
+
+      pairs = np.concatenate((LeftIndicies,RightIndicies),axis=1)
+
+      # Generally, the final interval of a pulse is required to produce the proper integration value
+      # however, as MAPIT is primarly used in and around Simulink, it's been observed that in some cases,
+      # simulink will not record the final part of a pulse until several time steps later.
+      # this logic below checks to see if the "final" value of a pulse is more than one timestep
+      # after all the other data in that pulse. If so, we ignore that part of the pulse as it
+      # is an error in Simulink. If not accounted for, the integration will provide an incorrect, inflated
+      # value. This occurs on the second input of the fuel fab dataset, for example. 
+      if len(relevantTimeVals)-1 != pairs[0,1]:
+        if (relevantTimeVals[pairs[0,1]+1] - relevantTimeVals[pairs[0,1]]) <= np.max(np.diff(relevantTimeVals[pairs[0,0]:pairs[0,1]].squeeze())): 
+            pairs[:,1] += 1
+
+      pairs = pairs.astype(int)
+
+      rowfordelete = []
+
+      # remove zero length pairs
+      # zero length pairs can occur in some
+      # edge cases where pulses have just started
+      # or ended and the pulse is undefined
+      for Q in range(len(pairs)):
+          if pairs[Q,0] - pairs[Q,1] == 0:
+              rowfordelete.append(Q)
+
+      rowfordelete = np.asarray(rowfordelete).astype(int)
+      pairs = np.delete(pairs,rowfordelete,axis=0)
+
+      # reshapping data for processing
+      if IT is not None:
+          dataArray = data[IDXC,relevantIndex].reshape((1,-1))
+          timeArray = time[relevantIndex]
+          S0 = 1
+      else:
+          dataArray = np.swapaxes(data[:,relevantIndex],0,1)
+          bt = time[relevantIndex].reshape((-1,1))
+          S0 = dataArray.shape[1]
+          timeArray = np.repeat(bt,S0,axis=1)
+
+
+      datasegs = []
+      timesegs = []
+
+      # create a list of segments for later trapezoidal integration
+      for Q in range(len(pairs)):
+          timesegs.append(np.swapaxes(timeArray[pairs[Q,0]:pairs[Q,1]+1],0,1))
+          datasegs.append(np.swapaxes(dataArray[pairs[Q,0]:pairs[Q,1]+1],0,1))
+
+
 
       traptot = np.zeros((S0,))
       #peform the numerical integration
       #the second term accounts for how the pulse is expressed in the trapz function
       #if not included it would underestimate the area
-      for i in range(len(datasegs)):
-          # traptot.append(np.trapz(datasegs[i],timesegs[i]) + 0.5*(timesegs[i][:,-1]-timesegs[i][:,-2])*datasegs[i][:,-2])
+      for Q in range(len(datasegs)):
 
-          traptot += (np.trapz(datasegs[i],timesegs[i]) + 0.5*(timesegs[i][:,-1]-timesegs[i][:,-2])*datasegs[i][:,-2])
-
-      #traptot = np.sum(traptot) #sum across all segments
+          if datasegs[Q][0,-1] == 0:
+              traptot += (np.trapz(datasegs[Q],timesegs[Q]) + 0.5*(timesegs[Q][:,-1]-timesegs[Q][:,-2])*datasegs[Q][:,-2])
+          else:
+              traptot += (np.trapz(datasegs[Q],timesegs[Q]))
 
       return traptot
 
@@ -169,14 +170,30 @@ def removeExtraDims(inp,inv,out):
     inv_formatted = []
     out_formatted = []
 
+    if inp[0].shape[0] == 1:
+        #only 1 iteration, special
+        #formatting applies
+        doSingleIterate = True
+    else:
+        doSingleIterate = False
+
     for i in range(len(inp)):
-      inp_formatted.append(np.squeeze(inp[i]))
+        if doSingleIterate == False:
+            inp_formatted.append(np.squeeze(inp[i]))
+        else:
+            inp_formatted.append(inp[i][:,:,0])
 
     for i in range(len(inv)):
-      inv_formatted.append(np.squeeze(inv[i]))
+        if doSingleIterate == False:
+            inv_formatted.append(np.squeeze(inv[i]))
+        else:
+            inv_formatted.append(inv[i][:,:,0])
 
     for i in range(len(out)):
-      out_formatted.append(np.squeeze(out[i]))
+        if doSingleIterate == False:
+            out_formatted.append(np.squeeze(out[i]))
+        else:
+            out_formatted.append(out[i][:,:,0])
 
 
     return inp_formatted, inv_formatted, out_formatted

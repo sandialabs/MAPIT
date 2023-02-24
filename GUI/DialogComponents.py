@@ -1,5 +1,6 @@
-from PySide2 import QtWidgets
+from PySide2 import QtWidgets, QtCore, QtGui
 from MAPIT.core import AuxFunctions as Aux
+import os
 
 class MissingIndex(QtWidgets.QDialog):
   """
@@ -251,3 +252,76 @@ class ViewErrorTabs(QtWidgets.QDialog):
 
 
   
+class HPCWindow(QtWidgets.QDialog):
+  """
+        TBD
+  """
+
+  def __init__(self, parent, AnalysisData):
+    super(HPCWindow, self).__init__()
+    #self.parent = parent
+
+    layout = QtWidgets.QVBoxLayout(self)
+    enable_parCB = QtWidgets.QCheckBox("Enable parallel processing")
+    layout.addWidget(enable_parCB)
+
+    container = QtWidgets.QGroupBox()
+    container.setTitle('CPU count')
+    container_layout = QtWidgets.QHBoxLayout(container)
+
+
+    CancelButton = QtWidgets.QPushButton("Cancel", self)
+    AcceptButton = QtWidgets.QPushButton("Done", self)
+
+    AcceptButton.setIcon(QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_DialogOkButton))
+    CancelButton.setIcon(QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_DialogCancelButton))
+
+    hbox = QtWidgets.QHBoxLayout()
+    hbox.addWidget(CancelButton)
+    hbox.addWidget(AcceptButton)
+
+    
+    maxcore = os.cpu_count()
+
+    self.coreslider = QtWidgets.QSlider(orientation=QtCore.Qt.Orientation(1))
+    self.coreslider.setMinimum(0)
+    self.coreslider.setMaximum(maxcore)
+    self.coreslider.setValue(maxcore)
+
+    self.corecount = QtWidgets.QLineEdit("")
+    self.corecount.setMaxLength(4)
+
+    
+
+    self.corecount.setText(str(maxcore))
+
+    hbox2 = QtWidgets.QHBoxLayout()
+    hbox2.addWidget(self.coreslider,75)
+    hbox2.addWidget(self.corecount,25)
+
+    container_layout.addLayout(hbox2)
+    
+
+    layout.addWidget(container)
+    layout.addLayout(hbox)
+
+    self.coreslider.sliderMoved.connect(self.updatecpubox)
+    self.corecount.textEdited.connect(self.updatecpuslider)
+    AcceptButton.clicked.connect(self.yesHPC)
+    CancelButton.clicked.connect(self.noHPC)
+    vv = QtGui.QIntValidator()
+    vv.setRange(1,maxcore)
+    self.corecount.setValidator(vv)
+
+  def yesHPC(self):
+    self.accept()
+
+  def noHPC(self):
+    self.reject()
+
+  def updatecpubox(self):
+    self.corecount.setText(str(self.coreslider.value()))
+
+  def updatecpuslider(self):
+    self.coreslider.setValue(int(self.corecount.text()))
+

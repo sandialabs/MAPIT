@@ -65,8 +65,9 @@ def runAnimationSB(self):
          "border-width: 5px;" +\
          "border-style: solid;" +\
          "padding: 6px;" +\
+         "margin-top: 20px;" +\
          "color: black;" +\
-         "border-radius: 3px;}"
+         "border-radius: 7px;}"
 
   if self.window().MakeLight.isChecked() == 0:
     grad = grad.replace('black', 'white')
@@ -74,7 +75,7 @@ def runAnimationSB(self):
 
   qss2 = "QWidget#{VAL}".format(
       VAL=self.Loc
-  ) + ":title{subcontrol-origin:margin;padding:-6px 0px 0px 0px}"
+  ) 
 
   qss += qss2
 
@@ -148,7 +149,7 @@ def runDualAnimation(self):
          "border-width: 2px;" +\
          "border-style: solid;" +\
          "padding: 6px;" +\
-         "border-radius: 3px;" +\
+         "border-radius: 7px;" +\
          "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:5, y2:0, stop:0 {color1}, stop:{value} {color2}, stop: 1.0 {color1});".format(color1=self.color1.name(), color2=self.color2.name(), value=R4) +\
           "}"
 
@@ -182,7 +183,7 @@ def GradButtonChange(self):
            "border-color: rgb(153,200,221);" +\
            "border-style: solid;" +\
            "padding: 6px;" +\
-           "border-radius: 3px;"
+           "border-radius: 7px;"
     grad = "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:5, y2:0, stop:0 {color1}, stop:{value} {color2}, stop: 1.0 {color1});".format(
         color1=self.color1.name(), color2=self.color2.name(), value=value)
     qss += grad
@@ -243,7 +244,7 @@ def runMsgAnimation(self):
          "border-width: 5px;" +\
          "border-style: solid;" +\
          "padding: 6px;" +\
-         "border-radius: 3px;"
+         "border-radius: 7px;"
 
   qss += grad
 
@@ -287,8 +288,8 @@ def runAnimation(self):
          "border-width: 2px;" +\
          "border-style: solid;" +\
          "padding: 0px;" +\
-         "border-radius: 3px;" +\
-         "margin-top: 10px;" +\
+         "margin-top: 20px;" +\
+         "border-radius: 7px;" +\
          "background-color: rgb(239,239,239);" +\
           "}"
 
@@ -296,8 +297,7 @@ def runAnimation(self):
 
   qss += grad
 
-  grad = "QWidget#{VAL}".format(VAL=self.Loc) +\
-          ":title{subcontrol-origin:margin;padding: -6px 0px 0px 0px}"
+  grad = "QWidget#{VAL}".format(VAL=self.Loc) 
 
   qss += grad
 

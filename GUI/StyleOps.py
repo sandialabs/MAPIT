@@ -69,18 +69,18 @@ def setInitialStyle(self):
 
     # inactive colors
     self.Darkpalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Window,
-                              QtGui.QColor(53 + 20, 53 + 20, 53 + 20))
+                              QtGui.QColor(53, 53, 53))
 
     self.Darkpalette.setColor(QtGui.QPalette.Disabled,
                               QtGui.QPalette.WindowText,
-                              QtGui.QColor(53, 53, 53))
+                              QtGui.QColor(53+40, 53+40, 53+40))
 
     self.Darkpalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Base,
                               QtGui.QColor(25, 25, 25))
 
     self.Darkpalette.setColor(QtGui.QPalette.Disabled,
                               QtGui.QPalette.AlternateBase,
-                              QtGui.QColor(53 + 20, 53 + 20, 53 + 20))
+                              QtGui.QColor(53, 53, 53))
 
     self.Darkpalette.setColor(QtGui.QPalette.Disabled,
                               QtGui.QPalette.ToolTipBase, QtCore.Qt.white)
@@ -89,12 +89,11 @@ def setInitialStyle(self):
     self.Darkpalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Text,
                               QtCore.Qt.white)
     self.Darkpalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Button,
-                              QtGui.QColor(53 + 20, 53 + 20, 53 + 20))
+                              QtGui.QColor(53, 53, 53))
 
     self.Darkpalette.setColor(QtGui.QPalette.Disabled,
                               QtGui.QPalette.ButtonText,
                               QtGui.QColor(53, 53, 53))
-
     self.Darkpalette.setColor(QtGui.QPalette.Disabled,
                               QtGui.QPalette.BrightText, QtCore.Qt.red)
     self.Darkpalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Link,
@@ -200,7 +199,7 @@ def ChangeColor(self):
                                border-width: 3px;
                                border-color: rgb(153,200,221);
                                border-style: solid;
-                               border-radius: 3px;
+                               border-radius: 7px;
                                color: black;
                                }""")
 
@@ -281,6 +280,6 @@ def ChangeColor(self):
                                border-width: 3px;
                                border-color: rgb(0,83,118);
                                border-style: solid;
-                               border-radius: 3px;
+                               border-radius: 7px;
                                color: white;
                                }""")
