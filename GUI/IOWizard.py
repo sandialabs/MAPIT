@@ -30,7 +30,8 @@ class IOWizardMain(QtWidgets.QWizard):
     self.button(QtWidgets.QWizard.FinishButton).clicked.connect(self.SavePages)
 
     #bring in the first page banner
-    x = Path(sys.argv[0]).resolve().parents[1]
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
     F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Horizontal_Black.jpg')
     res = QtGui.QPixmap(F)
     res = res.scaledToWidth(500)

@@ -152,7 +152,7 @@ class ViewErrorTabs(QtWidgets.QDialog):
     self.EP2.setVerticalHeaderLabels(GUIparams.rowNames) #names
     self.EP2.setColumnCount(3)
     self.EP2.setHorizontalHeaderLabels(
-        ['Inventory', 'Random Contribution', 'Systematic Contribution'])
+        ['Observed Data (kg)', 'Random Contribution (kg)', 'Systematic Contribution (kg)'])
     
     header = self.EP2.horizontalHeader()
     header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
@@ -161,7 +161,7 @@ class ViewErrorTabs(QtWidgets.QDialog):
 
     self.EP2.setColumnCount(3)
     self.EP2.setHorizontalHeaderLabels(
-        ['Inventory', 'Random Contribution', 'Systematic Contribution'])
+        ['Observed Data', 'Random Contribution', 'Systematic Contribution'])
 
     self.EP2.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 

@@ -191,7 +191,6 @@ def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,
       # during scene select
 
       matplotlib.rcParams.update(matplotlib.rcParamsDefault)
-      GUIObject.hasRunIO = 1   
 
       if doMUF == 1:
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box12L"])
@@ -272,7 +271,8 @@ def getGUIErrorVals(GUIObject,lenInp,lenInv,lenOut,GLoc):
             
             for i in range(0,GUIObject.EP.rowCount()):
                 if GUIObject.EP.item(i,j) is not None:
-                    ErrorMatrix[P, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
+                    uncert_str = GUIObject.EP.item(i, j).text()[:-2]
+                    ErrorMatrix[P, j-ColLoc] = float(uncert_str) / 100
                     P+= 1
 
 

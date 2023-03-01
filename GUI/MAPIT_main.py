@@ -111,23 +111,25 @@ class StatGUIInterface:
                                                             len(processedOutput),
                                                             GLoc)   
 
+    nInputs = len(processedInput)
+    nInventories =  len(processedInventory)
     
     if doError == 1:
       AnalysisData.inputAppliedError = Preprocessing.SimErrors(input = processedInput, 
-                                                                ErrorMatrix =  AnalysisData.ErrorMatrix, 
+                                                                ErrorMatrix =  AnalysisData.ErrorMatrix[:nInputs,], 
                                                                 iterations = IT,
                                                                 GUIObject = self,
                                                                 GUIDispString = 'input errors')
 
       AnalysisData.inventoryAppliedError = Preprocessing.SimErrors(input = processedInventory,
-                                                                  ErrorMatrix =  AnalysisData.ErrorMatrix, 
+                                                                  ErrorMatrix =  AnalysisData.ErrorMatrix[nInputs:nInventories+nInputs], 
                                                                   iterations = IT,
                                                                   GUIObject = self,
                                                                   GUIDispString = 'inventory errors')
 
 
       AnalysisData.outputAppliedError = Preprocessing.SimErrors(input = processedOutput, 
-                                                                ErrorMatrix =  AnalysisData.ErrorMatrix, 
+                                                                ErrorMatrix =  AnalysisData.ErrorMatrix[nInputs+nInventories:,], 
                                                                 iterations = IT,
                                                                 GUIObject = self,
                                                                 GUIDispString = 'output errors')
@@ -492,7 +494,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
       "Box11L" : "Simulate measurement error",
       "Box12L" : "ID",
       "Box13L" : "Active Inventory",
-      "Box14L" : "CUMUF",
+      "Box14L" : "Cumulative ID",
       "Box15L" : "SEID",
       "Box16L" : "SEID(Active Inventory)",
       "Box17L" : "SITMUF",
@@ -524,11 +526,9 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
 
     self.CBHolder = []  #this is just for some of the style stuff later on
-    self.hasRunIO = 0
     self.PuLoc = -1
     self.ULoc = -1
     self.GLoc = -1
-    self.HasRunOnce = 0
     self.HasRunErrors = 0
     self.launch_master_window()
 
@@ -541,7 +541,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
     
 
     #
-    x = Path(sys.argv[0]).resolve().parents[1]
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
     F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
     self.setWindowIcon(QtGui.QIcon(F))
 
@@ -555,7 +556,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
     SC = loadDlgBox.addButton('SNL curated dataset',QtWidgets.QMessageBox.RejectRole)
     QC = loadDlgBox.addButton('Quit', QtWidgets.QMessageBox.NoRole)
 
-    loadDlgBox.exec()
+
+    loadDlgBox.exec_()
 
     DoRun = 1
 
@@ -633,6 +635,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
           if self.EP.item(i, j) is None:
             pastEVals[i, j] = 0
           else:
+            print(self.EP.item(i, j).text())
             pastEVals[i, j] = self.EP.item(i, j).text()
 
 
@@ -655,6 +658,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     ErrorBox = [
         '0.05', '0.1', '0.5', '1.0', '3.0', '5.0', '10.0', '15.0', '20.0', '25.0', '50.0'
     ]
+    ErrorBoxLabels = [x + ' %' for x in ErrorBox]
 
     # pane for all errors, all ins, outs, invs
     BContain = QtWidgets.QGroupBox(self.ErrorPane)
@@ -673,8 +677,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.AllRand = QtWidgets.QComboBox(AllError)
     self.AllSys = QtWidgets.QComboBox(AllError)
 
-    self.AllRand.addItems(ErrorBox)
-    self.AllSys.addItems(ErrorBox)
+    self.AllRand.addItems(ErrorBoxLabels)
+    self.AllSys.addItems(ErrorBoxLabels)
+    self.AllRand.setCurrentIndex(2)
+    self.AllSys.setCurrentIndex(2)
   
     self.AllRand.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'rand'))
     self.AllSys.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'sys'))
@@ -696,8 +702,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.InpRand = QtWidgets.QComboBox(InpError)
     self.InpSys = QtWidgets.QComboBox(InpError)
 
-    self.InpRand.addItems(ErrorBox)
-    self.InpSys.addItems(ErrorBox)
+    self.InpRand.addItems(ErrorBoxLabels)
+    self.InpSys.addItems(ErrorBoxLabels)
+    self.InpRand.setCurrentIndex(2)
+    self.InpSys.setCurrentIndex(2)
 
     self.InpRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inp'))
     self.InpSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inp'))
@@ -720,8 +728,11 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.InvRand = QtWidgets.QComboBox(InvError)
     self.InvSys = QtWidgets.QComboBox(InvError)
 
-    self.InvRand.addItems(ErrorBox)
-    self.InvSys.addItems(ErrorBox)
+
+    self.InvRand.addItems(ErrorBoxLabels)
+    self.InvSys.addItems(ErrorBoxLabels)
+    self.InvRand.setCurrentIndex(2)
+    self.InvSys.setCurrentIndex(2)
 
     self.InvRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inv'))
     self.InvSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inv'))
@@ -744,8 +755,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.OutRand = QtWidgets.QComboBox(OutError)
     self.OutSys = QtWidgets.QComboBox(OutError)
 
-    self.OutRand.addItems(ErrorBox)
-    self.OutSys.addItems(ErrorBox)
+    self.OutRand.addItems(ErrorBoxLabels)
+    self.OutSys.addItems(ErrorBoxLabels)
+    self.OutRand.setCurrentIndex(2)
+    self.OutSys.setCurrentIndex(2)
 
     self.OutRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','out'))
     self.OutSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','out'))
@@ -761,7 +774,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
 
     TotalLocs = GUIparams.nTotalLocations
-    x = Path(sys.argv[0]).resolve().parents[1]
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
     self.EP.setColumnCount(2)
     self.EP.setHorizontalHeaderLabels(['Rand ', 'Sys'])
     #self.EP.setHorizontalHeaderLabels(GUIparams.rowNames)
@@ -771,8 +785,9 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.EP.setRowCount(TotalLocs + 2)
     ep_L.addWidget(self.EP)
 
-    x = Path(sys.argv[0]).resolve().parents[1]
-
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
+    
     self.EP.setVerticalHeaderLabels(GUIparams.rowNames)
     self.PlotLocLabels = list(
         filter(len, GUIparams.rowNames)
@@ -784,7 +799,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
       for i in range(0, self.EP.rowCount()):
         for j in range(0, TotalLocs + 2):
           if self.EP.verticalHeaderItem(j).text() != '' and self.EP.horizontalHeaderItem(i) is not None:
-            self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(0.5)))
+            self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(0.5) + ' %'))
 
     if self.HasRunErrors == 1:
       for i in range(np.shape(pastEVals)[0]):
@@ -987,7 +1002,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
     CPL = QtWidgets.QGridLayout(CheckPrint)
     label = QtWidgets.QLabel()
 
-    x = Path(sys.argv[0]).resolve().parents[1]
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
     F = os.path.join(x, 'docs','assets', 'codeAssets', 'SNL_Horizontal_Black_Blue.jpg')
     banner = QtGui.QPixmap(F)
 
@@ -1029,6 +1045,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
             function.
     """
     dlg = DialogComponents.ViewErrorTabs(self, AnalysisData, GUIparams)
+    dlg.setWindowTitle('SEID Contributions')
+    dlg.resize(1200,800)
     res = dlg.exec_()
 
 
@@ -1092,7 +1110,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.TabView.triggered.connect(self.RunTable)
     
     self.TabOpt.addAction(self.TabView)
-    self.TabOpt.setToolTip('Sigma MUF calculation required')
+    self.TabOpt.setToolTip(GUIparams.labels["Box15L"] + 'calculation required')
     self.TabView.setEnabled(0)
 
     themeOpt = QtWidgets.QMenu("Theme", self)
