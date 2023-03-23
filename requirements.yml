@@ -3,7 +3,7 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - matplotib
+  - matplotlib
   - numpy
   - Pillow
   - PySide2=5.13.2
