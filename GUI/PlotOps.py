@@ -5,6 +5,9 @@ from PySide2 import QtCore, QtWidgets, QtGui
 from matplotlib.figure import Figure
 from PIL import ImageFont   ## MH added to test label sizing
 import time
+from MAPIT.GUI import StyleOps
+
+
 
 class PropertyHolder:
   pass
@@ -15,83 +18,166 @@ class MPLCanvas(FigureCanvas):
         the plot in MAPIT
   """
 
-  def __init__(self, parent=None, dpi=100):
+  def __init__(self, parent, dpi=100):
+
+    #sself.currentFontSize = QtWidgets.QApplication.font().pointSize()
+    #self.currentFontSize=20
+    self.parent = parent
+    matplotlib.rcParams.update({'font.size': parent.currentFontSize-2})
+
+
+    
 
     self.fig = Figure(dpi=dpi, frameon=True)
-    self.fig.subplots_adjust(left=0.10, bottom=0.10, right=0.98, top=0.95)
+    #self.fig.subplots_adjust(left=0.10, bottom=0.10, right=0.98, top=0.95)
     self.axes = self.fig.add_subplot(111)
-    self.axes_defColor = self.axes.get_facecolor()
-    self.axes.tick_params(axis='both', which='major', labelsize=15)
-    self.axes.tick_params(axis='both', which='minor', labelsize=10)
+
+    self.fig.set_facecolor(self.parent.colordict["WindowBackground"])
+    self.axes.set_facecolor(self.parent.colordict["plotBg"])
+
+
+
+    self.axes.spines['bottom'].set_color(self.parent.colordict["Text"])
+    self.axes.spines['top'].set_color(self.parent.colordict["Text"])
+    self.axes.spines['right'].set_color(self.parent.colordict["Text"])
+    self.axes.spines['left'].set_color(self.parent.colordict["Text"])
+
+    self.axes.tick_params(axis='x', colors=self.parent.colordict["Text"], which='both')
+    self.axes.tick_params(axis='y', colors=self.parent.colordict["Text"], which='both')
+
+    self.axes.yaxis.label.set_color(self.parent.colordict["Text"])
+    self.axes.xaxis.label.set_color(self.parent.colordict["Text"])
+    self.axes.title.set_color(self.parent.colordict["Text"])
+
+    self.axes.tick_params(axis='both', which='major', labelsize=parent.currentFontSize-2)
+    self.axes.tick_params(axis='both', which='minor', labelsize=parent.currentFontSize-2)
 
     self.compute_initial_figure()
+    self.boxpos = self.axes.get_position()
 
     FigureCanvas.__init__(self, self.fig)
-    self.setParent(parent)
+    #self.setParent(parent)
+    
 
-    FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding,
-                               QtWidgets.QSizePolicy.Expanding)
+    #FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding,
+                               #QtWidgets.QSizePolicy.Expanding)
     self.Thresh = []
 
   def compute_initial_figure(self):
     pass
 
-  def update_figure(self, data, isVariableFlag=0):
+  def update_figure(self, data, isVariableFlag=0, usehatch = 0):
     #change the default color cycle
     #dark and light colors provided
 
-    if self.window().MakeLight.isChecked() == 0:
-      matplotlib.rcParams['axes.prop_cycle'] = matplotlib.cycler(color=[
-          self.window().colorsD.lb,
-          self.window().colorsD.t,
-          self.window().colorsD.a,
-          self.window().colorsD.p,
-          self.window().colorsD.y,
-          self.window().colorsD.r,
-          self.window().colorsD.g,
-          self.window().colorsD.la,
-          self.window().colorsD.o
-      ])
-    else:
-      matplotlib.rcParams['axes.prop_cycle'] = matplotlib.cycler(color=[
-          self.window().colors.lb,
-          self.window().colors.t,
-          self.window().colors.a,
-          self.window().colors.p,
-          self.window().colors.y,
-          self.window().colors.r,
-          self.window().colors.g,
-          self.window().colors.la,
-          self.window().colors.o
-      ])
+    #self.fig.subplots_adjust(left=0.10, bottom=0.10, right=0.98, top=0.95)
+
+    #required in case switching from legend figure (e.g., bar contrib)
+    #to normal plot w/o legend
+    box = self.boxpos
+    self.axes.set_position([box.x0, box.y0, box.width, box.height])
+
+    matplotlib.rcParams['axes.prop_cycle'] = matplotlib.cycler(color=[
+        self.window().colordict["plot_lb"],
+        self.window().colordict["plot_t"],
+        self.window().colordict["plot_a"],
+        self.window().colordict["plot_p"], 
+        self.window().colordict["plot_y"],  
+        self.window().colordict["plot_r"], 
+        self.window().colordict["plot_g"], 
+        self.window().colordict["plot_la"], 
+        self.window().colordict["plot_o"]]) 
+
 
     self.axes.cla()
 
-    if isVariableFlag == 1:
-      self.axes.plot(data[:, 0], data[:, 1])
-    elif isVariableFlag == 2:
-      if data[0].shape != data[1].shape:
-        for J in range(data[1].shape[0]):
-          self.axes.plot(data[0],data[1][J,])
+    if data[2] == 'line':
+      if isVariableFlag == 1:
+        self.axes.plot(data[:, 0], data[:, 1])
+      elif isVariableFlag == 2:
+        if data[0].shape != data[1].shape:
+          for J in range(data[1].shape[0]):
+            self.axes.plot(data[0],data[1][J,])
+        else:
+          self.axes.plot(data[0], data[1])
       else:
-        self.axes.plot(data[0], data[1])
-    else:
 
-      self.axes.plot(data)
+        self.axes.plot(data)
+    elif data[2] == 'hist':
+      if self.parent.metricBox.currentText().endswith("(Absolute)"):
+        contrib_type='abs'
+      else:
+        contrib_type='rel'
+
+      if hasattr(self.parent,'PlotLocLabels'):
+        contribL = self.parent.PlotLocLabels
+      else:
+        contribL = None
+      
+      plotdat, idx_contrib_sorted, idx_mapping_loc, labels = getContribPlotData(data[1],contrib_type,internalLabels=contribL)
+      xx = np.linspace(0,data[1].shape[2]-1,data[1].shape[2])
+      width = 1
+
+      c0 = 0
+      c1 = 0
+      for i in range(len(idx_contrib_sorted)):
+          if i == 0:
+              b = np.zeros(plotdat.shape[1])
+          else:
+              b = plotdat[i-1,]
+        
+          if usehatch == 1:
+              if labels[idx_mapping_loc[i]].endswith('(rand)'):
+                texture = '/'
+                self.axes.bar(xx,plotdat[i,]-b,width,bottom=b,label=labels[idx_mapping_loc[i]],edgecolor='k',color='C'+str(c0),hatch=texture,alpha=0.6)
+                c0+=1
+              else:
+                texture = '.'
+                self.axes.bar(xx,plotdat[i,]-b,width,bottom=b,label=labels[idx_mapping_loc[i]],edgecolor='k',color='C'+str(c1),hatch=texture,alpha=0.6)
+                c1+=1
+          else:
+            self.axes.bar(xx,plotdat[i,]-b,width,bottom=b,label=labels[idx_mapping_loc[i]],edgecolor='k',alpha=0.6)
+          
+          
+
 
     self.draw()
+
+  def update_figure_legend(self):
+      
+      box = self.boxpos
+      Z = 12/self.parent.currentFontSize*0.83
+      self.axes.set_position([box.x0, box.y0, box.width * Z, box.height])
+
+      handles, labels = self.axes.get_legend_handles_labels()
+      labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
+
+      lgd = self.axes.legend(handles, labels, loc='center left', bbox_to_anchor=(1, 0.5),
+                       facecolor=self.parent.colordict["plotBg"],
+                       labelcolor=self.parent.colordict["Text"],
+                       edgecolor=self.parent.colordict["Text"],
+                       fontsize = self.parent.currentFontSize-2)
+      #self.fig.subplots_adjust(right=0.75)
+      #lgd.set_in_layout(True)
+      #self.fig.tight_layout()
+      
+      self.draw()
 
   def update_figure_title(self, data):
-    self.axes.set_title(data.title, fontsize = 20)
+    #fontsize = QtWidgets.QApplication.font().pointSize()
+    self.axes.set_title(data.title,fontsize=self.parent.currentFontSize-2)
 #    font = ImageFont.truetype(size = 20)
     self.axes.title.set_color(self.axes.yaxis.label.get_color())
-    self.axes.set_xlabel(data.xlabel, fontsize = 20)
-    self.axes.set_ylabel(data.ylabel, fontsize = 20)
-    self.fig.tight_layout()
+    self.axes.set_xlabel(data.xlabel, fontsize = self.parent.currentFontSize-2)
+    self.axes.set_ylabel(data.ylabel, fontsize=self.parent.currentFontSize-2)
+    self.axes.ticklabel_format(axis='y', style='sci', useOffset=True,scilimits=(-4,4)) #use sci notation for large numbers
+    #self.axes.yaxis.set_tick_params(labelsize=20)
+    #self.axes.tick_params(labelsize=fontsize)
+    #self.axes.yaxis.get_offset_text().set_size(fontsize)
+
     self.draw()
 
-  def update_thresh(self, data,
-                    data2):  #draw the threshold from the threshold calculator
+  def update_thresh(self, data, data2):  #draw the threshold from the threshold calculator
     if hasattr(self.Thresh, '__len__'):
       TH = np.ones((int(self.axes.get_lines()[0]._x.max()),)) * data
       self.Thresh, = self.axes.plot(TH, 'k')
@@ -142,7 +228,7 @@ def UpdatePlotOpts(GUIObj):
 
 def getNumToPlot(GUIObj):
   NumToPlot = 0
-  if GUIObj.NumToPlot.currentText() == '1 Random Iteration':
+  if GUIObj.NumToPlot.currentText() == '1 Random Iteration' or GUIObj.NumToPlot.currentText() == '1 Iteration':
     NumToPlot = 1
   elif GUIObj.NumToPlot.currentText() == 'Average of All Iterations':
     NumToPlot = -1
@@ -158,6 +244,10 @@ def getNumToPlot(GUIObj):
 
 
 def getDataWithoutLocations(inp,nPlot):
+
+  #list strictly for the total seid
+  #contrib plot 
+  #if len(inp.shape) == 3:
   dat = None
   IT = inp.shape[0]
   tMax = inp.shape[1]
@@ -176,6 +266,7 @@ def getDataWithoutLocations(inp,nPlot):
     np.shuffle(xx)
     xidx = int(xx[:15])
     dat = inp[xidx,]
+
 
   return dat, times
 
@@ -231,9 +322,107 @@ def getDataWithLocations(PlotIndex,GUIparams,AnalysisData,nPlot,raw):
   return dat, datT
   
 
-def getData(GUIObject,GUIparams,AnalysisData):
-    NumToPlot = getNumToPlot(GUIObject)
+def getContribPlotData(indat,contrib_type,internalLabels=None):
+
+  if len(indat.shape) == 4:
+    A = indat[:,:,:,0].squeeze()
+    B = indat[:,:,:,1].squeeze()
+    indat = np.concatenate((A,B),axis=1)
+
+    labels = []
+
+    if internalLabels == None:          
+      for i in range(A.shape[1]):
+        labels.append('location '+str(i) + ' (rand)')    
+
+      for i in range(A.shape[1]):
+        labels.append('location '+str(i) + ' (sys)')
+    
+    else:
+      for i in range(A.shape[1]):
+        labels.append(internalLabels[i] + ' (rand)')    
+
+      for i in range(A.shape[1]):
+        labels.append(internalLabels[i] + ' (sys)')
+
+    labels.append('All other locations (rand)')
+    labels.append('All other locations (sys)')
+
+    extra_slots = 2
+
+  else:
+    labels = []
+    A = indat
+
+    if internalLabels == None:
+      for i in range(indat.shape[1]):
+        labels.append('location '+str(i))
+      labels.append('All other locations')
+    else:
+      for i in range(indat.shape[1]):
+        labels.append(internalLabels[i])
+      labels.append('All other locations') 
+
+    extra_slots = 1
+
+
+
+  rdat = indat.mean(axis=0) #average across iterations
+  rtot = rdat.sum(axis=0)
+  rtot[rtot==0]=-1 #this solves a divide by zero error later on, if there's zero error contribution it's generally caused by  
+                   #a zero total inventory for MBP 0, this might have unintended consequences if a user enters a "0" measurement
+                   #error rather than just disabling error propagation generally
+
+  thresh=0.01 #thereshold for error contribution
+
+  max_contrib = rdat.max(axis=1)/rdat.mean(axis=1).sum()
+  idx_over_thresh = np.argwhere(max_contrib>thresh).squeeze() #good
+  sorted_idx_over = idx_over_thresh[np.argsort(-rdat[idx_over_thresh,:].squeeze().mean(axis=1))] #good
+
+  rcontribholder = np.zeros((len(sorted_idx_over)+extra_slots,rdat.shape[1]))
+  rcontribholder_abs = np.zeros((len(sorted_idx_over)+extra_slots,rdat.shape[1]))
+
+  c=0
+  for i in range(rdat.shape[0]):
+      if i in sorted_idx_over:
+          rcontribholder[c,] = rdat[i,:]/rtot
+          rcontribholder_abs[c,] = rdat[i,:]
+          c+=1
+      else:
+          if i <= A.shape[1]-1 and extra_slots==2:
+            rcontribholder[-2,] += rdat[i,:]/rtot
+            rcontribholder_abs[-2,] += rdat[i,:]
+          else:
+            rcontribholder[-1,] += rdat[i,:]/rtot
+            rcontribholder_abs[-1,] += rdat[i,:]
+
+
+  idx_contrib_sorted = (-np.mean(rcontribholder,axis=1)).argsort() #sort again for purposes of the bar plot
+
+  idx_mapping_loc = np.zeros(len(idx_contrib_sorted),)
+
+  for i in range(len(idx_mapping_loc)):
+      if i == len(idx_mapping_loc)-1:
+        idx_mapping_loc[i] = -1 #systematic or total 
+      elif i == len(idx_mapping_loc)-2 and extra_slots==2: 
+          idx_mapping_loc[i] = -2 #random
+      else:
+        idx_mapping_loc[i] = sorted_idx_over[i]
+          
+
+  idx_mapping_loc = idx_mapping_loc.astype(int)
+
+  if contrib_type == 'abs':
+    cs = np.cumsum(rcontribholder_abs[idx_contrib_sorted],axis=0)
+  else:
+    cs = np.cumsum(rcontribholder[idx_contrib_sorted],axis=0)*100
+
+  return cs, idx_contrib_sorted, idx_mapping_loc, labels
+
+
+def getData(GUIObject,GUIparams,AnalysisData,ThresholdL = False):
     CanvasElements = PropertyHolder()
+    plotType = 'line'
 
     # --------------- common plot variables ---------------------
 
@@ -244,10 +433,22 @@ def getData(GUIObject,GUIparams,AnalysisData):
    
     PlotIndex = int(GUIObject.LocBox.currentIndex()) #this gets the location index
    
-    CanvasElements.xlabel = 'Time (hr)'
-    CanvasElements.ylabel = 'Mass (kg)'
+    if GUIparams.labels["Box46L"] in GUIObject.metricBox.currentText()  or GUIparams.labels["Box47L"] in GUIObject.metricBox.currentText():
+      CanvasElements.xlabel = 'Material Balance Period'
+    else:
+      CanvasElements.xlabel = 'Time (hr)'
 
-    numToPlot = getNumToPlot(GUIObject)
+    if GUIparams.labels["Box47L"] in GUIObject.metricBox.currentText() or GUIparams.labels["Box50L"] in GUIObject.metricBox.currentText():
+      CanvasElements.ylabel = 'Cumulative Contribution (%)'
+    elif GUIparams.labels["Box46L"] in GUIObject.metricBox.currentText() or GUIparams.labels["Box49L"] in GUIObject.metricBox.currentText():
+      CanvasElements.ylabel = 'Cumulative Contribution (kg)'
+    else:
+      CanvasElements.ylabel = 'Mass (kg)'
+
+    if ThresholdL == True:
+      numToPlot = -2
+    else:
+      numToPlot = getNumToPlot(GUIObject)
 
     if GUIObject.metricBox.currentText() == 'Ground Truth Data' or GUIObject.metricBox.currentText() == 'Observed Data':
       CanvasElements.title = GUIObject.NucIDBox.currentText() + ' ' +\
@@ -309,11 +510,31 @@ def getData(GUIObject,GUIparams,AnalysisData):
         CanvasElements.ylabel = '% Active Inventory'
       elif currentText.endswith(GUIparams.labels["Box13L"]):
         inp = AnalysisData.AI
+      elif currentText.endswith(GUIparams.labels["Box46L"]) or currentText.endswith(GUIparams.labels["Box47L"]):
+        numToPlot = -2
+        plotType='hist'
+        if GUIObject.NucIDBox.currentText() == GUIparams.labels["Box44L"]:
+          inp = AnalysisData.SEMUFContribR
+        elif GUIObject.NucIDBox.currentText() == GUIparams.labels["Box45L"]:
+          inp = AnalysisData.SEMUFContribS
+        elif GUIObject.NucIDBox.currentText() == GUIparams.labels["Box48L"]:
+          inp = np.concatenate((np.expand_dims(AnalysisData.SEMUFContribR,axis=3),np.expand_dims(AnalysisData.SEMUFContribS,axis=3)),axis=-1)
+      elif currentText.endswith(GUIparams.labels["Box49L"]) or currentText.endswith(GUIparams.labels["Box50L"]):
+        numToPlot = -2
+        plotType='hist'
+        if GUIObject.NucIDBox.currentText() == GUIparams.labels["Box44L"]:
+          inp = AnalysisData.SEMUFAIContribR
+        elif GUIObject.NucIDBox.currentText() == GUIparams.labels["Box45L"]:
+          inp = AnalysisData.SEMUFAIContribS
+        elif GUIObject.NucIDBox.currentText() == GUIparams.labels["Box48L"]:
+          inp = np.concatenate((np.expand_dims(AnalysisData.SEMUFContribR,axis=3),np.expand_dims(AnalysisData.SEMUFContribS,axis=3)),axis=-1)
 
+      #TODO: continue SEID plot stuff here
       dat, datT = getDataWithoutLocations(inp,numToPlot)
     dh = []
     dh.append(datT)
-    dh.append(dat)  
+    dh.append(dat)
+    dh.append(plotType)  
     dat = None
     datT = None
     debug = 0
@@ -325,8 +546,10 @@ def ExecPlot(GUIObject,GUIparams,AnalysisData):
             data selected by a user
     """  
     dh, CanvasElements = getData(GUIObject,GUIparams,AnalysisData)
-    GUIObject.canvas.update_figure(dh,isVariableFlag=2)
+    hatchflag=1 if len(dh[1].shape)==4 else 0
+    GUIObject.canvas.update_figure(dh,isVariableFlag=2,usehatch=hatchflag)
     GUIObject.canvas.update_figure_title(CanvasElements)
+    GUIObject.canvas.update_figure_legend() if dh[2] == 'hist' else None #add a legend for SEID contrib plot
 
 
 
@@ -371,485 +594,7 @@ def resolveSparsePulses(indat,inT,LI=None,RI=None):
 
   return xnew, tnew, LI, RI
 
-    # ---------------------------------------------------------------
 
-    # if self.metricBox.currentText() == 'Ground Truth Data':
-
-    #   if isinstance(AnalysisData.rawInput, list) == 0 and isinstance(AnalysisData.rawInventory, list) == 0 and isinstance(AnalysisData.rawOutput, list) == 0:
-    #     PlotDat = np.concatenate((AnalysisData.rawInput, AnalysisData.rawInventory, AnalysisData.rawOutput),
-    #                              axis=0,
-    #                              dtype=object)
-    #     self.canvas.update_figure(PlotDat[PlotIndex, :, NucIndex])
-    #     self.canvas.update_figure_title(CanvasLabels)
-    #     self.ThreshData = PlotDat[PlotIndex, :, NucIndex]
-
-    #   else:
-    #     #okay here is where we deal with variable
-    #     #length arrays (i.e. non-constant sampling)
-
-    #     #first find out what the plotindex belongs to
-    #     #shape(list) is depreciated
-    #     if isinstance(AnalysisData.rawInput, list):
-    #       A1 = len(AnalysisData.rawInput)
-    #     else:
-    #       A1 = np.shape(AnalysisData.rawInput)[0]
-
-    #     if isinstance(AnalysisData.rawInventory, list):
-    #       A2 = len(AnalysisData.rawInventory)
-    #     else:
-    #       A2 = np.shape(AnalysisData.rawInventory)[0]
-
-    #     if isinstance(AnalysisData.rawOutput, list):
-    #       A3 = len(AnalysisData.rawOutput)
-    #     else:
-    #       A3 = np.shape(AnalysisData.rawOutput)[0]
-
-    #     intervals = np.array([A1, A1 + A2, A1 + A2 + A3]) - 1
-    #     plttyp = bisect.bisect_left(intervals, PlotIndex)
-
-    #     localIndex = PlotIndex - (A1 * (plttyp >= 1) + A2 * (plttyp == 2))
-
-    #     if plttyp == 0:
-    #       #could be a list
-    #       #could just do asarray(list) here later
-    #       if isinstance(AnalysisData.rawInput, list):
-    #         PDD = AnalysisData.rawInput[localIndex][:, NucIndex]
-    #         PDD2 = AnalysisData.rawInputTimes[localIndex][:,NucIndex]
-    #         EE = np.where(np.diff(PDD2) > 1)
-
-    #         #list mode data is sometimes dense, but still represents pulses
-    #         #for nicer plotting, add some zeros to make pulses more rounded
-    #         for i in range(len(EE[0])): #len(EE[0])-1
-    #             d = np.array([0])
-    #             if i == 0:
-    #                 RI = int(np.max(np.where(PDD[0:EE[0][0]]>0)))
-    #                 xnew = np.concatenate(([np.array([PDD2[0]-1e-5]),PDD2[0:EE[0][0]][:RI],np.array([PDD2[:EE[0][0]][RI]+1e-5])]))
-    #                 ynew = np.concatenate((d,PDD[0:EE[0][0]][:RI],d))
-    #             else:
-    #                 RI = int(np.max(np.where(PDD[EE[0][i-1]+1:EE[0][i]]>0)))
-    #                 xnew = np.concatenate((xnew,np.array([PDD2[EE[0][i-1]+1]-1e-5]),PDD2[EE[0][i-1]+1:EE[0][i]][:RI],np.array([PDD2[EE[0][i-1]+1:EE[0][i]][RI]+1e-5])))
-    #                 ynew = np.concatenate((ynew,d,PDD[EE[0][i-1]+1:EE[0][i]][:RI],d))
-
-    #         if len(EE[0]) > 1:
-    #           PDD2 = xnew
-    #           PDD = ynew
-
-    #       else:
-    #         PDD = AnalysisData.rawInput[localIndex, :, NucIndex]
-    #         PDD2 = AnalysisData.rawInputTimes[localIndex, :, NucIndex]
-
-    #       self.canvas.update_figure(
-    #           np.concatenate(
-    #               (PDD2.reshape((-1,1)), PDD.reshape((-1, 1))),axis=1), 1)
-    #       self.canvas.update_figure_title(CanvasLabels)
-    #       self.ThreshData = PDD
-
-    #     elif plttyp == 1:
-    #       if isinstance(AnalysisData.rawInventory, list):
-    #         PDD = AnalysisData.rawInventory[localIndex][:, NucIndex]
-    #         PDD2 = AnalysisData.rawInventoryTimes[localIndex][:,NucIndex]
-    #       else:
-    #         PDD = AnalysisData.rawInventory[localIndex, :, NucIndex]
-    #         PDD2 = AnalysisData.rawInventoryTimes[localIndex, :, NucIndex]
-
-    #       self.canvas.update_figure(
-
-    #           np.concatenate(
-    #               (PDD2.reshape((-1,1)), PDD.reshape((-1, 1))),axis=1), 1)
-    #       self.canvas.update_figure_title(CanvasLabels)
-    #       self.ThreshData = PDD
-
-    #     else:
-    #       if isinstance(AnalysisData.rawOutput, list):
-    #         PDD = AnalysisData.rawOutput[localIndex][:, NucIndex]
-    #         PDD2 = AnalysisData.rawOutputTimes[localIndex][:,NucIndex]
-    #         EE = np.where(np.diff(PDD2) > 1)
-
-    #         for i in range(len(EE[0])): #len(EE[0])-1
-    #             d = np.array([0])
-    #             if i == 0:
-    #                 RI = int(np.max(np.where(PDD[0:EE[0][0]]>0)))
-    #                 xnew = np.concatenate(([np.array([PDD2[0]-1e-5]),PDD2[0:EE[0][0]][:RI],np.array([PDD2[:EE[0][0]][RI]+1e-5])]))
-    #                 ynew = np.concatenate((d,PDD[0:EE[0][0]][:RI],d))
-    #             else:
-    #                 RI = int(np.max(np.where(PDD[EE[0][i-1]+1:EE[0][i]]>0)))
-    #                 xnew = np.concatenate((xnew,np.array([PDD2[EE[0][i-1]+1]-1e-5]),PDD2[EE[0][i-1]+1:EE[0][i]][:RI],np.array([PDD2[EE[0][i-1]+1:EE[0][i]][RI]+1e-5])))
-    #                 ynew = np.concatenate((ynew,d,PDD[EE[0][i-1]+1:EE[0][i]][:RI],d))
-    #         if len(EE[0]) > 1:
-    #           PDD2 = xnew
-    #           PDD = ynew
-
-    #       else:
-    #         PDD = AnalysisData.rawOutput[localIndex, :, NucIndex]
-    #         PDD2 = AnalysisData.rawOutputTimes[localIndex, :, NucIndex]
-
-    #       self.canvas.update_figure(
-    #           np.concatenate(
-    #               (PDD2.reshape((-1,1)), PDD.reshape((-1, 1))),axis=1,dtype=object), 1)
-    #       self.canvas.update_figure_title(CanvasLabels)
-    #       self.ThreshData = PDD
-
-    # elif self.metricBox.currentText() == 'Observed Data':
-
-    #   # iter, location, timestep, element
-
-    #   if isinstance(AnalysisData.inventoryAppliedError,list) == False:  #is this uniformly sampled (if so concatenate will succeed)
-
-    #     PlotDat = np.concatenate(
-    #         (AnalysisData.inputAppliedError, AnalysisData.inventoryAppliedError, AnalysisData.outputAppliedError),
-    #         axis=1,
-    #         dtype=object)
-
-    #     if NumToPlot == 1:  #1
-    #       IterIndex = np.random.randint(
-    #           low=0, high=int(self.IterBox.text()) - 1)
-    #       self.canvas.update_figure(PlotDat[IterIndex, PlotIndex, :, NucIndex])
-    #       self.ThreshData = PlotDat[IterIndex, PlotIndex, :, NucIndex]
-
-    #     elif NumToPlot == -1:  #average
-    #       self.canvas.update_figure(
-    #           np.mean(PlotDat[:, PlotIndex, :, NucIndex], axis=0))
-    #       self.ThreshData = np.mean(PlotDat[:, PlotIndex, :, NucIndex], axis=0)
-
-    #     elif NumToPlot == -2:  #all
-    #       self.canvas.update_figure(PlotDat[:, PlotIndex, :, NucIndex].T)
-    #       self.ThreshData = PlotDat[:, PlotIndex, :, NucIndex].T
-
-    #     elif NumToPlot == 15:  #random 15
-    #       indexes = np.zeros((15,))
-    #       for i in range(0, 15):
-    #         indexes[i] = np.random.randint(
-    #             low=0, high=int(self.IterBox.text()) - 1)
-
-    #       self.canvas.update_figure(PlotDat[indexes.astype('int'), PlotIndex, :,
-    #                                         NucIndex].T)
-    #       self.ThreshData = PlotDat[indexes.astype('int'), PlotIndex, :,
-    #                                 NucIndex].T
-
-    #     else:
-    #       None
-
-    #     self.canvas.update_figure_title(CanvasLabels)
-
-    #   else:  #this is not uniformily sampled
-
-    #     #which terms are not uniformly sampled
-    #     if isinstance(AnalysisData.inputAppliedError, list):
-    #       A1 = len(AnalysisData.inputAppliedError)
-    #     else:
-    #       A1 = np.shape(AnalysisData.inputAppliedError)[0]
-
-    #     if isinstance(AnalysisData.inventoryAppliedError, list):
-    #       A2 = len(AnalysisData.inventoryAppliedError)
-    #     else:
-    #       A2 = np.shape(AnalysisData.inventoryAppliedError)[0]
-
-    #     if isinstance(AnalysisData.outputAppliedError, list):
-    #       A3 = len(AnalysisData.outputAppliedError)
-    #     else:
-    #       A3 = np.shape(AnalysisData.outputAppliedError)[0]
-
-    #     #breakdown the indicies into intervals
-    #     intervals = np.array([A1, A1 + A2, A1 + A2 + A3]) - 1
-    #     plttyp = bisect.bisect_left(
-    #         intervals, PlotIndex
-    #     )  #plotIndex is where in the array the requested quantity is, question is is it inp, inv, or out?
-
-    #     localIndex = PlotIndex - (
-    #         A1 * (plttyp >= 1) + A2 * (plttyp == 2)
-    #     )  #what is the index in the specific quantity type (i.e. what's the index in the inventory array)
-
-    #     PH = []
-    #     if plttyp == 0:
-    #       #could be a list
-    #       #could just do asarray(list) here later
-    #       if isinstance(AnalysisData.inputAppliedError, list):
-    #         PDD = AnalysisData.inputAppliedError[localIndex][:, :,
-    #                                          NucIndex]  #get the measured data
-    #         PDD2 = AnalysisData.rawInputTimes[
-    #             localIndex][:, NucIndex]  #get the corresponding time
-
-    #       else:
-    #         PDD = AnalysisData.inputAppliedError[localIndex, :, :, NucIndex]
-    #         PDD2 = AnalysisData.rawInputTimes[localIndex, :, :, NucIndex]
-
-    #       PH.append(PDD2)
-    #       PH.append(PDD)
-
-    #     elif plttyp == 1:
-    #       if isinstance(AnalysisData.inventoryAppliedError, list):
-    #         PDD = AnalysisData.inventoryAppliedError[localIndex][:, :, NucIndex]
-    #         PDD2 = AnalysisData.rawInventoryTimes[localIndex][:, NucIndex]
-    #       else:
-    #         PDD = AnalysisData.inventoryAppliedError[localIndex, :, :, NucIndex]
-    #         PDD2 = AnalysisData.rawInventoryTimes[localIndex, :, :, NucIndex]
-
-    #       PH.append(PDD2)
-    #       PH.append(PDD)
-
-    #     else:
-    #       if isinstance(AnalysisData.outputAppliedError, list):
-    #         PDD = AnalysisData.outputAppliedError[localIndex][:, :, NucIndex]
-    #         PDD2 = AnalysisData.rawOutputTimes[localIndex][:, NucIndex]
-    #       else:
-    #         PDD = AnalysisData.outputAppliedError[localIndex, :, :, NucIndex]
-    #         PDD2 = AnalysisData.rawOutputTimes[localIndex, :, :, NucIndex]
-
-    #       PH.append(PDD2)
-    #       PH.append(PDD)
-
-    #     #FH = np.zeros(np.shape(PH[1]))
-    #     #improved plotting visuals for pulses
-    #     #note this won't show noise for zero values
-    #     #as usually only dense, non-zero data is recorded
-    #     #so no noise can be added to zeros (as they are unrecorded)
-    #     #this is just an improved visual
-    #     if len(np.where(np.diff(PH[0]) > 1)[0]) > 0:
-    #       for J in range(np.shape(PH[1])[0]):
-    #         PDD = PH[1][J,:]
-    #         PDD2 = PH[0]
-    #         EE = np.where(np.diff(PDD2) > 1)
-
-
-    #         for i in range(len(EE[0])): #len(EE[0])-1
-    #             d = np.array([0])
-    #             if i == 0:
-    #                 RI = int(np.max(np.where(PDD[0:EE[0][0]]>0)))
-    #                 xnew = np.concatenate(([np.array([PDD2[0]-1e-5]),PDD2[0:EE[0][0]][:RI],np.array([PDD2[:EE[0][0]][RI]+1e-5])]))
-    #                 ynew = np.concatenate((d,PDD[0:EE[0][0]][:RI],d))
-    #             else:
-    #                 RI = int(np.max(np.where(PDD[EE[0][i-1]+1:EE[0][i]]>0)))
-    #                 xnew = np.concatenate((xnew,np.array([PDD2[EE[0][i-1]+1]-1e-5]),PDD2[EE[0][i-1]+1:EE[0][i]][:RI],np.array([PDD2[EE[0][i-1]+1:EE[0][i]][RI]+1e-5])))
-    #                 ynew = np.concatenate((ynew,d,PDD[EE[0][i-1]+1:EE[0][i]][:RI],d))
-
-    #         if len(EE[0]) > 1:
-    #           PDD2 = xnew
-    #           PDD = ynew
-    #         if J == 0:
-    #           FH = np.zeros((np.shape(PH[1])[0],np.shape(ynew)[0]))
-    #         FH[J,:] = ynew
-
-    #       PH[1] = FH
-    #       PH[0] = PDD2
-    #       del FH #garbage cleanup
-
-    #     #how many to plot?
-    #     if NumToPlot == 1:  #1
-    #       IterIndex = np.random.randint(
-    #           low=0, high=int(self.IterBox.text()) - 1)
-    #       PH[1] = PH[1][IterIndex, :].reshape((-1,))
-    #       self.canvas.update_figure(
-    #           PH, 2
-    #       )  #the 2 flag indicates theres X and Y data (as it is not unformly sampled)
-    #       self.ThreshData = PH[1]
-
-    #     elif NumToPlot == -1:  #average
-    #       PH[1] = np.mean(PH[1], axis=0)
-    #       self.canvas.update_figure(PH, 2)
-    #       self.ThreshData = PH[1]
-
-    #     elif NumToPlot == -2:  #all
-
-    #       PH[1] = PH[1].T
-    #       self.canvas.update_figure(PH, 2)
-    #       self.ThreshData = PH[1].T
-
-    #     elif NumToPlot == 15:  #random 15
-    #       indexes = np.zeros((15,))
-    #       for i in range(0, 15):
-    #         indexes[i] = np.random.randint(
-    #             low=0, high=int(self.IterBox.text()) - 1)
-
-    #       PH[1] = PH[1][indexes.astype('int'), :]
-    #       if PH[1].shape[0] < PH[1].shape[1]:
-    #         PH[1] = PH[1].T
-    #       self.canvas.update_figure(PH, 2)
-    #       self.ThreshData = PH[1]
-
-    #     else:
-    #       None
-
-    #     self.canvas.update_figure_title(CanvasLabels)
-
-    # elif self.metricBox.currentText() == 'Pu MUF':
-    #   TP = MUFIter[0]
-    # elif self.metricBox.currentText() == 'Pu SEID':
-    #   TP2 = SEIDIter[0]
-    # elif self.metricBox.currentText() == 'Pu SITMUF':
-    #   TP3 = SITMUFIter[0]
-    # elif self.metricBox.currentText() == 'Pu Page SITMUF':
-    #   TP4 = PageIter[0]
-    # elif self.metricBox.currentText() == 'U MUF':
-    #   TP = MUFIter[1]
-    # elif self.metricBox.currentText() == 'U SEID':
-    #   TP2 = SEIDIter[1]
-    # elif self.metricBox.currentText() == 'U SITMUF':
-    #   TP3 = SITMUFIter[1]
-    # elif self.metricBox.currentText() == 'U Page SITMUF':
-    #   TP4 = PageIter[1]
-    # elif self.metricBox.currentText() == 'Generic MUF':
-    #   TP = MUFIter[2]
-    # elif self.metricBox.currentText() == 'Generic SEID':
-    #   TP2 = SEIDIter[2]
-    # elif self.metricBox.currentText() == 'Generic SITMUF':
-    #   TP3 = SITMUFIter[2]
-    # elif self.metricBox.currentText() == 'Generic Page SITMUF':
-    #   TP4 = PageIter[2]
-    # else:
-    #   None
-
-    # # if plot MUF
-    # if TP > -1:
-    #   PlotDat = AnalysisData.MUF
-
-    #   if len(PlotDat.shape) == 2:
-    #     PlotDat = np.expand_dims(PlotDat,axis=1)
-
-    #   if NumToPlot == 1:
-    #     IterIndex = np.random.randint(
-    #         low=0, high=int(self.IterBox.text()) - 1)  #get a random iteration
-    #     self.canvas.update_figure(PlotDat[IterIndex, TP, :])
-
-    #   elif NumToPlot == -1:
-    #     self.canvas.update_figure(np.mean(PlotDat[:, TP, :],
-    #                                       axis=0))  #plot the mean
-
-    #   elif NumToPlot == -2:
-    #     self.canvas.update_figure(PlotDat[:, MUFIter[2], :].T)  #plot them all
-
-    #   elif NumToPlot == 15:
-    #     indexes = np.zeros((15,))
-    #     for i in range(0, 15):
-    #       indexes[i] = np.random.randint(
-    #           low=0, high=int(self.IterBox.text()) - 1)
-
-    #     self.canvas.update_figure(PlotDat[indexes.astype('int'),
-    #                                       TP, :].T)  #plot 15 iterations
-
-    #   else:
-    #     None
-
-    #   #setup the plot label
-    #   if hasattr(self, 'Wizard'):
-    #     CanvasLabels[2] = ('MUF (' + self.Wizard.MassUnitVec + ')')
-
-    #   else:
-    #     CanvasLabels[2] = ('MUF (kg)')
-
-    #   self.canvas.update_figure_title(CanvasLabels)
-    #   self.ThreshData = PlotDat[:, TP, :]
-
-    # # if plot SEID
-    # #code largely mimics the plot
-    # #code for MUF above
-    # if TP2 > -1:
-    #   PlotDat = AnalysisData.SEMUF
-
-    #   if len(PlotDat.shape) == 2:
-    #     PlotDat = np.expand_dims(PlotDat,axis=1)
-
-    #   if NumToPlot == 1:
-    #     IterIndex = np.random.randint(low=0, high=int(self.IterBox.text()) - 1)
-    #     self.canvas.update_figure(PlotDat[IterIndex, TP2, :])
-
-    #   elif NumToPlot == -1:
-    #     self.canvas.update_figure(np.mean(PlotDat[:, TP2, :], axis=0))
-
-    #   elif NumToPlot == -2:
-    #     self.canvas.update_figure(PlotDat[:, TP2, :].T)
-
-    #   elif NumToPlot == 15:
-    #     indexes = np.zeros((15,))
-    #     for i in range(0, 15):
-    #       indexes[i] = np.random.randint(
-    #           low=0, high=int(self.IterBox.text()) - 1)
-
-    #     self.canvas.update_figure(PlotDat[indexes.astype('int'), TP2, :].T)
-
-    #   else:
-    #     None
-
-    #   if hasattr(self, 'Wizard'):
-    #     CanvasLabels[2] = ('SEID (' + self.Wizard.MassUnitVec + ')')
-
-    #   else:
-    #     CanvasLabels[2] = ('SEID (kg)')
-
-    #   self.canvas.update_figure_title(CanvasLabels)
-    #   self.ThreshData = PlotDat[:, TP2, :]
-
-    # # if plot SITMUF
-    # if TP3 > -1:
-    #   PlotDat = AnalysisData.SITMUF
-
-    #   if len(PlotDat.shape) == 2:
-    #     PlotDat = np.expand_dims(PlotDat,axis=1)
-
-    #   if NumToPlot == 1:
-    #     IterIndex = np.random.randint(low=0, high=int(self.IterBox.text()) - 1)
-    #     self.canvas.update_figure(PlotDat[IterIndex, TP3, :])
-
-    #   elif NumToPlot == -1:
-    #     self.canvas.update_figure(np.mean(PlotDat[:, TP3, :], axis=0))
-
-    #   elif NumToPlot == -2:
-    #     self.canvas.update_figure(PlotDat[:, TP3, :].T)
-
-    #   elif NumToPlot == 15:
-    #     indexes = np.zeros((15,))
-    #     for i in range(0, 15):
-    #       indexes[i] = np.random.randint(
-    #           low=0, high=int(self.IterBox.text()) - 1)
-
-    #     self.canvas.update_figure(PlotDat[indexes.astype('int'), TP3, :].T)
-
-    #   else:
-    #     None
-
-    #   if hasattr(self, 'Wizard'):
-    #     CanvasLabels[2] = ('SITMUF (' + self.Wizard.MassUnitVec + ')')
-
-    #   else:
-    #     CanvasLabels[2] = ('SITMUF (kg)')
-    #   self.canvas.update_figure_title(CanvasLabels)
-    #   self.ThreshData = PlotDat[:, TP3, :]
-
-    # # if plot page
-    # if TP4 > -1:
-    #   PlotDat = AnalysisData.Page
-
-    #   if len(PlotDat.shape) == 2:
-    #     PlotDat = np.expand_dims(PlotDat,axis=1)
-
-    #   if NumToPlot == 1:
-    #     IterIndex = np.random.randint(low=0, high=int(self.IterBox.text()) - 1)
-    #     self.canvas.update_figure(PlotDat[IterIndex, TP4, :])
-
-    #   elif NumToPlot == -1:
-    #     self.canvas.update_figure(np.mean(PlotDat[:, TP4, :], axis=0))
-
-    #   elif NumToPlot == -2:
-    #     self.canvas.update_figure(PlotDat[:, TP4, :].T)
-
-    #   elif NumToPlot == 15:
-    #     indexes = np.zeros((15,))
-    #     for i in range(0, 15):
-    #       indexes[i] = np.random.randint(
-    #           low=0, high=int(self.IterBox.text()) - 1)
-
-    #     self.canvas.update_figure(PlotDat[indexes.astype('int'), TP4, :].T)
-    #   else:
-    #     None
-
-    #   # print("A")
-    #   CanvasLabels[2] = 'Page Score'
-    #   self.canvas.update_figure_title(CanvasLabels)
-    #   self.ThreshData = PlotDat[:, TP4, :]
-
-    # if self.CalcThresh.isEnabled() == 0:
-    #   self.CalcThresh.setEnabled(1)
-    #   self.CalcThresh.PassLoc('CTB')
-    #   self.CalcThresh._animation.start()
 
 
 
@@ -862,31 +607,6 @@ def UpdateLocOpts(self,GUIparams):
 
 
 
-
-    grad = "border-color: rgb({value},{value2},{value3});".format(value=153,value2=200,value3=221) +\
-   "border-width: 2px;" +\
-   "border-style: solid;" +\
-   "padding: 0px;" +\
-   "border-radius: 7px;" +\
-   "margin-top: 20px;" +\
-   "background-color: rgb(239,239,239);" +\
-    "}"
-
-    grad2 = "border-color: rgb({value},{value2},{value3});".format(value=211,value2=211,value3=211) +\
-   "border-width: 2px;" +\
-   "border-style: solid;" +\
-   "padding: 0px;" +\
-   "border-radius: 7px;" +\
-   "margin-top: 20px;" +\
-   "background-color: rgb(239,239,239);" +\
-    "}"
-
-    if self.window().MakeLight.isChecked() == 0:
-      grad = grad.replace('rgb(239,239,239)', 'rgb(52,52,52)')
-      grad = grad.replace('rgb(153,200,221)', 'rgb(0,83,118)')
-      grad2 = grad2.replace('rgb(239,239,239)', 'rgb(52,52,52)')
-      grad2 = grad2.replace('rgb(211,211,211)', 'rgb(66,66,66)')
-
     #not all combinations of plot options should have the same options
     #for example, ground truth shouldn't have iterations available
     #and MUF shouldn't have locations available
@@ -897,12 +617,15 @@ def UpdateLocOpts(self,GUIparams):
         self.NumToPlot.removeItem(0)
       self.NumToPlot.setEnabled(0)
       self.mb4.ChangeActive(0)
-      self.mb4.setStyleSheet(
-          "QWidget#{VAL}".format(VAL=self.mb4.Loc) + "{" + grad2 +
-          "QWidget#{VAL}".format(VAL=self.mb4.Loc) )
+      StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb4)
     # OD add iterations
     elif self.metricBox.currentText() == 'Observed Data':
-      if int(self.IterBox.text()) <= 100:
+      if self.IterBox.text() == "":
+        if self.NumToPlot.count() > 0:
+          for i in range(0, self.NumToPlot.count()):
+            self.NumToPlot.removeItem(0)
+        self.NumToPlot.addItem('1 Iteration')
+      elif int(self.IterBox.text()) <= 100:
         if self.NumToPlot.count() > 0:
           for i in range(0, self.NumToPlot.count()):
             self.NumToPlot.removeItem(0)
@@ -921,11 +644,37 @@ def UpdateLocOpts(self,GUIparams):
         self.NumToPlot.addItem('Average of All Iterations')
       self.NumToPlot.setEnabled(1)
       self.mb4.ChangeActive(1)
-      self.mb4.setStyleSheet(
-          "QWidget#{VAL}".format(VAL=self.mb4.Loc) + "{" + grad +
-          "QWidget#{VAL}".format(VAL=self.mb4.Loc) )
+      StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb4,isactive=1)
     else:
-      None
+      #re-add iterations here in case they were removed
+      #due to previous selection
+      if self.IterBox.text() == "":
+        if self.NumToPlot.count() > 0:
+          for i in range(0, self.NumToPlot.count()):
+            self.NumToPlot.removeItem(0)
+        self.NumToPlot.addItem('1 Iteration')
+      elif int(self.IterBox.text()) <= 100:
+        if self.NumToPlot.count() > 0:
+          for i in range(0, self.NumToPlot.count()):
+            self.NumToPlot.removeItem(0)
+        self.NumToPlot.addItem('1 Random Iteration')
+        self.NumToPlot.addItem('Average of All Iterations')
+        self.NumToPlot.addItem('All Iterations (' + self.IterBox.text() + ')')
+
+      else:
+        #if there's more than 100 iterations set a max of 15
+        #to plot at once (keeps MPL backend from imploding)
+        for i in range(0, self.NumToPlot.count()):
+          self.NumToPlot.removeItem(0)
+
+        self.NumToPlot.addItem('1 Random Iteration')
+        self.NumToPlot.addItem('15 Random Iterations')
+        self.NumToPlot.addItem('Average of All Iterations')
+      self.NumToPlot.setEnabled(1)
+      self.mb4.ChangeActive(1)
+      StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb4,isactive=1)
+
+
 
     # GT/OD data - add ele and locs
     if self.metricBox.currentText(
@@ -938,21 +687,14 @@ def UpdateLocOpts(self,GUIparams):
           self.NucIDBox.addItem(i)
         self.LocBox.setEnabled(1)
         self.mb2.ChangeActive(1)
-        self.mb2.setStyleSheet(
-            "QWidget#{VAL}".format(VAL=self.mb2.Loc) + "{" + grad +
-            "QWidget#{VAL}".format(VAL=self.mb2.Loc) )
+        StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb2,isactive=1)
 
         self.NucIDBox.setEnabled(1)
-        self.mb3.ChangeActive(1)
-        self.mb3.setStyleSheet(
-            "QWidget#{VAL}".format(VAL=self.mb3.Loc) + "{" + grad +
-            "QWidget#{VAL}".format(VAL=self.mb3.Loc) )
+
 
       else:
         None
     else:
-      #self.mb2.setStyleSheet('QGroupBox:title {' 'padding-right: 10px}')
-      #self.mb3.setStyleSheet('QGroupBox:title {' 'padding-right: 10px}')
       if self.LocBox.count(
       ) != 0:  # statistical test boxes - add iterations and remove location / ele ID
         for i in range(0, int(self.LocBox.count())):
@@ -962,17 +704,16 @@ def UpdateLocOpts(self,GUIparams):
 
         self.LocBox.setEnabled(0)
         self.mb2.ChangeActive(0)
-        self.mb2.setStyleSheet(
-            "QWidget#{VAL}".format(VAL=self.mb2.Loc) + "{" + grad2 +
-            "QWidget#{VAL}".format(VAL=self.mb2.Loc))
+        StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb2)
 
-        self.NucIDBox.setEnabled(0)
-        self.mb3.ChangeActive(0)
-        self.mb3.setStyleSheet(
-            "QWidget#{VAL}".format(VAL=self.mb3.Loc) + "{" + grad2 +
-            "QWidget#{VAL}".format(VAL=self.mb3.Loc) )
 
-        if int(self.IterBox.text()) <= 100:  #check options for iterations
+        #StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb3)
+        if self.IterBox.text() == "":
+          if self.NumToPlot.count() > 0:
+            for i in range(0, self.NumToPlot.count()):
+              self.NumToPlot.removeItem(0)
+          self.NumToPlot.addItem('1 Iteration')
+        elif int(self.IterBox.text()) <= 100:  #check options for iterations
           if self.NumToPlot.count() > 0:
             for i in range(0, self.NumToPlot.count()):
               self.NumToPlot.removeItem(0)
@@ -987,16 +728,39 @@ def UpdateLocOpts(self,GUIparams):
           self.NumToPlot.addItem('Average of All Iterations')
         self.NumToPlot.setEnabled(1)
         self.mb4.ChangeActive(1)
-        self.mb4.setStyleSheet(
-            "QWidget#{VAL}".format(VAL=self.mb4.Loc) + "{" + grad +
-            "QWidget#{VAL}".format(VAL=self.mb4.Loc) )
+        StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb4,isactive=1)
       else:
         #if not included then style will look weird when no changes
         #are made to the options, due to the style sheet change
         #at the top of this if block
-        self.mb2.setStyleSheet(
-            "QWidget#{VAL}".format(VAL=self.mb2.Loc) + "{" + grad2 +
-            "QWidget#{VAL}".format(VAL=self.mb2.Loc) )
-        self.mb3.setStyleSheet(
-            "QWidget#{VAL}".format(VAL=self.mb3.Loc) + "{" + grad2 +
-            "QWidget#{VAL}".format(VAL=self.mb3.Loc) )
+        StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb2)
+        #StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb3)
+
+    #SEID contrib plot options, activate flex box
+    #ends with used since element is prepended
+    if self.metricBox.currentText().endswith(GUIparams.labels["Box46L"]) or self.metricBox.currentText().endswith(GUIparams.labels["Box47L"]) \
+    or self.metricBox.currentText().endswith(GUIparams.labels["Box49L"]) or self.metricBox.currentText().endswith(GUIparams.labels["Box50L"]) :
+      self.NucIDBox.clear()
+      self.NucIDBox.addItem(GUIparams.labels["Box44L"])
+      self.NucIDBox.addItem(GUIparams.labels["Box45L"])
+      self.NucIDBox.addItem(GUIparams.labels["Box48L"])
+      self.mb3.setTitle(GUIparams.labels["Box33Lb"])
+      self.mb3.ChangeActive(1)
+      StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb3,isactive=1)
+      #HACK: overwrite previous code that adds items bc lazy and this
+      #whole module needs a cleaner rewrite
+      self.NumToPlot.setEnabled(0)
+      self.NumToPlot.clear()
+      self.mb4.ChangeActive(0)
+      StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb4,isactive=0)
+    else:
+      self.mb3.setTitle(GUIparams.labels["Box33L"])
+      self.mb3.ChangeActive(0)
+      StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb3,isactive=0)
+      self.NucIDBox.clear()
+
+def fontresize(self):
+  matplotlib.rcParams.update({'font.size': self.currentFontSize-2})
+  self.canvas.axes.tick_params(axis='both', which='major', labelsize=self.currentFontSize-2)
+  self.canvas.axes.tick_params(axis='both', which='minor', labelsize=self.currentFontSize-2)
+  self.canvas.axes.cla()

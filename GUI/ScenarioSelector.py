@@ -245,7 +245,7 @@ class MPLCanvas(FigureCanvas):
     self.draw()
 
 
-class SceneSelect(QtWidgets.QDialog):
+class SceneExamine(QtWidgets.QDialog):
   """
         Underlying class for the scenario
         selection. It is actually one large
@@ -256,14 +256,24 @@ class SceneSelect(QtWidgets.QDialog):
         scenario data is loaded.
   """
 
-  def __init__(self, parent=None):
-    super(SceneSelect, self).__init__()
+  def __init__(self, mdlname, dataname, parent=None):
+    super(SceneExamine, self).__init__()
     SS = QtWidgets.QHBoxLayout(self)
+
+    setnames = {
+            "Normal": "Normal",
+            "Abrupt Loss": "Abrupt",
+            "Protracted Loss":"Protract"
+          }
+
+    mdl_names = {
+              "Fuel Fab":"fuel_fab"
+          }
 
     #load the data
     dirname, _ = os.path.split(os.path.abspath(__file__))
     x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'data', 'fuel_fab', 'Normal', 'data.mat')
+    F = os.path.join(x, 'data', mdl_names[mdlname], setnames[dataname], 'data.mat')
     x1 = scipy.io.loadmat(F,squeeze_me=True)
 
 
@@ -302,9 +312,9 @@ class SceneSelect(QtWidgets.QDialog):
 
     self.canvas = MPLCanvas(self)
 
-    TabA = QtWidgets.QFrame()
-    TabAL = QtWidgets.QGridLayout(TabA)
-    TabAL.addWidget(self.canvas, 1, 0, 1, 7)
+    #TabA = QtWidgets.QFrame()
+    #TabAL = QtWidgets.QGridLayout(TabA)
+    MWL.addWidget(self.canvas, 1, 0, 1, 7)
 
     ICBContainer = QtWidgets.QGroupBox()
     ICBContainer.setTitle('Animation Controls')
@@ -328,7 +338,7 @@ class SceneSelect(QtWidgets.QDialog):
     ICBL.addWidget(SCB, 3, 1)
     SCB.clicked.connect(self.StopButton)
 
-    TabAL.addWidget(ICBContainer, 0, 5, 1, 6)
+    MWL.addWidget(ICBContainer, 0, 4, 1, 6)
 
     StartHolder = QtWidgets.QGroupBox(self)
     StartHolderL = QtWidgets.QGridLayout(StartHolder)
@@ -401,35 +411,11 @@ class SceneSelect(QtWidgets.QDialog):
     self.DetailsText.setReadOnly(1)
     DBL.addWidget(self.DetailsText)
     DetailsBox.setTitle('Scenario Description')
-    TabAL.addWidget(DetailsBox, 0, 1, 1, 4)
+    MWL.addWidget(DetailsBox, 0, 0, 1, 4)
 
-    self.SceneSelectDB = QtWidgets.QComboBox()
-    SSDBHolder = QtWidgets.QGroupBox()
-    SSDBHolder.setTitle('Scenario Selection')
-    SSDBHL = QtWidgets.QVBoxLayout(SSDBHolder)
-    SSDBHL.addWidget(self.SceneSelectDB)
 
-    SaveScene = QtWidgets.QPushButton("Load Data and Return to Plots")
-    SSDBHL.addWidget(SaveScene)
-    SaveScene.clicked.connect(self.SelectedScene)
 
-    TabAL.addWidget(SSDBHolder, 0, 0, 1, 1)
 
-    self.SceneSelectDB.addItem('Normal')
-    self.SceneSelectDB.addItem('Abrupt Loss')
-    self.SceneSelectDB.addItem('Protracted Loss')
-
-    #disable for now as this won't be included for initial release
-    #self.SceneSelectDB.addItem('Normal with Flushout')
-
-    self.SceneSelectDB.currentTextChanged.connect(self.SceneChanged)
-
-    SceneTabs.addTab(TabA, "Fuel Fabrication")
-
-    TabB = QtWidgets.QFrame()
-    SceneTabs.addTab(TabB, "PUREX")
-
-    MWL.addWidget(SceneTabs)
     geometry = qApp.desktop().availableGeometry(self)
     self.resize(1920, 1040)
 
@@ -453,105 +439,6 @@ class SceneSelect(QtWidgets.QDialog):
     self.SceneDictShort = {0:'Normal',1:'Abrupt',2:'Protract'}
 
 
-
-  def SceneChanged(self):
-    """
-            Function for changing GUI elements
-            when a different tab is selected.
-
-            Effectively does nothing in current release
-            as the associated dropdown trigger only has
-            one option.
-  """
-    # update current data selected
-    # update text
-    #format text by stripping new lines and excess spaces
-    self.DetailsText.clear()
-    self.DetailsText.insertPlainText(
-        re.sub("\s{2,}"," ",self.SceneDict[self.SceneSelectDB.currentIndex()].strip().replace("\n","")))
-
-    datype = self.SceneDictShort[self.SceneSelectDB.currentIndex()]
-    self.sceneName = datype
-    self.TAS.setMaximum(6480)
-    self.TAS.setValue(0)
-
-
-    self.EAS.setMaximum(6480)
-    self.EAS.setValue(250)
-
-    self.TimeBox.setText('0')
-    self.EndBox.setText('250')
-
-    dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'data', 'fuel_fab', datype, 'data.mat')
-    x1 = scipy.io.loadmat(F)
-
-
-    self.Inventories = x1['invn']['data'][0]
-    self.InventoriesT = x1['invn']['time'][0]
-
-    self.Inputs = x1['in']['data'][0]
-    self.InputsT = x1['in']['time'][0]
-
-    self.Outputs = x1['outn']['data'][0]
-    self.OutputsT = x1['outn']['time'][0]
-
-    IDXS = [0,4,6,11,10]
-    IDXS2 = np.linspace(12,17,5,dtype=np.int)
-    ispresent = np.zeros((len(IDXS)+1,))
-    AniLen = int(self.EndBox.text()) - int(self.TimeBox.text())
-    ELEI = self.AniEleSelect.currentIndex()
-
-    x = [np.nan] * AniLen
-    x = np.asarray(x)
-
-    logicalslice = [] #find the relevant slices
-
-    for i in range(len(IDXS)):
-      logicalslice.append(np.logical_and(self.InventoriesT[IDXS[i]] >= int(self.TimeBox.text()),self.InventoriesT[IDXS[i]] <= int(self.EndBox.text())).reshape((-1)))
-
-      if np.sum(logicalslice[-1]>0):
-        ispresent[i] = 1
-
-    for i in range(len(IDXS2)):
-      if i == 0:
-        MS = np.logical_and(self.InventoriesT[IDXS2[i]] >= int(self.TimeBox.text()),self.InventoriesT[IDXS2[i]] <= int(self.EndBox.text()))
-
-      else:
-        MS2 = np.logical_and(self.InventoriesT[IDXS2[i]] >= int(self.TimeBox.text()),self.InventoriesT[IDXS2[i]] <= int(self.EndBox.text()))
-
-        MS = np.logical_and(MS,MS2)
-
-    if np.sum(logicalslice[-1]>0):
-      ispresent[-1] = 1
-
-    logicalslice.append(MS.reshape((-1)))
-
-    self.timeslice = []
-    self.dataslice = []
-    for i in range(len(ispresent)-1):
-      if ispresent[i] == 1:
-        self.dataslice.append(self.Inventories[IDXS[i]][logicalslice[i],ELEI])
-        self.timeslice.append(self.InventoriesT[IDXS[i]][logicalslice[i],ELEI])
-      else:
-        self.dataslice.append(np.zeros((250,)))
-        self.timeslice.append(np.zeros((250,)))
-
-    if ispresent[-1] == 1:
-      for i in range(len(IDXS2)):
-        if i == 0:
-          Z = self.Inventories[IDXS2[i]][logicalslice[-1],ELEI]
-        else:
-          Z += self.Inventories[IDXS2[i]][logicalslice[-1],ELEI]
-      self.dataslice.append(Z)
-      self.timeslice.append(self.InventoriesT[IDXS2[0]][logicalslice[i],ELEI]) #index doesnt matter since all have same time
-
-  def SelectedScene(self):
-    # params saved to self.SS
-
-    self.close()
-    return 0
 
   def TMU(self):
     """
@@ -831,31 +718,18 @@ class SceneSelect(QtWidgets.QDialog):
     # these are locs:
     # 0,4,6,11,8,12-17
     CurrentWindow = int(self.TimeBox.text())
+    startt = int(self.TAS.value())
+    entt = int(startt + AC)
+    et = int(self.EAS.value())
 
+    #empty entries to keep same segment length
+    #regardless of where we are in the animation
     R = np.asarray([np.nan] * (AniLen - AC))
 
-
-    self.canvas.R1[0].set_ydata(
-        np.concatenate((self.dataslice[0][:AC], R)))
-
-
-    self.canvas.R1[1].set_ydata(
-        np.concatenate((self.dataslice[1][:AC], R)))
+    for Q in range(len(self.canvas.R1)):
+      self.canvas.R1[Q].set_ydata(np.concatenate((self.dataslice[Q][startt:entt], R)))
 
 
-    self.canvas.R1[2].set_ydata(
-        np.concatenate((self.dataslice[2][:AC], R)))
-
-
-    self.canvas.R1[3].set_ydata(
-        np.concatenate((self.dataslice[3][:AC], R)))
-
-
-    self.canvas.R1[4].set_ydata(
-        np.concatenate((self.dataslice[4][:AC], R)))
-
-    self.canvas.R1[5].set_ydata(
-        np.concatenate((self.dataslice[5][:AC], R)))
 
     return self.canvas.R1
 
@@ -868,6 +742,13 @@ class SceneSelect(QtWidgets.QDialog):
     i = AniLen
     self.canvas.ani.event_source.stop()
 
+    VL = self.canvas.subax_V.get_ylim()
+    CRL = self.canvas.subax_CR.get_ylim()
+    MX1L = self.canvas.subax_MX1.get_ylim()
+    TFL = self.canvas.subax_TF.get_ylim()
+    PSL = self.canvas.subax_PS.get_ylim()
+    SSL = self.canvas.subax_SS.get_ylim()
+
     self.canvas.subax_V.cla()
     self.canvas.subax_CR.cla()
     self.canvas.subax_MX1.cla()
@@ -875,36 +756,56 @@ class SceneSelect(QtWidgets.QDialog):
     self.canvas.subax_PS.cla()
     self.canvas.subax_SS.cla()
 
+    ts = self.TAS.value()
+    te = self.EAS.value()
+
+
+
+
+
     #subtracting minimum relevant time to rebase axis to [0,250]
 
-    self.canvas.subax_V.plot(self.timeslice[0]-np.min(self.timeslice[0]),self.dataslice[0],color=self.ThemePlotColor,linewidth=0.5)
+    self.canvas.subax_V.plot(self.timeslice[0][ts:te],self.dataslice[0][ts:te],color=self.ThemePlotColor,linewidth=0.5)
 
-    self.canvas.subax_CR.plot(self.timeslice[1]-np.min(self.timeslice[1]),self.dataslice[1],color=self.ThemePlotColor,linewidth=0.5)
+    self.canvas.subax_CR.plot(self.timeslice[1][ts:te],self.dataslice[1][ts:te],color=self.ThemePlotColor,linewidth=0.5)
 
-    self.canvas.subax_MX1.plot(self.timeslice[2]-np.min(self.timeslice[2]),self.dataslice[2],color=self.ThemePlotColor,linewidth=0.5)
+    self.canvas.subax_MX1.plot(self.timeslice[2][ts:te],self.dataslice[2][ts:te],color=self.ThemePlotColor,linewidth=0.5)
 
-    self.canvas.subax_TF.plot(self.timeslice[3]-np.min(self.timeslice[3]),self.dataslice[3],color=self.ThemePlotColor,linewidth=0.5)
+    self.canvas.subax_TF.plot(self.timeslice[3][ts:te],self.dataslice[3][ts:te],color=self.ThemePlotColor,linewidth=0.5)
 
-    self.canvas.subax_PS.plot(self.timeslice[4]-np.min(self.timeslice[4]),self.dataslice[4],color=self.ThemePlotColor,linewidth=0.5)
+    self.canvas.subax_PS.plot(self.timeslice[4][ts:te],self.dataslice[4][ts:te],color=self.ThemePlotColor,linewidth=0.5)
 
-    self.canvas.subax_SS.plot(self.timeslice[5]-np.min(self.timeslice[5]),self.dataslice[5],color=self.ThemePlotColor,linewidth=0.5)
+    self.canvas.subax_SS.plot(self.timeslice[5][ts:te],self.dataslice[5][ts:te],color=self.ThemePlotColor,linewidth=0.5)
 
-    self.canvas.subax_V.set_xlim((0, np.max(self.timeslice[0])-np.min(self.timeslice[0])))
+    
+    
+    
+    
+    
+    
+
+    self.canvas.subax_V.set_xlim((ts, te))
+    self.canvas.subax_V.set_ylim(VL)
     self.canvas.subax_V.yaxis.set_major_locator(plt.MaxNLocator(4))
 
-    self.canvas.subax_CR.set_xlim((0, np.max(self.timeslice[1])-np.min(self.timeslice[1])))
+    self.canvas.subax_CR.set_xlim((ts, te))
+    self.canvas.subax_CR.set_ylim(CRL)
     self.canvas.subax_CR.yaxis.set_major_locator(plt.MaxNLocator(4))
 
-    self.canvas.subax_MX1.set_xlim((0, np.max(self.timeslice[2])-np.min(self.timeslice[2])))
+    self.canvas.subax_MX1.set_xlim((ts, te))
+    self.canvas.subax_MX1.set_ylim(MX1L)
     self.canvas.subax_MX1.yaxis.set_major_locator(plt.MaxNLocator(4))
 
-    self.canvas.subax_TF.set_xlim((0, np.max(self.timeslice[3])-np.min(self.timeslice[3])))
+    self.canvas.subax_TF.set_xlim((ts, te))
+    self.canvas.subax_TF.set_ylim(TFL)
     self.canvas.subax_TF.yaxis.set_major_locator(plt.MaxNLocator(4))
 
-    self.canvas.subax_PS.set_xlim((0, np.max(self.timeslice[4])-np.min(self.timeslice[4])))
+    self.canvas.subax_PS.set_xlim((ts, te))
+    self.canvas.subax_PS.set_ylim(PSL)
     self.canvas.subax_PS.yaxis.set_major_locator(plt.MaxNLocator(4))
 
-    self.canvas.subax_SS.set_xlim((0, np.max(self.timeslice[5])-np.min(self.timeslice[5])))
+    self.canvas.subax_SS.set_xlim((ts, te))
+    self.canvas.subax_SS.set_ylim(SSL)
     self.canvas.subax_SS.yaxis.set_major_locator(plt.MaxNLocator(4))
 
     self.canvas.subax_TF.yaxis.set_label_position("right")

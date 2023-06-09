@@ -1,285 +1,451 @@
 from collections import namedtuple
 from PySide2 import QtCore, QtWidgets, QtGui
 import numpy as np
+import json
+from pathlib import Path
+import os
+import sys
+from MAPIT.GUI import PlotOps
+
+#NOTE: qcheckbox color doesn't change as it's an image unfortunately
+# would require custom image
+
+def get_palette(color,return_dict=False):
+
+    if color == 'light':
+        with open(os.path.join(str(Path(sys.argv[0]).resolve().parents[1]),'GUI','stylesheets','light_colors'+'.json'),'r') as fp:
+            colordict = json.load(fp)
+    else:
+        with open(os.path.join(str(Path(sys.argv[0]).resolve().parents[1]),'GUI','stylesheets','dark_colors'+'.json'),'r') as fp:
+            colordict = json.load(fp)
+
+    palette = QtCore.QCoreApplication.instance().palette() #get light pallet from here
+    
+    palette.setColor(QtGui.QPalette.Window, QtGui.QColor(colordict['WindowBackground']))
+
+    palette.setColor(QtGui.QPalette.WindowText, QtGui.QColor(colordict['WindowText']))
+
+    palette.setColor(QtGui.QPalette.Base, QtGui.QColor(colordict['Base']))
+
+    palette.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(colordict['AlternateBaseBackground']))
+
+    palette.setColor(QtGui.QPalette.ToolTipBase, QtGui.QColor(colordict['TooltipBase']))
+
+    palette.setColor(QtGui.QPalette.ToolTipText, QtGui.QColor(colordict['TooltipText']))
+
+    palette.setColor(QtGui.QPalette.Text, QtGui.QColor(colordict['Text']))
+
+    palette.setColor(QtGui.QPalette.Button, QtGui.QColor(colordict['ButtonBackground']))
+
+    palette.setColor(QtGui.QPalette.ButtonText, QtGui.QColor(colordict['ButtonText']))
+
+    palette.setColor(QtGui.QPalette.BrightText, QtGui.QColor(colordict['BrightText']))
+
+    palette.setColor(QtGui.QPalette.Link, QtGui.QColor(colordict['Link']))
+
+    palette.setColor(QtGui.QPalette.Highlight, QtGui.QColor(colordict['Highlight']))
+
+    palette.setColor(QtGui.QPalette.HighlightedText, QtGui.QColor(colordict['HighlightedText']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Window,QtGui.QColor(colordict['DisabledWindow']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText,QtGui.QColor(colordict['DisabledWindowText']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Base,QtGui.QColor(colordict['DisabledBase']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.AlternateBase,QtGui.QColor(colordict['DisabledAlternateBase']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipBase,QtGui.QColor(colordict['DisabledTooltip']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipText,QtGui.QColor(colordict['DisabledTooltipText']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Button,QtGui.QColor(colordict['DisabledButton']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.ButtonText,QtGui.QColor(colordict['DisabledButtonText']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.BrightText,QtGui.QColor(colordict['DisabledBrightText']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Link,QtGui.QColor(colordict['DisabledLink']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Highlight,QtGui.QColor(colordict['DisabledHighlight']))
+
+    palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.HighlightedText,QtGui.QColor(colordict['DisabledHighlightText']))
+
+    if return_dict:
+        return palette, colordict
+    else:
+        return palette
+
+
 
 def setInitialStyle(self):
 
     
+    with open(os.path.join(str(Path(sys.argv[0]).resolve().parents[1]),'GUI','stylesheets','dark_colors'+'.json'),'r') as fp:
+      dark_color_dict = json.load(fp)
 
-    Colors = namedtuple('Colors', [
-        'db', 'mb', 'lb', 'b', 't', 'p', 'la', 'g', 'c', 'r', 'ro', 'o', 'a',
-        'y', 'gr', 'wgr', 'bgr'
-    ])
-    ColorsD = namedtuple('ColorsD', [
-        'db', 'mb', 'lb', 'b', 't', 'p', 'la', 'g', 'c', 'r', 'ro', 'o', 'a',
-        'y', 'gr', 'wgr', 'bgr'
-    ])
-
-    #save some colors to be used later
-    #these need to be better integrated
-    #in the animations (future TODO)
-    self.colors = Colors(
-        '#003359', '#0076a9', '#00add0',
-        '#0066cc', '#008e74', '#5a3cbf',
-        '#b312b1', '#6cb312',
-        '#822433', '#cc0000', '#f23f00',
-        '#fd5947', '#ff8800', '#ffc200',
-        '#999999', '#82786f',
-        '#7d8ea0')
-
-    self.colorsD = ColorsD(
-        '#002541', '#00587e', '#00839d',
-        '#004c99', '#006b57', '#442d8e',
-        '#880d86', '#53880d',
-        '#631b27', '#990000', '#b43000',
-        '#d53220', '#bf6600', '#bf9300',
-        '#737373', '#615953',
-        '#5a6b7c')
 
 
     # bigger font here
-    f = QtCore.QCoreApplication.instance().font()
-    QtCore.QCoreApplication.instance().setFont(QtGui.QFont("Open Sans", 12))
+    F = QtCore.QCoreApplication.instance().font().pointSize()
+    self.currentFontSize = F
+    QtCore.QCoreApplication.instance().setFont(QtGui.QFont("Open Sans", F))
     QtCore.QCoreApplication.instance().setStyle('Fusion')
     QtCore.QCoreApplication.instance().setApplicationDisplayName('MAPIT')
+
     #
-    self.Lightpallette = QtCore.QCoreApplication.instance().palette()
 
-    #setting up color palettes
-    self.Darkpalette = QtGui.QPalette()
-    self.Darkpalette.setColor(QtGui.QPalette.Window, QtGui.QColor(53, 53, 53))
-    self.Darkpalette.setColor(QtGui.QPalette.WindowText, QtCore.Qt.white)
-    self.Darkpalette.setColor(QtGui.QPalette.Base, QtGui.QColor(25, 25, 25))
-    self.Darkpalette.setColor(QtGui.QPalette.AlternateBase,
-                              QtGui.QColor(53, 53, 53))
-
-    self.Darkpalette.setColor(QtGui.QPalette.ToolTipBase,
-                              QtGui.QColor(66, 66, 66))
-
-    self.Darkpalette.setColor(QtGui.QPalette.ToolTipText, QtCore.Qt.white)
-    self.Darkpalette.setColor(QtGui.QPalette.Text, QtCore.Qt.white)
-    self.Darkpalette.setColor(QtGui.QPalette.Button, QtGui.QColor(53, 53, 53))
-    self.Darkpalette.setColor(QtGui.QPalette.ButtonText, QtCore.Qt.white)
-    self.Darkpalette.setColor(QtGui.QPalette.BrightText, QtCore.Qt.red)
-    self.Darkpalette.setColor(QtGui.QPalette.Link, QtGui.QColor(42, 130, 218))
-    self.Darkpalette.setColor(QtGui.QPalette.Highlight,
-                              QtGui.QColor(42, 130, 218))
-
-    self.Darkpalette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.black)
-
-    # inactive colors
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Window,
-                              QtGui.QColor(53, 53, 53))
-
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled,
-                              QtGui.QPalette.WindowText,
-                              QtGui.QColor(53+40, 53+40, 53+40))
-
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Base,
-                              QtGui.QColor(25, 25, 25))
-
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled,
-                              QtGui.QPalette.AlternateBase,
-                              QtGui.QColor(53, 53, 53))
-
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled,
-                              QtGui.QPalette.ToolTipBase, QtCore.Qt.white)
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled,
-                              QtGui.QPalette.ToolTipText, QtCore.Qt.white)
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Text,
-                              QtCore.Qt.white)
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Button,
-                              QtGui.QColor(53, 53, 53))
-
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled,
-                              QtGui.QPalette.ButtonText,
-                              QtGui.QColor(53, 53, 53))
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled,
-                              QtGui.QPalette.BrightText, QtCore.Qt.red)
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Link,
-                              QtGui.QColor(42, 130, 218))
-
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Highlight,
-                              QtGui.QColor(42, 130, 218))
-
-    self.Darkpalette.setColor(QtGui.QPalette.Disabled,
-                              QtGui.QPalette.HighlightedText, QtCore.Qt.black)
+    P, colordict = get_palette('light',return_dict=True) 
+    self.colordict = colordict
     
-    QtCore.QCoreApplication.instance().setPalette(self.Lightpallette)
-
-
+    QtCore.QCoreApplication.instance().setPalette(P)
 
 
 def ChangeColor(self):
-    """
-            This function makes stylistic changes
-            to the GUI when a change between light
-            and dark themes is made.
-    """
 
-    if self.MakeLight.isChecked() == 1:  #change to light theme
-      QtCore.QCoreApplication.instance().setPalette(self.Lightpallette)
-      self.canvas.fig.set_facecolor(
-          np.asarray(
-              QtGui.QColor.getRgb(
-                  self.Lightpallette.color(QtGui.QPalette.Window))[0:3]) / 255)
-      self.canvas.axes.set_facecolor(self.canvas.axes_defColor)
+    if self.MakeLight.isChecked():
+        palette, colordict = get_palette('light',return_dict=True)
+    else:
+        palette, colordict = get_palette('dark',return_dict=True)
 
-      self.canvas.axes.spines['bottom'].set_color('black')
-      self.canvas.axes.spines['top'].set_color('black')
-      self.canvas.axes.spines['right'].set_color('black')
-      self.canvas.axes.spines['left'].set_color('black')
+    QtCore.QCoreApplication.instance().setPalette(palette)
+    self.colordict = colordict
 
-      self.canvas.axes.tick_params(axis='x', colors='black', which='both')
-      self.canvas.axes.tick_params(axis='y', colors='black', which='both')
+    self.canvas.fig.set_facecolor(colordict["WindowBackground"])
+    self.canvas.axes.set_facecolor(colordict["plotBg"])
+    self.canvas.setStyleSheet("background-color: "+colordict["WindowBackground"])
 
-      self.canvas.axes.yaxis.label.set_color('black')
-      self.canvas.axes.xaxis.label.set_color('black')
-      self.canvas.axes.title.set_color('black')
 
-      for j in range(len(self.children())):
+
+    self.canvas.axes.spines['bottom'].set_color(colordict["Text"])
+    self.canvas.axes.spines['top'].set_color(colordict["Text"])
+    self.canvas.axes.spines['right'].set_color(colordict["Text"])
+    self.canvas.axes.spines['left'].set_color(colordict["Text"])
+
+    self.canvas.axes.tick_params(axis='x', colors=colordict["Text"], which='both')
+    self.canvas.axes.tick_params(axis='y', colors=colordict["Text"], which='both')
+
+    self.canvas.axes.yaxis.label.set_color(colordict["Text"])
+    self.canvas.axes.xaxis.label.set_color(colordict["Text"])
+    self.canvas.axes.title.set_color(colordict["Text"])
+
+
+    update_naviStyle(self.colordict,self.navi_toolbar)
+
+
+    self.canvas.draw()
+
+    for j in range(len(self.children())):
         try:
-          self.children()[j].setPalette(self.Darkpalette)
+          self.children()[j].setPalette(palette)
         except:
           None
 
-      #stuff for the linear gradient
-      color2L = QtGui.QColor(247, 247, 247)
-      color1L = QtGui.QColor(153, 200, 221)
-      color2D = QtGui.QColor(66, 66, 66)
-      color1D = QtGui.QColor(51, 145, 186)
+    update_aniGBoxSmall_styleSheet(self.colordict,self.mb1)
+    update_aniGBoxSmall_styleSheet(self.colordict,self.mb2)
+    update_aniGBoxSmall_styleSheet(self.colordict,self.mb3)
+    update_aniGBoxSmall_styleSheet(self.colordict,self.mb4)
+    update_aniGBoxSmall_styleSheet(self.colordict,self.mdlbox,isactive=1)
+    update_aniGBoxSmall_styleSheet(self.colordict,self.datBox,isactive=1)
 
-      #init stuff for animated panes
-      #have to change some of the animated panels background
-      ChangeDic={'rgb(52,52,52)': 'rgb(239,239,239)','rgb(66,66,66)': 'rgb(211,211,211)','white': 'black','rgb(0,83,118)': 'rgb(153,200,221)', \
-                 color1D.name() : color1L.name(), color2D.name(): color2L.name()}
-      #self.CB_GMUF.setStyleSheet()
-
-      for i, j in ChangeDic.items():
-        self.mb1.setStyleSheet(self.mb1.styleSheet().replace(i, j))
-        self.mb2.setStyleSheet(self.mb2.styleSheet().replace(i, j))
-        self.mb3.setStyleSheet(self.mb3.styleSheet().replace(i, j))
-        self.mb4.setStyleSheet(self.mb4.styleSheet().replace(i, j))
-
-        self.AnalysisContainer.setStyleSheet(
-            self.AnalysisContainer.styleSheet().replace(i, j))
-
-        self.SGSetContainer.setStyleSheet(
-            self.SGSetContainer.styleSheet().replace(i, j))
-
-        self.PlotControls.setStyleSheet(self.PlotControls.styleSheet().replace(
-            i, j))
-
-        self.threshContainer.setStyleSheet(
-            self.threshContainer.styleSheet().replace(i, j))
-
-        self.StatDlg.setStyleSheet(self.StatDlg.styleSheet().replace(i, j))
-
-        self.ErrorS.setStyleSheet(self.ErrorS.styleSheet().replace(i, j))
-        self.RunStats.setStyleSheet(self.RunStats.styleSheet().replace(i, j))
-
-        self.PlotRunner.setStyleSheet(self.PlotRunner.styleSheet().replace(
-            i, j))
-
-        self.CalcThresh.setStyleSheet(self.CalcThresh.styleSheet().replace(
-            i, j))
+    update_aniGBoxLarge_styleSheet(self.colordict,self.AnalysisContainer,isactive=1 if (self.AnalysisContainer.colorBorder == 1) else 0, valueA=0 if (self.AnalysisContainer.colorBorder == 1) else None)
+    update_aniGBoxLarge_styleSheet(self.colordict,self.SGSetContainer,isactive=1 if (self.SGSetContainer.colorBorder == 1) else 0, valueA=0 if (self.SGSetContainer.colorBorder == 1) else None)
+    update_aniGBoxLarge_styleSheet(self.colordict,self.PlotControls,isactive=1 if (self.PlotControls.colorBorder == 1) else 0, valueA=0 if (self.PlotControls.colorBorder == 1) else None)
+    update_aniGBoxLarge_styleSheet(self.colordict,self.threshContainer,isactive=1 if (self.threshContainer.colorBorder == 1) else 0, valueA=0 if (self.threshContainer.colorBorder == 1) else None)
+    update_aniGBoxLarge_styleSheet(self.colordict,self.datasetContainer,isactive=1 if (self.datasetContainer.colorBorder == 1) else 0, valueA=0 if (self.datasetContainer.colorBorder == 1) else None)
+    update_aniGBoxLarge_styleSheet(self.colordict,self.sandDataContain,isStatic=1)
+    update_aniGBoxLarge_styleSheet(self.colordict,self.extDataContain,isStatic=1)
 
 
-      self.canvas.draw()
-      for i in range(len(self.CBHolder)):
-        self.CBHolder[i].setStyleSheet(self.AnalysisContainer.styleSheet())
-      self.PB.setStyleSheet(self.AnalysisContainer.styleSheet())
-      self.menuBar().setStyleSheet("""QMenuBar {
-             background-color: rgb(239,239,239);
-             color: black;
-            }""")
+    update_aniButton_styleSheet(self.ErrorS,self.colordict,colorborder=self.ErrorS.isEnabled(),staticfill=1 if self.ErrorS.isEnabled() else 0)
+    update_aniButton_styleSheet(self.RunStats,self.colordict,colorborder=self.RunStats.isEnabled(),staticfill=1 if self.RunStats.isEnabled() else 0)
+    update_aniButton_styleSheet(self.PlotRunner,self.colordict,colorborder=self.PlotRunner.isEnabled(),staticfill=1 if self.PlotRunner.isEnabled() else 0, extraspace=13)
+    update_aniButton_styleSheet(self.CalcThresh,self.colordict,colorborder=self.CalcThresh.isEnabled(),staticfill=1 if self.CalcThresh.isEnabled() else 0)
+    update_aniButton_styleSheet(self.sceneExplorePush,self.colordict,colorborder=self.sceneExplorePush.isEnabled(),staticfill=1 if self.sceneExplorePush.isEnabled() else 0)
+    update_aniButton_styleSheet(self.extDatBtn,self.colordict,colorborder=self.extDatBtn.isEnabled(),staticfill=1 if self.extDatBtn.isEnabled() else 0)
 
-      self.setStyleSheet("""QToolTip {
-                               background-color: rgb(239,239,239);
-                               border-width: 3px;
-                               border-color: rgb(153,200,221);
-                               border-style: solid;
-                               border-radius: 7px;
-                               color: black;
-                               }""")
+    update_scrollObjStype(self.scrollTests,self.scrollHolder,self.colordict)
 
-    else:  #change to dark theme
-      QtCore.QCoreApplication.instance().setPalette(self.Darkpalette)
-      self.canvas.fig.set_facecolor((53 / 256, 53 / 256, 53 / 256))
-      self.canvas.axes.set_facecolor((106 / 256, 106 / 256, 106 / 256))
 
-      self.canvas.axes.spines['bottom'].set_color('white')
-      self.canvas.axes.spines['top'].set_color('white')
-      self.canvas.axes.spines['right'].set_color('white')
-      self.canvas.axes.spines['left'].set_color('white')
 
-      self.canvas.axes.tick_params(axis='x', colors='white', which='both')
-      self.canvas.axes.tick_params(axis='y', colors='white', which='both')
+    #self.StatDlg.setPalette(palette)
+    #update_messageBox_styleSheet(self.StatDlg,self.colordict,valueA=0)
+    update_pbarStyle(self.PB,self.colordict)
 
-      self.canvas.axes.yaxis.label.set_color('white')
-      self.canvas.axes.xaxis.label.set_color('white')
-      self.canvas.axes.title.set_color('white')
 
-      for j in range(len(self.children())):
-        try:
-          self.children()[j].setPalette(self.Darkpalette)
-        except:
-          None
+def update_naviStyle(cd,navibar):
+    grad = "QToolBar{background-color: "+\
+            cd["WindowBackground"] +\
+            ";}"
 
-      #stuff for the linear gradient
-      color2L = QtGui.QColor(247, 247, 247)
-      color1L = QtGui.QColor(153, 200, 221)
-      color2D = QtGui.QColor(66, 66, 66)
-      color1D = QtGui.QColor(51, 145, 186)
+    navibar.setStyleSheet(grad)
 
-      #have to change some of the animated panels background
-      ChangeDic={'rgb(239,239,239)': 'rgb(52,52,52)','rgb(211,211,211)': 'rgb(66,66,66)','black': 'white', 'rgb(153,200,221)': 'rgb(0,83,118)' , \
-                 color1L.name() : color1D.name(), color2L.name(): color2D.name()}
+def get_ani_hex(colordict,valueA):
 
-      for i, j in ChangeDic.items():
-        self.mb1.setStyleSheet(self.mb1.styleSheet().replace(i, j))
-        self.mb2.setStyleSheet(self.mb2.styleSheet().replace(i, j))
-        self.mb3.setStyleSheet(self.mb3.styleSheet().replace(i, j))
-        self.mb4.setStyleSheet(self.mb4.styleSheet().replace(i, j))
+    h = colordict["Highlight"].lstrip('#') 
+    rgb_bord_L = tuple(int(h[i:i+2], 16) for i in (0, 2, 4)) #covert to RGB
 
-        self.AnalysisContainer.setStyleSheet(
-            self.AnalysisContainer.styleSheet().replace(i, j))
+    h = colordict["HighlightDark"].lstrip('#')  
+    rgb_bord_D = tuple(int(h[i:i+2], 16) for i in (0, 2, 4)) #covert to RGB
 
-        self.SGSetContainer.setStyleSheet(
-            self.SGSetContainer.styleSheet().replace(i, j))
+    c0 = rgb_bord_D[0] + (rgb_bord_L[0] - rgb_bord_D[0]) * valueA
+    c1 = rgb_bord_D[1] + (rgb_bord_L[1] - rgb_bord_D[1]) * valueA
+    c2 = rgb_bord_D[2] + (rgb_bord_L[2] - rgb_bord_D[2]) * valueA
 
-        self.PlotControls.setStyleSheet(self.PlotControls.styleSheet().replace(
-            i, j))
+    bord = "#{0:02x}{1:02x}{2:02x}".format(int(max(0,min(c0,255))), 
+                                            int(max(0,min(c1,255))), 
+                                            int(max(0,min(c2,255))))
 
-        self.threshContainer.setStyleSheet(
-            self.threshContainer.styleSheet().replace(i, j))
+    return bord
 
-        self.StatDlg.setStyleSheet(self.StatDlg.styleSheet().replace(i, j))
+def update_aniGBoxSmall_styleSheet(colordict,gbox,isactive=0,valueA=None):
 
-        self.ErrorS.setStyleSheet(self.ErrorS.styleSheet().replace(i, j))
-        self.RunStats.setStyleSheet(self.RunStats.styleSheet().replace(i, j))
+    #top, right, bot, left
+    gradA = "QWidget#{VAL}"
+    gradC = "QWidget#{VAL}"
+    gradD = """::title {
+                top: -10px;
+                left: 10px;
+            }"""
 
-        self.PlotRunner.setStyleSheet(self.PlotRunner.styleSheet().replace(
-            i, j))
+    if not isactive and valueA is None: 
+        bc = colordict["AlternateBaseBackground"]
+    elif isactive and valueA is None:
+        bc = colordict["HighlightDark"]
+    elif isactive and valueA is not None:
+        bc = get_ani_hex(colordict,valueA)
 
-        self.CalcThresh.setStyleSheet(self.CalcThresh.styleSheet().replace(
-            i, j))
+    
+    gradB = "{border-color: " + bc +";" +\
+            "border-width: 2px;" +\
+            "border-style: solid;" +\
+            "padding: 0px;" +\
+            "border-radius: 7px;" +\
+            "margin-top: 15px;" +\
+            "margin-right: 5px;" +\
+            "margin-left: 5px;" +\
+            "margin-bottom: 5px;" +\
+            "background-color: "+ colordict["AlternateWindowBackground"] + ";}"
 
-      self.canvas.draw()
-      for i in range(len(self.CBHolder)):
-        self.CBHolder[i].setStyleSheet(self.AnalysisContainer.styleSheet())
 
-      self.PB.setStyleSheet(self.AnalysisContainer.styleSheet())
-      self.menuBar().setStyleSheet("""QMenuBar {
-             background-color: rgb(52,53,53);
-             color: white;
-            }""")
+    gbox.setStyleSheet( gradA.format(VAL=gbox.objectName()) + gradB + gradC.format(VAL=gbox.objectName()) + gradD)
 
-      self.setStyleSheet("""QToolTip {
-                               background-color: rgb(52,52,52);
-                               border-width: 3px;
-                               border-color: rgb(0,83,118);
-                               border-style: solid;
-                               border-radius: 7px;
-                               color: white;
-                               }""")
+def update_aniGBoxLarge_styleSheet(colordict,gbox,isactive=0,valueA=None,isStatic=0):
+
+    if isStatic==1:
+        gradA = "QWidget#{VAL}"
+        gradC = "QWidget#{VAL}"
+        gradD = """::title {
+                    top: -10px;
+                    left: 10px;
+                }"""
+        bckg = colordict["AlternateWindowBackground"]
+
+           
+            
+        gradB = "{border-color: " + colordict["AlternateBaseBackground"] +";" +\
+                "border-width: 1px;" +\
+                "border-style: solid;" +\
+                "padding: 5px 0px 0px 0px;" +\
+                "border-radius: 7px;" +\
+                "margin-top: 10px;" ";}"           
+            
+
+
+        gbox.setStyleSheet( gradA.format(VAL=gbox.objectName()) + gradB )
+
+
+    else:
+        gradA = "QWidget#{VAL}"
+        gradC = "QWidget#{VAL}"
+        gradD = """::title {
+                    top: -10px;
+                    left: 10px;
+                }"""
+        bckg = colordict["AlternateWindowBackground"]
+
+        if valueA is None and isactive == 0:
+            bord = colordict["AlternateBaseBackground"]
+            gbox.colorBorder = 0
+
+        elif valueA is not None and isactive == 1:
+            bord = get_ani_hex(colordict,valueA)        
+            gbox.colorBorder = 1
+            
+            
+        gradB = "{border-color: " + bord +";" +\
+                "border-width: 2px;" +\
+                "border-style: solid;" +\
+                "padding: 0px;" +\
+                "border-radius: 7px;" +\
+                "margin-top: 10px;" +\
+                "background-color: "+ bckg + ";}"           
+            
+
+
+        gbox.setStyleSheet( gradA.format(VAL=gbox.objectName()) + gradB + gradC.format(VAL=gbox.objectName()) + gradD)
+
+
+
+
+
+def update_aniButton_styleSheet(btn,colordict,colorborder=0,isrunning=0,valueA=None, valueB=None, staticfill=0,extraspace=0):
+
+    EST = 0
+    ESB = 0
+
+    if extraspace > 0:
+        EST = extraspace
+    elif extraspace < 0:
+        ESB = -extraspace
+
+
+
+    #default style, not active and not animated
+    if not (isrunning and valueA and valueB):
+        bc = colordict["AlternateBaseBackground"]
+        bg = colordict["AlternateWindowBackground"]
+    if isrunning and valueA is not None and valueB is None:
+        bc = colordict["AlternateBaseBackground"]
+        bg = "qlineargradient(spread:pad, x1:0, y1:0, x2:5, y2:0, stop:0 {color1}, stop:{value} {color2}, stop: 1.0 {color1})".format(color1=colordict["HighlightDark"], color2=colordict["Base"], value=valueA)
+    if isrunning and valueA is not None and valueB is not None:
+        bc = get_ani_hex(colordict,valueB) 
+        bg = "qlineargradient(spread:pad, x1:0, y1:0, x2:5, y2:0, stop:0 {color1}, stop:{value} {color2}, stop: 1.0 {color1})".format(color1=colordict["HighlightDark"], color2=colordict["Base"], value=valueA)
+
+    if colorborder and valueB is None:
+        bc = colordict["HighlightDark"]
+
+    if colorborder and staticfill:
+        bc = colordict["HighlightDark"]
+        bg = "qlineargradient(spread:pad, x1:0, y1:0, x2:5, y2:0, stop:0 {color1}, stop:{value} {color2}, stop: 1.0 {color1})".format(color1=colordict["HighlightDark"], color2=colordict["Base"], value=0)
+
+    
+    grad = "QWidget{" +\
+        "border-color: " + bc +";" +\
+        "border-width: 2px;" +\
+        "border-style: solid;" +\
+        "padding: 6px;" +\
+        "margin-bottom: "+str(3+ESB)+"px;" +\
+        "margin-left: 3px;" +\
+        "margin-right: 3px;" +\
+        "margin-top: " + str(EST) + "px;" +\
+        "border-radius: 7px;" +\
+        "background-color: " + bg +";" +\
+        "color: " + colordict["Text"] + ";}"
+
+    grad2 = """QToolTip {
+                        background-color: rgb(239,239,239);
+                        border-width: 2px;
+                        border-color: rgb(153,200,221);
+                        border-style: solid;
+                        border-radius: 7px;
+                        color: black;
+                        }"""
+
+
+    btn.setStyleSheet(grad)
+
+def update_messageBox_styleSheet(box,colordict,valueA=None,progress=None):
+   
+    qss = """
+        :disabled{color: rgb(0,0,0);
+    """
+    
+    bg = colordict["AlternateWindowBackground"]
+
+    if valueA is None:
+        bc = colordict["AlternateBaseBackground"]
+    else:
+        bc = get_ani_hex(colordict,valueA) 
+
+    grad = "border-color: " + bc +";" +\
+            "border-width: 2px;" +\
+            "border-style: solid;" +\
+            "padding: 6px;" +\
+            "border-radius: 7px;" +\
+            "background-color: " + bg +";" +\
+            "color: " + colordict["Text"] + ";}"
+
+    qss += grad
+    box.setStyleSheet(qss)
+
+
+def update_scrollObjStype(area,frame,colordict):
+
+    bg = colordict["AlternateWindowBackground"]
+    bc = colordict["AlternateBaseBackground"]
+
+    #top, right, bot, left
+    A="QScrollArea {"
+    B="QFrame {"
+
+    grad = "border-color: " + bc +";" +\
+            "border-width: 0px;" +\
+            "border-style: solid;" +\
+            "padding: 0px 0px 0px 0px;" +\
+            "border-radius: 7px;" +\
+            "background-color: " + bc +";" +\
+            "color: " + colordict["Text"] + ";}"
+    
+    area.setStyleSheet(A+grad)
+    frame.setStyleSheet(B+grad)
+    
+
+def disable_ani_button(guiobj, button_obj):
+    button_obj._animation.stop()
+    button_obj.doGradientAni = 0
+    button_obj.setEnabled(0)
+
+    update_aniButton_styleSheet(button_obj,guiobj.colordict)
+
+    
+
+def enable_ani_button(guiobj, button_obj, loc=None):
+    button_obj.doGradientAni = 1
+    button_obj.setEnabled(1)
+    button_obj.IsDone = 1
+    update_aniButton_styleSheet(button_obj,guiobj.colordict,colorborder=1,staticfill=1)
+
+
+def update_pbarStyle(pbarobj,colordict):
+    if colordict["Base"] == "#ffffff": #if light, use light highlight instead
+        bg = colordict["Highlight"]
+    else:
+        bg = colordict["HighlightDark"]
+    pbarobj.setStyleSheet("QProgressBar" +\
+                        "{" +\
+                        "border-radius: 7px;"+
+                         "padding: 6px" ";}" +\
+                        "QProgressBar::chunk " +\
+                        "{background-color: " +bg + ";" +\
+                        "border-radius :7px;" +\
+                        "}")
+
+
+
+
+def IncreaseFont(self):
+    changeFontSize(self,1)
+    
+def DecreaseFont(self):
+    changeFontSize(self,-1)
+
+def changeFontSize(self,increment):
+    app = QtWidgets.QApplication.instance()
+    self.currentFontSize += increment
+    QtWidgets.QApplication.instance().setFont(QtGui.QFont("Open Sans",self.currentFontSize))
+    #idk why these have to be set separate, but if not their font won't change properly
+    QtWidgets.QApplication.instance().setFont(QtGui.QFont("Open Sans",self.currentFontSize),"QtWidget")
+    QtWidgets.QApplication.instance().setFont(QtGui.QFont("Open Sans",self.currentFontSize),"QGroupBox")
+    QtWidgets.QApplication.instance().setFont(QtGui.QFont("Open Sans",self.currentFontSize),"QLabel")
+    QtWidgets.QApplication.instance().setFont(QtGui.QFont("Open Sans",self.currentFontSize),"QProgressBar")
+    PlotOps.fontresize(self)
+
+
+def RestoreWindow(self):
+    center_point = QtWidgets.QApplication.primaryScreen().geometry().center()
+    frameGM = self.frameGeometry()
+    frameGM.moveCenter(center_point)
+    self.move(frameGM.topLeft())
+    QtWidgets.QApplication.instance().setFont(QtGui.QFont("Open Sans"))
+    self.currentFontSize  =QtWidgets.QApplication.instance().font().pointSize()

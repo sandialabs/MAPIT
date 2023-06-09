@@ -7,8 +7,10 @@ import sys
 import MAPIT.core.AuxFunctions as AuxFunctions
 import MAPIT.GUI.GeneralOps as GeneralOps
 
+from tqdm import tqdm
 
-def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None):
+
+def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None,doTQDM=True):
     """
       Function to calculate Material Unaccounted For (MUF), which is sometimes also called ID (inventory difference). 
       Specifically calculates the material balance sequence given some input time series. 
@@ -63,6 +65,8 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
 
         GUIParams (object, default=None): An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI. 
 
+        doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
+
       Returns:
 
         ndarray: MUF sequence with shape :math:`[n,j]` where :math:`n` length equal to the maximum time based on the number of material balances that could be constructed given the user provided MBP and number of samples in the input data and :math:`j` is the number of iterations given as input. The term :math:`n` is calculated by finding the minimum of each of the provided input times. 
@@ -90,18 +94,21 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
 
     """
 
-    if GUIObject is not None:
-        Loc = GUIparams.Loc
-        GUIObject.PB.setValue(0)
-        GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box12L'])
-        QtCore.QCoreApplication.instance().processEvents()
-        GUIObject.PB.setValue(0)
+    # if GUIObject is not None:
+    #     Loc = GUIparams.Loc
+    #     GUIObject.PB.setValue(0)
+    #     GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box12L'])
+    #     QtCore.QCoreApplication.instance().processEvents()
+    #     GUIObject.PB.setValue(0)
 
         #removes extra elements
         #these are len(lists) = locations
         # and each element in the list is [MxN]
         # M = iterations
         # N = samples
+
+    if GUIObject is not None:
+      doTQDM = False
 
     inputAppliedError, \
     inventoryAppliedError, \
@@ -145,6 +152,9 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
     # use data from (i-1):i to set MUF for period i:i+1
     #TODO: this needs to be updated for csv
 
+    if doTQDM:
+       pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
+
     #-------------------------------------------------------------------------------#
     #------------------------------  MUF Calculation  ------------------------------#
     #-------------------------------------------------------------------------------#
@@ -159,7 +169,10 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
       for j in range(0, len(inputAppliedError)):  #for each location -- have to do individually because the elements is per location in the list
 
         if GUIObject is not None:
-          GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+          GUIObject.progress.emit(loopcounter / totalloops*100)
+          loopcounter+=1
+        if doTQDM:
+           pbar.update(1)
 
         #select the indices for the relevant time
         logicalInterval = np.logical_and(
@@ -175,7 +188,10 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
       for j in range(0, len(outputAppliedError)):
         
         if GUIObject is not None:
-          GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+          GUIObject.progress.emit(loopcounter / totalloops*100)
+          loopcounter+=1
+        if doTQDM:
+           pbar.update(1)
 
         logicalInterval = np.logical_and(
             processedOutputTimes[j] >= MBP * (i - 1),
@@ -189,7 +205,10 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
       for j in range(0, len(inventoryAppliedError)):
 
         if GUIObject is not None:
-          GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+          GUIObject.progress.emit(loopcounter / totalloops*100)
+          loopcounter+=1
+        if doTQDM:
+           pbar.update(1)
 
         startIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) - MBP *
                         (i - 1)).argmin()
@@ -205,22 +224,22 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
           np.tile((inventoryAppliedError[j][:, endIdx] - inventoryAppliedError[j][:, startIdx]), (MBP, 1)).transpose()
 
 
-    if GUIObject is not None:
-      GUIObject.StatDlg.UpdateDispText('Finished '+ GUIparams.labels['Box12L'] +  ' Calculation')
-      GUIObject.PB.setValue(100)      
-      QtCore.QCoreApplication.instance().processEvents()
+
 
     return MUF
 
 
-def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None):
+def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None,doTQDM=True):
+
+    # if GUIObject is not None:
+    #     Loc = GUIparams.Loc
+    #     GUIObject.PB.setValue(0)
+    #     GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box13L'])
+    #     QtCore.QCoreApplication.instance().processEvents()
+    #     GUIObject.PB.setValue(0)
 
     if GUIObject is not None:
-        Loc = GUIparams.Loc
-        GUIObject.PB.setValue(0)
-        GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box13L'])
-        QtCore.QCoreApplication.instance().processEvents()
-        GUIObject.PB.setValue(0)
+      doTQDM = False
 
 
     inputAppliedError, \
@@ -249,11 +268,17 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
     loopcounter = 0
     totalloops = ((MBPs-1)*(len(inputAppliedError)+len(outputAppliedError)+len(inventoryAppliedError)))
 
+    if doTQDM:
+       pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
+
     for i in range(1, int(MBPs)):  #each MBP
         for j in range(0, len(inputAppliedError)):  
 
           if GUIObject is not None:
-            GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+            GUIObject.progress.emit(loopcounter / totalloops*100)
+            loopcounter+=1
+          if doTQDM:
+           pbar.update(1)
 
           logicalInterval = np.logical_and(
               processedInputTimes[j] >= MBP * (i - 1),
@@ -266,7 +291,10 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
         for j in range(0, len(outputAppliedError)):
 
           if GUIObject is not None:
-            GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+            GUIObject.progress.emit(loopcounter / totalloops*100)
+            loopcounter+=1
+          if doTQDM:
+           pbar.update(1)
 
           logicalInterval = np.logical_and(
               processedOutputTimes[j] >= MBP * (i - 1),
@@ -278,7 +306,11 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
         for j in range(0, len(inventoryAppliedError)):
 
           if GUIObject is not None:
-            GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+            GUIObject.progress.emit(loopcounter / totalloops*100)
+            loopcounter+=1
+          if doTQDM:
+           pbar.update(1)
+
           startIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) - MBP *
                           (i - 1)).argmin()
           endIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) -
@@ -292,15 +324,10 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
               AI[:, i * MBP:(i + 1) * MBP] += \
               np.tile((inventoryAppliedError[j][:, endIdx] - inventoryAppliedError[j][:, startIdx]), (MBP, 1)).transpose()
 
-    if GUIObject is not None:
-      GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box13L'] + ' Calculation')
-      GUIObject.PB.setValue(100)      
-      QtCore.QCoreApplication.instance().processEvents()
-
     return AI
 
 
-def CUMUF(MUF,GUIObject=None, GUIparams=None):
+def CUMUF(MUF,GUIObject=None,doTQDM=True):
   """
 
       This function performs the cumulative MUF test. This is simply the sum of all previous MUF values at a particular time. 
@@ -310,25 +337,25 @@ def CUMUF(MUF,GUIObject=None, GUIparams=None):
       Args:
         MUF (ndarray): MUF sequence with shape :math:`[n,j]` where :math:`n` is the number of iterations and :math:`j` is the temporal dimension. Expects a continuous valued MUF sequence that is similar in format to what is returned by `core.StatsTests.MUF`.
 
-        GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
-
-
         GUIParams (object, default=None): An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI. 
+
+        doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
 
       Returns:
         ndarray: CUMUF sequence with identical shape to the input MUF.
 
   """
 
+
   if GUIObject is not None:
-    GUIObject.PB.setValue(0)
-    GUIObject.StatDlg.UpdateDispText('Calculating ' +  GUIparams.labels['Box14L'])
-    QtCore.QCoreApplication.instance().processEvents()
-    GUIObject.PB.setValue(0)
-  
+    doTQDM = False  
+
   z = np.diff(MUF[0,])
   idxs = np.concatenate(([0,],np.argwhere(z!=0).squeeze(),[int(MUF.shape[1]-1),])).astype(int)
   cumuf = np.zeros_like(MUF)
+
+  if doTQDM:
+      pbar = tqdm(desc="", total=int(len(idxs)-1), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
 
 
 
@@ -337,22 +364,21 @@ def CUMUF(MUF,GUIObject=None, GUIparams=None):
                                           (int(idxs[i] - idxs[i-1]),1)).swapaxes(0,1)
 
     if GUIObject is not None:
-      GUIObject.PB.setValue(i/(len(idxs)-1))
+      GUIObject.progress.emit(i/(len(idxs)-1))
+    if doTQDM:
+      pbar.update(1)
 
 
   #HACK: this is just due to how the indexing was done above
   #particularly due to the final index
   cumuf[:,-1] = cumuf[:,-2]
 
-  if GUIObject is not None:
-    GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box14L'] + ' Calculation')
-    GUIObject.PB.setValue(100)      
-    QtCore.QCoreApplication.instance().processEvents()
+
   
   return cumuf
 
   
-def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,ErrorMatrix,GUIObject=None,GUIparams=None):
+def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,ErrorMatrix,GUIObject=None,doTQDM=True):
       """
         Function for calculating standard error of the material balance sequence (often called SEID or Standard Error of Inventory Difference; :math:`\\sigma _\\text{ID}`). This is accomplished by assuming the error incurred at each location (specified in the ErrorMatrix) rather than estimating it emperically, which is difficult in practice. The equation used here is suitable for most traditional bulk facilities such as enrichment or reprocessing where input and output flows are independent. This function should **not** be used for facilitiy types where there are more complex statistical dependencies between input, inventory, and output terms (e.g., molten salt reactors). See guide XX for more information.
 
@@ -386,6 +412,8 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
 
           GUIParams (object, default=None): An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI. 
 
+          doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
+
         Returns:
 
           (tuple): tuple containing:
@@ -403,10 +431,8 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
       """
 
       if GUIObject is not None:
-        GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box15L'])
-        QtCore.QCoreApplication.instance().processEvents()
-        Loc = GUIparams.Loc
-
+        doTQDM = False
+      
       inputAppliedError, \
       inventoryAppliedError, \
       outputAppliedError = AuxFunctions.removeExtraDims(inputAppliedError,
@@ -449,6 +475,9 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
       loopcounter = 0
       totalloops = ((MBPs-1)*(len(inputAppliedError)+len(outputAppliedError)+len(inventoryAppliedError)))
 
+      if doTQDM:
+       pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
+
 
       InpVar = np.zeros((iterations,int(MBPs * MBP)))
       InvVar = np.zeros((iterations,int(MBPs * MBP)))
@@ -465,7 +494,10 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
           locMatrixRow = j
 
           if GUIObject is not None:
-            GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+            GUIObject.progress.emit(loopcounter / totalloops*100)
+            loopcounter+=1
+          if doTQDM:
+             pbar.update(1)
 
 
           logicalInterval = np.logical_and(
@@ -493,7 +525,10 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
           endIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) -   MBP * i).argmin()
 
           if GUIObject is not None:
-            GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+            GUIObject.progress.emit(loopcounter / totalloops*100)
+            loopcounter+=1
+          if doTQDM:
+             pbar.update(1)
 
 
           if i == 1:
@@ -520,10 +555,13 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
               processedOutputTimes[j] >= MBP * (i - 1),
               processedOutputTimes[j] <= MBP * i).reshape((-1,))
 
-          locMatrixRow = j + len(inputAppliedError) + len(outputAppliedError)
+          locMatrixRow = j + len(inputAppliedError) + len(inventoryAppliedError)
 
           if GUIObject is not None:
-            GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+            GUIObject.progress.emit(loopcounter / totalloops*100)
+            loopcounter+=1
+          if doTQDM:
+             pbar.update(1)
 
 
           AFTS = AuxFunctions.trapSum(logicalInterval,processedOutputTimes[j],outputAppliedError[j])
@@ -539,32 +577,36 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
       SEMUFCalcs = np.sqrt(InpVar + InvVar + OutVar)
 
 
-      if GUIObject is not None:
-        GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box15L'] + ' Calculation')        
-        QtCore.QCoreApplication.instance().processEvents()
+
 
       return SEMUFCalcs, SEMUFContribR, SEMUFContribS, SEMUFContribI
 
 
-def SEMUFAI(AI, SEMUF,GUIObject=None,GUIparams=None):
+def SEMUFAI(AI, SEMUF, SEMUFContribR, SEMUFContribS, MBP):
 
-  if GUIObject is not None:
-    Loc = GUIparams.Loc
-    GUIObject.PB.setValue(0)
-    GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box16L'])
-    QtCore.QCoreApplication.instance().processEvents()
-    GUIObject.PB.setValue(0)
+  SEMUFAI = np.zeros(np.shape(SEMUF))
+  SEMUFAIContribR = np.zeros(np.shape(SEMUFContribR))
+  SEMUFAIContribS = np.zeros(np.shape(SEMUFContribS))
+  
+  it, kmps, mbps = np.shape(SEMUFContribR)
+  
+  AI_MBPs = []
+  for i in range(len(AI[0])):
+     if i%MBP == 0:
+        AI_MBPs.append(AI[:,i])
+  AI_MBPs = np.transpose(np.array(AI_MBPs))
 
-  SEMUFAI = SEMUF/AI*100
+  for i in range(len(AI[0])):
+     if AI[0, i] != 0:
+        SEMUFAI[:, i] = SEMUF[:, i]/AI[:, i] * 100
+  for j in range(1,mbps):
+      for k in range(kmps):
+         SEMUFAIContribR[:,k,j] = (SEMUFContribR[:, k, j])/AI_MBPs[:,j] * 100
+         SEMUFAIContribS[:,k,j] = (SEMUFContribS[:, k, j])/AI_MBPs[:,j] * 100      
 
-  if GUIObject is not None:
-    GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box16L'] + ' Calculation')
-    GUIObject.PB.setValue(100)      
-    QtCore.QCoreApplication.instance().processEvents()
+  return SEMUFAI, SEMUFAIContribR, SEMUFAIContribS
 
-  return SEMUFAI
-
-def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,ErrorMatrix,MUF,MBP,GUIObject=None,GUIparams=None):
+def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,ErrorMatrix,MUF,MBP,GUIObject=None,doTQDM=True):
       """
        Function that carries out the standardized independent transformation of MUF. More detailed information can be found in the guide XX. 
 
@@ -597,6 +639,8 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
 
           GUIParams (object, default=None): An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI. 
 
+          doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
+
         Returns:
           ndarray: SITMUF sequence with shape :math:`[n,j]` where :math:`n` length equal to the maximum time based on the number of material balances that could be constructed given the user provided MBP and number of samples in the input data and :math:`j` is the number of iterations given as input. The term :math:`n` is calculated by finding the minimum of each of the provided input times. 
         
@@ -616,15 +660,9 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
                     (time1,time2,time3)))
 
       """
-
       if GUIObject is not None:
-        GUIObject.statusBar().clearMessage()
-        GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box17L'])
-        GUIObject.PB.setValue(0)
-        QtCore.QCoreApplication.instance().processEvents()
-
-        Loc = GUIparams.Loc
-
+        doTQDM = False
+        
       inputAppliedError, \
       inventoryAppliedError, \
       outputAppliedError = AuxFunctions.removeExtraDims(inputAppliedError,
@@ -646,7 +684,6 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
       MBPs = np.ceil(timeSteps / MBP)
 
       SITMUFCalcs = np.zeros((iterations,  int((MBPs - 1) * MBP)))
-      PageCalcs = np.zeros((iterations,  int((MBPs - 1) * MBP)))
       covmatrix = np.zeros((int(MBPs), int(MBPs)))
       # Iterations, Locs, Samples, Elements eFrame
 
@@ -657,9 +694,13 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
       #
       #------------------------------------------------------------------------------------------------------#
 
-      totalloops = ((MBPs-1)**2 + MBPs) / 2 #nth triangle number, like factorial but addition
+      totalloops = np.floor(((MBPs-1)**2 + MBPs) / 2) #nth triangle number, like factorial but addition
       loopcounter = 0
       covmatrix = np.zeros((iterations,int(MBPs), int(MBPs)))
+
+      if doTQDM:
+         pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
+       #pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc}: {n_fmt}/{total_fmt} ({percentage:.2f}%) |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
 
 
       if decompStatus == 1:
@@ -668,12 +709,15 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
             for j in range(0,P): 
 
               if GUIObject is not None:
-                GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,totalloops)
+                GUIObject.progress.emit(loopcounter / totalloops*100)
+                loopcounter+=1
+              if doTQDM:
+                pbar.update(1)
 
-                #it's easier to implement SITMUF using the actual indicies
-                #from the statistical papers rather than the python loop variables
-                #so this translates python loop variables to indicides and times
-                #more closely aligned to the papers
+              #it's easier to implement SITMUF using the actual indicies
+              #from the statistical papers rather than the python loop variables
+              #so this translates python loop variables to indicides and times
+              #more closely aligned to the papers
               I = j + 1 
               IPrevious = j - 1               
               IPrime = P 
@@ -841,14 +885,10 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
               SITMUFCalcs[k,int((P - 1) * MBP):int(P * MBP)] = np.ones((MBP,)) * SITMUF[P - 1]
 
 
-      if GUIObject is not None:
-        GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box17L'] + ' Calculation')        
-        QtCore.QCoreApplication.instance().processEvents()
-
-      return SITMUFCalcs
+      return SITMUFCalcs 
 
 
-def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,GUIparams=None):
+def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,doTQDM=True):
   """
   Function for calculating Page's trend test, which is commonly applied to the SITMUF sequence. Formally compares the null hypothesis that there is no trend versus the alternate trend where there is a trend.
 
@@ -866,20 +906,24 @@ def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,GUIparams=None):
 
     GUIParams (object, default=None): An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI. 
 
+    doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
+
   Returns:
     ndarray: The results of the trend test which has shape :math:`[m,n]`. 
 
   """
+  if GUIObject is not None:
+    doTQDM = False
 
   PageCalcs = np.zeros((inQty.shape[0:2]))
+  totalloops = int(MBPs-1) * PageCalcs.shape[0]
+  loopcounter = 0
 
-  if GUIObject is not None:
-      GUIObject.statusBar().clearMessage()
-      GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box18L'])
-      GUIObject.PB.setValue(0)
-      QtCore.QCoreApplication.instance().processEvents()
-      loopcounter = 0
-      nloops = int(MBPs) * PageCalcs.shape[0]
+  if doTQDM:
+    pbar = tqdm(total=totalloops)
+
+
+      
 
  
   for k in range(PageCalcs.shape[0]):
@@ -896,9 +940,12 @@ def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,GUIparams=None):
       PageCalcs[k,int((P - 1) * MBP):int(P * MBP)] = np.ones((MBP,)) * RZN
 
       if GUIObject is not None:
-        GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,nloops)
-        GUIObject.StatDlg.UpdateDispText('Finished ' + GUIparams.labels['Box18L'] + ' Calculation')        
-        QtCore.QCoreApplication.instance().processEvents()
+        GUIObject.progress.emit(loopcounter / totalloops*100)
+        loopcounter+=1
+      if doTQDM:
+        pbar.update(1)
+
+
 
   return PageCalcs
     

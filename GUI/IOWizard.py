@@ -9,6 +9,7 @@ import numpy as np
 import os
 import sys
 from pathlib import Path
+from MAPIT.GUI import GUIComponents, StyleOps
 
 
 #temp
@@ -21,24 +22,53 @@ class IOWizardMain(QtWidgets.QWizard):
 
   def __init__(self, parent=None):
     super(IOWizardMain, self).__init__()
+    self.colordict = parent.colordict
     self.addPage(IntroPage(self))
-    self.addPage(InitPage(self))
     self.addPage(DirPage(self))
+    self.addPage(OptPage(self))
+    
 
     self.setWindowTitle("Data IO Wizard")
     self.setWizardStyle(QtWidgets.QWizard.ModernStyle)
+    
+    
+    self.backbutton = GUIComponents.AniButton(self)
+    self.backbutton.setText('< Back')
+    StyleOps.enable_ani_button(button_obj=self.backbutton, guiobj=self)
+
+    self.nextbutton = GUIComponents.AniButton(self)
+    self.nextbutton.setText('> Next')
+    StyleOps.enable_ani_button(button_obj=self.nextbutton, guiobj=self)
+
+    self.cancelbutton = GUIComponents.AniButton(self)
+    self.cancelbutton.setText('Cancel')
+    StyleOps.enable_ani_button(button_obj=self.cancelbutton, guiobj=self)
+
+    self.finishbutton = GUIComponents.AniButton(self)
+    self.finishbutton.setText('Finish')
+    StyleOps.enable_ani_button(button_obj=self.finishbutton, guiobj=self)
+
+    self.setButton(QtWidgets.QWizard.BackButton,self.backbutton)
+    self.setButton(QtWidgets.QWizard.NextButton,self.nextbutton)
+    self.setButton(QtWidgets.QWizard.CancelButton,self.cancelbutton)
+    self.setButton(QtWidgets.QWizard.FinishButton,self.finishbutton)
+
+    #TODO: behavior for finish/cancel button
     self.button(QtWidgets.QWizard.FinishButton).clicked.connect(self.SavePages)
+
+
 
     #bring in the first page banner
     dirname, _ = os.path.split(os.path.abspath(__file__))
     x = Path(dirname).resolve().parents[0]
     F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Horizontal_Black.jpg')
     res = QtGui.QPixmap(F)
-    res = res.scaledToWidth(500)
+    geometry = qApp.desktop().availableGeometry(self)
+    res = res.scaledToWidth(geometry.width()*0.25)
     self.setPixmap(QtWidgets.QWizard.BannerPixmap, res)
 
-    geometry = qApp.desktop().availableGeometry(self)
-    self.setFixedSize(500, geometry.height() * 0.5)
+    
+    self.resize(geometry.width()*0.25, geometry.height() * 0.5)
 
     #initalize some variables
     self.InDir = {}
@@ -59,6 +89,8 @@ class IOWizardMain(QtWidgets.QWizard):
     #data is NOT a mat file
     self.IsMatV = 0
 
+
+
   def SavePages(self):
     """
             Function used to hand off between
@@ -66,20 +98,31 @@ class IOWizardMain(QtWidgets.QWizard):
             MAPIT.
     """
 
-    self.InDir = self.page(2).InpDirDisp.text()
-    self.InvDir = self.page(2).InvDirDisp.text()
-    self.OutDir = self.page(2).OutDirDisp.text()
+    #disable animations before the delete call otherwise
+    #there will be some errors when the animation
+    #tries to be updated for a deleted object
+    StyleOps.disable_ani_button(button_obj=self.backbutton, guiobj=self)
+    StyleOps.disable_ani_button(button_obj=self.cancelbutton, guiobj=self)
+    StyleOps.disable_ani_button(button_obj=self.nextbutton, guiobj=self)
+    StyleOps.disable_ani_button(button_obj=self.finishbutton, guiobj=self)
 
 
-    self.TempVec_IN = self.page(1).TimeUnitVec.text()
 
 
-    self.InKMP_names = self.page(1).InpLabels.text()
-    self.InvKMP_names = self.page(1).InvLabels.text()
-    self.OutKMP_names = self.page(1).OutLabels.text()
+    self.InDir = self.page(1).InpDirDisp.text()
+    self.InvDir = self.page(1).InvDirDisp.text()
+    self.OutDir = self.page(1).OutDirDisp.text()
 
-    self.TimeUnitVec = self.page(1).TimeUnitVec.text()
-    self.MassUnitVec = self.page(1).MassUnitVec.text()
+
+    self.TempVec_IN = self.page(2).TimeUnitVec.text()
+
+
+    self.InKMP_names = self.page(2).InpLabels.text()
+    self.InvKMP_names = self.page(2).InvLabels.text()
+    self.OutKMP_names = self.page(2).OutLabels.text()
+
+    self.TimeUnitVec = self.page(2).TimeUnitVec.text()
+    self.MassUnitVec = self.page(2).MassUnitVec.text()
 
     self.dataType = self.page(1).inpFmt.currentText()
 
@@ -99,7 +142,7 @@ class IntroPage(QtWidgets.QWizardPage):
     self.setLayout(layout)
 
 
-class InitPage(QtWidgets.QWizardPage):
+class OptPage(QtWidgets.QWizardPage):
   """
         This page takes in the main
         data needed by MAPIT. Some
@@ -111,29 +154,22 @@ class InitPage(QtWidgets.QWizardPage):
   """
 
   def __init__(self, parent=None):
-    super(InitPage, self).__init__()
+    super(OptPage, self).__init__()
     self.setSubTitle('    ')
 
     layout = QtWidgets.QVBoxLayout(self)
 
-    ReqForms = QtWidgets.QGroupBox(self)
+    #ReqForms = QtWidgets.QGroupBox(self)
     OptForms = QtWidgets.QGroupBox(self)
 
-    ReqForms.setTitle("Required Inputs")
+    #ReqForms.setTitle("Required Inputs")
     OptForms.setTitle("Optional Inputs")
 
-    layoutR = QtWidgets.QGridLayout(ReqForms)
+    #layoutR = QtWidgets.QGridLayout(ReqForms)
     layoutO = QtWidgets.QGridLayout(OptForms)
 
-    layout.addWidget(ReqForms)
+    #layout.addWidget(ReqForms)
     layout.addWidget(OptForms)
-
-    self.inpFmt = QtWidgets.QComboBox()
-    self.inpFmt.addItem('.csv')
-    self.inpFmt.addItem('.mat')
-    self.inpFmt.addItem('.npz')
-    self.InpVecTxt = QtWidgets.QLabel(
-        "Select data format")
 
 
     self.TimeUnitVec = QtWidgets.QLineEdit(self, "")
@@ -150,8 +186,8 @@ class InitPage(QtWidgets.QWizardPage):
 
 
 
-    layoutR.addWidget(self.inpFmt, 2, 1)
-    layoutR.addWidget(self.InpVecTxt, 2, 0)
+    #layoutR.addWidget(self.inpFmt, 2, 1)
+    #layoutR.addWidget(self.InpVecTxt, 2, 0)
 
     self.InpLabels = QtWidgets.QLineEdit(self, "")
     self.InpLabelsTxt = QtWidgets.QLabel("Enter input labels")
@@ -195,16 +231,57 @@ class DirPage(QtWidgets.QWizardPage):
     super(DirPage, self).__init__()
     self.setSubTitle('   ')
 
-    layout = QtWidgets.QGridLayout(self)
+    layout = QtWidgets.QVBoxLayout(self)
+
+    F1 = QtWidgets.QGroupBox()
+    F2 = QtWidgets.QGroupBox()
+    F3 = QtWidgets.QGroupBox()
+
+    L1 = QtWidgets.QHBoxLayout(F1)
+    L2 = QtWidgets.QVBoxLayout(F2)
+    L3 = QtWidgets.QHBoxLayout(F3)
+
+    self.inpFmt = QtWidgets.QComboBox()
+    self.inpFmt.addItem('.csv')
+    self.inpFmt.addItem('.mat')
+    self.inpFmt.addItem('.npz')
+
+    
+    L1.addWidget(self.inpFmt)
+    F1.setTitle("Data format")
+    F2.setTitle("Data location")
+
+    G1 = QtWidgets.QGroupBox()
+    G2 = QtWidgets.QGroupBox()
+    G3 = QtWidgets.QGroupBox()
+
+    G1.setTitle("Inputs")
+    G2.setTitle("Inventories")
+    G3.setTitle("Outputs")
+
+    GL1 = QtWidgets.QGridLayout(G1)
+    GL2 = QtWidgets.QGridLayout(G2)
+    GL3 = QtWidgets.QGridLayout(G3)
+
+    layout.addWidget(F1)
 
     self.InputDirLabel = QtWidgets.QLabel("Select location of input directory")
     self.InvDirLabel = QtWidgets.QLabel(
         "Select location of inventory directory")
     self.OutDirLabel = QtWidgets.QLabel("Select location of output directory")
 
-    self.InDirButton = QtWidgets.QPushButton("Select Directory")
-    self.InvDirButton = QtWidgets.QPushButton("Select Directory")
-    self.OutDirButton = QtWidgets.QPushButton("Select Directory")
+    #self.InDirButton = QtWidgets.QPushButton("Select Directory")
+    self.InDirButton = GUIComponents.AniButton(self)
+    self.InDirButton.setText("Select Directory")
+    StyleOps.enable_ani_button(button_obj=self.InDirButton, guiobj=parent)
+
+    self.InvDirButton = GUIComponents.AniButton(self)
+    self.InvDirButton.setText("Select Directory")
+    StyleOps.enable_ani_button(button_obj=self.InvDirButton, guiobj=parent)
+
+    self.OutDirButton = GUIComponents.AniButton(self)
+    self.OutDirButton.setText("Select Directory")
+    StyleOps.enable_ani_button(button_obj=self.OutDirButton, guiobj=parent)
 
     self.InpDirDisp = QtWidgets.QLineEdit(self, "")
     self.InvDirDisp = QtWidgets.QLineEdit(self, "")
@@ -214,34 +291,68 @@ class DirPage(QtWidgets.QWizardPage):
     self.InvDirDisp.setReadOnly(1)
     self.OutDirDisp.setReadOnly(1)
 
-    layout.addWidget(self.InputDirLabel, 0, 0)
-    layout.addWidget(self.InpDirDisp, 1, 0)
-    layout.addWidget(self.InDirButton, 1, 1)
+    GL1.addWidget(self.InpDirDisp,0,0)
+    GL2.addWidget(self.InvDirDisp,0,0)
+    GL3.addWidget(self.OutDirDisp,0,0)
 
-    layout.addWidget(self.InvDirLabel, 2, 0)
-    layout.addWidget(self.InvDirDisp, 3, 0)
-    layout.addWidget(self.InvDirButton, 3, 1)
+    GL1.addWidget(self.InDirButton,0,1)
+    GL2.addWidget(self.InvDirButton,0,1)
+    GL3.addWidget(self.OutDirButton,0,1)
 
-    layout.addWidget(self.OutDirLabel, 4, 0)
-    layout.addWidget(self.OutDirDisp, 5, 0)
-    layout.addWidget(self.OutDirButton, 5, 1)
+    L2.addWidget(G1)
+    L2.addWidget(G2)
+    L2.addWidget(G3)
+
+
+
+    layout.addWidget(F2)
+
+    self.LoadConfig = GUIComponents.AniButton(self)
+    self.LoadConfig.setText("Load")
+    StyleOps.enable_ani_button(button_obj=self.LoadConfig, guiobj=parent)
+
+    self.SaveConfig = GUIComponents.AniButton(self)
+    self.SaveConfig.setText("Save")
+    StyleOps.enable_ani_button(button_obj=self.SaveConfig, guiobj=parent)
+
+    self.SaveConfig.clicked.connect(self.SaveCfg)
+    self.LoadConfig.clicked.connect(self.LoadCfg)
+
+    L3.addWidget(self.LoadConfig)
+    L3.addWidget(self.SaveConfig)
+
+    layout.addWidget(F3)
+
+    F3.setTitle("Configuration")
+
+
+
+    # layout.addWidget(self.inpFmt, 0, 0)
+
+    # layout.addWidget(self.InputDirLabel, 1, 0)
+    # layout.addWidget(self.InpDirDisp, 2, 0)
+    # layout.addWidget(self.InDirButton, 2, 1)
+
+    # layout.addWidget(self.InvDirLabel, 3, 0)
+    # layout.addWidget(self.InvDirDisp, 4, 0)
+    # layout.addWidget(self.InvDirButton, 4, 1)
+
+    # layout.addWidget(self.OutDirLabel, 5, 0)
+    # layout.addWidget(self.OutDirDisp, 5, 0)
+    # layout.addWidget(self.OutDirButton, 6, 1)
 
     self.InDirButton.clicked.connect(self.GetInDirs)
     self.InvDirButton.clicked.connect(self.GetInvDirs)
     self.OutDirButton.clicked.connect(self.GetOutDirs)
 
-    self.SaveLoadContainer = QtWidgets.QFrame(self)
-    self.SaveLoadLayout = QtWidgets.QHBoxLayout(self.SaveLoadContainer)
-    layout.addWidget(self.SaveLoadContainer, 6, 0, 8, 2)
+    # self.SaveLoadContainer = QtWidgets.QFrame(self)
+    # self.SaveLoadLayout = QtWidgets.QHBoxLayout(self.SaveLoadContainer)
+    # layout.addWidget(self.SaveLoadContainer, 7, 0, 8, 2)
 
-    self.LoadConfig = QtWidgets.QPushButton("Load Config", self)
-    self.SaveConfig = QtWidgets.QPushButton("Save Config", self)
 
-    self.SaveLoadLayout.addWidget(self.LoadConfig)
-    self.SaveLoadLayout.addWidget(self.SaveConfig)
 
-    self.SaveConfig.clicked.connect(self.SaveCfg)
-    self.LoadConfig.clicked.connect(self.LoadCfg)
+    # self.SaveLoadLayout.addWidget(self.LoadConfig)
+    # self.SaveLoadLayout.addWidget(self.SaveConfig)
 
   def GetInDirs(self):
     """
@@ -295,14 +406,14 @@ class DirPage(QtWidgets.QWizardPage):
       x = f.read().splitlines()
 
     self.wizard().page(1).inpFmt.setCurrentIndex(int(x[0])) if x[0] != 'null' else None
-    self.wizard().page(1).TimeUnitVec.setText(x[1]) if x[1] != 'null' else None
-    self.wizard().page(1).MassUnitVec.setText(x[2]) if x[2] != 'null' else None
-    self.wizard().page(2).InpDirDisp.setText(x[3]) if x[3] != 'null' else None
-    self.wizard().page(2).InvDirDisp.setText(x[4]) if x[4] != 'null' else None
-    self.wizard().page(2).OutDirDisp.setText(x[5]) if x[5] != 'null' else None
-    self.wizard().page(1).InpLabels.setText(x[6]) if x[6] != 'null' else None
-    self.wizard().page(1).InvLabels.setText(x[7]) if x[7] != 'null' else None
-    self.wizard().page(1).OutLabels.setText(x[8]) if x[8] != 'null' else None
+    self.wizard().page(2).TimeUnitVec.setText(x[1]) if x[1] != 'null' else None
+    self.wizard().page(2).MassUnitVec.setText(x[2]) if x[2] != 'null' else None
+    self.wizard().page(1).InpDirDisp.setText(x[3]) if x[3] != 'null' else None
+    self.wizard().page(1).InvDirDisp.setText(x[4]) if x[4] != 'null' else None
+    self.wizard().page(1).OutDirDisp.setText(x[5]) if x[5] != 'null' else None
+    self.wizard().page(2).InpLabels.setText(x[6]) if x[6] != 'null' else None
+    self.wizard().page(2).InvLabels.setText(x[7]) if x[7] != 'null' else None
+    self.wizard().page(2).OutLabels.setText(x[8]) if x[8] != 'null' else None
 
   def SaveCfg(self):
     """
@@ -314,14 +425,14 @@ class DirPage(QtWidgets.QWizardPage):
 
     x = [
         self.wizard().page(1).inpFmt.currentIndex(),
-        self.wizard().page(1).TimeUnitVec.text(),
-        self.wizard().page(1).MassUnitVec.text(),
+        self.wizard().page(2).TimeUnitVec.text(),
+        self.wizard().page(2).MassUnitVec.text(),
         self.InpDirDisp.text(),
         self.InvDirDisp.text(),
         self.OutDirDisp.text(),
-        self.wizard().page(1).InpLabels.text(),
-        self.wizard().page(1).InvLabels.text(),
-        self.wizard().page(1).OutLabels.text()
+        self.wizard().page(2).InpLabels.text(),
+        self.wizard().page(2).InvLabels.text(),
+        self.wizard().page(2).OutLabels.text()
     ]
 
     for i in range(len(x)):

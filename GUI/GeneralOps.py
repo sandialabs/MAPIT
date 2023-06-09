@@ -1,20 +1,15 @@
+from MAPIT.GUI import ThreadTools, StatsPanelOps
 from PySide2 import QtCore,QtWidgets, QtGui
 import os
 import numpy as np
 from pathlib import Path
 import sys
 import csv
-from scipy.io import savemat
+from scipy.io import savemat, loadmat
 import pickle
 import glob
-
-def updatePB(GUIObject,loopcounter, totalloops):
-
-        QtCore.QCoreApplication.instance().processEvents()
-        GUIObject.PB.setValue(loopcounter / totalloops*100)
-        loopcounter +=1
-
-        return GUIObject, loopcounter
+import queue
+import json
 
 
 def SaveStats(self, AnalysisData, GUIparams):
@@ -32,7 +27,8 @@ def SaveStats(self, AnalysisData, GUIparams):
 
     self.PB.setMaximum(0)
     self.PB.setMinimum(0)
-    self.StatDlg.UpdateDispText('Saving Data')
+    #self.StatDlg.UpdateDispText('Saving Data')
+    self.PB.setFormat('Saving data')
     QtCore.QCoreApplication.instance().processEvents()
 
 
@@ -114,11 +110,7 @@ def SaveStats(self, AnalysisData, GUIparams):
         'Order by iteration: Group data into run iteration, better for manual human analysis \n \n' \
         'Order by location: Group data by location, better for importing into secondary analytical pipelines')
     
-      # getOutType.setStandardButtons(QtWidgets.QMessageBox.Ok
-      #                             | QtWidgets.QMessageBox.No
-      #                             | QtWidgets.QMessageBox.YesAll
-      #                             | QtWidgets.QMessageBox.NoAll
-      #                             | QtWidgets.QMessageBox.Cancel)
+
 
       buttonCSVL = getOutType.addButton('.csv: by location',QtWidgets.QMessageBox.ResetRole) #this is arbitrary, but if accept and reject roles aren't present then the red X to close the dialog wont work
       buttonCSVI = getOutType.addButton('.csv: by iteration',QtWidgets.QMessageBox.ApplyRole)
@@ -327,7 +319,8 @@ def SaveStats(self, AnalysisData, GUIparams):
 
     self.PB.setMaximum(100)
     self.PB.setValue(100)
-    self.StatDlg.UpdateDispText('Execution Finished')
+    #self.StatDlg.UpdateDispText('Execution Finished')
+    self.PB.setFormat('Execution finished')
     
 def checkImportAxes(d):
   if d.shape[0] < d.shape[1]:
@@ -335,61 +328,32 @@ def checkImportAxes(d):
   
   return d
 
-def processWizardData(WizardObj):
-  fileext = WizardObj.dataType
+def getExtData(self,AnalysisData,GUIparams,Wizard):
+  inpdict={"AnalysisData":AnalysisData, "GUIparams":GUIparams, "Wizard":Wizard}
+  Q=queue.Queue()
+  thread = ThreadTools.getExtData(Q,grabExt,parent=self)
+  thread.start()
+  Q.put(inpdict)
 
-  #list(locs,)
+def grabExt(result):
+  AnalysisData, GUIparams, Wizard, GUIObj, indat, inTdat, invdat, invTdat, outdat, outTdat = result
 
-  infiles = glob.glob(WizardObj.InDir+'/*'+fileext)
-  invfiles = glob.glob(WizardObj.InvDir+'/*'+fileext)
-  outfiles = glob.glob(WizardObj.OutDir+'/*'+fileext)
+  AnalysisData.rawInput, AnalysisData.rawInputTimes, \
+  AnalysisData.rawInventory, AnalysisData.rawInventoryTimes, \
+  AnalysisData.rawOutput, AnalysisData.rawOutputTimes = indat, inTdat, invdat, invTdat, outdat, outTdat
 
-  indat = []
-  invdat = []
-  outdat = []
-
-  inTdat = []
-  invTdat = []
-  outTdat = []
-
-  if fileext == '.csv':
-    for i in range(len(infiles)):
-      z = checkImportAxes(np.loadtxt(infiles[i],delimiter=','))
-      inTdat.append(z[:,0])
-      indat.append(z[:,1])
-      QtCore.QCoreApplication.instance().processEvents()
-
-    for i in range(len(invfiles)):
-      z = checkImportAxes(np.loadtxt(invfiles[i],delimiter=','))
-      invTdat.append(z[:,0])
-      invdat.append(z[:,1])
-      QtCore.QCoreApplication.instance().processEvents()
-
-    for i in range(len(outfiles)):
-      z = checkImportAxes(np.loadtxt(outfiles[i],delimiter=','))
-      outTdat.append(z[:,0])
-      outdat.append(z[:,1])
-      QtCore.QCoreApplication.instance().processEvents()
+  GUIparams.nInputLocations, GUIparams.nInventoryLocations, \
+  GUIparams.nOutputLocations, GUIparams.nTotalLocations, \
+  GUIparams.rowNames = processWizardGUI(AnalysisData,Wizard)
+  GUIparams.ExtData = True
 
 
 
+  GUIparams.nInferredEles = 1
+  GUIparams.eleList = 'element0'
 
-    # AnalysisData.rawInventory = SS.Inventories
-    # AnalysisData.rawInput = SS.Inputs
-    # AnalysisData.rawOutput = SS.Outputs
+  StatsPanelOps.enable_setup_controls(GUIObj)
 
-    # AnalysisData.rawInventoryTimes = SS.InventoriesT
-    # AnalysisData.rawInputTimes = SS.InputsT
-    # AnalysisData.rawOutputTimes = SS.OutputsT
-
-    # GUIparams.sceneName = SS.sceneName
-    # GUIparams.nInputLocations = np.shape(AnalysisData.rawInput)[0]
-    # GUIparams.nInventoryLocations =  np.shape(AnalysisData.rawInventory)[0]
-    # GUIparams.nOutputLocations = np.shape(AnalysisData.rawOutput)[0]
-    # GUIparams.nTotalLocations = np.shape(AnalysisData.rawInput)[0] + np.shape(AnalysisData.rawInventory)[0] + np.shape(AnalysisData.rawOutput)[0]
-    # GUIparams.rowNames = A['arr2']
-
-  return indat, inTdat, invdat, invTdat, outdat, outTdat
 
 def processWizardGUI(AnalysisData,WizardObj):
   ninputloc = len(AnalysisData.rawInput)
@@ -419,7 +383,88 @@ def processWizardGUI(AnalysisData,WizardObj):
     outnames = WizardObj.OutKMP_names
 
   spacer = ['']
-  rownames = innames + spacer + invnames + spacer + outnames
+  rownames = innames + spacer + invnames + spacer + outnames #lists
 
 
   return ninputloc, ninvloc, noutloc, ntotalloc, rownames
+
+
+
+def getSceneData(GUIObj,AnalysisData,GUIparams):
+
+  GUIObj.CB_ErrorProp.setEnabled(0)
+  GUIObj.CB_ErrorProp.setChecked(1)
+  GUIObj.IterBox.setEnabled(1)
+  
+  setnames = {
+              "Normal": "Normal",
+              "Abrupt Loss": "Abrupt",
+              "Protracted Loss":"Protract"
+            }
+
+  mdl_names = {
+                "Fuel Fab":"fuel_fab"
+            }
+
+  dirname, _ = os.path.split(os.path.abspath(__file__))
+  x = Path(dirname).resolve().parents[0]
+  F = os.path.join(x, 'data', mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'data.mat')
+  x1 = loadmat(F,squeeze_me=True)
+
+  AnalysisData.rawInventory = x1['invn']['data']
+  AnalysisData.rawInput = x1['in']['data']
+  AnalysisData.rawOutput = x1['outn']['data']
+
+  AnalysisData.rawInventoryTimes = x1['invn']['time']
+  AnalysisData.rawInputTimes = x1['in']['time']
+  AnalysisData.rawOutputTimes = x1['outn']['time']
+
+  GUIparams.sceneName = GUIObj.mdlopts.currentText()
+  GUIparams.nInputLocations = np.shape(AnalysisData.rawInput)[0]
+  GUIparams.nInventoryLocations =  np.shape(AnalysisData.rawInventory)[0]
+  GUIparams.nOutputLocations = np.shape(AnalysisData.rawOutput)[0]
+  GUIparams.nTotalLocations = np.shape(AnalysisData.rawInput)[0] + np.shape(AnalysisData.rawInventory)[0] + np.shape(AnalysisData.rawOutput)[0]
+  GUIparams.ExtData = False
+
+
+
+  GUIparams.eleList = ['U']
+  GUIparams.nInferredEles = 1
+
+  #disable some checkboxes for fuel fab scenario
+  #fuel fab only has uranium and some other
+  #non actinide materials
+
+  F = os.path.join(x, 'data', mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'auxData.npz')
+  A = np.load(F)
+  GUIparams.rowNames = A['arr2']
+  GUIObj.GESelector.addItem("U")
+  #self.liH = ['U'] 
+  GUIparams.eleList = ['U']
+  GUIparams.nInferredEles = 1
+
+
+
+
+
+  return AnalysisData, GUIparams
+
+
+def loadGUILabels(GUIparams,international=False):
+  if international == True:
+      dictname = 'intLabels'
+  else:
+    dictname = 'domLabels'
+
+  with open(os.path.join(str(Path(sys.argv[0]).resolve().parents[1]),'labels',dictname+'.json'),'r') as fp:
+    labels = json.load(fp)
+
+  with open(os.path.join(str(Path(sys.argv[0]).resolve().parents[1]),'labels','exemplarMdls'+'.json'),'r') as fp:
+    GUIparams.availableMdls = json.load(fp)
+
+  with open(os.path.join(str(Path(sys.argv[0]).resolve().parents[1]),'labels','exemplarDatas'+'.json'),'r') as fp:
+    GUIparams.availableDatas = json.load(fp)
+
+  GUIparams.labels = labels
+
+  return GUIparams

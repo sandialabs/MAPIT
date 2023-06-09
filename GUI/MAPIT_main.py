@@ -15,30 +15,26 @@ import os
 import sys
 from pathlib import Path
 import time
-
+import queue
+import json
 sys.path.append(str(Path(sys.argv[0]).resolve().parents[2]))
-
-
-
-
+os.environ["QT_ENABLE_HIGHDPI_SCALING"]   = "1"
+os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+os.environ["QT_SCALE_FACTOR"]             = "1"
 
 from PySide2 import QtCore, QtWidgets, QtGui
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import numpy as np
 import time
 
-import MAPIT.core.Preprocessing as Preprocessing
 
-from MAPIT.core import StatsTests as Tests
-from MAPIT.core import AuxFunctions as Aux
+
+
+
 
 from MAPIT.GUI.IOWizard import IOWizardMain 
 #from MAPIT.GUI.IOWizardMat import IOWizardMainMat
-from MAPIT.GUI import PlotOps, StyleOps, GeneralOps, DialogComponents, StatsPanelOps, ScenarioSelector, AnimationTools, ErrorPanelOps
-
-
-
-
+from MAPIT.GUI import PlotOps, StyleOps, GeneralOps, DialogComponents, StatsPanelOps, ScenarioSelector, AnimationTools, ErrorPanelOps, ThreadTools, GUIComponents
 
 
 
@@ -57,14 +53,7 @@ class customExecp(Exception):
 
 
 GUIparams = GUIopts()
-
-#for now ignore the case
-#of multiple species analysis
-
-#UraniumData = DataHolder()
-#PlutoniumData = DataHolder()
-#GenericData = DataHolder()
-
+GUIparams = GeneralOps.loadGUILabels(GUIparams, international = True)
 AnalysisData = DataHolder()
 
 class StatGUIInterface:
@@ -73,150 +62,47 @@ class StatGUIInterface:
     global AnalysisData
     global GUIparams
 
+    #disable buttons during thread execution
+
+    StyleOps.disable_ani_button(button_obj=self.ErrorS, guiobj=self)
+    StyleOps.disable_ani_button(button_obj=self.RunStats, guiobj=self)
+    StyleOps.disable_ani_button(button_obj=self.CalcThresh, guiobj=self)
+    StyleOps.disable_ani_button(button_obj=self.PlotRunner, guiobj=self)
+
+
+    
+
+
     if len(self.OBox.text()) > 0:
       AnalysisData.offset = int(self.OBox.text())
     else:
       AnalysisData.offset = 0
 
     mbaTime = int(self.MBPBox.text())
-    IT = int(self.IterBox.text())
+
+    if self.IterBox.text() == '':
+      IT = 0
+    else:
+      IT = int(self.IterBox.text())
 
     doError, doMUF, doAI, doCUMUF, doSEID, doSEIDAI, doSITMUF, doPage = StatsPanelOps.getRequestedTests(GUIObject = self)
 
-    #processed terms have been adjusted according to offset (if applicable)
-    #AnalysisData should be loaded prior to this either from the scene select
-    #or a csv/mat loader (not currently implemented)
-    
-    processedInput, processedInputTimes, \
-    processedInventory, processedInventoryTimes, \
-    processedOutput, processedOutputTimes, \
-    GUIparams = Preprocessing.FormatInput(rawInput = AnalysisData.rawInput,
-                                          rawInventory = AnalysisData.rawInventory,
-                                          rawOutput = AnalysisData.rawOutput,
-                                          rawInputTimes = AnalysisData.rawInputTimes,
-                                          rawInventoryTimes = AnalysisData.rawInventoryTimes,
-                                          rawOutputTimes = AnalysisData.rawOutputTimes,
-                                          dataOffset = AnalysisData.offset,
-                                          GUIObject = self,
-                                          GUIparams = GUIparams)
-
-    
-
-
     GLoc, GUIparams = StatsPanelOps.verifyGUIRequests(GUIObject = self, GUIparams = GUIparams)
-    
-    AnalysisData.ErrorMatrix = StatsPanelOps.getGUIErrorVals(self,
-                                                            len(processedInput),
-                                                            len(processedInventory),
-                                                            len(processedOutput),
-                                                            GLoc)   
 
-    nInputs = len(processedInput)
-    nInventories =  len(processedInventory)
-    
-    if doError == 1:
-      AnalysisData.inputAppliedError = Preprocessing.SimErrors(input = processedInput, 
-                                                                ErrorMatrix =  AnalysisData.ErrorMatrix[:nInputs,], 
-                                                                iterations = IT,
-                                                                GUIObject = self,
-                                                                GUIDispString = 'input errors')
-
-      AnalysisData.inventoryAppliedError = Preprocessing.SimErrors(input = processedInventory,
-                                                                  ErrorMatrix =  AnalysisData.ErrorMatrix[nInputs:nInventories+nInputs], 
-                                                                  iterations = IT,
-                                                                  GUIObject = self,
-                                                                  GUIDispString = 'inventory errors')
+    inpdict = {'doError': doError, 'doMUF': doMUF, 'doAI': doAI, 'doCUMUF': doCUMUF,
+               'doSEID': doSEID, 'doSEIDAI': doSEIDAI, 'doSITMUF': doSITMUF, 'doPage': doPage, 
+               'GLoc': GLoc, 'GUIparams': GUIparams, 'AnalysisData':AnalysisData, 'MBP':mbaTime,
+               'IT':IT}
 
 
-      AnalysisData.outputAppliedError = Preprocessing.SimErrors(input = processedOutput, 
-                                                                ErrorMatrix =  AnalysisData.ErrorMatrix[nInputs+nInventories:,], 
-                                                                iterations = IT,
-                                                                GUIObject = self,
-                                                                GUIDispString = 'output errors')
-
-    else:
-      #if no sim error, use what user supplied
-      AnalysisData.inputAppliedError = processedInput
-      AnalysisData.inventoryAppliedError = processedInventory
-      AnalysisData.outputAppliedError = processedOutput
+    Q = queue.Queue()
+    thread = ThreadTools.AnalysisThread(Q,self.handleAnalysisThread,parent=self)
+    thread.start()
+    Q.put(inpdict)                                                                   
 
 
 
-    
 
-    if doMUF == 1:
-      AnalysisData.MUF = Tests.MUF(inputAppliedError = AnalysisData.inputAppliedError,
-                                  inventoryAppliedError= AnalysisData.inventoryAppliedError,
-                                  outputAppliedError = AnalysisData.outputAppliedError,
-                                  processedInputTimes = processedInputTimes,
-                                  processedInventoryTimes = processedInventoryTimes,
-                                  processedOutputTimes = processedOutputTimes,
-                                  MBP = mbaTime,
-                                  GUIObject = self,
-                                  GUIparams = GUIparams)
-
-    if doAI == 1:
-      AnalysisData.AI = Tests.ActiveInventory(inputAppliedError = AnalysisData.inputAppliedError,
-                                  inventoryAppliedError= AnalysisData.inventoryAppliedError,
-                                  outputAppliedError = AnalysisData.outputAppliedError,
-                                  processedInputTimes = processedInputTimes,
-                                  processedInventoryTimes = processedInventoryTimes,
-                                  processedOutputTimes = processedOutputTimes,
-                                  MBP = mbaTime,
-                                  GUIObject = self,
-                                  GUIparams = GUIparams)
-
-    if doCUMUF == 1:
-      AnalysisData.CUMUF = Tests.CUMUF(AnalysisData.MUF,
-                                      GUIObject = self,
-                                      GUIparams = GUIparams)
-                 
-    if doSEID == 1:
-      AnalysisData.SEMUF, \
-      AnalysisData.SEMUFContribR, \
-      AnalysisData.SEMUFContribS, \
-      AnalysisData.SEMUFContribI = Tests.SEMUF(inputAppliedError = AnalysisData.inputAppliedError,
-                                              inventoryAppliedError= AnalysisData.inventoryAppliedError,
-                                              outputAppliedError = AnalysisData.outputAppliedError,
-                                              processedInputTimes = processedInputTimes,
-                                              processedInventoryTimes = processedInventoryTimes,
-                                              processedOutputTimes = processedOutputTimes,
-                                              MBP = mbaTime,
-                                              ErrorMatrix = AnalysisData.ErrorMatrix,
-                                              GUIObject = self,
-                                              GUIparams= GUIparams)
-
-    if doSEIDAI == 1:
-      AnalysisData.SEMUFAI = Tests.SEMUFAI(AnalysisData.AI,
-                                        AnalysisData.SEMUF,
-                                        GUIObject = self,
-                                        GUIparams= GUIparams)
-
-    if doSITMUF == 1:
-
-      AnalysisData.SITMUF = Tests.SITMUF(inputAppliedError = AnalysisData.inputAppliedError,
-                                                            inventoryAppliedError= AnalysisData.inventoryAppliedError,
-                                                            outputAppliedError = AnalysisData.outputAppliedError,
-                                                            processedInputTimes = processedInputTimes,
-                                                            processedInventoryTimes = processedInventoryTimes,
-                                                            processedOutputTimes = processedOutputTimes,
-                                                            ErrorMatrix = AnalysisData.ErrorMatrix,
-                                                            MBP = mbaTime,
-                                                            MUF = AnalysisData.MUF,
-                                                            GUIObject = self,
-                                                            GUIparams= GUIparams)  
-
-      MBPs = Aux.getMBPs(processedInputTimes,processedInventoryTimes,processedOutputTimes,mbaTime)
-      AnalysisData.Page = Tests.PageTrendTest(AnalysisData.SITMUF,mbaTime,MBPs,GUIObject = self, GUIparams = GUIparams)
-
-
-                                                                       
-
-
-    StatsPanelOps.preparePlotterOptions(self, doMUF, doAI, doCUMUF,doSEID, doSEIDAI,doSITMUF,doPage,GUIparams,AnalysisData)
-    self.CalcThresh.PassLoc('CTB')
-    self.CalcThresh._animation.start()
-    self.CalcThresh.setEnabled(1)
 
 
 
@@ -224,222 +110,6 @@ class StatGUIInterface:
 
 class customExecp(Exception):
     pass
-
-class SubBoxAni(QtWidgets.QGroupBox):
-  """
-        This class defines animated boxes
-        within MAPIT. Specifically, the
-        boxes that contain dropdown elements
-        in the plot area.
-
-        Animation functions largely control
-        changing border colors to bring
-        attention to certain areas of MAPIT.
-
-        A second animation has the border react
-        when the mouse enters the area.
-  """
-
-  def __init__(self, parent):
-    super(SubBoxAni, self).__init__()
-
-    #note there animation values (start,end)
-    #are required to be floats for some reason
-
-    self._animation = QtCore.QVariantAnimation()
-    self._animation.setStartValue(0.0)
-    self._animation.setEndValue(1.0)
-    self._animation.setDuration(150)
-    self._animation.setLoopCount(1)
-    self._animation.valueChanged.connect(
-        lambda: AnimationTools.runAnimation(self))
-
-    self.IsActive = 0
-
-  def PassLoc(self, loc):
-    self.Loc = loc
-
-  def enterEvent(self, event):
-    #on enter make border lighter
-    if self.IsActive == 1:
-      self._animation.setDirection(QtCore.QAbstractAnimation.Forward)
-      self._animation.start()
-    super().enterEvent(event)
-
-  def leaveEvent(self, event):
-    #on leave make border darker
-    if self.IsActive == 1:
-      self._animation.setDirection(QtCore.QAbstractAnimation.Backward)
-      self._animation.start()
-    super().leaveEvent(event)
-
-  def ChangeActive(self, newState):
-    self.IsActive = newState
-
-
-class AniButton(QtWidgets.QPushButton):
-  """
-        Class for animated buttons.
-
-        These buttons animate when first active.
-
-        They also have a linear gradient of color
-        that changes once the mouse enters the area.
-  """
-
-  def __init__(self, parent):
-    super(AniButton, self).__init__()
-
-    self.IsDone = 0
-
-    #set animation parameters
-    self._animation = QtCore.QVariantAnimation()
-    self._animation.setStartValue(0.0)
-    self._animation.setEndValue(2.0)
-    self._animation.setDuration(1000)
-    self._animation.valueChanged.connect(
-        lambda: AnimationTools.runDualAnimation(self))
-
-    self._animation.finished.connect(self.UpdateIState)
-    self._animation.setLoopCount(10)
-
-    self._animation2 = QtCore.QVariantAnimation()
-    self._animation2.setStartValue(0.0)
-    self._animation2.setEndValue(1.0)
-    self._animation2.setDuration(150)
-    self._animation2.valueChanged.connect(
-        lambda: AnimationTools.GradButtonChange(self))
-
-    self.doGradientAni = 1
-
-  def UpdateIState(self):
-    #check if the initial border animation
-    #has finished
-    self.IsDone = 1
-
-  def enterEvent(self, event):
-    if self.doGradientAni == 1:
-      self._animation2.setDirection(QtCore.QAbstractAnimation.Forward)
-      self._animation2.start()
-
-      super().enterEvent(event)
-
-  def leaveEvent(self, event):
-
-    if self.doGradientAni == 1:
-      self._animation2.setDirection(QtCore.QAbstractAnimation.Backward)
-      self._animation2.start()
-
-      super().enterEvent(event)
-
-  def PassLoc(self, loc):
-    self.Loc = loc
-
-
-class AniGBox(QtWidgets.QGroupBox):
-  """
-        Box containing multiple items that
-        animates to bring attention. These
-        are the larger 'containers' like
-        the area that says 'plot controls'
-  """
-
-  def __init__(self, parent=None):
-    super().__init__(parent)
-
-    self._animation = QtCore.QVariantAnimation()
-    self._animation.setStartValue(0.0)
-    self._animation.setEndValue(2.0)
-    self._animation.setDuration(1000)
-    self._animation.valueChanged.connect(
-        lambda: AnimationTools.runAnimationSB(self))
-
-    self._animation.setLoopCount(10)
-
-    self.Loc = 0
-
-  def PassLoc(self, loc):
-    """
-            In QT widgets can be identified by an object name.
-            This function gives some finer control over setting
-            widget border colors.
-    """
-
-    self.Loc = loc
-
-    if self.Loc != 0:
-
-      grad2 = "border-color: rgb({value},{value2},{value3});".format(value=211,value2=211,value3=211) +\
-     "border-width: 5px;" +\
-    "border-style: solid;" +\
-    "padding: 6px;" +\
-    "margin-top: 20px;" +\
-    "color: black;" +\
-    "border-radius: 7px;}"
-
-      if self.window().MakeLight.isChecked() == 0:
-        grad2 = grad2.replace('rgb(211,211,211)', 'rgb(66,66,66)')
-
-      self.setStyleSheet(
-          "QWidget#{VAL}".format(VAL=self.Loc) + "{" + grad2 +
-          "QWidget#{VAL}".format(VAL=self.Loc) )
-
-
-class MssgRunner(QtWidgets.QLineEdit):
-  """
-        The class for the message bar
-        at the bottom of MAPIT.
-
-        Contains an animation that runs
-        at startup to notify user that
-        importing data is required.
-  """
-
-  def __init__(self, parent=None):
-    super().__init__(parent)
-
-    self.color1 = QtGui.QColor(0, 50, 0)
-    self.color2 = QtGui.QColor(0, 150, 0)
-
-    self._animation = QtCore.QVariantAnimation()
-    self._animation.setStartValue(0.0)
-    self._animation.setEndValue(2.0)
-    self._animation.setDuration(1000)
-    self._animation.valueChanged.connect(
-        lambda: AnimationTools.runMsgAnimation(self))
-
-    self._animation.setLoopCount(10)
-
-  def UpdateDispText(self, txt):
-
-    if self.window().MakeLight.isChecked() == 1:
-      R = 211
-    else:
-      R = 66
-
-    self.setText(txt)
-
-    qss = """
-                :disabled{color: rgb(0,0,0);
-    """
-    grad = "border-color: rgb({value},{value2},{value3});".format(value=R,value2=R,value3=R) +\
-           "border-width: 5px;" +\
-          "border-style: solid;" +\
-          "padding: 6px;" +\
-          "border-radius: 7px;"
-
-    qss += grad
-
-    if self.window().MakeLight.isChecked() == 1:
-      qss += 'background-color: rgb(239,239,239);color: black;}'
-    else:
-      qss += 'background-color: rgb(52,52,52);color: white;}'
-
-    self.setStyleSheet(qss)
-
-
-
-
 
 
 
@@ -459,69 +129,11 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     global GUIparams
 
-    intdictlab = {
-      "OuterL" : "Analysis",
-      "Box1L" : "Operations",
-      "Box11L" : "Simulate measurement error",
-      "Box12L" : "MUF",
-      "Box13L" : "Active Inventory",
-      "Box14L" : "CUMUF",
-      "Box15L" : "Sigma MUF",
-      "Box16L" : "Sigma MUF(Active Inventory)",
-      "Box17L" : "SITMUF",
-      "Box18L" : "Page's test on SITMUF",
-      "Box2L" : "Statistics",
-      "Box21L" : "MBP",
-      "Box22L" : "Iterations",
-      "Box23L" : "Analysis Elements/Index",
-      "Box24L" : "Temporal Offset",
-      "Box25L" : "Set Simulated Errors",
-      "Box26L" : "Run",
-      "Box3L" : "Plot Controls",
-      "Box31L" : "Plot Data Type",
-      "Box32L" : "Plot Data Location",
-      "Box33L" : "Plot Data Nuclide",
-      "Box34L" : "Iterations to Plot",
-      "Box4L" : "Statistical Thresholds",
-      "Box41L" : "Enter Threshold",
-      "Box42L" : "% Above Threshold",
-      "Box43L" : "Calculate"
-    }
+    
 
-    domdictlab = {
-      "OuterL" : "Analysis",
-      "Box1L" : "Operations",
-      "Box11L" : "Simulate measurement error",
-      "Box12L" : "ID",
-      "Box13L" : "Active Inventory",
-      "Box14L" : "Cumulative ID",
-      "Box15L" : "SEID",
-      "Box16L" : "SEID(Active Inventory)",
-      "Box17L" : "SITMUF",
-      "Box18L" : "Page's test on SITMUF",
-      "Box2L" : "Statistics",
-      "Box21L" : "MBP",
-      "Box22L" : "Iterations",
-      "Box23L" : "Analysis Elements/Index",
-      "Box24L" : "Temporal Offset",
-      "Box25L" : "Set Simulated Errors",
-      "Box26L" : "Run",
-      "Box3L" : "Plot Controls",
-      "Box31L" : "Plot Data Type",
-      "Box32L" : "Plot Data Location",
-      "Box33L" : "Plot Data Nuclide",
-      "Box34L" : "Iterations to Plot",
-      "Box4L" : "Statistical Thresholds",
-      "Box41L" : "Enter Threshold",
-      "Box42L" : "% Above Threshold",
-      "Box43L" : "Calculate"
-    }
 
-    international = False
-    if international == True:
-      GUIparams.labels = intdictlab
-    else:
-      GUIparams.labels = domdictlab
+
+    
     
 
 
@@ -535,6 +147,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.RunStats.clicked.connect(lambda: StatGUIInterface.runAnalysisPipe(self))
     self.ErrorS.clicked.connect(self.InitErrors)
     self.PlotRunner.clicked.connect(lambda: PlotOps.ExecPlot(self,GUIparams,AnalysisData))
+    self.PlotRunner.clicked.connect(self.RunPlotTresh)
     self.metricBox.activated.connect(lambda: PlotOps.UpdateLocOpts(self,GUIparams)) #TODO: CUMUF here  
 
 
@@ -543,75 +156,55 @@ class LaunchGUI(QtWidgets.QMainWindow):
     #
     dirname, _ = os.path.split(os.path.abspath(__file__))
     x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
+    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'mapit_logo.png')
     self.setWindowIcon(QtGui.QIcon(F))
 
-    loadDlgBox = QtWidgets.QMessageBox()
-    loadDlgBox.setWindowIcon(QtGui.QIcon(F))
-    loadDlgBox.setIcon(QtWidgets.QMessageBox.Question)
-    loadDlgBox.setText('Select data for analysis \n')
-    loadDlgBox.setInformativeText('You may select your own data (.csv, .mat, .npz supported) or from included SNL generated datasets')
-    CD = loadDlgBox.addButton('Own data',QtWidgets.QMessageBox.ResetRole) #this is arbitrary, but if accept and reject roles aren't present then the red X to close the dialog wont work
-    #MD = loadDlgBox.addButton('.mat dataset',QtWidgets.QMessageBox.ApplyRole)
-    SC = loadDlgBox.addButton('SNL curated dataset',QtWidgets.QMessageBox.RejectRole)
-    QC = loadDlgBox.addButton('Quit', QtWidgets.QMessageBox.NoRole)
+    StatsPanelOps.update_data_opts(self,0) #call for initial layout setup
 
 
-    loadDlgBox.exec_()
+  def closeEvent(self,event):
+    settings = QtCore.QSettings("current", "mapit")
+    settings.setValue("geometry", self.saveGeometry())
+    settings.setValue("fontsize",self.currentFontSize)
+    QtWidgets.QMainWindow.closeEvent(self, event)
 
-    DoRun = 1
+  def handleLoadThread(self, result):
+    global GUIparams
+    global AnalysisData
 
-    if loadDlgBox.clickedButton() == CD:
-        self.IOWindow()
-    # elif loadDlgBox.clickedButton() == MD:
-    #     self.IOWindowM()
-    elif loadDlgBox.clickedButton() == SC:
-        self.ScenarioSelector()
-    else:
-        sys.exit()
-
-
-    if DoRun == 1:
-        self.show()
-    else:
-        raise customExcep("No dataset selected, please rerun MAPIT")
+    AnalysisData, GUIparams  = result
 
 
 
+  def handleAnalysisThread(self, result):
+    global AnalysisData
 
-    # required or changing borders causes expansion
-    #self.mb4.setFixedWidth(self.mb4.sizeHint().width() * 2)
+    AnalysisData, doMUF, doAI, doCUMUF, doSEID, doSEIDAI, doSITMUF, doPage = result
+
+    #reenable controls
+    StyleOps.enable_ani_button(button_obj = self.ErrorS, guiobj = self, loc = 'EAB')
+    StyleOps.enable_ani_button(button_obj = self.RunStats, guiobj = self, loc = 'RSB')
+
+    StatsPanelOps.preparePlotterOptions(self, doMUF, doAI, doCUMUF,doSEID, doSEIDAI,doSITMUF,doPage,GUIparams,AnalysisData)
+    self.CalcThresh._animation.start()
+    self.CalcThresh.setEnabled(1)
+    StyleOps.enable_ani_button(button_obj = self.CalcThresh, guiobj = self)
+
+    self.PlotRunner._animation.start()
+    self.PlotRunner.setEnabled(1)
+    StyleOps.enable_ani_button(button_obj = self.PlotRunner, guiobj = self)
 
 
 
-  def force_muf_enabled(self):
-    if (self.CB_CUMUF.isChecked() or 
-      self.CB_SITMUF.isChecked()):
-        self.CB_MUF.setChecked(1)
-        self.CB_MUF.setEnabled(0)
-    else:
-      self.CB_MUF.setEnabled(1)
-
-  def force_page_reqs(self):
-    if self.CB_PAGE.isChecked():
-      self.CB_MUF.setChecked(1)
-      self.CB_SITMUF.setChecked(1)
-      self.CB_MUF.setEnabled(0)
-      self.CB_SITMUF.setEnabled(0)
-    else:
-      self.CB_MUF.setEnabled(1)
-      self.CB_SITMUF.setEnabled(1)
-
-  def force_SEMUFAI_reqs(self):
-    if self.CB_SMUFAI.isChecked():
-      self.CB_AI.setChecked(1)
-      self.CB_SMUF.setChecked(1)
 
   def update_errorB_text(self):
     if self.CB_ErrorProp.isChecked() == 1:
       self.ErrorS.setText('Set Simulated Errors')
+      self.IterBox.setEnabled(1)
     else:
       self.ErrorS.setText('Set Estimated Errors')
+      self.IterBox.setEnabled(0)
+      self.IterBox.setText("")
 
 
   def InitErrors(self):
@@ -621,8 +214,9 @@ class LaunchGUI(QtWidgets.QMainWindow):
             scenario data.
     """
 
-    global GUIparams
 
+
+    StyleOps.enable_ani_button(button_obj=self.RunStats, guiobj=self)
 
     self.RunStats.setEnabled(
         1)  #flag to show that the calc has run at least once
@@ -635,20 +229,12 @@ class LaunchGUI(QtWidgets.QMainWindow):
           if self.EP.item(i, j) is None:
             pastEVals[i, j] = 0
           else:
-            print(self.EP.item(i, j).text())
-            pastEVals[i, j] = self.EP.item(i, j).text()
+            if self.EP.item(i, j).text().endswith('%'):
+              pastEVals[i, j] = self.EP.item(i, j).text()[:-2]
+            else:
+              pastEVals[i, j] = self.EP.item(i, j).text()
 
 
-    #stop animation if running
-    if (self.SGSetContainer._animation.currentLoopTime()
-        == self.SGSetContainer._animation.duration()) and (
-            self.SGSetContainer._animation.currentLoop() >=
-            self.SGSetContainer._animation.loopCount() - 1):
-      None
-    else:
-      self.SGSetContainer._animation.setLoopCount(1)
-      self.AnalysisContainer._animation.setLoopCount(1)
-      self.ErrorS._animation.setLoopCount(1)
 
     self.ErrorPane = QtWidgets.QDialog()
 
@@ -656,7 +242,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     # errors for dropdown
     ErrorBox = [
-        '0.05', '0.1', '0.5', '1.0', '3.0', '5.0', '10.0', '15.0', '20.0', '25.0', '50.0'
+        '0.005', '0.01','0.05', '0.1', '0.5', '1.0', '3.0', '5.0', '10.0', '15.0', '20.0', '25.0', '50.0'
     ]
     ErrorBoxLabels = [x + ' %' for x in ErrorBox]
 
@@ -679,8 +265,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     self.AllRand.addItems(ErrorBoxLabels)
     self.AllSys.addItems(ErrorBoxLabels)
-    self.AllRand.setCurrentIndex(2)
-    self.AllSys.setCurrentIndex(2)
+    self.AllRand.setCurrentIndex(6)
+    self.AllSys.setCurrentIndex(6)
   
     self.AllRand.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'rand'))
     self.AllSys.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'sys'))
@@ -704,8 +290,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     self.InpRand.addItems(ErrorBoxLabels)
     self.InpSys.addItems(ErrorBoxLabels)
-    self.InpRand.setCurrentIndex(2)
-    self.InpSys.setCurrentIndex(2)
+    self.InpRand.setCurrentIndex(6)
+    self.InpSys.setCurrentIndex(6)
 
     self.InpRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inp'))
     self.InpSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inp'))
@@ -731,8 +317,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     self.InvRand.addItems(ErrorBoxLabels)
     self.InvSys.addItems(ErrorBoxLabels)
-    self.InvRand.setCurrentIndex(2)
-    self.InvSys.setCurrentIndex(2)
+    self.InvRand.setCurrentIndex(6)
+    self.InvSys.setCurrentIndex(6)
 
     self.InvRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inv'))
     self.InvSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inv'))
@@ -757,8 +343,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     self.OutRand.addItems(ErrorBoxLabels)
     self.OutSys.addItems(ErrorBoxLabels)
-    self.OutRand.setCurrentIndex(2)
-    self.OutSys.setCurrentIndex(2)
+    self.OutRand.setCurrentIndex(6)
+    self.OutSys.setCurrentIndex(6)
 
     self.OutRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','out'))
     self.OutSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','out'))
@@ -799,13 +385,13 @@ class LaunchGUI(QtWidgets.QMainWindow):
       for i in range(0, self.EP.rowCount()):
         for j in range(0, TotalLocs + 2):
           if self.EP.verticalHeaderItem(j).text() != '' and self.EP.horizontalHeaderItem(i) is not None:
-            self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(0.5) + ' %'))
+            self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(3.0) + ' %'))
 
     if self.HasRunErrors == 1:
       for i in range(np.shape(pastEVals)[0]):
         for j in range(np.shape(pastEVals)[1]):
           if pastEVals[i, j] != 0:
-            self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])))
+            self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])+' %'))
 
     # save/load buttons
     SLContain = QtWidgets.QFrame(self.ErrorPane)
@@ -831,149 +417,9 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.ErrorPane.finished.connect(self.RunStats._animation.start)
     self.ErrorPane.resize(700, 750)
     self.ErrorPane.show()
-    self.StatDlg.UpdateDispText('Ready to execute')
+    self.PB.setFormat("Ready to execute")
     self.HasRunErrors = 1
     
-
-  def ScenarioSelector(self):
-    """
-            This function launches the
-            scenario selector and sets
-            some GUI elements.
-    """
-
-
-    global AnalysisData
-    global GUIparams
-
-
-    self.ErrorS.setEnabled(1)
-    QtCore.QCoreApplication.instance().processEvents()
-    SS = ScenarioSelector.SceneSelect(self)
-    SS.setWindowModality(QtCore.Qt.ApplicationModal)
-    SS.exec_()
-    self.StatDlg._animation.stop()
-    self.StatDlg._animation.updateCurrentValue(2)
-    self.StatDlg.UpdateDispText('Waiting for calculation setup...')
-
-    AnalysisData.rawInventory = SS.Inventories
-    AnalysisData.rawInput = SS.Inputs
-    AnalysisData.rawOutput = SS.Outputs
-
-    AnalysisData.rawInventoryTimes = SS.InventoriesT
-    AnalysisData.rawInputTimes = SS.InputsT
-    AnalysisData.rawOutputTimes = SS.OutputsT
-
-    GUIparams.sceneName = SS.sceneName
-    GUIparams.nInputLocations = np.shape(AnalysisData.rawInput)[0]
-    GUIparams.nInventoryLocations =  np.shape(AnalysisData.rawInventory)[0]
-    GUIparams.nOutputLocations = np.shape(AnalysisData.rawOutput)[0]
-    GUIparams.nTotalLocations = np.shape(AnalysisData.rawInput)[0] + np.shape(AnalysisData.rawInventory)[0] + np.shape(AnalysisData.rawOutput)[0]
-    GUIparams.ExtData = False
-    self.CB_ErrorProp.setEnabled(0)
-    self.CB_ErrorProp.setChecked(1)
-
-    F = os.path.join(x, 'data', 'fuel_fab', GUIparams.sceneName, 'auxData.npz')
-    A = np.load(F)
-    GUIparams.rowNames = A['arr2']
-    self.GESelector.addItem("U")
-    #self.liH = ['U'] 
-    GUIparams.eleList = ['U']
-    GUIparams.nInferredEles = 1
-
-
-
-
-
-
-    #disable some checkboxes for fuel fab scenario
-    #fuel fab only has uranium and some other
-    #non actinide materials
-
-
-
-    #PassLoc is used to setup for the animation of
-    #individual elements. Not specifying the name
-    #can cause children elements to inherit the style
-    #leading to undesireable behavior
-    self.SGSetContainer.PassLoc('PB6')
-    self.SGSetContainer._animation.start()
-
-    self.AnalysisContainer.PassLoc('PB7')
-    self.AnalysisContainer._animation.start()
-
-    self.ErrorS.PassLoc('EAB')
-    self.ErrorS._animation.start()
-
-  def IOWindow(self):
-    """
-            This function launches the IOWindow
-            for .csv input (IOWizard.py)
-    """
-
-    global AnalysisData
-    global GUIparams
-
-    self.statusBar().setStyleSheet('')
-
-    QtCore.QCoreApplication.instance().processEvents()
-
-    self.ErrorS.setEnabled(1)
-    Wizard = IOWizardMain(self)
-
-    # blocks input to main GUI while IO is active
-    Wizard.setWindowModality(QtCore.Qt.ApplicationModal)
-    Wizard.exec_()
-
-    w = QtWidgets.QProgressDialog("Importing data, please wait...","Abort",0,0,self)
-    w.setWindowModality(QtCore.Qt.ApplicationModal)
-
-    w.show()
-    time.sleep(0.10)
-    QtCore.QCoreApplication.instance().processEvents()
-    AnalysisData.rawInput, AnalysisData.rawInputTimes, \
-    AnalysisData.rawInventory, AnalysisData.rawInventoryTimes, \
-    AnalysisData.rawOutput, AnalysisData.rawOutputTimes = GeneralOps.processWizardData(Wizard)
-    w.close()
-
-    GUIparams.nInputLocations, GUIparams.nInventoryLocations, \
-    GUIparams.nOutputLocations, GUIparams.nTotalLocations, \
-    GUIparams.rowNames = GeneralOps.processWizardGUI(AnalysisData,Wizard)
-    GUIparams.ExtData = True
-
-    eleNames = []
-    eleMax = 1
-    if len(AnalysisData.rawInput[0].shape) > 1:
-      eleMax = len(AnalysisData.rawInput[0].shape[1])
-
-    if len(Wizard.EleVec_IN) != eleMax:
-      for G in range(eleMax):
-        self.GESelector.addItem(str(G))
-        eleNames.append('Element '+str(G))
-    else:
-      for G in range(eleMax):
-        self.GESelector.addItem(Wizard.EleVec_IN[G])
-        eleNames.append(Wizard.EleVec_IN[G])
-
-    GUIparams.nInferredEles = eleMax
-    GUIparams.eleList = eleNames
-
-    self.CB_ErrorProp.setEnabled(1)
-    self.CB_ErrorProp.setChecked(1)
-
-    self.StatDlg._animation.stop()
-    self.StatDlg._animation.updateCurrentValue(2)
-
-    self.SGSetContainer.PassLoc('PB6')
-    self.SGSetContainer._animation.start()
-
-    self.AnalysisContainer.PassLoc('PB7')
-    self.AnalysisContainer._animation.start()
-
-    self.ErrorS.PassLoc('EAB')
-
-    self.ErrorS._animation.start()
-
 
   def helpLaunch(self):
     """
@@ -1007,7 +453,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     F = os.path.join(x, 'docs','assets', 'codeAssets', 'SNL_Horizontal_Black_Blue.jpg')
     banner = QtGui.QPixmap(F)
 
-    banner = banner.scaled(banner.size() * 0.6)
+    banner = banner.scaled(banner.size() * 0.8)
     label.setPixmap(banner)
     CPL.addWidget(label, 0, 0, 1, 2)
 
@@ -1018,26 +464,22 @@ class LaunchGUI(QtWidgets.QMainWindow):
     N2 = QtWidgets.QLineEdit()
     N2.setReadOnly(1)
     N2.setText('nshoman@sandia.gov')
-
+    N2.setMinimumWidth(190)
     CPL.addWidget(N1, 1, 0)
     CPL.addWidget(N2, 1, 1)
 
-    B1 = QtWidgets.QLineEdit()
-    B1.setReadOnly(1)
-    B1.setText('Benjamin Cipiti')
+    P1 = QtWidgets.QLineEdit()
+    P1.setReadOnly(1)
+    P1.setText('Pat Moosir')
 
-    B2 = QtWidgets.QLineEdit()
-    B2.setReadOnly(1)
-    B2.setText('bbcipit@sandia.gov')
+    P2 = QtWidgets.QLineEdit()
+    P2.setReadOnly(1)
+    P2.setText('mhiggin@sandia.gov')
 
-    CPL.addWidget(B1, 2, 0)
-    CPL.addWidget(B2, 2, 1)
-
+    CPL.addWidget(P1, 2, 0)
+    CPL.addWidget(P2, 2, 1)
+ 
     CheckPrint.show()
-
-
-
-
 
   def RunTable(self):
     """
@@ -1047,8 +489,17 @@ class LaunchGUI(QtWidgets.QMainWindow):
     dlg = DialogComponents.ViewErrorTabs(self, AnalysisData, GUIparams)
     dlg.setWindowTitle('SEID Contributions')
     dlg.resize(1200,800)
-    res = dlg.exec_()
+    res = dlg.show()
 
+  def RunTableAI(self):
+    """
+          Function calling the error tab for% AI
+    """  
+
+    dlg = DialogComponents.ViewErrorTabsAI(self, AnalysisData, GUIparams)
+    dlg.setWindowTitle('SEID(AI) Contributions')
+    dlg.resize(1200, 800)
+    res = dlg.exec_()
 
   def RunHPCDlg(self):
     dlg = DialogComponents.HPCWindow(self, AnalysisData)
@@ -1073,34 +524,38 @@ class LaunchGUI(QtWidgets.QMainWindow):
 #    geometry = QtGui.qApp.desktop().availableGeometry(self)
 
     geometry = QtWidgets.QApplication.primaryScreen().size()
-    self.resize(round(geometry.width()*0.65),round(geometry.height()*0.65))
-    # self.resize(
-    #     1400, 900
-    # )  #the app is set as fixed with due to some scaling issues, this might cause problems
-    #with smaller screens and require changing in the future
     self.setCentralWidget(self.main_CF)
     self.main_CL = QtWidgets.QGridLayout(self.main_CF)
-    #self.main_CL.setColumnMinimumWidth(0, geometry.width() * 0.50)
-    self.main_CL.setColumnStretch(0,7)
-    self.main_CL.setColumnStretch(1,4)
+    #important to note the maxWidth parameter
+    #of some items in column 0
+    #dictate this scaling
+    #items in column2 might also impact, but
+    #labels in combobox require a minimumwidth also
+    self.main_CL.setColumnStretch(0,0)
+    self.main_CL.setColumnStretch(1,3)
+    # self.main_CL.setColumnStretch(2,1)
+    self.main_CL.setColumnMinimumWidth(1,geometry.width()*0.5) #HACK: this should not be hard coded, and needs to be strech instead
+    # self.main_CL.resize(round(geometry.width()*0.65),round(geometry.height()*0.65))
 
     self.setWindowTitle(
         '(M)aterial (A)ccountancy (P)erformance (I)ndicator (T)oolkit')
 
-    QtCore.QCoreApplication.instance().processEvents()
 
-    self.statusBar().setSizeGripEnabled(True)
+    #self.statusBar().setSizeGripEnabled(True)
+    self.statusBar().hide()
     self.PB = QtWidgets.QProgressBar(self)
     # helps shorten the progress bar
     #self.PB.setFixedWidth(self.PB.sizeHint().width() * 2)
     self.PB.setAlignment(QtCore.Qt.AlignCenter)
-    self.statusBar().addPermanentWidget(self.PB)
+    #self.statusBar().addPermanentWidget(self.PB)
     self.PB.setValue(0)
-    self.PB.setMaximumWidth(250)
+    #self.PB.setMaximumWidth(250)
+    
 
     # menubar
     menubar = self.menuBar()
     menu = QtWidgets.QMenu("File", self)
+    accmenu = QtWidgets.QMenu("Accessibility",self)
     menubar.addMenu(menu)
 
     self.TabOpt = QtWidgets.QMenu("Tabular Data View", self)
@@ -1110,18 +565,18 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.TabView.triggered.connect(self.RunTable)
     
     self.TabOpt.addAction(self.TabView)
-    self.TabOpt.setToolTip(GUIparams.labels["Box15L"] + 'calculation required')
+    self.TabView.setToolTip(GUIparams.labels["Box15L"] + ' calculation required')
     self.TabView.setEnabled(0)
+
+    self.TabView1 = QtWidgets.QAction("Error Contribution (AI)", self)
+    self.TabView1.triggered.connect(self.RunTableAI)
+
+    self.TabOpt.addAction(self.TabView1)
+    self.TabView1.setToolTip(GUIparams.labels["Box16L"] + ' calculation required')
+    self.TabView1.setEnabled(0)
 
     themeOpt = QtWidgets.QMenu("Theme", self)
     menubar.addMenu(themeOpt)
-
-    # SceneOpt = QtWidgets.QMenu("Select Scenario", self)
-    # menubar.addMenu(SceneOpt)
-
-    # SceneAction = QtWidgets.QAction("Load", self)
-    # SceneAction.triggered.connect(self.ScenarioSelector)
-    # SceneOpt.addAction(SceneAction)
 
     HelpLoader = QtWidgets.QMenu("Help", self)
     menubar.addMenu(HelpLoader)
@@ -1134,27 +589,18 @@ class LaunchGUI(QtWidgets.QMainWindow):
     HelpAction.triggered.connect(self.ContactLaunch)
     HelpLoader.addAction(HelpAction)
 
+    
+
     TG = QtWidgets.QActionGroup(self, exclusive=True)
     self.MakeLight = TG.addAction(
         QtWidgets.QAction("Light", self, checkable=True))
     themeOpt.addAction(self.MakeLight)
     self.MakeDark = TG.addAction(QtWidgets.QAction("Dark", self, checkable=True))
     themeOpt.addAction(self.MakeDark)
-    #HACK: theme here
-    self.MakeDark.setChecked(1)
-    StyleOps.setInitialStyle(self)
     TG.triggered.connect(lambda: StyleOps.ChangeColor(self))
+    StyleOps.setInitialStyle(self)
    
 
-    # IOAction = QtWidgets.QAction("Load Data (.csv)", self)
-    # IOAction.setStatusTip("Select .csv data to load for analysis")
-    # IOAction.triggered.connect(self.IOWindow)
-    # menu.addAction(IOAction)
-    #
-    # IOAction2 = QtWidgets.QAction("Load Data (.mat)", self)
-    # IOAction2.setStatusTip("Select .mat data to load for analysis")
-    # IOAction2.triggered.connect(self.IOWindowM)
-    # menu.addAction(IOAction2)
 
     self.ExportDat = QtWidgets.QAction("Save Data", self)
     menu.addAction(self.ExportDat)
@@ -1165,56 +611,289 @@ class LaunchGUI(QtWidgets.QMainWindow):
     menu.addAction(self.HPC_opts)
     self.HPC_opts.triggered.connect(self.RunHPCDlg)
 
+    menubar.addMenu(accmenu)
+
+    upfont = QtWidgets.QAction("Increase font size",self)
+    downfont = QtWidgets.QAction("Decrease font size",self)
+    restorewin = QtWidgets.QAction("Restore defaults",self)
+
+    upfont.triggered.connect(lambda: StyleOps.IncreaseFont(self))
+    downfont.triggered.connect(lambda: StyleOps.DecreaseFont(self))
+    restorewin.triggered.connect(lambda: StyleOps.RestoreWindow(self))
+
+    accmenu.addAction(upfont)
+    accmenu.addAction(downfont)
+    accmenu.addAction(restorewin)
 
 
 
-    add_stats_box(self)
-    add_plot_box(self)
 
-    self.StatDlg = MssgRunner(self)
-    self.StatDlg.setMaximumWidth(450)
-    self.StatDlg._animation.start()
-    self.StatDlg.UpdateDispText('Waiting for data import')
-    self.StatDlg.setEnabled(0)
-    self.statusBar().addWidget(self.StatDlg)
+    #self.StatDlg = MssgRunner(self)
+    #self.StatDlg.setMaximumWidth(450)
+    #self.StatDlg._animation.start()
+    #self.StatDlg.UpdateDispText('Waiting for data import')
+    #self.StatDlg.setEnabled(0)
+    #self.statusBar().addWidget(self.StatDlg)
     #self.CBHolder.append(menu)
+
+    
+    add_plot_box(self)
+    add_stats_box(self)
+
+
 
 
     
     sysPalette = QtGui.QPalette()
+    #try to autodetect theme
     if sum(sysPalette.base().color().getRgb()[0:3]) != 765:
       self.MakeLight.setChecked(0)
       self.MakeDark.setChecked(1)
-      StyleOps.ChangeColor(self)
+    else:
+      self.MakeLight.setChecked(1)
+      self.MakeDark.setChecked(0)
+
+    StyleOps.ChangeColor(self)
 
     #HACK: theme here
-    StyleOps.ChangeColor(self)
+    #note: light is default and this is just a force
+    #to dark because it's my preference
+    #also, the navigation icons in the canvas
+    #are handleded by the MPL backend and are
+    #difficult to change, so we do the light theme
+    #first, to ensure black icons, then change from there
+    #as white icons (generated under dark theme if initially
+    # selected) are difficult to see and change (they are
+    # actually transpartent pngs that are filled with color)
+    #self.MakeDark.setChecked(1)
+    #StyleOps.ChangeColor(self)
+
+
+    #initial loading
+    loadInternalData(self)
+    
+
+
+
+
 
   def RunStatThresh(self):
     #call the function to update the threshold statistics
-    dh, _ = PlotOps.getData(self,GUIparams,AnalysisData)
+    dh, _ = PlotOps.getData(self,GUIparams,AnalysisData, ThresholdL = True)
     self.canvas.update_thresh(float(self.StatThresh.text()), dh[1])
 
+  def RunPlotTresh(self):
+    self.StatThreshDisp.setText("0.0")
+    #determines if plot has been pressed and resets the % above threshold box"
+
+  #################################################################################################
+  ###########################################  Load & Settings  ###################################
+  #################################################################################################
+
+def loadInternalData(self):
+    global GUIparams
+    global AnalysisData
+
+    inpdict = {'GUIparams': GUIparams, 'AnalysisData':AnalysisData}
+    Q = queue.Queue()
+    thread = ThreadTools.dataLoadThread(Q,self.handleLoadThread,parent=self)
+    thread.start()
+    Q.put(inpdict)  
+
+
+def unloadInternalData(self):
+    global GUIparams
+    global AnalysisData
+
+    GUIparams = GUIopts()
+    AnalysisData = DataHolder()
+    GUIparams = GeneralOps.loadGUILabels(GUIparams)
+
+
+def dataSourceChanged(self, flag):
+  
+  StatsPanelOps.update_data_opts(self,flag)
+
+  if not flag:
+    loadInternalData(self)
+    StyleOps.enable_ani_button(button_obj = self.sceneExplorePush, guiobj = self, loc = 'SEPB')
+    self.sceneExplorePush._animation.start()
+
+    StyleOps.enable_ani_button(button_obj = self.ErrorS, guiobj = self, loc = 'EAB')
+    self.ErrorS._animation.start()
+
+    StyleOps.disable_ani_button(button_obj=self.extDatBtn, guiobj=self)
+  else:
+    unloadInternalData(self)
+    StyleOps.disable_ani_button(button_obj=self.sceneExplorePush, guiobj=self)
+    StyleOps.disable_ani_button(button_obj=self.RunStats, guiobj=self)
+    StyleOps.disable_ani_button(button_obj=self.ErrorS, guiobj=self)
+    StyleOps.enable_ani_button(button_obj = self.extDatBtn, guiobj = self, loc = 'EXDB')
+    self.extDatBtn._animation.start()
 
 def add_stats_box(self):
-  """
-        This function places some of the
-        main MAPIT GUI elements.
-    """
 
-  statContainer = QtWidgets.QGroupBox(self.main_CF)
-  statContainer.setTitle(GUIparams.labels['Box1L'])
-  self.CBHolder.append(statContainer)
-  self.main_CL.addWidget(statContainer, 0, 1)
-  statContainerL = QtWidgets.QGridLayout(statContainer)
+  global GUIparams
+  global AnalysisData
 
-  # iterations and so on
+  statContainer = QtWidgets.QFrame(self.main_CF)
+  statContainerL = QtWidgets.QVBoxLayout(statContainer)
+  #statContainer.setSizePolicy(QtWidgets.QSizePolicy.Minimum,QtWidgets.QSizePolicy.Minimum)
+  self.main_CL.addWidget(statContainer, 0, 0)
+
+  #################################################################################################
+  ###########################################  Data Loading Box  ##################################
+  #################################################################################################
+  
+  self.datasetContainer = GUIComponents.AniGBox(statContainer)
+  self.datasetContainer.setTitle('Data')
+  self.datasetContainer.setObjectName('PB9')
+  datasetContainerL = QtWidgets.QVBoxLayout(self.datasetContainer)
+  statContainerL.addWidget(self.datasetContainer)
+  
+
+  #scrollData = QtWidgets.QScrollArea(self.datasetContainer)
+  #scrollHolderD = QtWidgets.QFrame()
+  #scrollHolderDL = QtWidgets.QGridLayout(scrollHolderD)
+  
+  self.sandDataContain = GUIComponents.AniGBox()
+  self.extDataContain = GUIComponents.AniGBox()
+
+  self.sandDataContain.setObjectName('sdc')
+  self.extDataContain.setObjectName('edc')
+
+  sandDataContainL = QtWidgets.QVBoxLayout(self.sandDataContain)
+  extDataContainL = QtWidgets.QVBoxLayout(self.extDataContain)
+
+  self.sandDataContain.setTitle('Exemplar data')
+  self.extDataContain.setTitle('External data')
+
+  self.sandDataContain.setCheckable(True)
+  self.extDataContain.setCheckable(True)
+
+
+  self.mdlbox = GUIComponents.SubBoxAni(self)
+  self.datBox = GUIComponents.SubBoxAni(self)
+
+  self.mdlbox.setObjectName('PB10')
+  self.datBox.setObjectName('PB11')
+
+  mdlboxL = QtWidgets.QVBoxLayout(self.mdlbox)
+  databoxL = QtWidgets.QVBoxLayout(self.datBox)
+  
+  self.mdlopts = QtWidgets.QComboBox()
+  self.datopts = QtWidgets.QComboBox()
+
+  mdlboxL.addWidget(self.mdlopts)
+  databoxL.addWidget(self.datopts)
+
+  self.mdlbox.setTitle('Model selection')
+  self.datBox.setTitle('Scenario selection')
+
+
+
+  for lab in GUIparams.availableDatas:
+    self.datopts.addItem(GUIparams.availableDatas[lab])
+
+  for lab in GUIparams.availableMdls:
+    self.mdlopts.addItem(GUIparams.availableMdls[lab])
+
+  self.sceneExplorePush = GUIComponents.AniButton(self)
+  self.sceneExplorePush.setObjectName('SEPB')
+  self.sceneExplorePush._animation.setLoopCount(3)
+  StyleOps.enable_ani_button(button_obj = self.sceneExplorePush, guiobj = self, loc = 'SEPB')
+  self.sceneExplorePush._animation.start()
+  
+  self.sceneExplorePush.setText('Scenario Explorer')
+  self.sceneExplorePush.clicked.connect(lambda: launch_explorer(self.mdlopts.currentText(), self.datopts.currentText()))
+
+  #when options changed, change dataset
+  self.datopts.currentTextChanged.connect(lambda: loadInternalData(self))
+  self.mdlopts.currentTextChanged.connect(lambda: loadInternalData(self))
+
+
+
+  self.sandDataContain.clicked.connect(lambda: dataSourceChanged(self,0))
+  self.extDataContain.clicked.connect(lambda: dataSourceChanged(self,1))
+
+
+
+
+  self.extDatBtn = GUIComponents.AniButton(self)
+  self.extDatBtn.setText('Load external data')
+  self.extDatBtn.clicked.connect(lambda: DialogComponents.launchIOWindow(self, AnalysisData, GUIparams))
+  self.extDatBtn._animation.setLoopCount(3)
+  self.extDatBtn.setObjectName('EXDB')
+  StyleOps.disable_ani_button(button_obj=self.extDatBtn, guiobj=self)
+
+  sandDataContainL.addWidget(self.mdlbox)
+  sandDataContainL.addWidget(self.datBox)
+  sandDataContainL.addWidget(self.sceneExplorePush)
+  sandDataContainL.setMargin(0)
+  sandDataContainL.setContentsMargins(0,0,0,0)
+  extDataContainL.addWidget(self.extDatBtn)
+
+
+  datasetContainerL.addWidget(self.sandDataContain)
+  datasetContainerL.addWidget(self.extDataContain)
+
+
+  #################################################################################################
+  ###################################  Statistical Test Block  ####################################
+  #################################################################################################
+  
+  self.AnalysisContainer = GUIComponents.AniGBox(statContainer)
+  self.AnalysisContainer.setTitle(GUIparams.labels['OuterL'])
+  self.AnalysisContainer.setObjectName('PB7')
+  AnalysisContainerL = QtWidgets.QVBoxLayout(self.AnalysisContainer)
+  statContainerL.addWidget(self.AnalysisContainer)
+
+  self.scrollTests = QtWidgets.QScrollArea(self.AnalysisContainer)
+  self.scrollTests.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+  self.scrollTests.setWidgetResizable(True)
+  #scrollTests.horizontalScrollBar().setEnabled(False)
+
+  self.scrollHolder = QtWidgets.QFrame()
+  scrollHolderH=QtWidgets.QVBoxLayout(self.scrollHolder)
+
+  self.CB_ErrorProp = QtWidgets.QCheckBox(GUIparams.labels["Box11L"])
+  self.CB_MUF = QtWidgets.QCheckBox(GUIparams.labels["Box12L"])
+  self.CB_AI = QtWidgets.QCheckBox(GUIparams.labels["Box13L"])
+  self.CB_CUMUF = QtWidgets.QCheckBox(GUIparams.labels["Box14L"])
+  self.CB_SMUF = QtWidgets.QCheckBox(GUIparams.labels["Box15L"])
+  self.CB_SMUFAI = QtWidgets.QCheckBox(GUIparams.labels["Box16L"])
+  self.CB_SITMUF = QtWidgets.QCheckBox(GUIparams.labels["Box17L"])
+  self.CB_PAGE = QtWidgets.QCheckBox(GUIparams.labels["Box18L"])
+
+  self.CB_ErrorProp.clicked.connect(self.update_errorB_text)
+
+  scrollHolderH.addWidget(self.CB_ErrorProp)
+  scrollHolderH.addWidget(self.CB_MUF)
+  scrollHolderH.addWidget(self.CB_AI)
+  scrollHolderH.addWidget(self.CB_CUMUF)
+  scrollHolderH.addWidget(self.CB_SMUF)
+  scrollHolderH.addWidget(self.CB_SMUFAI)
+  scrollHolderH.addWidget(self.CB_SITMUF)
+  scrollHolderH.addWidget(self.CB_PAGE)
+
+  self.scrollTests.setWidget(self.scrollHolder)
+  self.scrollTests.horizontalScrollBar().setEnabled(False)
+  self.scrollTests.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
+
+  AnalysisContainerL.addWidget(self.scrollTests)
+
+
+
+  #################################################################################################
+  ###########################################  MBP & Iterations  ##################################
+  #################################################################################################
+    
   #self.SGSetContainer = QtWidgets.QGroupBox(statContainer)
-  self.SGSetContainer = AniGBox(statContainer)
+  self.SGSetContainer = GUIComponents.AniGBox(statContainer)
   self.SGSetContainer.setTitle(GUIparams.labels["Box2L"])
   self.SGSetContainer.setObjectName('PB6')
-  self.SGSetContainer.PassLoc('PB6')
-  statContainerL.addWidget(self.SGSetContainer, 1, 0, 1, 1)
+  statContainerL.addWidget(self.SGSetContainer)
   SGS_L = QtWidgets.QVBoxLayout(self.SGSetContainer)
 
   # creates a box for label and iterations
@@ -1222,41 +901,39 @@ def add_stats_box(self):
   SGS_L.addWidget(LIContainer)
   LIL = QtWidgets.QGridLayout(LIContainer)
 
+  MBPLabel = QtWidgets.QLabel(GUIparams.labels["Box21L"], LIContainer)
+  self.MBPBox = QtWidgets.QLineEdit("", LIContainer)
+  self.MBPBox.setMaxLength(4)
+  LIL.addWidget(MBPLabel, 0, 0)
+  LIL.addWidget(self.MBPBox, 0, 1)
+  self.CBHolder.append(MBPLabel)
+  self.CBHolder.append(self.MBPBox)
+  self.MBPBox.setMaximumWidth(75)
+  MBPLabel.setToolTip('Duration between balances')
+
   # iteration label and edit box
   IterLabel = QtWidgets.QLabel(GUIparams.labels["Box22L"], LIContainer)
   LIL.addWidget(IterLabel, 1, 0)
   self.IterBox = QtWidgets.QLineEdit("", LIContainer)
-  self.IterBox.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
+
   self.CBHolder.append(IterLabel)
   self.CBHolder.append(self.IterBox)
   IterLabel.setToolTip('Requested quantity of calculated realizations')
 
   self.IterBox.setMaxLength(4)
-  self.IterBox.setMinimumWidth(75)
+  self.IterBox.setMaximumWidth(75)
   #self.IterBox.setFixedWidth(45)
   LIL.addWidget(self.IterBox, 1, 1)
-
-  MBPLabel = QtWidgets.QLabel(GUIparams.labels["Box21L"], LIContainer)
-  self.MBPBox = QtWidgets.QLineEdit("", LIContainer)
-  self.MBPBox.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
-  self.MBPBox.setMaxLength(4)
-  #self.MBPBox.setFixedWidth(45)
-  LIL.addWidget(MBPLabel, 0, 0)
-  LIL.addWidget(self.MBPBox, 0, 1)
-  self.CBHolder.append(MBPLabel)
-  self.CBHolder.append(self.MBPBox)
-  self.MBPBox.setMinimumWidth(75)
-  MBPLabel.setToolTip('Duration between balances')
 
   # generic element index
   self.GESelector = QtWidgets.QComboBox()
   self.GESelector.setFrame(0)
+  self.GESelector.setMaximumWidth(75)
   GELabel = QtWidgets.QLabel(GUIparams.labels["Box23L"], LIContainer)
-  #self.GESelector.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
+
  
   LIL.addWidget(GELabel, 2, 0)
   LIL.addWidget(self.GESelector, 2, 1)
-
 
   self.CBHolder.append(GELabel)
   self.CBHolder.append(self.GESelector)
@@ -1265,360 +942,283 @@ def add_stats_box(self):
   #offset index (optional)
   OLabel = QtWidgets.QLabel(GUIparams.labels["Box24L"], LIContainer)
   self.OBox = QtWidgets.QLineEdit("", LIContainer)
-  self.OBox.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
   self.OBox.setMaxLength(4)
-  #self.OBox.setFixedWidth(45)
   LIL.addWidget(OLabel, 3, 0)
   LIL.addWidget(self.OBox, 3, 1)
-  self.OBox.setMinimumWidth(75)
+  self.OBox.setMaximumWidth(75)
   self.CBHolder.append(OLabel)
   self.CBHolder.append(self.OBox)
   OLabel.setToolTip(
       '*Optional* Delay before \n first material balance is calculated')
 
   # error push button
-  self.ErrorS = AniButton(self)
+  self.ErrorS = GUIComponents.AniButton(self)
   self.ErrorS.setText(GUIparams.labels["Box25L"])
   self.ErrorS.setObjectName('EAB')
   # self.ErrorS.setStyleSheet('border:2px solid rgb(255,170,255);')
   SGS_L.addWidget(self.ErrorS)
-  self.ErrorS.setEnabled(0)
+  SGS_L.setMargin(0)
+  SGS_L.setContentsMargins(0,0,0,0)
   self.ErrorS.setToolTip('Measurement error specification')
+  self.ErrorS._animation.setLoopCount(3)
 
   #sets the border now for a later animation
   #if not done causes elements to shift when animation
   #is activated
-  if self.window().MakeLight.isChecked() == 0:
-    R1 = 66
-    R2 = 66
-    R3 = 66
-  else:
-    R1 = 211
-    R2 = 211
-    R3 = 211
 
-  grad = "QWidget{" +\
-         "border-color: rgb({value},{value2},{value3});".format(value=R1,value2=R2,value3=R3) +\
-         "border-width: 2px;" +\
-         "border-style: solid;" +\
-         "padding: 6px;" +\
-         "border-radius: 7px;" +\
-         "color: black;}"
-
-  grad2 = """QToolTip {
-                          background-color: rgb(239,239,239);
-                          border-width: 3px;
-                          border-color: rgb(153,200,221);
-                          border-style: solid;
-                          border-radius: 7px;
-                          color: black;
-                          }"""
-
-  self.ErrorS.setStyleSheet(grad + grad2)
+  #self.ErrorS.setStyleSheet(grad + grad2)
+  StyleOps.enable_ani_button(button_obj = self.ErrorS, guiobj = self, loc = 'EAB')
+  self.ErrorS._animation.start()
 
   # Run stats button
-  self.RunStats = AniButton(self)
+  self.RunStats = GUIComponents.AniButton(self)
   self.RunStats.setObjectName('RSB')
-  self.RunStats.PassLoc('RSB')
   self.RunStats._animation.setLoopCount(3)
   self.RunStats.setText(GUIparams.labels["Box26L"])
   SGS_L.addWidget(self.RunStats)
   self.RunStats.setEnabled(0)
-  self.RunStats.setStyleSheet(grad)
+  StyleOps.disable_ani_button(button_obj=self.RunStats, guiobj=self)
 
   # group box for metric and location
-  MLContainer = QtWidgets.QGroupBox()
+  #MLContainer = QtWidgets.QGroupBox()
 
-  # Tests to run
-  self.AnalysisContainer = AniGBox(statContainer)
-  self.AnalysisContainer.setTitle(GUIparams.labels['OuterL'])
-  # self.AnalysisContainer.setTitle('Operations')
-  self.AnalysisContainer.setObjectName('PB7')
-  self.AnalysisContainer.PassLoc('PB7')
-  statContainerL.addWidget(self.AnalysisContainer, 0, 0, 1, 1)
-  self.AnalysisContainerL = QtWidgets.QVBoxLayout(self.AnalysisContainer)
-  # self.AnalysisContainerL = QtWidgets.QFormLayout(self.AnalysisContainer)
 
-  # PUContain = QtWidgets.QGroupBox(self.AnalysisContainer)
-  # PUContain.setTitle("Plutonium")
-  # pulay = QtWidgets.QVBoxLayout(PUContain)
+  #statContainerL.addWidget(self.StatDlg)
+  statContainerL.addWidget(self.PB)
 
-  #UContain = QtWidgets.QGroupBox(self.AnalysisContainer)
-  #UContain.setTitle("Uranium")
-  #ulay = QtWidgets.QVBoxLayout(UContain)
+  #################################################################################################
+  ###########################################  Size Policy  #######################################
+  #################################################################################################
 
-  # GEContain = QtWidgets.QGroupBox(self.AnalysisContainer)
-  # GEContain.setTitle("Generic Element")
-  # glay = QtWidgets.QVBoxLayout(GEContain)
+  #self.main_CL, statContainerL
+  #Minimum, MinimumExpanding
+  #self.AnalysisContainer.setSizePolicy(QtWidgets.QSizePolicy.Minimum,QtWidgets.QSizePolicy.Minimum)
+  #self.scrollHolder.setSizePolicy(QtWidgets.QSizePolicy.Minimum,QtWidgets.QSizePolicy.Minimum)
+  #self.scrollTests.setSizePolicy(QtWidgets.QSizePolicy.Minimum,QtWidgets.QSizePolicy.Minimum)
 
-  self.CB_ErrorProp = QtWidgets.QCheckBox(GUIparams.labels["Box11L"],self.AnalysisContainer)
-  self.CB_MUF = QtWidgets.QCheckBox(GUIparams.labels["Box12L"], self.AnalysisContainer)
-  self.CB_AI = QtWidgets.QCheckBox(GUIparams.labels["Box13L"], self.AnalysisContainer)
-  self.CB_CUMUF = QtWidgets.QCheckBox(GUIparams.labels["Box14L"],self.AnalysisContainer)
-  self.CB_SMUF = QtWidgets.QCheckBox(GUIparams.labels["Box15L"], self.AnalysisContainer)
-  self.CB_SMUFAI = QtWidgets.QCheckBox(GUIparams.labels["Box16L"], self.AnalysisContainer)
-  self.CB_SITMUF = QtWidgets.QCheckBox(GUIparams.labels["Box17L"], self.AnalysisContainer)
-  self.CB_PAGE = QtWidgets.QCheckBox(GUIparams.labels["Box18L"],
-                                       self.AnalysisContainer)
+  statContainerL.setStretch(0,0)
+  statContainerL.setStretch(1,1)
+  statContainerL.setStretch(2,0)
+  statContainerL.setStretch(3,0)
 
-  self.CB_ErrorProp.clicked.connect(self.update_errorB_text)
-  self.CB_CUMUF.clicked.connect(self.force_muf_enabled)
-  self.CB_SITMUF.clicked.connect(self.force_muf_enabled)
-  self.CB_SMUFAI.clicked.connect(self.force_SEMUFAI_reqs)
-  self.CB_PAGE.clicked.connect(self.force_page_reqs)
-#  self.CBHolder.append(self.CB_MUF)
-#  self.CBHolder.append(self.CB_SMUF)
-#  self.CBHolder.append(self.CB_SITMUF)
-#  self.CBHolder.append(self.CB_PAGE)
-
-  #self.AnalysisContainerL.addWidget(PUContain)
-  #self.AnalysisContainerL.addWidget(UContain)
-  #self.AnalysisContainerL.addWidget(GEContain)
-
-  self.AnalysisContainerL.addWidget(self.CB_ErrorProp)
-  self.AnalysisContainerL.addWidget(self.CB_MUF)
-  self.AnalysisContainerL.addWidget(self.CB_AI)
-  self.AnalysisContainerL.addWidget(self.CB_CUMUF)
-  self.AnalysisContainerL.addWidget(self.CB_SMUF)
-  self.AnalysisContainerL.addWidget(self.CB_SMUFAI)
-  self.AnalysisContainerL.addWidget(self.CB_SITMUF)
-  self.AnalysisContainerL.addWidget(self.CB_PAGE)
-
-#  ulay.addWidget(self.CB_MUF)
-#  ulay.addWidget(self.CB_SMUF)
-#  ulay.addWidget(self.CB_SITMUF)
-#  ulay.addWidget(self.CB_PAGE)
+  #AnalysisContainerL
 
 
 
-  # Add plot location locs
-  self.PlotControls = AniGBox(self)
+
+
+#################################################################################################
+###########################################  Plot Column  #######################################
+#################################################################################################
+def add_plot_box(self):
+
+  PlotContainer = QtWidgets.QFrame(self.main_CF)
+  PlotContainerL = QtWidgets.QVBoxLayout(PlotContainer)
+  self.main_CL.addWidget(PlotContainer, 0, 1)
+
+  #################################################################################################
+  ###########################################  Plot Controls  #####################################
+  #################################################################################################
+  
+  self.PlotControls = GUIComponents.AniGBox(self)
   self.PlotControls.setTitle(GUIparams.labels["Box3L"])
+  self.PlotControls.setMaximumHeight(200)
   self.PlotControls.setObjectName('PB5')
-  self.PlotControls.PassLoc('PB5')
+  PlotContainerL.addWidget(self.PlotControls)
+  PlotControlL = QtWidgets.QHBoxLayout(self.PlotControls)
 
-  statContainerL.addWidget(self.PlotControls, 0, 1, 1, 1)
-  PlotControlL = QtWidgets.QGridLayout(self.PlotControls)
-
-  f = QtCore.QCoreApplication.instance().font()
-
-  # add dropdowns
-  # qgroupbox
-  self.mb1 = SubBoxAni(self)
+  self.mb1 = GUIComponents.SubBoxAni(self)
   self.mb1L = QtWidgets.QHBoxLayout(self.mb1)
   self.mb1.setObjectName('PB1')
-  self.mb1.PassLoc('PB1')
+
   self.mb1.setTitle(GUIparams.labels['Box31L'])
 
 
-
-  gradA = "QWidget#{VAL}"
-  gradB = "{border-color: rgb(211,211,211);" +\
-         "border-width: 2px;" +\
-         "border-style: solid;" +\
-         "padding: 0px;" +\
-         "border-radius: 7px;" +\
-         "margin-top: 20px;" +\
-         "background-color: rgb(239,239,239);}"
-  gradC = "QWidget#{VAL}"
-  gradD = ""
-
-  if self.window().MakeLight.isChecked() == 0:
-    gradB = gradB.replace('rgb(239,239,239)', 'rgb(52,52,52)')
-
-  self.mb1.setStyleSheet(
-      gradA.format(VAL='PB1') + gradB + gradC.format(VAL='PB1') + gradD)
   self.metricBox = QtWidgets.QComboBox(self.mb1)
   self.metricBox.setMinimumWidth(50)
 
-
-  self.mb1L.setContentsMargins(10,15,10,15)
+  #self.mb1L.setContentsMargins(10,15,10,15)
   self.mb1L.addWidget(self.metricBox)
 
 
-  PlotControlL.addWidget(self.mb1, 1, 1)
+  PlotControlL.addWidget(self.mb1)
 
-  self.mb2 = SubBoxAni(self)
+  self.mb2 = GUIComponents.SubBoxAni(self)
   self.mb2.setTitle(GUIparams.labels["Box32L"])
   self.mb2.setObjectName('PB2')
-  self.mb2.PassLoc('PB2')
 
-  self.mb2.setStyleSheet(
-      gradA.format(VAL='PB2') + gradB + gradC.format(VAL='PB2') + gradD)
+
   self.mb2L = QtWidgets.QHBoxLayout(self.mb2)
   self.LocBox = QtWidgets.QComboBox(self.PlotControls)
 
   self.mb2L.addWidget(self.LocBox)
-  self.mb2L.setContentsMargins(10,15,10,15)
-  PlotControlL.addWidget(self.mb2, 2, 1)
+  #self.mb2L.setContentsMargins(10,15,10,15)
+  PlotControlL.addWidget(self.mb2)
   self.LocBox.setMinimumWidth(50)
 
-  self.mb3 = SubBoxAni(self)
+  self.mb3 = GUIComponents.SubBoxAni(self)
   self.mb3L = QtWidgets.QHBoxLayout(self.mb3)
   self.mb3.setObjectName('PB3')
-  self.mb3.PassLoc('PB3')
   self.mb3.setTitle(GUIparams.labels["Box33L"])
-  self.mb3.setStyleSheet(
-      gradA.format(VAL='PB3') + gradB + gradC.format(VAL='PB3') + gradD)
   self.NucIDBox = QtWidgets.QComboBox(self.PlotControls)
 
   self.mb3L.addWidget(self.NucIDBox)
-  self.mb3L.setContentsMargins(10,15,10,15)
-  PlotControlL.addWidget(self.mb3, 3, 1)
+  #self.mb3L.setContentsMargins(10,15,10,15)
+  PlotControlL.addWidget(self.mb3)
   self.NucIDBox.setMinimumWidth(50)
 
-  self.mb4 = SubBoxAni(self)
+  self.mb4 = GUIComponents.SubBoxAni(self)
   self.mb4L = QtWidgets.QHBoxLayout(self.mb4)
-  self.mb4L.setContentsMargins(10,15,10,15)
+  #self.mb4L.setContentsMargins(10,15,10,15)
   self.mb4.setObjectName('PB4')
-  self.mb4.PassLoc('PB4')
   self.mb4.setTitle(GUIparams.labels["Box34L"])
-  self.mb4.setStyleSheet(
-      gradA.format(VAL='PB4') + gradB + gradC.format(VAL='PB4') + gradD)
   self.NumToPlot = QtWidgets.QComboBox(self.PlotControls)
   self.NumToPlot.setMinimumWidth(50)
 
 
   self.mb4L.addWidget(self.NumToPlot)
 
-  PlotControlL.addWidget(self.mb4, 4, 1)
+  PlotControlL.addWidget(self.mb4)
 
-  self.PlotRunner = AniButton(self)
+  self.PlotRunner = GUIComponents.AniButton(self)
   self.PlotRunner.setText('Plot')
   self.PlotRunner.setObjectName('PRB')
-  PlotControlL.addWidget(self.PlotRunner, 5, 1)
+  PlotControlL.addWidget(self.PlotRunner)
   #PlotControlL.setVerticalSpacing(PlotControlL.verticalSpacing())
   self.PlotRunner.setEnabled(0)
+  StyleOps.disable_ani_button(self,self.PlotRunner)
 
   #sets the border now for a later animation
   #if not done causes elements to shift when animation
   #is activated
-  if self.window().MakeLight.isChecked() == 0:
-    R1 = 66
-    R2 = 66
-    R3 = 66
-  else:
-    R1 = 211
-    R2 = 211
-    R3 = 211
 
-  grad = "border-color: rgb({value},{value2},{value3});".format(value=R1,value2=R2,value3=R3) +\
-         "border-width: 2px;" +\
-         "border-style: solid;" +\
-         "padding: 6px;" +\
-         "border-radius: 7px;" +\
-         "color: black;"
+  StyleOps.update_aniButton_styleSheet(self.PlotRunner,self.colordict,colorborder=0,isrunning=0,extraspace=13)
 
-  self.PlotRunner.setStyleSheet(grad)
+  #################################################################################################
+  ###########################################  Plot Window  #######################################
+  #################################################################################################
+  
 
 
-  # add threshold box
-  self.threshContainer = AniGBox(self)
-  statContainerL.addWidget(self.threshContainer, 1, 1, 1, 1)
+  self.canvas = PlotOps.MPLCanvas(self)
+  self.navi_toolbar = NavigationToolbar(self.canvas, self)
+
+  
+  PlotContainerL.addWidget(self.canvas)
+  PlotContainerL.addWidget(self.navi_toolbar, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+  #PlotContainerL.addWidget(QtWidgets.QPushButton(), alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+ 
+  #################################################################################################
+  ###########################################  Threshold  #########################################
+  #################################################################################################
+  
+  self.threshContainer = GUIComponents.AniGBox(self)
+  self.threshContainer.setMaximumHeight(200)
+  #self.threshContainer.setFixedWidth(self.PlotWindowSize)
   self.threshContainer.setTitle(GUIparams.labels["Box4L"])
   self.threshContainer.setObjectName('PB8')
-  self.threshContainer.PassLoc('PB8')
-  threshContainerL = QtWidgets.QGridLayout(self.threshContainer)
+  threshouterL = QtWidgets.QGridLayout(self.threshContainer)
 
-  # threshold box contents
   # set threshold
+
   self.StatThresh = QtWidgets.QLineEdit("", self.threshContainer)
-  self.StatThresh.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
-  threshContainerL.addWidget(self.StatThresh, 2, 1)
-  self.STL = QtWidgets.QLabel(GUIparams.labels["Box41L"], self.threshContainer)
-  threshContainerL.addWidget(self.STL, 2, 0)
+  self.TL1 = QtWidgets.QLabel(GUIparams.labels["Box41L"])
+  #self.TL1.setContentsMargins(5,15,5,15)
   self.StatThresh.setMaxLength(4)
-  self.StatThresh.setMinimumWidth(75)
+  self.StatThresh.setMaximumWidth(75)
+  threshouterL.addWidget(self.TL1, 0, 0)
+  threshouterL.addWidget(self.StatThresh, 1, 0)
+  self.TL1.setToolTip("Parameter to find data above this value")
 
+  # set precision, more work to be done here in the future
+  self.StatPrec = QtWidgets.QLineEdit("0.5", self.threshContainer)
+  self.TL2 = QtWidgets.QLabel("Sensitivity") #HACK: PM: fix this please
+  #self.TL2.setContentsMargins(10,15,10,15)
+  self.StatPrec.setMaxLength(4)
+  self.StatPrec.setMaximumWidth(75)
+  threshouterL.addWidget(self.TL2, 0, 1)
+  threshouterL.addWidget(self.StatPrec, 1, 1)
+  self.StatPrec.setEnabled(0)
+  self.TL2.setToolTip("Sensitivity helps calibrate Page's Trend Test")
 
+  
   # threshold display
-  self.STL2 = QtWidgets.QLabel(GUIparams.labels["Box42L"], self.threshContainer)
-  threshContainerL.addWidget(self.STL2, 3, 0)
+  self.TL3 = QtWidgets.QLabel(GUIparams.labels["Box42L"], self.threshContainer)
+  #self.TL3.setContentsMargins(10,15,10,15)
   self.StatThreshDisp = QtWidgets.QLineEdit("0.00", self.threshContainer)
-  self.StatThreshDisp.setSizePolicy(QtWidgets.QSizePolicy.Maximum,QtWidgets.QSizePolicy.Maximum)
-  threshContainerL.addWidget(self.StatThreshDisp, 3, 1)
-  self.StatThreshDisp.setMaxLength(6)
-  self.StatThreshDisp.setMinimumWidth(75)
-
+  self.StatThreshDisp.setAutoFillBackground(True)
+  self.StatThreshDisp.setMaximumWidth(75)
+  threshouterL.addWidget(self.TL3, 0, 2)
+  threshouterL.addWidget(self.StatThreshDisp, 1, 2)
+  self.StatThreshDisp.setEnabled(0)
+  self.TL3.setToolTip("Displays % of data above threshold")
 
   # calculate button
-  self.CalcThresh = AniButton(self)
+  self.CalcThresh = GUIComponents.AniButton(self)
+  #self.CalcThresh.setContentsMargins(50,65,50,65)
+  self.CalcThresh.setMaximumWidth(200)
   self.CalcThresh.setText(GUIparams.labels["Box43L"])
   self.CalcThresh.setObjectName('CTB')
-  threshContainerL.addWidget(self.CalcThresh, 4, 0, 4, 2)
-  threshContainerL.setVerticalSpacing(threshContainerL.verticalSpacing() * 14)
   self.CalcThresh.setEnabled(0)
-  self.CalcThresh.clicked.connect(self.RunStatThresh)
-
-  self.StatThreshDisp.setReadOnly(1)
-  #statContainerL.setColumnMinimumWidth(1,
-                                       #statContainer.sizeHint().width() * 0.40)
-
-  #sets the border now for a later animation
-  #if not done causes elements to shift when animation
-  #is activated
-  if self.window().MakeLight.isChecked() == 0:
-    R1 = 66
-    R2 = 66
-    R3 = 66
-  else:
-    R1 = 211
-    R2 = 211
-    R3 = 211
-
-  grad = "border-color: rgb({value},{value2},{value3});".format(value=R1,value2=R2,value3=R3) +\
-         "border-width: 2px;" +\
-         "border-style: solid;" +\
-         "padding: 6px;" +\
-         "border-radius: 7px;" +\
-         "color: black;"
-
-  self.CalcThresh.setStyleSheet(grad)
+  StyleOps.disable_ani_button(self,self.CalcThresh)
+  self.CalcThresh.clicked.connect(self.RunStatThresh)  
+  self.CalcThresh.setToolTip("Calculates data above inputted Threshold")
+  threshouterL.addWidget(self.CalcThresh, 0, 3, 2, 1)
 
 
-# add plot box
-def add_plot_box(self):
-  plotContainer = QtWidgets.QGroupBox(self.main_CF)
+  PlotContainerL.addWidget(self.threshContainer) 
+  PlotContainerL.setStretch(0,0)
+  PlotContainerL.setStretch(1,1)
+  PlotContainerL.setStretch(2,0)
+  PlotContainerL.setStretch(3,0)
 
-  plotContainer.setTitle('See help tab for detailed instructions')
-  plotContainer.setStyleSheet('QGroupBox:title{color:rgb(0,173,208)}')
-  plotContainer.setAlignment(4)
-  F = QtGui.QFont()
-  F.setBold(True)
-  plotContainer.setFont(F)
 
-  plotContainerL = QtWidgets.QGridLayout(plotContainer)
-  self.main_CL.addWidget(plotContainer, 0, 0)
 
-  self.canvas = PlotOps.MPLCanvas(plotContainer)
-  self.navi_toolbar = NavigationToolbar(self.canvas, self)
-  plotContainerL.addWidget(self.canvas, 0, 0)
-  plotContainerL.addWidget(self.navi_toolbar)
-  self.canvas.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,QtWidgets.QSizePolicy.MinimumExpanding)
+
+
+
+  
+def launch_explorer(mdlname, datname):
+  ss = ScenarioSelector.SceneExamine(mdlname, datname)
+  ss.setWindowModality(QtCore.Qt.ApplicationModal)
+  ss.exec_()
 
 
 
 if __name__ == "__main__":
   app = QtWidgets.QApplication(sys.argv)
+  #app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
 
   #splash
   x = Path(sys.argv[0]).resolve().parents[1]
-  F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'splashV2.png')
+  F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'splash3.png')
   splash_pix = QtGui.QPixmap(F)
+  G = QtWidgets.QApplication.instance().devicePixelRatio()
+  splash_pix.setDevicePixelRatio(G)
+  geometry = QtWidgets.QApplication.primaryScreen().size()
+  splash_pix = splash_pix.scaledToWidth(int(geometry.width()*0.35*G),QtCore.Qt.SmoothTransformation)  
   splash = QtWidgets.QSplashScreen(splash_pix)
   splash.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint
                         | QtCore.Qt.FramelessWindowHint)
   splash.setEnabled(False)
+  
 
 
   F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
   splash.setWindowIcon(QtGui.QIcon(F))
 
   progressBar = QtWidgets.QProgressBar(splash)
+  # 378, 323
+  # 1890, 1614
+
+  # 125, 
+  # 25, 288, 328, 25
+  #x,y,w,h
   progressBar.setMaximum(100)
-  progressBar.setGeometry(25,
-                          splash_pix.height() - 35,
-                          splash_pix.width() - 50, 25)
+  progressBar.setGeometry(splash_pix.width()*0.10/G,
+                          splash_pix.height()*0.90/G,
+                          splash_pix.width()*0.80/G, splash_pix.height()*0.075/G)
+
   splash.show()
 
   barSty = """
@@ -1626,12 +1226,13 @@ if __name__ == "__main__":
     border-radius: 5px;
     border-style: solid;
     border-color: rgb(211,211,211);
-    border-width: 3px;
+    background-color: rgb(200,200,200);
+    border-width: 2px;
     text-align: center;
-    color: black
+    color: black;
     }
     QProgressBar::chunk{
-    background-color: rgb(0,173,208);
+    background-color: #D9B36D;
     }
     """
 
@@ -1651,6 +1252,20 @@ if __name__ == "__main__":
 
   widget = LaunchGUI()
 
+  try:
+    settings = QtCore.QSettings("current", "mapit")
+    widget.currentFontSize = int(settings.value("fontsize"))
+    widget.restoreGeometry(settings.value("geometry"))
+    StyleOps.changeFontSize(widget,0)
+  except:
+    StyleOps.RestoreWindow(widget)
+
   widget.show()
   widget.activateWindow()
+
+
+
+  
+    
+
   sys.exit(app.exec_())

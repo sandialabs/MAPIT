@@ -1,8 +1,7 @@
 from PySide2 import  QtCore
 import matplotlib
 import numpy as np
-from MAPIT.GUI import PlotOps
-from MAPIT.GUI import DialogComponents
+from MAPIT.GUI import PlotOps, StyleOps
 
 
 def verifyGUIRequests(GUIObject,GUIparams):
@@ -104,65 +103,32 @@ def getRequestedTests(GUIObject):
 
 
 def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,doPage,GUIparams,AnalysisData):
+
       PlotOps.UpdatePlotOpts(GUIObject)
-
-      #update style on some dropdown boxes
-      #to show that the error prop has run
-      #and that those options are available
-      gradA = "QWidget#{VAL}"
-      gradB = "{" + "border-color: rgb({value},{value2},{value3});".format(value=153,value2=200,value3=221) +\
-        "border-width: 2px;" +\
-        "border-style: solid;" +\
-        "padding: 0px;" +\
-        "border-radius: 7px;" +\
-        "margin-top: 20px;" +\
-        "background-color: rgb(239,239,239);" +\
-          "}"
-      gradC = "QWidget#{VAL}"
-      gradD = ":"
-
-      if GUIObject.window().MakeLight.isChecked() == 0:
-        gradB = gradB.replace('rgb(239,239,239)', 'rgb(51,51,51)')
-        gradB = gradB.replace('rgb(153,200,221)', 'rgb(0,83,118)')
-
-      GUIObject.mb1.ChangeActive(1)
-      GUIObject.mb1.setStyleSheet(
-          gradA.format(VAL='PB1') + gradB + gradC.format(VAL='PB1') + gradD)
-
 
       PlotOps.UpdateLocOpts(GUIObject,GUIparams)  #add locations to plot since default plot option is ground truth
 
-      grad2 = "border-color: rgb({value},{value2},{value3});".format(value=211,value2=211,value3=211) +\
-      "border-width: 5px;" +\
-      "border-style: solid;" +\
-      "padding: 6px;" +\
-      "border-radius: 7px;}"
+      GUIObject.mb1.ChangeActive(1)
+      StyleOps.update_aniGBoxSmall_styleSheet(GUIObject.colordict,GUIObject.mb1,isactive=1)      
 
-      if GUIObject.window().MakeLight.isChecked() == 0:
-        grad2 = grad2.replace('rgb(211,211,211)', 'rgb(66,66,66)')
+      StyleOps.update_aniGBoxLarge_styleSheet(GUIObject.colordict,GUIObject.SGSetContainer)
+      StyleOps.update_aniGBoxLarge_styleSheet(GUIObject.colordict,GUIObject.AnalysisContainer)
+      StyleOps.update_aniGBoxLarge_styleSheet(GUIObject.colordict,GUIObject.datasetContainer)
 
-      GUIObject.SGSetContainer.setStyleSheet(
-          "QWidget#{VAL}".format(VAL=GUIObject.SGSetContainer.Loc) + "{" + grad2 +
-          "QWidget#{VAL}".format(VAL=GUIObject.SGSetContainer.Loc) )
-      GUIObject.AnalysisContainer.setStyleSheet(
-          "QWidget#{VAL}".format(VAL=GUIObject.AnalysisContainer.Loc) + "{" + grad2 +
-          "QWidget#{VAL}".format(VAL=GUIObject.AnalysisContainer.Loc))
 
       #resets button animation and turns off after running, but
       #since the GUI supports new runs without restarting probably
       #better to leave them on
       #GUIObject.HasRunOnce=1
 
-      GUIObject.threshContainer.PassLoc('PB8')
       GUIObject.threshContainer._animation.setLoopCount(3)
       GUIObject.threshContainer._animation.start()
 
-      GUIObject.PlotControls.PassLoc('PB5')
       GUIObject.PlotControls._animation.setLoopCount(3)
       GUIObject.PlotControls._animation.start()
 
       GUIObject.PlotRunner.setEnabled(1)
-      GUIObject.PlotRunner.PassLoc('PRB')
+      StyleOps.enable_ani_button(GUIObject,GUIObject.PlotRunner)
       GUIObject.PlotRunner._animation.setLoopCount(3)
       GUIObject.PlotRunner._animation.start()
 
@@ -174,7 +140,8 @@ def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,
         GUIObject.TabView.setEnabled(1)
         GUIObject.TabOpt.setToolTip('')
 
-
+      if GUIObject.CB_SMUFAI.isChecked() == 1:
+          GUIObject.TabView1.setEnabled(1)
 
 
     #   if GUIObject.decompStatus == 0:
@@ -182,7 +149,8 @@ def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,
     #       GUIObject.PB.setValue(0)
     #   else:
 
-      GUIObject.StatDlg.UpdateDispText('Execution Finished')
+      #GUIObject.StatDlg.UpdateDispText('Execution Finished')
+      GUIObject.PB.setFormat('Execution finished')
       GUIObject.PB.setValue(100)
 
       QtCore.QCoreApplication.instance().processEvents()
@@ -200,38 +168,16 @@ def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box14L"])
       if doSEID == 1:
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box15L"])
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box46L"])
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box47L"])
       if doSEIDAI == 1:
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box16L"])
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box49L"])
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box50L"])
       if doSITMUF == 1:
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box17L"])
       if doPage == 1:
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box18L"])
-
-
-def importDataUpdateUI(GUIObject,GUIparams):
-
-      GUIObject.StatDlg.UpdateDispText('Importing data...')
-      QtCore.QCoreApplication.instance().processEvents()
-
-      GUIObject.PB.setMaximum(0)
-      GUIObject.PB.setMinimum(0)
-      
-
-
-      if GUIObject.CB_PAGE.isChecked():
-        GUIObject.CB_SITMUF.setChecked(1)
-        GUIObject.CB_MUF.setChecked(1)
-
-      if GUIObject.CB_SITMUF.isChecked():
-        GUIObject.CB_MUF.setChecked(1)
-
-
-      QtCore.QCoreApplication.instance().processEvents()
-      
-
-    #   if hasattr(GUIparams,'sceneName'):
-    #     liH = ['U'] #the fuel fab only has U, other scenarios not yet included
-    #     GUIparams.nInferredEles = 1
 
 
 
@@ -271,8 +217,10 @@ def getGUIErrorVals(GUIObject,lenInp,lenInv,lenOut,GLoc):
             
             for i in range(0,GUIObject.EP.rowCount()):
                 if GUIObject.EP.item(i,j) is not None:
-                    uncert_str = GUIObject.EP.item(i, j).text()[:-2]
-                    ErrorMatrix[P, j-ColLoc] = float(uncert_str) / 100
+                    if  GUIObject.EP.item(i, j).text().endswith('%'):
+                        ErrorMatrix[P, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+                    else:
+                        ErrorMatrix[P, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
                     P+= 1
 
 
@@ -286,3 +234,123 @@ def getGUIErrorVals(GUIObject,lenInp,lenInv,lenOut,GLoc):
 
 
         return ErrorMatrix
+
+
+def update_data_opts(GUIObj,flag):
+
+  if flag  == 1: #external data
+
+    disable_setup_controls(GUIObj)
+    GUIObj.sandDataContain.setChecked(False)
+    GUIObj.extDataContain.setChecked(True)
+    StyleOps.update_aniGBoxSmall_styleSheet(GUIObj.colordict,GUIObj.mdlbox,isactive=0)
+    StyleOps.update_aniGBoxSmall_styleSheet(GUIObj.colordict,GUIObj.datBox,isactive=0)
+
+    #disable animations
+    GUIObj.mdlbox.ChangeActive(0)
+    GUIObj.datBox.ChangeActive(0)
+
+    
+
+    GUIObj.PB.setFormat("Waiting for data import")
+
+    
+  else: #sand data
+
+    enable_setup_controls(GUIObj)
+    GUIObj.sandDataContain.setChecked(True)
+    GUIObj.extDataContain.setChecked(False)
+    StyleOps.update_aniGBoxSmall_styleSheet(GUIObj.colordict,GUIObj.mdlbox,isactive=1)
+    StyleOps.update_aniGBoxSmall_styleSheet(GUIObj.colordict,GUIObj.datBox,isactive=1)
+
+    GUIObj.mdlbox.ChangeActive(1)
+    GUIObj.datBox.ChangeActive(1)
+
+
+    GUIObj.CB_ErrorProp.setEnabled(0)
+    GUIObj.CB_ErrorProp.setChecked(1)
+
+
+
+    
+
+
+
+    GUIObj.PB.setFormat("Waiting for problem setup")
+
+
+def enable_setup_controls(GUIObj):
+    #in case it was already running, stop
+    GUIObj.SGSetContainer._animation.stop()
+    GUIObj.datasetContainer._animation.stop()
+    GUIObj.AnalysisContainer._animation.stop()
+
+    GUIObj.SGSetContainer._animation.start()
+    GUIObj.datasetContainer._animation.start()
+    GUIObj.AnalysisContainer._animation.start()
+
+    GUIObj.SGSetContainer.colorBorder = 1
+    GUIObj.datasetContainer.colorBorder = 1
+    GUIObj.AnalysisContainer.colorBorder = 1
+    StyleOps.enable_ani_button(button_obj=GUIObj.ErrorS, guiobj=GUIObj)
+    StyleOps.disable_ani_button(button_obj=GUIObj.RunStats, guiobj=GUIObj)
+    GUIObj.ErrorS._animation.start()
+
+    StyleOps.update_aniGBoxLarge_styleSheet(GUIObj.colordict,GUIObj.AnalysisContainer,isactive=1 if (GUIObj.AnalysisContainer.colorBorder == 1) else 0, valueA=0 if (GUIObj.AnalysisContainer.colorBorder == 1) else None)
+    StyleOps.update_aniGBoxLarge_styleSheet(GUIObj.colordict,GUIObj.SGSetContainer,isactive=1 if (GUIObj.SGSetContainer.colorBorder == 1) else 0, valueA=0 if (GUIObj.SGSetContainer.colorBorder == 1) else None)
+    StyleOps.update_aniGBoxLarge_styleSheet(GUIObj.colordict,GUIObj.datasetContainer,isactive=1 if (GUIObj.datasetContainer.colorBorder == 1) else 0, valueA=0 if (GUIObj.datasetContainer.colorBorder == 1) else None)
+    StyleOps.update_scrollObjStype(GUIObj.scrollTests,GUIObj.scrollHolder,GUIObj.colordict)
+
+
+    GUIObj.CB_ErrorProp.setEnabled(1)
+    GUIObj.CB_MUF.setEnabled(1)
+    GUIObj.CB_AI.setEnabled(1)
+    GUIObj.CB_CUMUF.setEnabled(1)
+    GUIObj.CB_SMUF.setEnabled(1)
+    GUIObj.CB_SMUFAI.setEnabled(1)
+    GUIObj.CB_SITMUF.setEnabled(1)
+    GUIObj.CB_PAGE.setEnabled(1)
+
+def disable_setup_controls(GUIObj):
+    #TODO: disable styles
+    GUIObj.SGSetContainer._animation.stop()
+    GUIObj.datasetContainer._animation.stop()
+    GUIObj.datasetContainer._animation.start()
+    GUIObj.AnalysisContainer._animation.stop()
+
+    GUIObj.SGSetContainer.colorBorder = 0
+    GUIObj.AnalysisContainer.colorBorder = 0
+
+    StyleOps.enable_ani_button(button_obj=GUIObj.ErrorS, guiobj=GUIObj)
+    StyleOps.enable_ani_button(button_obj=GUIObj.RunStats, guiobj=GUIObj)
+    #GUIObj.StatDlg.UpdateDispText('Waiting for data import',rebootAni=True)
+    
+
+
+
+    GUIObj.CB_ErrorProp.setChecked(0)
+    GUIObj.IterBox.setEnabled(0)
+    GUIObj.IterBox.setText("")
+    GUIObj.CB_MUF.setEnabled(0)
+    GUIObj.CB_AI.setEnabled(0)
+    GUIObj.CB_CUMUF.setEnabled(0)
+    GUIObj.CB_SMUF.setEnabled(0)
+    GUIObj.CB_SMUFAI.setEnabled(0)
+    GUIObj.CB_SITMUF.setEnabled(0)
+    GUIObj.CB_PAGE.setEnabled(0)
+
+    #SGSetContainer
+    #AnalysisContainer
+    #datasetContainer
+    #scrollTests
+    #scrollHolder
+    #mdlBox
+    #datBox
+
+    StyleOps.update_aniGBoxLarge_styleSheet(GUIObj.colordict,GUIObj.AnalysisContainer,isactive=1 if (GUIObj.AnalysisContainer.colorBorder == 1) else 0, valueA=0 if (GUIObj.AnalysisContainer.colorBorder == 1) else None)
+    StyleOps.update_aniGBoxLarge_styleSheet(GUIObj.colordict,GUIObj.SGSetContainer,isactive=1 if (GUIObj.SGSetContainer.colorBorder == 1) else 0, valueA=0 if (GUIObj.SGSetContainer.colorBorder == 1) else None)
+    StyleOps.update_aniGBoxLarge_styleSheet(GUIObj.colordict,GUIObj.datasetContainer,isactive=1 if (GUIObj.datasetContainer.colorBorder == 1) else 0, valueA=0 if (GUIObj.datasetContainer.colorBorder == 1) else None)
+    StyleOps.update_scrollObjStype(GUIObj.scrollTests,GUIObj.scrollHolder,GUIObj.colordict)
+    StyleOps.update_aniGBoxSmall_styleSheet(GUIObj.colordict,GUIObj.mdlbox,isactive=0)
+    StyleOps.update_aniGBoxSmall_styleSheet(GUIObj.colordict,GUIObj.datBox,isactive=0)
+

@@ -9,4 +9,4 @@ dependencies:
   - PySide2=5.13.2
   - scipy
   - python=3.9
-
+  - tqdm

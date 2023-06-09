@@ -6,6 +6,7 @@ import copy
 from scipy.io import loadmat
 from MAPIT.GUI import StatsPanelOps, GeneralOps
 
+from tqdm import tqdm
 
 
 
@@ -215,10 +216,13 @@ def loadDataFromWizard(GUIObject):
 
       return inpFrame, invFrame, outFrame
 
-def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,rawOutputTimes,GUIObject=None,dataOffset=0,GUIparams=None):
+
+
+def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,rawOutputTimes,GUIObject=None,dataOffset=0,IT=1):
 
     if GUIObject is not None:
-      StatsPanelOps.importDataUpdateUI(GUIObject,GUIparams)
+      GUIObject.progress.emit(-1)
+      GUIObject.pbartext.emit('Importing data...')
 
     # locations, timestep, element
     rawInput = list(rawInput)
@@ -235,14 +239,25 @@ def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,
       if len(np.shape(rawInput[i])) != 2:
         rawInput[i] = np.expand_dims(rawInput[i],axis=1)
 
+      #covers a case where there are no iterations/no applied error
+      if len(np.shape(rawInput[i])) != 3 and IT == 0:
+        rawInput[i] = np.expand_dims(rawInput[i],axis=0)
+
     for i in range(0,len(rawInventory)):
       if len(np.shape(rawInventory[i])) != 2:
         rawInventory[i] = np.expand_dims(rawInventory[i],axis=1)
+
+      if len(np.shape(rawInventory[i])) != 3 and IT == 0:
+        rawInventory[i] = np.expand_dims(rawInventory[i],axis=0)
 
 
     for i in range(0,len(rawOutput)):
       if len(np.shape(rawOutput[i])) != 2:
         rawOutput[i] = np.expand_dims(rawOutput[i],axis=1)
+
+      if len(np.shape(rawOutput[i])) != 3 and IT == 0:
+        rawOutput[i] = np.expand_dims(rawOutput[i],axis=0)
+      
 
 
     # dealing with offset by modifying the data upfront is easier
@@ -253,6 +268,7 @@ def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,
     #calculations after the offset has ellapsed
     #useful if there is a long period of startup
     #data that has been collected
+    #TODO: experimental
     if dataOffset > 0:
 
       #assumes raws are lists based on location
@@ -285,13 +301,13 @@ def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,
 
 
     return rawInput, rawInputTimes, rawInventory, rawInventoryTimes, \
-      rawOutput, rawOutputTimes, GUIparams
+      rawOutput, rawOutputTimes
 
 
 
 
 
-def SimErrors(input,ErrorMatrix,iterations,GUIObject=None,GUIDispString=None):
+def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True):
     """
       Function to add simulated measurement error. Supports variable sample rates. 
       Assumes the traditional multiplicative measurement error model:
@@ -307,26 +323,22 @@ def SimErrors(input,ErrorMatrix,iterations,GUIObject=None,GUIDispString=None):
       
 
       Args:
-        input (list): Raw data to apply errors to, list of 2D ndarrays. Each entry in the list should correspond to a different location and the shape of ndarray in the list should be [MxN] where M is the sample dimension (number of samples) and N is the elemental dimension, if applicable. If only considering one element, each ndarray in the input list should be [Mx1].
+        rawData (list): Raw data to apply errors to, list of 2D ndarrays. Each entry in the list should correspond to a different location and the shape of ndarray in the list should be [MxN] where M is the sample dimension (number of samples) and N is the elemental dimension, if applicable. If only considering one element, each ndarray in the rawData list should be [Mx1].
 
-        ErrorMatrix (ndarray): 2D ndarray of shape [Mx2] describing the relative standard deviation to apply to ``input``. M sample dimension in each input array and should be identical to M described in  ``input``. The second dimension (e.g., 2) refers to the random and systematic error respectively such that ``ErrorMatrix[0,0]`` refers to the random relative standard deviation of the first location and ``ErrorMatrix[0,1]`` refers to the systematic relative standard deviation. 
+        ErrorMatrix (ndarray): 2D ndarray of shape [Mx2] describing the relative standard deviation to apply to ``rawData``. M sample dimension in each input array and should be identical to M described in  ``rawData``. The second dimension (e.g., 2) refers to the random and systematic error respectively such that ``ErrorMatrix[0,0]`` refers to the random relative standard deviation of the first location and ``ErrorMatrix[0,1]`` refers to the systematic relative standard deviation. 
 
         iterations (int): Number of iterations to calculate
-        GUIObject (obj): GUI object for internal MAPIT use
-        GUIDispString (string): String to update GUI elements for internal MAPIT use
+
+        GUIObject (obj, default=None): GUI object for internal MAPIT use
+
+        doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
 
       Returns:
-        list: List of arrays identical in shape to ``input``. A list is returned so that each location can have a different sample rate. 
+        list: List of arrays identical in shape to ``rawData``. A list is returned so that each location can have a different sample rate. 
     """
 
     if GUIObject is not None:
-      GUIObject.RunStats._animation.setLoopCount(1)
-
-      GUIObject.StatDlg.UpdateDispText('Applying and propogating error')
-      QtCore.QCoreApplication.instance().processEvents()
-
-      GUIObject.PB.setMaximum(100)
-
+      doTQDM = False
 
 
     # important -- going to assume every feature has different systematic error instance - in practice they might be shared
@@ -351,8 +363,8 @@ def SimErrors(input,ErrorMatrix,iterations,GUIObject=None,GUIDispString=None):
 
     #len(list) = locations
     #list[n] = (iterations, samples, elements)
-    for i in range(0, len(input)):
-        AppliedError.append(np.zeros((iterations, input[i].shape[0], input[i].shape[1]),dtype=np.float32))
+    for i in range(0, len(rawData)):
+        AppliedError.append(np.zeros((iterations, rawData[i].shape[0], rawData[i].shape[1]),dtype=np.float32))
 
 
     loopcounter = 0
@@ -370,48 +382,66 @@ def SimErrors(input,ErrorMatrix,iterations,GUIObject=None,GUIDispString=None):
 
     #assume sys differs by location only and doesn't change for different elements
 
+    if doTQDM:
+      if iterations > 10:
+        outerloop = int(np.floor(iterations/10))
+        pbar = tqdm(desc="", total=int((outerloop+1)*len(rawData)), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")   
+      else:
+        pbar = tqdm(desc="", total=int(len(rawData)), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
 
     #------------ Start error prop ------------#
-    if GUIDispString is not None:
-      GUIObject.StatDlg.UpdateDispText('Applying and propogating '+GUIDispString)
-    for i in range(0, len(input)):
+    for i in range(0, len(rawData)):
 
 
       if iterations > 10:
         outerloop = int(np.floor(iterations/10))
-        remruns = iterations%10      
+        remruns = iterations%10
 
 
         for j in range(0,outerloop):
           startIdx = j*10
           endIdx = startIdx+10
           sysRSD = np.random.normal(size=(10,1,1),loc=0,scale=ErrorMatrix[i,1])
-          randRSD = np.random.normal(size=(10,input[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
-          AppliedError[i][startIdx:endIdx,:,0] = input[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((10,-1))
+          randRSD = np.random.normal(size=(10,rawData[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
+          AppliedError[i][startIdx:endIdx,:,0] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((10,-1))
 
           if GUIObject is not None:
-            GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,(outerloop+1)*len(input))   
+            totalloops = (outerloop+1)*len(rawData)
+            GUIObject.progress.emit(loopcounter / totalloops*100)
+            loopcounter+=1
+          
+          if doTQDM:
+            pbar.update(1)
         
         if remruns > 0:
           sysRSD = np.random.normal(size=(remruns,1,1),loc=0,scale=ErrorMatrix[i,1])
-          randRSD = np.random.normal(size=(remruns,input[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
-          AppliedError[i][endIdx:,:,0] = input[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((remruns,-1))
+          randRSD = np.random.normal(size=(remruns,rawData[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
+          AppliedError[i][endIdx:,:,0] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((remruns,-1))
 
           if GUIObject is not None:
-              GUIObject, loopcounter = GeneralOps.updatePB(GUIObject,loopcounter,(outerloop+1)*len(input))   
+              totalloops = (outerloop+1)*len(rawData)
+              GUIObject.progress.emit(loopcounter / totalloops*100)
+              loopcounter+=1 
+          
+          if doTQDM:
+            pbar.update(1)
       
       else:
           sysRSD = np.random.normal(size=(iterations,1,1),loc=0,scale=ErrorMatrix[i,1])
-          randRSD = np.random.normal(size=(iterations,input[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
-          AppliedError[i][:,:,0] = input[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((iterations,-1))
-          GUIObject, _ = GeneralOps.updatePB(GUIObject,0,1*len(input))   
+          randRSD = np.random.normal(size=(iterations,rawData[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
+          AppliedError[i][:,:,0] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((iterations,-1))
+
+          if GUIObject is not None:
+            GUIObject.progress.emit(i/len(rawData)*100)
+          
+          if doTQDM:
+            pbar.update(1)
 
 
 
     if GUIObject is not None:
-      GUIObject.PB.setValue(100)
-      GUIObject.StatDlg.UpdateDispText('Ready')
-      QtCore.QCoreApplication.instance().processEvents()
+      GUIObject.progress.emit(100)
+      None
     
 
 

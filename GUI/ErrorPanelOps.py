@@ -139,7 +139,7 @@ def loadErrorFromDisk(GUIObject):
             for i in range(np.shape(x)[0]):
                 for j in range(np.shape(x)[1]):
                     if x[i, j] != 0:
-                        GUIObject.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(x[i, j])))
+                        GUIObject.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(x[i, j])+' %'))
         except:
             msgbox = QtWidgets.QMessageBox()
             msgbox.setIcon(QtWidgets.QMessageBox.Warning)
@@ -155,13 +155,13 @@ def saveErrorToDisk(GUIObject):
 
         outdir = os.path.abspath(os.path.join(os.path.dirname(__file__),'errorConfig.csv'))
 
-        x = np.zeros((GUIObject.EP.rowCount(), 6))
+        x = np.zeros((GUIObject.EP.rowCount(), 2))
 
         for i in range(0, GUIObject.EP.rowCount()):
-            for j in range(0, 6):
+            for j in range(0, 2):
                 if GUIObject.EP.item(i, j) is None:
                     x[i, j] = 0
                 else:
-                    x[i, j] = GUIObject.EP.item(i, j).text()
+                    x[i, j] = float(GUIObject.EP.item(i, j).text().strip(' %'))
 
         np.savetxt(outdir, x, delimiter=',')
