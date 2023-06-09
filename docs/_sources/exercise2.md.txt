@@ -14,8 +14,6 @@ This exercise assumes that you are familiar with MAPIT and can perform tasks dis
 :::
 
 
-
-
 ---
 
 ## Problem setup
@@ -23,7 +21,7 @@ This exercise assumes that you are familiar with MAPIT and can perform tasks dis
 ---
 
 
-* Start this exercise by launching MAPIT, selecting the `SNL curated dataset` option, and loading the `Normal` dataset.
+* Start this exercise by launching MAPIT, selecting the Fuel Fab model under `Model` option, and selecting the `Normal` dataset.
     * This tutorial starts by assuming you are at the main MAPIT interface (similar to the image below)
 
 ```{image} ./assets/exercise1/MAPITmain.png
@@ -36,8 +34,12 @@ This exercise assumes that you are familiar with MAPIT and can perform tasks dis
 <br>
 
 
-* Select all the checkboxes for available statistical tests
-  * A total of five (5) checkboxes should be checked
+* Select the following statistical tests
+  * MUF
+  * CUMUF
+  * Sigma MUF
+  * SITMUF
+  * Page's test on SITMUF
 
 +++
 
@@ -65,6 +67,13 @@ This exercise assumes that you are familiar with MAPIT and can perform tasks dis
 
 
 * After running, several plot options should be available under the plot controls option (similar to image below).
+    * Plot Data Type
+    * Plot Data Location (to investigate the behavior at all key measurement points)
+    * Contribution Type
+    * Iterations to Plot
+
+:::{note}
+MAPIT's plotting options are dependent on the data type selected. Ground Truth and Observed Data are the only plotting options that have access to the Plot Data Locations. The SEID contribution plots are the only plots that have access to the Contribution option. The statistical tests and the Observed Data have more options under the iterations to plot window. The user is able to plot 1 random iteration, the average of all iterations, and all iterations. 
 
 ```{image} ./assets/exercise2/MAPITplot1.png
 :class: bg-primary
@@ -75,7 +84,7 @@ This exercise assumes that you are familiar with MAPIT and can perform tasks dis
 <br>
 
 :::{note}
-MAPIT can export any figures for later use. Simply click the floppy disc icon at the bottom of the plot.
+MAPIT can export any figures for later use. Simply click the floppy disc icon below the plotting window.
 :::
 
 
@@ -99,6 +108,12 @@ MAPIT can export any figures for later use. Simply click the floppy disc icon at
     * The first balance period has a smaller SEID due to startup conditions
 
 +++
+
+```{image} ./assets/exercise2/muf1.png
+:class: bg-primary
+:width: 65%
+:align: center
+```
 
 * Try plotting the U SITMUF data.
     * Your plot should look similar to the one below

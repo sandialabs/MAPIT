@@ -26,13 +26,43 @@ If you are having trouble viewing MAPIT on your screen, try maximizing the windo
 
 ---
 
+## MAPIT main interface
+
+---
+
+
+
+* The main window of MAPIT should now be shown (see below for light theme example)
+  *   MAPIT has both light and dark themes available
+      *   These can be toggled at any time using the `Theme` dropdown menu
+  *   MAPIT allows users to control the font size
+      *   The fontsize can be changed using the `Accessibility` dropdown menu 
+
+```{image} ./assets/exercise1/MAPITmain.png
+:class: bg-primary
+:width: 100%
+:align: center
+```
+
+<br>
+
+:::{note}
+The status bar in the bottom left, progress bar in the bottom right, GUI animations, and tooltips are all used within MAPIT to help understand the safeguards analysis flow. Initially, the tests and statistics boxes are highlighted in blue, which indicate those inputs are required for analysis. Further, note the status bar which is waiting for the calculation setup.
+:::
+
+:::{note}
+Currently, only options for statistical tests on uranium are available as it is the only element tracked in the fuel fabrication facility examples.
+:::
+
+---
+
 ## Using the scenario selector
 
 ---
 
 
 
-MAPIT will prompt for data to be analyzed. Select the `SNL curated dataset` option. Selecting this option should bring you to the scenario selection screen (shown below).
+MAPIT first column is broken into sections. The first titled Data will prompt the user to select a SNL curated dataset or load their own dataset. Under `Model selection` option ensure the fuel fab model is selected and under `Scenario selection` select the Normal dataset. Clicking the `Scenario Explorer` should bring you to the following pop-up (shown below).
 
 <!-- <p align="center">
 <img src="./assets/exercise1/sceneselect.png" width="100%" height="100%">
@@ -51,6 +81,10 @@ MAPIT will prompt for data to be analyzed. Select the `SNL curated dataset` opti
 The scenario selection block provides tools to become familiar with the included datasets developed by SNL (based on IAEA STR-150). The datasets contain simulated data from key measurement points in material balance area 2.
 :::
 
+:::{note}
+The datasets are not loaded until the simulated error is set for the dataset.
+:::
+
 
 +++
 
@@ -66,41 +100,16 @@ The scenario selection block provides tools to become familiar with the included
 
 +++
 
-* When finished, press the button labeled `Load data and Return to Plots`
-
----
-
-## MAPIT main interface
-
----
+* When finished, close the pop-up.
 
 
 
-* The main window of MAPIT should now be shown (see below for light theme example)
-  *   MAPIT has both light and dark themes available
-      *   These can be toggled at any time using the `theme` dropdown menu
-
-
-```{image} ./assets/exercise1/MAPITmain.png
-:class: bg-primary
-:width: 100%
-:align: center
-```
-
-<br>
-
-:::{note}
-The status bar in the bottom left, progress bar in the bottom right, GUI animations, and tooltips are all used within MAPIT to help understand the safeguards analysis flow. Initially, the tests and statistics boxes are highlighted in blue, which indicate those inputs are required for analysis. Further, note the status bar which is waiting for the calculation setup.
-:::
-
-:::{note}
-Currently, only options for statistical tests on uranium are available as it is the only element tracked in the fuel fabrication facility examples.
-:::
-
-
-
-* Continue by selecting all the checkboxes for available statistical tests.
-  * A total of five (5) checkboxes should be checked
+* Continue by selecting the checkboxes for the following statistical tests.
+  * ID
+  * CUSUM of ID
+  * SEID
+  * SITMUF
+  * Page's test on SITMUF
 
 +++
 
