@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./docs_v2/source/assets/codeAssets/logo_small.png" width="50%"/>
+  <img src="./docs_v2/codeAssets/logo_small.png" width="50%"/>
 </p>
 
 
@@ -33,8 +33,8 @@ MAPIT provides both a graphical user interface (GUI) and an application program 
 ## Features
 
 <p align="center">
-  <img src="./docs_v2/source/assets/screenshots/MAPIT_split3.png" width="49%"/>
-  <img src="./docs_v2/source/assets/screenshots/mapit_api_ex.png" width="49%"/>
+  <img src="./docs_v2/codeAssets/MAPIT_split3.png" width="49%"/>
+  <img src="./docs_v2/codeAssets/mapit_api_ex.png" width="49%"/>
 </p>
 
 
