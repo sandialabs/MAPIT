@@ -117,7 +117,7 @@
 <li><p>Select the following statistical tests</p>
 <ul>
 <li><p>MUF</p></li>
-<li><p>CUMUF</p></li>
+<li><p>Cumulative MUF</p></li>
 <li><p>Sigma MUF</p></li>
 <li><p>SITMUF</p></li>
 <li><p>Page’s test on SITMUF</p></li>
@@ -165,8 +165,8 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>MAPIT’s plotting options are dependent on the data type selected. Ground Truth and Observed Data are the only plotting options that have access to the Plot Data Locations. The SEID contribution plots are the only plots that have access to the Contribution option. The statistical tests and the Observed Data have more options under the iterations to plot window. The user is able to plot 1 random iteration, the average of all iterations, and all iterations.</p>
-<a class="bg-primary reference internal image-reference" href="assets/exercise2/MAPITplot1.png"><img alt="assets/exercise2/MAPITplot1.png" class="bg-primary align-center" src="assets/exercise2/MAPITplot1.png" style="width: 100%;" /></a>
+<p>MAPIT’s plotting options are dependent on the data type selected. <code class="docutils literal notranslate"><span class="pre">Ground</span> <span class="pre">Truth</span></code> and <code class="docutils literal notranslate"><span class="pre">Observed</span> <span class="pre">Data</span></code> are the only data types that have access to the <code class="docutils literal notranslate"><span class="pre">Plot</span> <span class="pre">Data</span> <span class="pre">Locations</span></code>. The <code class="docutils literal notranslate"><span class="pre">Sigma</span> <span class="pre">MUF</span> <span class="pre">Contribution</span></code> plots are the only plots that have access to the Contribution option, which will become selectable when the <code class="docutils literal notranslate"><span class="pre">Sigma</span> <span class="pre">MUF</span> <span class="pre">Contribution</span></code> data is selected. The <code class="docutils literal notranslate"><span class="pre">Analysis</span></code> boxes selected and the <code class="docutils literal notranslate"><span class="pre">Observed</span> <span class="pre">Data</span></code> have additional plotting options under the to plot toolbar. The user is able to plot 1 random iteration, the average of all iterations, and all iterations. In this exercise some of the potential plots available are shown.</p>
+<a class="bg-primary reference internal image-reference" href="_images/plot1.png"><img alt="_images/plot1.png" class="bg-primary align-center" src="_images/plot1.png" style="width: 100%;" /></a>
 <br>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -182,15 +182,17 @@
 </ul>
 </li>
 </ul>
-<a class="bg-primary reference internal image-reference" href="_images/muf1.png"><img alt="_images/muf1.png" class="bg-primary align-center" src="_images/muf1.png" style="width: 65%;" /></a>
+<p align="center">
+  <img src="./docs_v2/source/assets/excercise2/muf1.png" width="49%"/>
+  <img src="./docs_v2/source/assets/excercise2/sigmuf1.png" width="49%"/>
+</p>
 <ul class="simple">
-<li><p>Next, plot the U SEID (i.e. <span class="math notranslate nohighlight">\(\sigma_\text{MUF}\)</span>) and notice that it tends to remain around 95 kg.</p>
+<li><p>Next, plot the U Sigma MUF (i.e. <span class="math notranslate nohighlight">\(\sigma_\text{MUF}\)</span>) and notice that it tends to remain around 600 kg.</p>
 <ul>
-<li><p>The first balance period has a smaller SEID due to startup conditions</p></li>
+<li><p>The first balance period has a smaller Sigma MUF due to startup conditions</p></li>
 </ul>
 </li>
 </ul>
-<a class="bg-primary reference internal image-reference" href="_images/muf1.png"><img alt="_images/muf1.png" class="bg-primary align-center" src="_images/muf1.png" style="width: 65%;" /></a>
 <ul class="simple">
 <li><p>Try plotting the U SITMUF data.</p>
 <ul>
@@ -241,7 +243,7 @@
 <li><p>After examining the different quantities calculated by MAPIT, open the error contribution table to better understand the contributions of different KMPs to the material balance uncertainty. Do this by selecting the <code class="docutils literal notranslate"><span class="pre">Tabular</span> <span class="pre">Data</span> <span class="pre">View</span></code> drop down at the top of the main MAPIT window and selecting <code class="docutils literal notranslate"><span class="pre">Error</span> <span class="pre">Contribution</span></code>.</p></li>
 </ul>
 <ul class="simple">
-<li><p>The error contribution table should display all the locations in addition to their random and systematic contributions to SEID. Your table should look similar to the image below.</p>
+<li><p>The error contribution table should display all the locations in addition to their random and systematic contributions to Sigma MUF. Your table should look similar to the image below.</p>
 <ul>
 <li><p>The <code class="docutils literal notranslate"><span class="pre">inventory</span></code> column refers to the actual mass at the selected material balance period</p>
 <ul>
@@ -249,44 +251,44 @@
 <li><p>For inventories this is the instantneous inventory value</p></li>
 </ul>
 </li>
-<li><p>The random and systematic contribution are the contributions to SEID</p></li>
+<li><p>The random and systematic contribution are the contributions to Sigma MUF</p></li>
 </ul>
 </li>
 </ul>
 <a class="bg-primary reference internal image-reference" href="_images/table1.png"><img alt="_images/table1.png" class="bg-primary align-center" src="_images/table1.png" style="width: 75%;" /></a>
+<ul class="simple">
+<li><p>Along with the error contribution table, MAPIT has a set of plots that visualize the error contribution of each key measurement point. The <code class="docutils literal notranslate"><span class="pre">Contribution</span></code> (both absolute and relative) plot the impact individual measurement points have on the Sigma MUF.</p></li>
+</ul>
+<p align="center">
+  <img src="./docs_v2/source/assets/excercise2/sigmamuf_randomcontribution1.png" width="49%"/>
+  <img src="./docs_v2/source/assets/excercise2/sigmamuf_totalcontribution1.png" width="49%"/>
+</p>
 <br>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>that only a single material is listed for this exercise (uranium) as other species are not tracked. However, if using imported datasets, there could potentially be other material options.</p>
-</div>
 <ul class="simple">
 <li><p>Try looking at different material balance periods.</p>
 <ul>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">Cylinder</span> <span class="pre">(input)</span></code> and <code class="docutils literal notranslate"><span class="pre">Fuel</span> <span class="pre">Pins</span> <span class="pre">(output)</span></code> have the largest inventory terms and consequently the largest contribution</p></li>
+<li><p>Both the plots and the table shows that  <code class="docutils literal notranslate"><span class="pre">Cylinder</span> <span class="pre">(input)</span></code> and <code class="docutils literal notranslate"><span class="pre">Fuel</span> <span class="pre">Pins</span> <span class="pre">(output)</span></code> have the largest inventory terms and consequently the largest contribution</p></li>
 </ul>
 </li>
 </ul>
+<p>*Change the measurement uncertainty of the <code class="docutils literal notranslate"><span class="pre">Cylinder</span> <span class="pre">(input)</span></code> and <code class="docutils literal notranslate"><span class="pre">Fuel</span> <span class="pre">Pins</span> <span class="pre">(output)</span></code> error terms to 1%.
+* MAPIT does not need to be restarted to perform another calculation on a new dataset, however, note that current results will be lost
+* Press the <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> button and edit the corresponding boxes to reduce the error for the two components.
+* Press <code class="docutils literal notranslate"><span class="pre">Run</span></code> to again calculate the statistical quantities.</p>
 <ul class="simple">
-<li><p>Try running MAPIT again, this time try changing the <code class="docutils literal notranslate"><span class="pre">Cylinder</span> <span class="pre">(input)</span></code> and <code class="docutils literal notranslate"><span class="pre">Fuel</span> <span class="pre">Pins</span> <span class="pre">(output)</span></code> error terms to 1%.</p>
+<li><p>Check the newly calculated values by plotting key quantities such as Sigma MUF.</p>
 <ul>
-<li><p>MAPIT does not need to be restarted to perform another calculation on a new dataset, however, note that current results will be lost</p></li>
-<li><p>Press the <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> button and edit the corresponding boxes to reduce the error for the two components.</p></li>
-<li><p>Press <code class="docutils literal notranslate"><span class="pre">Run</span></code> to again calculate the statistical quantities.</p></li>
-</ul>
-</li>
-</ul>
-<ul class="simple">
-<li><p>Check the newly calculated values by plotting key quantities such as SEID.</p>
-<ul>
-<li><p>Note that SEID has decreased dramatically from approximately 560 to 210.</p></li>
+<li><p>Note that Sigma MUF has decreased dramatically from approximately 600 to 210.</p></li>
 <li><p>Examine the <code class="docutils literal notranslate"><span class="pre">Error</span> <span class="pre">Contribution</span></code> and note that the contribution from the <code class="docutils literal notranslate"><span class="pre">Cylinder</span> <span class="pre">(input)</span></code> and <code class="docutils literal notranslate"><span class="pre">Fuel</span> <span class="pre">Pins</span> <span class="pre">(output)</span></code> has similarly fallen in magnitude.</p></li>
 <li><p>The next exercise will consider the impact of measurement error for safeguards more concretely by considering a hypothetical material loss.</p></li>
+<li><p>The total contribution plot shows now with increased measurement uncertainty on the <code class="docutils literal notranslate"><span class="pre">Cylinder</span> <span class="pre">(input)</span></code> and <code class="docutils literal notranslate"><span class="pre">Fuel</span> <span class="pre">Pins</span> <span class="pre">(output)</span></code>, other key measurement points now have comparable uncertainty.</p></li>
 </ul>
 </li>
 </ul>
+<a class="bg-primary reference internal image-reference" href="_images/sigmamuf_totalcontribution2.png"><img alt="_images/sigmamuf_totalcontribution2.png" class="bg-primary align-center" src="_images/sigmamuf_totalcontribution2.png" style="width: 75%;" /></a>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The material balance period can similarly impact key quantities like SEID. Longer balances lead to higher SEIDs whereas shorter balances lead to smaller SEIDs. However, there is a limitation to the gains of shorter material balances. While not explored in this exercise, further details can be found in <a class="reference external" href="https://resources.inmm.org/jnmm/subdividing-material-balances-time-andor-space">this work by Avenhaus and Jaech</a>.</p>
+<p>The material balance period can similarly impact key quantities like Sigma MUF. Longer balances lead to higher Sigma MUFs whereas shorter balances lead to smaller Sigma MUFs. However, there is a limitation to the gains of shorter material balances. While not explored in this exercise, further details can be found in <a class="reference external" href="https://resources.inmm.org/jnmm/subdividing-material-balances-time-andor-space">this work by Avenhaus and Jaech</a>.</p>
 </div>
 </section>
 <section id="summary">
@@ -294,7 +296,7 @@
 <p>🎉 You have finished the second MAPIT exercise. 🎉</p>
 <p>In this exercise, you learned about how to change simulated measurement errors in MAPIT and their impact on calculated statistical quantities. Further, the capability of MAPIT to show individual error components was also introduced.</p>
 <ul class="simple">
-<li><p>Higher measurement error leads to larger SEID values</p></li>
+<li><p>Higher measurement error leads to larger Sigma MUF values</p></li>
 <li><p>Uncertainty contributions rely on both measurement error and inventory size</p></li>
 </ul>
 <p>Continue to <a class="reference internal" href="exercise3.html"><span class="doc std std-doc">exercise 3</span></a>.</p>

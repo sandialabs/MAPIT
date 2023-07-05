@@ -42,13 +42,15 @@ For this example, we are neglecting that real world sensors will potentially hav
 
 | Sensor | Uncertainty (%) | Cost ($) |
 |:---:|:---:|:---:|
-| A | 5.0 | 10 |
-| B | 3.0 | 25 |
-| C | 1.0 | 30 |
-| D | 0.5 | 75 |
-| E | 0.1 | 200 |
-
-
+| A | 10.0 | 5 |
+| B | 5.0 | 10 |
+| C | 3.0 | 25 |
+| D | 1.0 | 30 |
+| E | 0.5 | 75 |
+| F | 0.1 | 200 |
+| G | 0.05 | 500 |
+| H | 0.01 | 1000 |
+| I | 0.005 | 2000 |
 
 ---
 ## Baseline solution
@@ -62,10 +64,14 @@ For the baseline assumption, it was assumed that all measurement locations have 
 | Sensor | Quantity | Cost ($) |
 |:---:|:---:|:---:|
 | A | 0 | 0 |
-| B | 31 | 775 |
-| C | 0 | 0 |
+| B | 0 | 0 |
+| C | 31 | 775 |
 | D | 0 | 0 |
 | E | 0 | 0 |
+| F | 0 | 0 |
+| G | 0 | 0 |
+| H | 0 | 0 |
+| I | 0 | 0 |
 | **Total Cost** | | **775** |
 
 

@@ -104,7 +104,7 @@
 <h2>Problem setup<a class="headerlink" href="#problem-setup" title="Permalink to this heading"></a></h2>
 <hr class="docutils" />
 <ul class="simple">
-<li><p>Start this exercise by launching MAPIT, selecting the <code class="docutils literal notranslate"><span class="pre">SNL</span> <span class="pre">curated</span> <span class="pre">dataset</span></code> option, and loading the <code class="docutils literal notranslate"><span class="pre">Normal</span></code> dataset.</p>
+<li><p>Start this exercise by launching MAPIT, selecting the <code class="docutils literal notranslate"><span class="pre">Normal</span></code> dataset.</p>
 <ul>
 <li><p>This tutorial starts by assuming you are at the main MAPIT interface</p></li>
 </ul>
@@ -113,7 +113,15 @@
 <ul class="simple">
 <li><p>Select all the checkboxes for available statistical tests</p>
 <ul>
-<li><p>A total of five (5) checkboxes should be checked</p></li>
+<li><p>A total of five (5) checkboxes should be checked</p>
+<ul>
+<li><p>MUF</p></li>
+<li><p>Cumulative MUF</p></li>
+<li><p>Sigma MUF</p></li>
+<li><p>SITMUF</p></li>
+<li><p>Page’s test on SITMUF</p></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -139,7 +147,7 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Recall from the lecture notes that safeguards statistical tests are often tuned to have an average of 5% false alarm probability per year. The next steps will use MAPIT functionality to determine this threshold for Page’s trend test on SITMUF.</p>
+<p>Safeguards statistical tests are commonly tuned to have an average false alarm probability of 5% per year. The next steps will use MAPIT functionality to determine this threshold for Page’s trend test on SITMUF.</p>
 </div>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
@@ -153,11 +161,16 @@
 <ul class="simple">
 <li><p>Plot Page’s trend test on SITMUF</p>
 <ul>
-<li><p>This is labeled as <code class="docutils literal notranslate"><span class="pre">Page</span> <span class="pre">U</span> <span class="pre">SITMUF</span></code> in MAPIT</p></li>
+<li><p>This is labeled as <code class="docutils literal notranslate"><span class="pre">U</span> <span class="pre">Page's</span> <span class="pre">test</span> <span class="pre">on</span> <span class="pre">SITMUF</span></code> in MAPIT</p></li>
 <li><p>Plotting a quantity is necessary to use the threshold functionality</p></li>
 </ul>
 </li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Plots in this excercise are using 300 iterations to have better statistics, so if less iterations are being run the results may differ slightly from those shown here. In large iteration datasets, MAPIT only plots 15 iterations to ensure the plotting window is not overloaded.</p>
+</div>
+<a class="bg-primary reference internal image-reference" href="_images/PageUSITMUF1.png"><img alt="_images/PageUSITMUF1.png" class="bg-primary align-center" src="_images/PageUSITMUF1.png" style="width: 65%;" /></a>
 <ul class="simple">
 <li><p>Use the <code class="docutils literal notranslate"><span class="pre">Statistical</span> <span class="pre">Thresholds</span></code> box to determine an appropriate threshold (i.e. 5% FAP)</p>
 <ul>
@@ -170,8 +183,9 @@
 </ul>
 </li>
 </ul>
+<a class="bg-primary reference internal image-reference" href="_images/PageUSITMUF2.png"><img alt="_images/PageUSITMUF2.png" class="bg-primary align-center" src="_images/PageUSITMUF2.png" style="width: 65%;" /></a>
 <ul class="simple">
-<li><p>Your threshold should be near 1.34</p>
+<li><p>Your threshold should be near 0.5</p>
 <ul>
 <li><p>Due to the randomness of the calculations, your threshold might be slightly different</p></li>
 <li><p>Increasing the number of iterations can help obtain a more precise estimate of the threshold</p>
@@ -188,7 +202,7 @@
 <h2>Evaluating probability of detection<a class="headerlink" href="#evaluating-probability-of-detection" title="Permalink to this heading"></a></h2>
 <hr class="docutils" />
 <ul class="simple">
-<li><p>Close and restart MAPIT. Again, select the <code class="docutils literal notranslate"><span class="pre">SNL</span> <span class="pre">curated</span> <span class="pre">dataset</span></code>. However, this time select the <code class="docutils literal notranslate"><span class="pre">Abrupt</span></code> dataset.</p></li>
+<li><p>Load the <code class="docutils literal notranslate"><span class="pre">Abrupt</span></code> dataset.</p></li>
 </ul>
 <ul class="simple">
 <li><p>Select the same options from steps 2, 3, and 4 then run MAPIT.</p>
@@ -209,14 +223,15 @@
 <ul class="simple">
 <li><p>Plot Page’s trend test on U SITMUF</p>
 <ul>
-<li><p>This is labeled as <code class="docutils literal notranslate"><span class="pre">Page</span> <span class="pre">U</span> <span class="pre">SITMUF</span></code> in MAPIT</p></li>
+<li><p>This is labeled as <code class="docutils literal notranslate"><span class="pre">U</span> <span class="pre">Page's</span> <span class="pre">test</span> <span class="pre">on</span> <span class="pre">SITMUF</span></code> in MAPIT</p></li>
 </ul>
 </li>
 </ul>
+<a class="bg-primary reference internal image-reference" href="_images/PageUSITMUF3.png"><img alt="_images/PageUSITMUF3.png" class="bg-primary align-center" src="_images/PageUSITMUF3.png" style="width: 65%;" /></a>
 <ul class="simple">
 <li><p>Enter in the previously determined threshold to determine the probability of detection for this material loss.</p>
 <ul>
-<li><p>The value should be approximately 69%</p></li>
+<li><p>The value should be approximately 50.7%</p></li>
 </ul>
 </li>
 </ul>

@@ -20,13 +20,18 @@ This exercise assumes that you are familiar with MAPIT and can perform tasks dis
 
 
 
-* Start this exercise by launching MAPIT, selecting the `SNL curated dataset` option, and loading the `Normal` dataset.
+* Start this exercise by launching MAPIT, selecting the `Normal` dataset.
     * This tutorial starts by assuming you are at the main MAPIT interface
 
 +++
 
 * Select all the checkboxes for available statistical tests
   * A total of five (5) checkboxes should be checked
+    * MUF
+    * Cumulative MUF
+    * Sigma MUF
+    * SITMUF
+    * Page's test on SITMUF
 
 +++
 
@@ -48,7 +53,7 @@ This exercise assumes that you are familiar with MAPIT and can perform tasks dis
 +++
 
 :::{note}
-Recall from the lecture notes that safeguards statistical tests are often tuned to have an average of 5% false alarm probability per year. The next steps will use MAPIT functionality to determine this threshold for Page's trend test on SITMUF.
+Safeguards statistical tests are commonly tuned to have an average false alarm probability of 5% per year. The next steps will use MAPIT functionality to determine this threshold for Page's trend test on SITMUF.
 :::
 
 :::{caution}
@@ -63,8 +68,19 @@ The data provided in these examples are 6480 hours long, which translate to abou
 
 
 * Plot Page's trend test on SITMUF
-    * This is labeled as `Page U SITMUF` in MAPIT
+    * This is labeled as `U Page's test on SITMUF` in MAPIT
     * Plotting a quantity is necessary to use the threshold functionality
+    
+:::{note}
+Plots in this excercise are using 300 iterations to have better statistics, so if less iterations are being run the results may differ slightly from those shown here. In large iteration datasets, MAPIT only plots 15 iterations to ensure the plotting window is not overloaded.
+::: 
+
+```{image} ./assets/exercise4/PageUSITMUF1.png
+:class: bg-primary
+:width: 65%
+:align: center
+```
+
 
 +++
 
@@ -75,8 +91,13 @@ The data provided in these examples are 6480 hours long, which translate to abou
 
 +++
 
+```{image} ./assets/exercise4/PageUSITMUF2.png
+:class: bg-primary
+:width: 65%
+:align: center
+```
 
-* Your threshold should be near 1.34
+* Your threshold should be near 0.5
     * Due to the randomness of the calculations, your threshold might be slightly different
     * Increasing the number of iterations can help obtain a more precise estimate of the threshold
       * The uncertainty in the threshold itself should roughly decrease with sqrt(iterations).
@@ -88,7 +109,7 @@ The data provided in these examples are 6480 hours long, which translate to abou
 
 
 
-* Close and restart MAPIT. Again, select the `SNL curated dataset`. However, this time select the `Abrupt` dataset.
+* Load the `Abrupt` dataset.
 
 +++
 
@@ -104,13 +125,18 @@ The data provided in these examples are 6480 hours long, which translate to abou
 +++
 
 * Plot Page's trend test on U SITMUF
-    * This is labeled as `Page U SITMUF` in MAPIT
+    * This is labeled as `U Page's test on SITMUF` in MAPIT
 
 +++
 
+```{image} ./assets/exercise4/PageUSITMUF3.png
+:class: bg-primary
+:width: 65%
+:align: center
+```
 
 * Enter in the previously determined threshold to determine the probability of detection for this material loss.
-    * The value should be approximately 69%
+    * The value should be approximately 50.7%
 
 +++
 

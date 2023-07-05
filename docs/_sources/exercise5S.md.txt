@@ -21,49 +21,75 @@ An error config for this setup can be found [here](./assets/exercise5/errorConfi
 | E | 0 | 0 |
 | **Total Cost** | | 490 |
 
+| Sensor | Quantity | Cost ($) |
+|:---:|:---:|:---:|
+| A | 0 | 0 |
+| B | 26 | 260 |
+| C | 2 | 50 |
+| D | 1 | 30 |
+| E | 1 | 75 |
+| F | 1 | 200 |
+| G | 0 | 0 |
+| H | 0 | 0 |
+| I | 0 | 0 |
+| **Total Cost** | | **490** |
+
+
+```{image} ./assets/exercise5s/SigmaMUF_Contribution_Normal.png
+:class: bg-primary
+:width: 100%
+:align: center
+```
+
+```{image} ./assets/exercise5s/PageUonSITMUF1.png
+:class: bg-primary
+:width: 100%
+:align: center
+```
+
 
 ### Performance
 
-Threshold = 2.1
+Threshold = 0.8
 
 Values are approximate and may fluctuate to some degree. However, these values were calculated using 250 iterations, which should provide a relatively high level of certainty.
 
 | False Alarm Probability (%) | Probability of Detection (%) |
 |:---:|:---:|
-| 4.8 | 72.4 |
+| 5.0 | 79.0 |
 
 ### Placement
 
 | Location | Uncertainty (%) | Sensor |
 |---|:---:|:---:|
-Cylinder (input)| 0.5 | D
- Drums (input)| 1.0 | C
-Vaporization| 5.0 | A
-Precipitation| 5.0 | A
-Offgas Filters| 5.0 | A
-Centrifuge| 3.0 | B
-CalcinationReduction| 5.0 | A
-MillingBlending| 5.0 | A
-Mixing Tank 1| 5.0 | A
-Pressing| 5.0 | A
-Sintering| 5.0 | A
-Grinding| 5.0 | A
-Pellet Storage| 5.0 | A
-Tube Filling| 3.0 | B
-ADU Scrap | 5.0 | A
-Green Scrap| 5.0 | A
-Dirty Powder| 5.0 | A
-Sintered Scrap| 5.0 | A
-Grinder Sludge| 5.0 | A
-OffSpec Pellets| 5.0 | A
-Scrap Grinder| 5.0 | A
-Scrap Oxidation| 5.0 | A
-Scrap Dissolution| 5.0 | A
-Scrap Solvent| 5.0 | A
-Scrap Precipitation| 5.0 | A
-Scrap Grinder 2| 5.0 | A
-Scrap Oxidation 2| 5.0 | A
-Scrap Reduction  | 5.0 | A
-UF6 Heel (output)| 5.0 | A
-Fuel Pins (output)| 0.5 | D
-Scrap Loss (output)| 5.0 | A
+Cylinder (input)| 0.5 | E
+ Drums (input)| 1.0 | D
+Vaporization| 5.0 | B
+Precipitation| 5.0 | B
+Offgas Filters| 5.0 | B
+Centrifuge| 3.0 | C
+CalcinationReduction| 5.0 | B
+MillingBlending| 5.0 | B
+Mixing Tank 1| 5.0 | B
+Pressing| 5.0 | B
+Sintering| 5.0 | B
+Grinding| 5.0 | B
+Pellet Storage| 5.0 | B
+Tube Filling| 3.0 | C
+ADU Scrap | 5.0 | B
+Green Scrap| 5.0 | B
+Dirty Powder| 5.0 | B
+Sintered Scrap| 5.0 | B
+Grinder Sludge| 5.0 | B
+OffSpec Pellets| 5.0 | B
+Scrap Grinder| 5.0 | B
+Scrap Oxidation| 5.0 | B
+Scrap Dissolution| 5.0 | B
+Scrap Solvent| 5.0 | B
+Scrap Precipitation| 5.0 | B
+Scrap Grinder 2| 5.0 | B
+Scrap Oxidation 2| 5.0 | B
+Scrap Reduction  | 5.0 | B
+UF6 Heel (output)| 5.0 | B
+Fuel Pins (output)| 0.5 | E
+Scrap Loss (output)| 5.0 | B
