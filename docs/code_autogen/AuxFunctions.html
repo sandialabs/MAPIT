@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AuxFunctions &mdash; MAPIT 1.1.0-beta documentation</title>
@@ -71,10 +71,10 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="../apidocs.html">API home</a></li>
-          <li class="breadcrumb-item"><a href="coreLanding.html">core</a></li>
-      <li class="breadcrumb-item active">AuxFunctions</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../apidocs.html">API home</a> &raquo;</li>
+          <li><a href="coreLanding.html">core</a> &raquo;</li>
+      <li>AuxFunctions</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/code_autogen/AuxFunctions.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -98,7 +98,7 @@ on each non-zero pulse segment. <cite>np.trapz</cite> is used to perform the int
 for more information.</p>
 <p><span class="math notranslate nohighlight">\(\int y(x) dx\)</span></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>relevantIndex</strong> (<em>ndarray</em>) – An array that expresses the relevant time slice, in terms of indicies, with shape <span class="math notranslate nohighlight">\([m,j]\)</span> where <span class="math notranslate nohighlight">\(m\)</span> is the total number of relevant samples and <span class="math notranslate nohighlight">\(j\)</span> is the total number of iterations.</p></li>
 <li><p><strong>time</strong> (<em>ndarray</em>) – An array containing the total number of timestep values under consideration for the analysis. Has shape <span class="math notranslate nohighlight">\([n,j]\)</span> where <span class="math notranslate nohighlight">\(n\)</span> is the total number of samples under consideration and <span class="math notranslate nohighlight">\(n&gt;m\)</span> for <span class="math notranslate nohighlight">\(m\)</span> in <cite>relevantIndex</cite> and <span class="math notranslate nohighlight">\(j\)</span> is the total number of iterations.</p></li>
@@ -106,10 +106,10 @@ for more information.</p>
 <li><p><strong>baseline_zero</strong> (<em>float</em>) – A float that expresses the threshold below which values are considered zero. Important as datasets often do not represent zero as exactly zero for a variety of reasons.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>An array of shape <span class="math notranslate nohighlight">\([1,j]\)</span> containing the integrated total for each iteration over the time specified by <strong>time[relevantIndex]</strong>.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray</p>
 </dd>
 </dl>
