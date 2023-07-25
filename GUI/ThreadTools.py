@@ -1,9 +1,9 @@
 from PySide2 import QtCore
 import time
-import MAPIT.core.Preprocessing as Preprocessing
-from MAPIT.GUI import StatsPanelOps, GeneralOps
-from MAPIT.core import StatsTests as Tests
-from MAPIT.core import AuxFunctions as Aux
+import MAPIT_internal.core.Preprocessing as Preprocessing
+from MAPIT_internal.GUI import StatsPanelOps, GeneralOps
+from MAPIT_internal.core import StatsTests as Tests
+from MAPIT_internal.core import AuxFunctions as Aux
 import numpy as np
 import glob
 from scipy.io import loadmat

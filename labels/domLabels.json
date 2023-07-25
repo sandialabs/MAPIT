@@ -2,7 +2,7 @@
     "Box11L": "Simulate measurement error",
     "Box12L": "ID",
     "Box13L": "Active Inventory",
-    "Box14L": "CUSUM of ID",
+    "Box14L": "Cumulative ID",
     "Box15L": "SEID",
     "Box16L": "SEID(Active Inventory)",
     "Box17L": "SITMUF",
@@ -29,8 +29,8 @@
     "Box46L": "SEID Contribution (Absolute)",
     "Box47L": "SEID Contribution (Relative)",
     "Box48L": "Total Contribution",
-    "Box49L": "Sigma MUF (AI) Contribution (Absolute)",
+    "Box49L": "SEID (AI) Contribution (Absolute)",
     "Box4L": "Statistical Thresholds",
-    "Box50L": "Sigma MUF (AI) Contribution (Relative)",
+    "Box50L": "SEID (AI) Contribution (Relative)",
     "OuterL": "Analysis"
 }

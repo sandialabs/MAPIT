@@ -1,4 +1,4 @@
-from MAPIT.GUI import ThreadTools, StatsPanelOps
+from MAPIT_internal.GUI import ThreadTools, StatsPanelOps
 from PySide2 import QtCore,QtWidgets, QtGui
 import os
 import numpy as np

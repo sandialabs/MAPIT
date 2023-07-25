@@ -4,7 +4,7 @@
 """
 
 from PySide2 import QtCore, QtWidgets, QtGui
-from MAPIT.GUI import StyleOps
+from MAPIT_internal.GUI import StyleOps
 
 #All of these animations and stylesheets
 #do have subtle differences if you can

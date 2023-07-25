@@ -1,11 +1,12 @@
 import numpy as np
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib
+matplotlib.use("Qt5Agg")
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PySide2 import QtCore, QtWidgets, QtGui
 from matplotlib.figure import Figure
 from PIL import ImageFont   ## MH added to test label sizing
 import time
-from MAPIT.GUI import StyleOps
+from MAPIT_internal.GUI import StyleOps
 
 
 
@@ -18,11 +19,14 @@ class MPLCanvas(FigureCanvas):
         the plot in MAPIT
   """
 
+  def parent(self):
+    return self.main_gui
+
   def __init__(self, parent, dpi=100):
 
     #sself.currentFontSize = QtWidgets.QApplication.font().pointSize()
     #self.currentFontSize=20
-    self.parent = parent
+    self.main_gui = parent
     matplotlib.rcParams.update({'font.size': parent.currentFontSize-2})
 
 
@@ -32,22 +36,22 @@ class MPLCanvas(FigureCanvas):
     #self.fig.subplots_adjust(left=0.10, bottom=0.10, right=0.98, top=0.95)
     self.axes = self.fig.add_subplot(111)
 
-    self.fig.set_facecolor(self.parent.colordict["WindowBackground"])
-    self.axes.set_facecolor(self.parent.colordict["plotBg"])
+    self.fig.set_facecolor(self.main_gui.colordict["WindowBackground"])
+    self.axes.set_facecolor(self.main_gui.colordict["plotBg"])
 
 
 
-    self.axes.spines['bottom'].set_color(self.parent.colordict["Text"])
-    self.axes.spines['top'].set_color(self.parent.colordict["Text"])
-    self.axes.spines['right'].set_color(self.parent.colordict["Text"])
-    self.axes.spines['left'].set_color(self.parent.colordict["Text"])
+    self.axes.spines['bottom'].set_color(self.main_gui.colordict["Text"])
+    self.axes.spines['top'].set_color(self.main_gui.colordict["Text"])
+    self.axes.spines['right'].set_color(self.main_gui.colordict["Text"])
+    self.axes.spines['left'].set_color(self.main_gui.colordict["Text"])
 
-    self.axes.tick_params(axis='x', colors=self.parent.colordict["Text"], which='both')
-    self.axes.tick_params(axis='y', colors=self.parent.colordict["Text"], which='both')
+    self.axes.tick_params(axis='x', colors=self.main_gui.colordict["Text"], which='both')
+    self.axes.tick_params(axis='y', colors=self.main_gui.colordict["Text"], which='both')
 
-    self.axes.yaxis.label.set_color(self.parent.colordict["Text"])
-    self.axes.xaxis.label.set_color(self.parent.colordict["Text"])
-    self.axes.title.set_color(self.parent.colordict["Text"])
+    self.axes.yaxis.label.set_color(self.main_gui.colordict["Text"])
+    self.axes.xaxis.label.set_color(self.main_gui.colordict["Text"])
+    self.axes.title.set_color(self.main_gui.colordict["Text"])
 
     self.axes.tick_params(axis='both', which='major', labelsize=parent.currentFontSize-2)
     self.axes.tick_params(axis='both', which='minor', labelsize=parent.currentFontSize-2)
@@ -104,13 +108,13 @@ class MPLCanvas(FigureCanvas):
 
         self.axes.plot(data)
     elif data[2] == 'hist':
-      if self.parent.metricBox.currentText().endswith("(Absolute)"):
+      if self.main_gui.metricBox.currentText().endswith("(Absolute)"):
         contrib_type='abs'
       else:
         contrib_type='rel'
 
-      if hasattr(self.parent,'PlotLocLabels'):
-        contribL = self.parent.PlotLocLabels
+      if hasattr(self.main_gui,'PlotLocLabels'):
+        contribL = self.main_gui.PlotLocLabels
       else:
         contribL = None
       
@@ -128,15 +132,16 @@ class MPLCanvas(FigureCanvas):
         
           if usehatch == 1:
               if labels[idx_mapping_loc[i]].endswith('(rand)'):
-                texture = '/'
-                self.axes.bar(xx,plotdat[i,]-b,width,bottom=b,label=labels[idx_mapping_loc[i]],edgecolor='k',color='C'+str(c0),hatch=texture,alpha=0.6)
+                texture = ['--', '/', '+', 'x']
+                self.axes.bar(xx,plotdat[i,]-b,width,bottom=b,label=labels[idx_mapping_loc[i]],edgecolor='k',color='C'+str(c0),hatch=texture[c0%4],alpha=0.6)
                 c0+=1
               else:
-                texture = '.'
-                self.axes.bar(xx,plotdat[i,]-b,width,bottom=b,label=labels[idx_mapping_loc[i]],edgecolor='k',color='C'+str(c1),hatch=texture,alpha=0.6)
+                texture = ['.', '*', 'o', '\\']
+                self.axes.bar(xx,plotdat[i,]-b,width,bottom=b,label=labels[idx_mapping_loc[i]],edgecolor='k',color='C'+str(c1),hatch=texture[c1%4],alpha=0.6)
                 c1+=1
           else:
-            self.axes.bar(xx,plotdat[i,]-b,width,bottom=b,label=labels[idx_mapping_loc[i]],edgecolor='k',alpha=0.6)
+            texture = ['.', '*', 'o', '\\']
+            self.axes.bar(xx,plotdat[i,]-b,width,bottom=b,label=labels[idx_mapping_loc[i]],edgecolor='k',hatch=texture[i%4],alpha=0.6)
           
           
 
@@ -146,17 +151,17 @@ class MPLCanvas(FigureCanvas):
   def update_figure_legend(self):
       
       box = self.boxpos
-      Z = 12/self.parent.currentFontSize*0.83
+      Z = 12/self.main_gui.currentFontSize*0.83
       self.axes.set_position([box.x0, box.y0, box.width * Z, box.height])
 
       handles, labels = self.axes.get_legend_handles_labels()
       labels, handles = zip(*sorted(zip(labels, handles), key=lambda t: t[0]))
 
       lgd = self.axes.legend(handles, labels, loc='center left', bbox_to_anchor=(1, 0.5),
-                       facecolor=self.parent.colordict["plotBg"],
-                       labelcolor=self.parent.colordict["Text"],
-                       edgecolor=self.parent.colordict["Text"],
-                       fontsize = self.parent.currentFontSize-2)
+                       facecolor=self.main_gui.colordict["plotBg"],
+                       labelcolor=self.main_gui.colordict["Text"],
+                       edgecolor=self.main_gui.colordict["Text"],
+                       fontsize = self.main_gui.currentFontSize-2)
       #self.fig.subplots_adjust(right=0.75)
       #lgd.set_in_layout(True)
       #self.fig.tight_layout()
@@ -165,11 +170,11 @@ class MPLCanvas(FigureCanvas):
 
   def update_figure_title(self, data):
     #fontsize = QtWidgets.QApplication.font().pointSize()
-    self.axes.set_title(data.title,fontsize=self.parent.currentFontSize-2)
+    self.axes.set_title(data.title,fontsize=self.main_gui.currentFontSize-2)
 #    font = ImageFont.truetype(size = 20)
     self.axes.title.set_color(self.axes.yaxis.label.get_color())
-    self.axes.set_xlabel(data.xlabel, fontsize = self.parent.currentFontSize-2)
-    self.axes.set_ylabel(data.ylabel, fontsize=self.parent.currentFontSize-2)
+    self.axes.set_xlabel(data.xlabel, fontsize = self.main_gui.currentFontSize-2)
+    self.axes.set_ylabel(data.ylabel, fontsize=self.main_gui.currentFontSize-2)
     self.axes.ticklabel_format(axis='y', style='sci', useOffset=True,scilimits=(-4,4)) #use sci notation for large numbers
     #self.axes.yaxis.set_tick_params(labelsize=20)
     #self.axes.tick_params(labelsize=fontsize)
@@ -196,8 +201,7 @@ class MPLCanvas(FigureCanvas):
 
     # prob a better way/method to do this
     # future TODO: fix this abomination of a code line
-    self.parent().parent().parent().StatThreshDisp.setText(
-        str(round(TotOver, 2)))
+    self.main_gui.StatThreshDisp.setText(str(round(TotOver, 2)))
 def UpdatePlotOpts(GUIObj):
     """
             Function to add GT and observed
@@ -263,8 +267,8 @@ def getDataWithoutLocations(inp,nPlot):
   elif nPlot == -2:
     dat = inp
   elif nPlot == 15:
-    np.shuffle(xx)
-    xidx = int(xx[:15])
+    np.random.shuffle(xx)
+    xidx = xx[:15].astype(int)
     dat = inp[xidx,]
 
 
@@ -315,8 +319,8 @@ def getDataWithLocations(PlotIndex,GUIparams,AnalysisData,nPlot,raw):
   elif nPlot == -2:
     None
   elif nPlot == 15:
-    np.shuffle(xx)
-    xidx = int(xx[:15])
+    np.random.shuffle(xx)
+    xidx = xx[:15].astype(int)
     dat = dat[xidx,]
   
   return dat, datT
