@@ -6,7 +6,7 @@ from PySide2 import QtCore, QtWidgets, QtGui
 from matplotlib.figure import Figure
 from PIL import ImageFont   ## MH added to test label sizing
 import time
-from MAPIT_internal.GUI import StyleOps
+from MAPIT.GUI import StyleOps
 
 
 

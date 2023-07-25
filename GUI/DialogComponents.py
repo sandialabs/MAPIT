@@ -1,6 +1,6 @@
 from PySide2 import QtWidgets, QtCore, QtGui
-from MAPIT_internal.core import AuxFunctions as Aux
-from MAPIT_internal.GUI import IOWizard, GeneralOps
+from MAPIT.core import AuxFunctions as Aux
+from MAPIT.GUI import IOWizard, GeneralOps
 import os
 import numpy as np
 import time

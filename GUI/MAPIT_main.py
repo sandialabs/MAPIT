@@ -34,9 +34,9 @@ import time
 
 
 
-from MAPIT_internal.GUI.IOWizard import IOWizardMain 
-#from MAPIT_internal.GUI.IOWizardMat import IOWizardMainMat
-from MAPIT_internal.GUI import PlotOps, StyleOps, GeneralOps, DialogComponents, StatsPanelOps, ScenarioSelector, AnimationTools, ErrorPanelOps, ThreadTools, GUIComponents
+from MAPIT.GUI.IOWizard import IOWizardMain 
+#from MAPIT.GUI.IOWizardMat import IOWizardMainMat
+from MAPIT.GUI import PlotOps, StyleOps, GeneralOps, DialogComponents, StatsPanelOps, ScenarioSelector, AnimationTools, ErrorPanelOps, ThreadTools, GUIComponents
 
 
 

@@ -1,5 +1,5 @@
 from PySide2 import QtWidgets, QtCore
-from MAPIT_internal.GUI import AnimationTools
+from MAPIT.GUI import AnimationTools
 
 
 class AniButton(QtWidgets.QPushButton):

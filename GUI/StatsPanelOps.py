@@ -1,7 +1,7 @@
 from PySide2 import  QtCore
 import matplotlib
 import numpy as np
-from MAPIT_internal.GUI import PlotOps, StyleOps
+from MAPIT.GUI import PlotOps, StyleOps
 
 
 def verifyGUIRequests(GUIObject,GUIparams):

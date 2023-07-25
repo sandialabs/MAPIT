@@ -9,7 +9,7 @@ import numpy as np
 import os
 import sys
 from pathlib import Path
-from MAPIT_internal.GUI import GUIComponents, StyleOps
+from MAPIT.GUI import GUIComponents, StyleOps
 
 
 #temp

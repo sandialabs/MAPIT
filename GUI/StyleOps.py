@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import os
 import sys
-from MAPIT_internal.GUI import PlotOps
+from MAPIT.GUI import PlotOps
 
 #NOTE: qcheckbox color doesn't change as it's an image unfortunately
 # would require custom image
