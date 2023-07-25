@@ -15,6 +15,8 @@
   rm -rf $HOME/miniconda.sh
   source $HOME/miniconda/etc/profile.d/conda.sh
   conda env create -f ../requirements.yml &> /dev/null && echo MAPIT environment install completed.
+  cd ../../
+  mv MAPIT-pm-bugfix MAPIT
 } || { echo Something went wrong: Install failed
 
 }
