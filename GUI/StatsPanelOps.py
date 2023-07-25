@@ -211,27 +211,28 @@ def getGUIErrorVals(GUIObject,lenInp,lenInv,lenOut,GLoc):
         if GLoc != -1:
             ColLoc = 0
 
-
         for j in range(ColLoc,ColLoc+2):
-            P = 0
-            
-            for i in range(0,GUIObject.EP.rowCount()):
+
+            for i in range(0,lenInp):
                 if GUIObject.EP.item(i,j) is not None:
                     if  GUIObject.EP.item(i, j).text().endswith('%'):
-                        ErrorMatrix[P, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+                        ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
                     else:
-                        ErrorMatrix[P, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
-                    P+= 1
+                        ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
+            for i in range(lenInp+1,lenInp+lenInv+1):
+                if GUIObject.EP.item(i,j) is not None:
+                    if  GUIObject.EP.item(i, j).text().endswith('%'):
+                        ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
 
+                    else:
+                        ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
 
-
-        
-        # for i in range(0, GUIObject.EP.rowCount()):
-        #     for j in range(ColLoc, ColLoc+2):
-        #         if GUIObject.EP.item(i, j) is not None:
-
-
-
+            for i in range(lenInp+lenInv+1,lenInp+lenInv+lenOut+2):
+                if GUIObject.EP.item(i,j) is not None:
+                    if  GUIObject.EP.item(i, j).text().endswith('%'):
+                        ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+                    else:
+                        ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
 
         return ErrorMatrix
 

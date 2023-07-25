@@ -73,8 +73,8 @@ domdictlab = {
       "Box45L" : "Systematic",
       "Box46L" : "SEID Contribution (Absolute)",
       "Box47L" : "SEID Contribution (Relative)",
-      "Box49L" : "Sigma MUF (AI) Contribution (Absolute)",
-      "Box50L" : "Sigma MUF (AI) Contribution (Relative)",
+      "Box49L" : "SEID (AI) Contribution (Absolute)",
+      "Box50L" : "SEID (AI) Contribution (Relative)",
       "Box48L": "Total Contribution"
     }
 

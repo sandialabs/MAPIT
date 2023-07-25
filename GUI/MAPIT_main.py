@@ -23,6 +23,8 @@ os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 os.environ["QT_SCALE_FACTOR"]             = "1"
 
 from PySide2 import QtCore, QtWidgets, QtGui
+import matplotlib
+matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import numpy as np
 import time
@@ -53,7 +55,7 @@ class customExecp(Exception):
 
 
 GUIparams = GUIopts()
-GUIparams = GeneralOps.loadGUILabels(GUIparams, international = True)
+GUIparams = GeneralOps.loadGUILabels(GUIparams, international = False)
 AnalysisData = DataHolder()
 
 class StatGUIInterface:
@@ -1103,7 +1105,6 @@ def add_plot_box(self):
   self.canvas = PlotOps.MPLCanvas(self)
   self.navi_toolbar = NavigationToolbar(self.canvas, self)
 
-  
   PlotContainerL.addWidget(self.canvas)
   PlotContainerL.addWidget(self.navi_toolbar, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
   #PlotContainerL.addWidget(QtWidgets.QPushButton(), alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
@@ -1269,3 +1270,4 @@ if __name__ == "__main__":
     
 
   sys.exit(app.exec_())
+
