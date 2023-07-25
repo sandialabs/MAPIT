@@ -4,9 +4,9 @@ channels:
   - conda-forge
 dependencies:
   - matplotlib=3.3.4
-  - numpy
+  - numpy=1.21.2
   - Pillow
   - PySide2=5.13.2
-  - scipy
+  - scipy=1.6.2
   - python=3.9
   - tqdm
