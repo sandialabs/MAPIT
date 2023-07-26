@@ -18,7 +18,7 @@ def trapSum(relevantIndex, time, data, IT=None, baseline_zero=1e-10):
       :math:`\\int y(x) dx`
 
       Args:
-        relevantIndex (ndarray): An array that expresses the relevant time slice, in terms of indicies, with shape :math:`[m,j]` where :math:`m` is the total number of relevant samples and :math:`j` is the total number of iterations.
+        relevantIndex (ndarray): An array that expresses the relevant time slice, with boolean values (0 = not relevant, 1 = relevant), with shape :math:`[m,j]` where :math:`m` is the total number of relevant samples and :math:`j` is the total number of iterations.
 
         time(ndarray): An array containing the total number of timestep values under consideration for the analysis. Has shape :math:`[n,j]` where :math:`n` is the total number of samples under consideration and :math:`n>m` for :math:`m` in `relevantIndex` and :math:`j` is the total number of iterations.
 
@@ -120,6 +120,9 @@ def trapSum(relevantIndex, time, data, IT=None, baseline_zero=1e-10):
             if len(LeftIndicies) == 0:
                 LeftIndicies = np.array([np.min(np.argwhere(
                     relevantDataValsAbs > baseline_zero))]).reshape((-1, 1)).astype(int)
+
+    if len(RightIndicies) < len(LeftIndicies):
+        RightIndicies = np.append(RightIndicies,[len(relevantDataVals)-1]).reshape((-1,1))
 
     pairs = np.concatenate((LeftIndicies, RightIndicies), axis=1)
 
