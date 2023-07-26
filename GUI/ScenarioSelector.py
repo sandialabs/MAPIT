@@ -95,7 +95,7 @@ class MPLCanvas(FigureCanvas):
     #load the background image
     dirname, _ = os.path.split(os.path.abspath(__file__))
     x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'docs_v2','source','assets', 'codeAssets', 'FuelFabBase.png')
+    F = os.path.join(x, 'docs_v2', 'codeAssets', 'FuelFabBase.png')
     self.axes.imshow(Image.open(F), interpolation='catrom')
 
     self.axes.set_ylim(self.axes.get_ylim()[0], self.axes.get_ylim()[1] - 500)
@@ -288,7 +288,7 @@ class SceneExamine(QtWidgets.QDialog):
 
     self.sceneName = 'Normal'
 
-    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
+    F = os.path.join(x, 'docs_v2','codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
     self.setWindowIcon(QtGui.QIcon(F))
 
 
@@ -322,7 +322,7 @@ class SceneExamine(QtWidgets.QDialog):
 
     dirname, _ = os.path.split(os.path.abspath(__file__))
     x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'docs_v2','source','assets', 'codeAssets', pName)
+    F = os.path.join(x, 'docs_v2','codeAssets', pName)
     IC = QtGui.QPixmap(F)
 
     ICB = QtWidgets.QPushButton()
@@ -331,7 +331,7 @@ class SceneExamine(QtWidgets.QDialog):
     ICB.clicked.connect(self.PlayButton)
 
     SCB = QtWidgets.QPushButton()
-    F = os.path.join(x, 'docs_v2','source','assets', 'codeAssets', ppName)
+    F = os.path.join(x, 'docs_v2', 'codeAssets', ppName)
     SCBL = QtGui.QPixmap(F)
 
     SCB.setIcon(SCBL)
@@ -560,7 +560,7 @@ class SceneExamine(QtWidgets.QDialog):
   """
 
     IDXS = [0,4,6,11,10]
-    IDXS2 = np.linspace(12,17,5,dtype=np.int)
+    IDXS2 = np.linspace(12,17,5,dtype=int)
     ispresent = np.zeros((len(IDXS)+1,))
     AniLen = int(self.EndBox.text()) - int(self.TimeBox.text())
 
