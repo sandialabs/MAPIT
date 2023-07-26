@@ -16,9 +16,9 @@ echo Creating environment
 call %userprofile%\Miniconda3\condabin\activate.bat
 call conda env create -f ../requirements.yml >nul 2>&1
 if  errorlevel 1 goto ERROR
-call move MAPIT.lnk %userprofile%\Desktop
-echo Install complete
-PAUSE
+call cd ../../
+call ren MAPIT-master MAPIT
+echo Install completePAUSE
 goto EOF
 
 :ERROR
