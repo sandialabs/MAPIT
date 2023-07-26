@@ -560,7 +560,7 @@ class SceneExamine(QtWidgets.QDialog):
   """
 
     IDXS = [0,4,6,11,10]
-    IDXS2 = np.linspace(12,17,5,dtype=np.int)
+    IDXS2 = np.linspace(12,17,5,dtype=int)
     ispresent = np.zeros((len(IDXS)+1,))
     AniLen = int(self.EndBox.text()) - int(self.TimeBox.text())
 
