@@ -158,7 +158,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     #
     dirname, _ = os.path.split(os.path.abspath(__file__))
     x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'mapit_logo.png')
+    F = os.path.join(x, 'docs_v2', 'codeAssets', 'mapit_logo.png')
     self.setWindowIcon(QtGui.QIcon(F))
 
     StatsPanelOps.update_data_opts(self,0) #call for initial layout setup
@@ -1192,7 +1192,7 @@ if __name__ == "__main__":
 
   #splash
   x = Path(sys.argv[0]).resolve().parents[1]
-  F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'splash3.png')
+  F = os.path.join(x, 'docs_v2', 'codeAssets', 'splash3.png')
   splash_pix = QtGui.QPixmap(F)
   G = QtWidgets.QApplication.instance().devicePixelRatio()
   splash_pix.setDevicePixelRatio(G)
@@ -1205,7 +1205,7 @@ if __name__ == "__main__":
   
 
 
-  F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
+  F = os.path.join(x, 'docs_v2','codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
   splash.setWindowIcon(QtGui.QIcon(F))
 
   progressBar = QtWidgets.QProgressBar(splash)
