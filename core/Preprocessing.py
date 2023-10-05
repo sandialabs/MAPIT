@@ -218,7 +218,7 @@ def loadDataFromWizard(GUIObject):
 
 
 
-def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,rawOutputTimes,GUIObject=None,dataOffset=0,IT=1):
+def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,rawOutputTimes,GUIObject=None,dataOffset=0,IT=1, rebaseToZero=True):
 
     if GUIObject is not None:
       GUIObject.progress.emit(-1)
@@ -269,31 +269,75 @@ def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,
     #useful if there is a long period of startup
     #data that has been collected
     #TODO: experimental
+
+    #If the cutoff is greater than the max time
+    #of the location then we just remove that
+    #set as it's not applicable anymore
+
+    
     if dataOffset > 0:
 
       #assumes raws are lists based on location
+      idxToRemove=[]
       for JR in range(len(rawInput)):
-        fsh = np.shape(rawInput[JR])
 
-        rawInput[JR] = rawInput[JR][np.where(rawInputTimes[JR] > dataOffset)].reshape((-1, fsh[1]))
+        validtimeIdxs = np.where(rawInputTimes[JR]>=dataOffset)[0]
 
-        rawInputTimes[JR] = rawInputTimes[JR][np.where(rawInputTimes[JR] > dataOffset)].reshape((-1, fsh[1])) - dataOffset
+        if len(validtimeIdxs) >= 1:
+          LI = validtimeIdxs[0]
+          rawInput[JR] = rawInput[JR][LI:,]
+          if rebaseToZero:
+            rawInputTimes[JR] = rawInputTimes[JR][LI:,] - dataOffset
+          else:
+            rawInputTimes[JR] = rawInputTimes[JR][LI:,]
+        else:
+          print("Cutoff exceeds total input time, removing input")
+          idxToRemove.append(JR)
 
+      if len(idxToRemove) > 0:
+        rawInput = [v for i, v in enumerate(rawInput) if i not in idxToRemove]
+        rawInputTimes = [v for i, v in enumerate(rawInputTimes) if i not in idxToRemove]
 
+      idxToRemove=[]
       for JR in range(len(rawInventory)):
-        fsh = np.shape(rawInventory[JR])
 
-        rawInventory[JR] = rawInventory[JR][np.where(rawInventoryTimes[JR] > dataOffset)].reshape((-1, fsh[1]))
+        validtimeIdxs = np.where(rawInventoryTimes[JR]>=dataOffset)[0]
 
-        rawInventoryTimes[JR] = rawInventoryTimes[JR][np.where(rawInventoryTimes[JR] > dataOffset)].reshape((-1, fsh[1])) - dataOffset
+        if len(validtimeIdxs) >= 1:
+          LI = validtimeIdxs[0]
+          rawInventory[JR] = rawInventory[JR][LI:,]
+          if rebaseToZero:
+            rawInventoryTimes[JR] = rawInventoryTimes[JR][LI:,] - dataOffset
+          else:
+            rawInventoryTimes[JR] = rawInventoryTimes[JR][LI:,]
+        else:
+          print("Cutoff exceeds total input time, removing inventory")
+          idxToRemove.append(JR)
 
+      if len(idxToRemove) > 0:
+        rawInventory = [v for i, v in enumerate(rawInventory) if i not in idxToRemove]
+        rawInventoryTimes = [v for i, v in enumerate(rawInventoryTimes) if i not in idxToRemove]
 
+      idxToRemove=[]
       for JR in range(len(rawOutput)):
-        fsh = np.shape(rawOutput[JR])
 
-        rawOutput[JR] = rawOutput[JR][np.where(rawOutputTimes[JR] > dataOffset)].reshape((-1, fsh[1]))
+        validtimeIdxs = np.where(rawOutputTimes[JR]>=dataOffset)[0]
 
-        rawOutputTimes[JR] = rawOutputTimes[JR][np.where(rawOutputTimes[JR] > dataOffset)].reshape((-1, fsh[1])) - dataOffset
+        if len(validtimeIdxs) >= 1:
+          LI = validtimeIdxs[0]
+          rawOutput[JR] = rawOutput[JR][LI:,]
+          if rebaseToZero:
+            rawOutputTimes[JR] = rawOutputTimes[JR][LI:,] - dataOffset
+          else:
+            rawOutputTimes[JR] = rawOutputTimes[JR][LI:,]
+        else:
+          print("Cutoff exceeds total input time, removing inventory")
+          idxToRemove.append(JR)
+
+      
+      if len(idxToRemove) > 0:
+        rawOutput = [v for i, v in enumerate(rawOutput) if i not in idxToRemove]
+        rawOutputTimes = [v for i, v in enumerate(rawOutputTimes) if i not in idxToRemove]
 
 
 

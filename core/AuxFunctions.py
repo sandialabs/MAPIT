@@ -37,6 +37,10 @@ def trapSum(relevantIndex, time, data, IT=None, baseline_zero=1e-10):
     else:
         IDXC = 0
 
+    #if no relevant times return here
+    if np.sum(relevantIndex) == 0:
+        return np.zeros((data.shape[0],))
+
     LI = np.argmin(relevantIndex == False)
     RI = len(relevantIndex) - np.argmin(relevantIndex[::-1] == False)
     relevantDataVals = data[IDXC, LI:RI:1]
@@ -126,7 +130,11 @@ def trapSum(relevantIndex, time, data, IT=None, baseline_zero=1e-10):
 
     pairs = np.concatenate((LeftIndicies, RightIndicies), axis=1)
 
-
+    #if there's no pairs because datavals are zero then
+    #return
+    if len(pairs) == 0:
+        assert np.sum(relevantDataVals) == 0, "There's a problem"
+        return np.zeros((data.shape[0],))
     # Generally, the final interval of a pulse is required to produce the proper integration value
     # however, as MAPIT is primarly used in and around Simulink, it's been observed that in some cases,
     # simulink will not record the final part of a pulse until several time steps later.
@@ -134,7 +142,7 @@ def trapSum(relevantIndex, time, data, IT=None, baseline_zero=1e-10):
     # after all the other data in that pulse. If so, we ignore that part of the pulse as it
     # is an error in Simulink. If not accounted for, the integration will provide an incorrect, inflated
     # value. This occurs on the second input of the fuel fab dataset, for example.
-    if len(relevantTimeVals)-1 != pairs[0, 1]:
+    if len(relevantTimeVals)-1 != pairs[0, 1] and pairs[0,1]-pairs[0,0] > 1:
         if (relevantTimeVals[pairs[0, 1]+1] - relevantTimeVals[pairs[0, 1]]) <= np.max(np.diff(relevantTimeVals[pairs[0, 0]:pairs[0, 1]].squeeze())):
             pairs[:, 1] += 1
 
