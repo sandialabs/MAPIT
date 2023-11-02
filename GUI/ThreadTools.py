@@ -53,6 +53,7 @@ class AnalysisThread(QtCore.QThread):
 
 
         AnalysisData.ErrorMatrix = StatsPanelOps.getGUIErrorVals(self.parent,
+                                                                GUIparams,
                                                                 len(processedInput),
                                                                 len(processedInventory),
                                                                 len(processedOutput),

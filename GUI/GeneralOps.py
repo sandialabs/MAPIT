@@ -406,9 +406,8 @@ def getSceneData(GUIObj,AnalysisData,GUIparams):
                 "Fuel Fab":"fuel_fab"
             }
 
-  dirname, _ = os.path.split(os.path.abspath(__file__))
-  x = Path(dirname).resolve().parents[0]
-  F = os.path.join(x, 'data', mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'data.mat')
+
+  F = os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'data.mat')
   x1 = loadmat(F,squeeze_me=True)
 
   AnalysisData.rawInventory = x1['invn']['data']
@@ -435,7 +434,7 @@ def getSceneData(GUIObj,AnalysisData,GUIparams):
   #fuel fab only has uranium and some other
   #non actinide materials
 
-  F = os.path.join(x, 'data', mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'auxData.npz')
+  F = os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'auxData.npz')
   A = np.load(F)
   GUIparams.rowNames = A['arr2']
   GUIObj.GESelector.addItem("U")
@@ -448,7 +447,6 @@ def getSceneData(GUIObj,AnalysisData,GUIparams):
 
 
   return AnalysisData, GUIparams
-
 
 def loadGUILabels(GUIparams,international=False):
   if international == True:

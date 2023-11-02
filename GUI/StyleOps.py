@@ -76,7 +76,33 @@ def get_palette(color,return_dict=False):
     else:
         return palette
 
+def getSysDefaultTheme():
+    sysPalette = QtGui.QPalette()
+    if sum(sysPalette.base().color().getRgb()[0:3]) != 765:
+        theme = 'dark'
+    else:
+        theme= 'light'
+    return theme
 
+def getDlgColorDict(self,parent,setInitStyle):
+    theme = ''
+    if setInitStyle:
+        settings = QtCore.QSettings("current", "mapit")
+        theme = settings.value("theme")
+        if theme is None:
+            theme = "light"
+
+    else:
+        if parent.MakeDark.isChecked():
+            theme="dark"
+        else:
+            theme="light"
+
+    P, colordict = get_palette(theme,return_dict=True) 
+    self.colordict = colordict
+
+    if setInitStyle:
+        QtCore.QCoreApplication.instance().setPalette(P)
 
 def setInitialStyle(self):
 
@@ -441,7 +467,6 @@ def changeFontSize(self,increment):
     QtWidgets.QApplication.instance().setFont(QtGui.QFont("Open Sans",self.currentFontSize),"QProgressBar")
     PlotOps.fontresize(self)
 
-
 def RestoreWindow(self):
     center_point = QtWidgets.QApplication.primaryScreen().geometry().center()
     frameGM = self.frameGeometry()
@@ -449,3 +474,4 @@ def RestoreWindow(self):
     self.move(frameGM.topLeft())
     QtWidgets.QApplication.instance().setFont(QtGui.QFont("Open Sans"))
     self.currentFontSize  =QtWidgets.QApplication.instance().font().pointSize()
+

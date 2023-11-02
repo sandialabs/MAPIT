@@ -103,11 +103,54 @@ def getRequestedTests(GUIObject):
 
 
 def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,doPage,GUIparams,AnalysisData):
+      
+
+
+      # store the current values
+      currentMetric = GUIObject.metricBox.currentText()
+      currentNum = GUIObject.NumToPlot.currentText()
+      currentLoc = GUIObject.LocBox.currentText()
+      currentType = GUIObject.NucIDBox.currentText()
 
       PlotOps.UpdatePlotOpts(GUIObject)
 
+      if doMUF == 1:
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box12L"])
+      if doAI == 1:
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box13L"])
+      if doCUMUF:
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box14L"])
+      if doSEID == 1:
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box15L"])
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box46L"])
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box47L"])
+      if doSEIDAI == 1:
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box16L"])
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box49L"])
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box50L"])
+      if doSITMUF == 1:
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box17L"])
+      if doPage == 1:
+        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box18L"])
+
+      # restore previous location selection, if relevant and present
+      if GUIObject.metricBox.findText(currentMetric) != -1:
+          GUIObject.metricBox.setCurrentIndex(GUIObject.metricBox.findText(currentMetric))
+
       PlotOps.UpdateLocOpts(GUIObject,GUIparams)  #add locations to plot since default plot option is ground truth
 
+      # restore previous selection if still present and relevant
+      if GUIObject.NumToPlot.findText(currentNum) != -1:
+          GUIObject.NumToPlot.setCurrentIndex(GUIObject.NumToPlot.findText(currentNum))
+
+      if GUIObject.LocBox.findText(currentLoc) != -1:
+          GUIObject.LocBox.setCurrentIndex(GUIObject.LocBox.findText(currentLoc))
+
+      if GUIObject.NucIDBox.findText(currentType) != -1:
+          GUIObject.NucIDBox.setCurrentIndex(GUIObject.NucIDBox.findText(currentType))
+
+      GUIObject.mb1.setEnabled(1)
+      GUIObject.mb1.setTitle(GUIparams.labels["Box31L"])
       GUIObject.mb1.ChangeActive(1)
       StyleOps.update_aniGBoxSmall_styleSheet(GUIObject.colordict,GUIObject.mb1,isactive=1)      
 
@@ -135,6 +178,7 @@ def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,
 
 
       GUIObject.ExportDat.setEnabled(1)
+      GUIObject.StatThresh.setEnabled(1)
 
       if GUIObject.CB_SMUF.isChecked() == 1:
         GUIObject.TabView.setEnabled(1)
@@ -144,12 +188,7 @@ def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,
           GUIObject.TabView1.setEnabled(1)
 
 
-    #   if GUIObject.decompStatus == 0:
-    #       GUIObject.StatDlg.UpdateDispText('Decomposition error, restart calculation')
-    #       GUIObject.PB.setValue(0)
-    #   else:
 
-      #GUIObject.StatDlg.UpdateDispText('Execution Finished')
       GUIObject.PB.setFormat('Execution finished')
       GUIObject.PB.setValue(100)
 
@@ -160,31 +199,8 @@ def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,
 
       matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
-      if doMUF == 1:
-        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box12L"])
-      if doAI == 1:
-        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box13L"])
-      if doCUMUF:
-        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box14L"])
-      if doSEID == 1:
-        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box15L"])
-        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box46L"])
-        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box47L"])
-      if doSEIDAI == 1:
-        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box16L"])
-        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box49L"])
-        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box50L"])
-      if doSITMUF == 1:
-        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box17L"])
-      if doPage == 1:
-        UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box18L"])
 
-
-
-
-
-
-def getGUIErrorVals(GUIObject,lenInp,lenInv,lenOut,GLoc):
+def getGUIErrorVals(GUIObject,GUIparams,lenInp,lenInv,lenOut,GLoc):
 
         if hasattr(GUIObject, 'Wizard'):  #if data was imported
             TotalLocs = int(GUIObject.Wizard.InKMP) + int(GUIObject.Wizard.InvKMP) + int(
@@ -211,29 +227,59 @@ def getGUIErrorVals(GUIObject,lenInp,lenInv,lenOut,GLoc):
         if GLoc != -1:
             ColLoc = 0
 
-        for j in range(ColLoc,ColLoc+2):
+        if GUIparams.errorstyle == True:
+            for j in range(ColLoc,ColLoc+2):
 
-            for i in range(0,lenInp):
-                if GUIObject.EP.item(i,j) is not None:
-                    if  GUIObject.EP.item(i, j).text().endswith('%'):
-                        ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
-                    else:
-                        ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
-            for i in range(lenInp+1,lenInp+lenInv+1):
-                if GUIObject.EP.item(i,j) is not None:
-                    if  GUIObject.EP.item(i, j).text().endswith('%'):
-                        ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+                for i in range(0,lenInp):
+                    if GUIObject.EP.item(i,j) is not None:
+                        if  GUIObject.EP.item(i, j).text().endswith('%'):
+                            ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+                        else:
+                            ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
+                for i in range(lenInp+1,lenInp+lenInv+1):
+                    if GUIObject.EP.item(i,j) is not None:
+                        if  GUIObject.EP.item(i, j).text().endswith('%'):
+                            ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
 
-                    else:
-                        ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
+                        else:
+                            ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
 
-            for i in range(lenInp+lenInv+1,lenInp+lenInv+lenOut+2):
-                if GUIObject.EP.item(i,j) is not None:
-                    if  GUIObject.EP.item(i, j).text().endswith('%'):
-                        ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
-                    else:
-                        ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
+                for i in range(lenInp+lenInv+1,lenInp+lenInv+lenOut+2):
+                    if GUIObject.EP.item(i,j) is not None:
+                        if  GUIObject.EP.item(i, j).text().endswith('%'):
+                            ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+                        else:
+                            ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
+        else:
+            for j in range(ColLoc,ColLoc+1):
 
+                for i in range(0,lenInp):
+                    if GUIObject.EP.item(i,j) is not None:
+                        if  GUIObject.EP.item(i, j).text().endswith('%'):
+                            ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+                            ErrorMatrix[i, j-ColLoc+1] = 0.0
+                        else:
+                            ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
+                            ErrorMatrix[i, j-ColLoc+1] = 0.0
+
+                for i in range(lenInp+1,lenInp+lenInv+1):
+                    if GUIObject.EP.item(i,j) is not None:
+                        if  GUIObject.EP.item(i, j).text().endswith('%'):
+                            ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+                            ErrorMatrix[i, j-ColLoc+1] = 0.0
+
+                        else:
+                            ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
+                            ErrorMatrix[i-1, j-ColLoc+1] = 0.0
+
+                for i in range(lenInp+lenInv+1,lenInp+lenInv+lenOut+2):
+                    if GUIObject.EP.item(i,j) is not None:
+                        if  GUIObject.EP.item(i, j).text().endswith('%'):
+                            ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+                            ErrorMatrix[i-2, j-ColLoc+1] = 0.0
+                        else:
+                            ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
+                            ErrorMatrix[i-2, j-ColLoc+1] = 0.0
         return ErrorMatrix
 
 

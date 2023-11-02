@@ -216,8 +216,7 @@ def UpdatePlotOpts(GUIObj):
 
     # some logic in here to reset boxes as well
     if GUIObj.metricBox.count() > 0:
-      for i in range(0, GUIObj.metricBox.count()):
-        GUIObj.metricBox.removeItem(0)
+      GUIObj.metricBox.clear()
       GUIObj.metricBox.addItem('Ground Truth Data')
       GUIObj.metricBox.addItem('Observed Data')
     else:
@@ -225,22 +224,21 @@ def UpdatePlotOpts(GUIObj):
       GUIObj.metricBox.addItem('Observed Data')
 
     if GUIObj.NumToPlot.count() < 0:
-      for i in range(0, GUIObj.NumToPlot.count()):
-        GUIObj.NumToPlot.removeItem(i)
+      GUIObj.NumToPlot.clear()
 
 
 
 def getNumToPlot(GUIObj):
   NumToPlot = 0
-  if GUIObj.NumToPlot.currentText() == '1 Random Iteration' or GUIObj.NumToPlot.currentText() == '1 Iteration':
-    NumToPlot = 1
-  elif GUIObj.NumToPlot.currentText() == 'Average of All Iterations':
-    NumToPlot = -1
-  elif GUIObj.NumToPlot.currentText(
+  if GUIObj.NumToPlot.currentText(
   ) == 'All Iterations (' + GUIObj.IterBox.text() + ')':
     NumToPlot = -2
   elif GUIObj.NumToPlot.currentText() == '15 Random Iterations':
     NumToPlot = 15
+  elif GUIObj.NumToPlot.currentText() == '1 Random Iteration' or GUIObj.NumToPlot.currentText() == '1 Iteration':
+    NumToPlot = 1
+  elif GUIObj.NumToPlot.currentText() == 'Average of All Iterations':
+    NumToPlot = -1
   else:
     None
 
@@ -556,7 +554,6 @@ def ExecPlot(GUIObject,GUIparams,AnalysisData):
     GUIObject.canvas.update_figure_legend() if dh[2] == 'hist' else None #add a legend for SEID contrib plot
 
 
-
 #improve the look of sparse pulses
 def resolveSparsePulses(indat,inT,LI=None,RI=None):
 
@@ -621,6 +618,8 @@ def UpdateLocOpts(self,GUIparams):
         self.NumToPlot.removeItem(0)
       self.NumToPlot.setEnabled(0)
       self.mb4.ChangeActive(0)
+      self.mb4.setEnabled(0)
+      self.mb4.setTitle('')
       StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb4)
     # OD add iterations
     elif self.metricBox.currentText() == 'Observed Data':
@@ -633,6 +632,7 @@ def UpdateLocOpts(self,GUIparams):
         if self.NumToPlot.count() > 0:
           for i in range(0, self.NumToPlot.count()):
             self.NumToPlot.removeItem(0)
+#        self.NumtoPlot.addItem('All Iterations (' + self.IterBox.text() + ')')
         self.NumToPlot.addItem('1 Random Iteration')
         self.NumToPlot.addItem('Average of All Iterations')
         self.NumToPlot.addItem('All Iterations (' + self.IterBox.text() + ')')
@@ -648,6 +648,8 @@ def UpdateLocOpts(self,GUIparams):
         self.NumToPlot.addItem('Average of All Iterations')
       self.NumToPlot.setEnabled(1)
       self.mb4.ChangeActive(1)
+      self.mb4.setEnabled(1)
+      self.mb4.setTitle(GUIparams.labels["Box34L"])
       StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb4,isactive=1)
     else:
       #re-add iterations here in case they were removed
@@ -661,9 +663,9 @@ def UpdateLocOpts(self,GUIparams):
         if self.NumToPlot.count() > 0:
           for i in range(0, self.NumToPlot.count()):
             self.NumToPlot.removeItem(0)
+        self.NumToPlot.addItem('All Iterations (' + self.IterBox.text() + ')')
         self.NumToPlot.addItem('1 Random Iteration')
         self.NumToPlot.addItem('Average of All Iterations')
-        self.NumToPlot.addItem('All Iterations (' + self.IterBox.text() + ')')
 
       else:
         #if there's more than 100 iterations set a max of 15
@@ -671,11 +673,13 @@ def UpdateLocOpts(self,GUIparams):
         for i in range(0, self.NumToPlot.count()):
           self.NumToPlot.removeItem(0)
 
-        self.NumToPlot.addItem('1 Random Iteration')
         self.NumToPlot.addItem('15 Random Iterations')
+        self.NumToPlot.addItem('1 Random Iteration')
         self.NumToPlot.addItem('Average of All Iterations')
       self.NumToPlot.setEnabled(1)
       self.mb4.ChangeActive(1)
+      self.mb4.setEnabled(1)
+      self.mb4.setTitle(GUIparams.labels["Box34L"])
       StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb4,isactive=1)
 
 
@@ -691,6 +695,8 @@ def UpdateLocOpts(self,GUIparams):
           self.NucIDBox.addItem(i)
         self.LocBox.setEnabled(1)
         self.mb2.ChangeActive(1)
+        self.mb2.setEnabled(1)
+        self.mb2.setTitle(GUIparams.labels["Box32L"])
         StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb2,isactive=1)
 
         self.NucIDBox.setEnabled(1)
@@ -708,6 +714,8 @@ def UpdateLocOpts(self,GUIparams):
 
         self.LocBox.setEnabled(0)
         self.mb2.ChangeActive(0)
+        self.mb2.setEnabled(0)
+        self.mb2.setTitle('')
         StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb2)
 
 
@@ -721,17 +729,21 @@ def UpdateLocOpts(self,GUIparams):
           if self.NumToPlot.count() > 0:
             for i in range(0, self.NumToPlot.count()):
               self.NumToPlot.removeItem(0)
+
+          self.NumToPlot.addItem('All Iterations (' + self.IterBox.text() + ')')
           self.NumToPlot.addItem('1 Random Iteration')
           self.NumToPlot.addItem('Average of All Iterations')
-          self.NumToPlot.addItem('All Iterations (' + self.IterBox.text() + ')')
         else:
           for i in range(0, self.NumToPlot.count()):
             self.NumToPlot.removeItem(0)
-          self.NumToPlot.addItem('1 Random Iteration')
+
           self.NumToPlot.addItem('15 Random Iterations')
+          self.NumToPlot.addItem('1 Random Iteration')
           self.NumToPlot.addItem('Average of All Iterations')
         self.NumToPlot.setEnabled(1)
         self.mb4.ChangeActive(1)
+        self.mb4.setEnabled(1)
+        self.mb4.setTitle(GUIparams.labels["Box34L"])
         StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb4,isactive=1)
       else:
         #if not included then style will look weird when no changes
@@ -750,16 +762,20 @@ def UpdateLocOpts(self,GUIparams):
       self.NucIDBox.addItem(GUIparams.labels["Box48L"])
       self.mb3.setTitle(GUIparams.labels["Box33Lb"])
       self.mb3.ChangeActive(1)
+      self.mb3.setEnabled(1)
       StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb3,isactive=1)
       #HACK: overwrite previous code that adds items bc lazy and this
       #whole module needs a cleaner rewrite
       self.NumToPlot.setEnabled(0)
       self.NumToPlot.clear()
       self.mb4.ChangeActive(0)
+      self.mb4.setEnabled(0)
+      self.mb4.setTitle("")
       StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb4,isactive=0)
     else:
-      self.mb3.setTitle(GUIparams.labels["Box33L"])
+      self.mb3.setTitle("")
       self.mb3.ChangeActive(0)
+      self.mb3.setEnabled(0)
       StyleOps.update_aniGBoxSmall_styleSheet(self.colordict,self.mb3,isactive=0)
       self.NucIDBox.clear()
 

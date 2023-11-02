@@ -1,9 +1,10 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 from MAPIT.core import AuxFunctions as Aux
-from MAPIT.GUI import IOWizard, GeneralOps
+from MAPIT.GUI import IOWizard, GeneralOps, StyleOps, GUIComponents
 import os
 import numpy as np
 import time
+from pathlib import Path
 
 
 def launchIOWindow(self, AnalysisData, GUIparams):
@@ -397,3 +398,77 @@ class HPCWindow(QtWidgets.QDialog):
   def updatecpuslider(self):
     self.coreslider.setValue(int(self.corecount.text()))
 
+
+class checkForSampleData(QtWidgets.QDialog):
+  def __init__(self, parent, setInitStyle=False):
+    super(checkForSampleData, self).__init__()
+
+
+    StyleOps.getDlgColorDict(self,parent,setInitStyle)
+
+    self.ex_data_path = os.path.join(Path(os.path.realpath(__file__)).resolve().parents[1],
+                                'data')
+    
+   
+
+    Mlayout = QtWidgets.QVBoxLayout(self)
+    Mlayout.setSpacing(15)
+    Mlayout2 = QtWidgets.QHBoxLayout()
+    Mlayout3 = QtWidgets.QHBoxLayout()
+
+    #dirdlg = QtWidgets.QFileDialog()
+    #dirdlg.setDirectory(default_path)
+    #Mlayout.addWidget(dirdlg)
+
+    helptxt = QtWidgets.QLabel("(Optional): Select directory for MAPIT example data")
+
+    self.dirtext = QtWidgets.QLabel()
+    self.dirtext.setText(self.ex_data_path)
+
+    label1 = QtWidgets.QLabel("Data directory: ")
+
+    #selectBTN = QtWidgets.QPushButton("Select directory")
+    #closeBTN = QtWidgets.QPushButton("Confirm")
+
+    selectBTN = GUIComponents.AniButton(self)
+    selectBTN.setObjectName('sb1')
+    selectBTN.setText("Select directory")
+    StyleOps.enable_ani_button(button_obj = selectBTN, guiobj = self, loc = 'sb1')
+
+    closeBTN = GUIComponents.AniButton(self)
+    closeBTN.setObjectName('sb2')
+    closeBTN.setText("Confirm")
+    StyleOps.enable_ani_button(button_obj = closeBTN, guiobj = self, loc = 'sb2')
+
+    self.rememberBX = QtWidgets.QCheckBox("Remember selection and do not show again")
+    self.rememberBX.setChecked(1)
+
+    Mlayout3.addWidget(selectBTN)
+    Mlayout3.addWidget(closeBTN)
+
+    Mlayout.addWidget(helptxt)
+    Mlayout2.addWidget(label1)
+    Mlayout2.addWidget(self.dirtext)
+    Mlayout.addLayout(Mlayout2)
+    Mlayout.addWidget(self.rememberBX)
+    Mlayout.addLayout(Mlayout3)
+
+    closeBTN.clicked.connect(self.close)
+    selectBTN.clicked.connect(lambda: self.pickDir(self.dirtext))
+
+  def pickDir(self, dirlabel):
+    self.ex_data_path = QtWidgets.QFileDialog.getExistingDirectory(
+        self, options=QtWidgets.QFileDialog.DontUseNativeDialog)
+    
+    dirlabel.setText(self.ex_data_path)
+  
+  def closeEvent(self, event):
+    settings = QtCore.QSettings("current", "mapit")
+    if self.rememberBX.isChecked():
+      settings.setValue("dataPathBypass",True)
+    else:
+      settings.setValue("dataPathBypass",False)
+    
+    settings.setValue("dataPathDefault",self.dirtext.text())
+    
+    

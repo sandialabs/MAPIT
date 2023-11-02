@@ -95,7 +95,7 @@ class MPLCanvas(FigureCanvas):
     #load the background image
     dirname, _ = os.path.split(os.path.abspath(__file__))
     x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'docs_v2', 'codeAssets', 'FuelFabBase.png')
+    F = os.path.join(x, 'docs_v2','source','assets', 'codeAssets', 'FuelFabBase.png')
     self.axes.imshow(Image.open(F), interpolation='catrom')
 
     self.axes.set_ylim(self.axes.get_ylim()[0], self.axes.get_ylim()[1] - 500)
@@ -256,7 +256,7 @@ class SceneExamine(QtWidgets.QDialog):
         scenario data is loaded.
   """
 
-  def __init__(self, mdlname, dataname, parent=None):
+  def __init__(self, mdlname, dataname, GUIparams, parent=None):
     super(SceneExamine, self).__init__()
     SS = QtWidgets.QHBoxLayout(self)
 
@@ -273,7 +273,8 @@ class SceneExamine(QtWidgets.QDialog):
     #load the data
     dirname, _ = os.path.split(os.path.abspath(__file__))
     x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'data', mdl_names[mdlname], setnames[dataname], 'data.mat')
+
+    F = os.path.join(GUIparams.exemplarDataPath, mdl_names[mdlname], setnames[dataname], 'data.mat')
     x1 = scipy.io.loadmat(F,squeeze_me=True)
 
 
@@ -288,7 +289,7 @@ class SceneExamine(QtWidgets.QDialog):
 
     self.sceneName = 'Normal'
 
-    F = os.path.join(x, 'docs_v2','codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
+    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
     self.setWindowIcon(QtGui.QIcon(F))
 
 
@@ -322,7 +323,7 @@ class SceneExamine(QtWidgets.QDialog):
 
     dirname, _ = os.path.split(os.path.abspath(__file__))
     x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'docs_v2','codeAssets', pName)
+    F = os.path.join(x, 'docs_v2','source','assets', 'codeAssets', pName)
     IC = QtGui.QPixmap(F)
 
     ICB = QtWidgets.QPushButton()
@@ -331,7 +332,7 @@ class SceneExamine(QtWidgets.QDialog):
     ICB.clicked.connect(self.PlayButton)
 
     SCB = QtWidgets.QPushButton()
-    F = os.path.join(x, 'docs_v2', 'codeAssets', ppName)
+    F = os.path.join(x, 'docs_v2','source','assets', 'codeAssets', ppName)
     SCBL = QtGui.QPixmap(F)
 
     SCB.setIcon(SCBL)

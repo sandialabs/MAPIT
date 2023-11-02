@@ -43,7 +43,9 @@ from MAPIT.GUI import PlotOps, StyleOps, GeneralOps, DialogComponents, StatsPane
 
 
 class GUIopts:
-  pass
+  def __init__(self, international, errorstyle):
+    self.international = international
+    self.errorstyle = errorstyle
 
 class DataHolder:
   pass
@@ -54,8 +56,9 @@ class customExecp(Exception):
 #https://stackoverflow.com/questions/19442443/busy-indication-with-pyqt-progress-bar
 
 
-GUIparams = GUIopts()
+GUIparams = GUIopts(False, True)
 GUIparams = GeneralOps.loadGUILabels(GUIparams, international = False)
+
 AnalysisData = DataHolder()
 
 class StatGUIInterface:
@@ -130,12 +133,13 @@ class LaunchGUI(QtWidgets.QMainWindow):
     super(LaunchGUI, self).__init__()
 
     global GUIparams
-
     
-
-
-
-    
+    # show the window if needed, 
+    settings = QtCore.QSettings("current", "mapit")
+    if settings.value("dataPathBypass") == False or settings.value("dataPathBypass") == None:
+      self.launchSamplePathDlg(setInitStyle=True)
+    else:
+      self.updateSamplePath()
     
 
 
@@ -158,16 +162,31 @@ class LaunchGUI(QtWidgets.QMainWindow):
     #
     dirname, _ = os.path.split(os.path.abspath(__file__))
     x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'docs_v2', 'codeAssets', 'mapit_logo.png')
+    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'mapit_logo.png')
     self.setWindowIcon(QtGui.QIcon(F))
 
     StatsPanelOps.update_data_opts(self,0) #call for initial layout setup
+
+  def launchSamplePathDlg(self, setInitStyle=False):
+    dlg  = DialogComponents.checkForSampleData(self, setInitStyle)
+    dlg.setWindowTitle("Exemplar data")
+    dlg.exec_()
+    self.updateSamplePath()
+
+  def updateSamplePath(self):
+    global GUIparams
+    settings = QtCore.QSettings("current", "mapit")
+    GUIparams.exemplarDataPath = settings.value("dataPathDefault")
 
 
   def closeEvent(self,event):
     settings = QtCore.QSettings("current", "mapit")
     settings.setValue("geometry", self.saveGeometry())
     settings.setValue("fontsize",self.currentFontSize)
+    if self.MakeDark.isChecked() == True:
+      settings.setValue("theme","dark")
+    else:
+      settings.setValue("theme","light")
     QtWidgets.QMainWindow.closeEvent(self, event)
 
   def handleLoadThread(self, result):
@@ -198,7 +217,6 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
 
 
-
   def update_errorB_text(self):
     if self.CB_ErrorProp.isChecked() == 1:
       self.ErrorS.setText('Set Simulated Errors')
@@ -209,13 +227,12 @@ class LaunchGUI(QtWidgets.QMainWindow):
       self.IterBox.setText("")
 
 
+
   def InitErrors(self):
     """
-            Function to select
-            errors for imported or
-            scenario data.
+            This function creates the pop-up to select
+            errors for imported or scenario data.
     """
-
 
 
     StyleOps.enable_ani_button(button_obj=self.RunStats, guiobj=self)
@@ -223,177 +240,331 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.RunStats.setEnabled(
         1)  #flag to show that the calc has run at least once
 
+    ErrorBox = [
+        '0.005', '0.01','0.05', '0.1', '0.5', '1.0', '3.0', '5.0', '10.0', '15.0', '20.0', '25.0', '50.0'
+    ]
+    ErrorBoxLabels = [x + ' %' for x in ErrorBox]
 
-    if self.HasRunErrors == 1:  #if has run previously get those values
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
+
+    if self.HasRunErrors == 1 and GUIparams.errorstyle == True:  #if has run previously get those values
       pastEVals = np.zeros((self.EP.rowCount(), 2))
       for i in range(0, self.EP.rowCount()):
-        for j in range(0, 2):
+        for j in range(0, 1):
+          if self.EP.item(i, j) is None and self.EP.item(i, j+1) is None:
+            pastEVals[i, j] = 0
+            pastEVals[i, j+1] = 0
+          elif self.EP.item(i, j) is not None:
+
+            if self.EP.item(i, j+1) is None:
+              if self.EP.item(i, j).text().endswith('%'):
+                pastEVals[i, j] = self.EP.item(i, j).text()[:-2]
+                pastEVals[i, j+1] = '0.0'
+              else:
+                pastEVals[i, j] = self.EP.item(i, j).text()
+                pastEVals[i, j+1] = '0.0'            
+            else:
+              if self.EP.item(i, j).text().endswith('%'):
+                pastEVals[i, j] = self.EP.item(i, j).text()[:-2]
+                pastEVals[i, j+1] = self.EP.item(i, j+1).text()[:-2]
+              else:
+                pastEVals[i, j] = self.EP.item(i, j).text()
+                pastEVals[i, j+1] = self.EP.item(i, j+1).text()
+
+    elif self.HasRunErrors == 1 and GUIparams.errorstyle == False: 
+      pastEVals = np.zeros((self.EP.rowCount(), 2))
+      for i in range(0, self.EP.rowCount()):
+        for j in range(0, 1):
           if self.EP.item(i, j) is None:
             pastEVals[i, j] = 0
           else:
             if self.EP.item(i, j).text().endswith('%'):
-              pastEVals[i, j] = self.EP.item(i, j).text()[:-2]
+                pastEVals[i, j] = self.EP.item(i, j).text()[:-2]
             else:
               pastEVals[i, j] = self.EP.item(i, j).text()
 
 
 
     self.ErrorPane = QtWidgets.QDialog()
-
     ep_L = QtWidgets.QVBoxLayout(self.ErrorPane)
+    epat_L = QtWidgets.QGridLayout()
 
-    # errors for dropdown
-    ErrorBox = [
-        '0.005', '0.01','0.05', '0.1', '0.5', '1.0', '3.0', '5.0', '10.0', '15.0', '20.0', '25.0', '50.0'
-    ]
-    ErrorBoxLabels = [x + ' %' for x in ErrorBox]
+    if GUIparams.errorstyle == True:
+      # errors for dropdown
 
-    # pane for all errors, all ins, outs, invs
-    BContain = QtWidgets.QGroupBox(self.ErrorPane)
-    bc_L = QtWidgets.QVBoxLayout(BContain)
-    ep_L.addWidget(BContain)
-    BContain.setTitle("Mass error control")
+      # pane for all errors, all ins, outs, invs
+      # pane for all errors + table is a grid layout (0, 1) (all) and (0, 0) (table)
+      # buttons to save, load error config, and press done appear below in a QVBoxLayout
 
-    # pane for all errors
-    AllError = QtWidgets.QGroupBox(BContain)
-    AE_L = QtWidgets.QGridLayout(AllError)
-    AllError.setTitle("All errors")
+      BContain = QtWidgets.QGroupBox(self.ErrorPane)
+      bc_L = QtWidgets.QVBoxLayout(BContain)
+      epat_L.addWidget(BContain, 0, 2)
+      BContain.setTitle("Mass error control")
+      # pane for all errors
+      AllError = QtWidgets.QGroupBox(BContain)
+      AE_L = QtWidgets.QGridLayout(AllError)
+      AllError.setTitle("All errors")
 
-    AllRandLabel = QtWidgets.QLabel("Random Errors")
-    AllSysLabel = QtWidgets.QLabel("Systematic Errors")
+      AllRandLabel = QtWidgets.QLabel("Random")
+      AllSysLabel = QtWidgets.QLabel("Systematic")
 
-    self.AllRand = QtWidgets.QComboBox(AllError)
-    self.AllSys = QtWidgets.QComboBox(AllError)
+      self.AllRand = QtWidgets.QComboBox(AllError)
+      self.AllSys = QtWidgets.QComboBox(AllError)
 
-    self.AllRand.addItems(ErrorBoxLabels)
-    self.AllSys.addItems(ErrorBoxLabels)
-    self.AllRand.setCurrentIndex(6)
-    self.AllSys.setCurrentIndex(6)
-  
-    self.AllRand.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'rand'))
-    self.AllSys.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'sys'))
+      self.AllRand.addItems(ErrorBoxLabels)
+      self.AllSys.addItems(ErrorBoxLabels)
+      self.AllRand.setCurrentIndex(6)
+      self.AllSys.setCurrentIndex(6)
 
-    AE_L.addWidget(AllRandLabel, 0, 0)
-    AE_L.addWidget(AllSysLabel, 0, 1)
-    AE_L.addWidget(self.AllRand, 1, 0)
-    AE_L.addWidget(self.AllSys, 1, 1)
-    bc_L.addWidget(AllError)
+      self.AllRand.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'rand'))
+      self.AllSys.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'sys'))
 
-    # Pane for Input
-    InpError = QtWidgets.QGroupBox(BContain)
-    IE_L = QtWidgets.QGridLayout(InpError)
-    InpError.setTitle("Input Error")
+      AE_L.addWidget(AllRandLabel, 0, 0)
+      AE_L.addWidget(AllSysLabel, 0, 1)
+      AE_L.addWidget(self.AllRand, 1, 0)
+      AE_L.addWidget(self.AllSys, 1, 1)
+      bc_L.addWidget(AllError)
 
-    InpRandLabel = QtWidgets.QLabel("Random Errors")
-    InpSysLabel = QtWidgets.QLabel("Systematic Errors")
+      # Pane for Input
+      InpError = QtWidgets.QGroupBox(BContain)
+      IE_L = QtWidgets.QGridLayout(InpError)
+      InpError.setTitle("Input Error")
 
-    self.InpRand = QtWidgets.QComboBox(InpError)
-    self.InpSys = QtWidgets.QComboBox(InpError)
+      InpRandLabel = QtWidgets.QLabel("Random")
+      InpSysLabel = QtWidgets.QLabel("Systematic")
 
-    self.InpRand.addItems(ErrorBoxLabels)
-    self.InpSys.addItems(ErrorBoxLabels)
-    self.InpRand.setCurrentIndex(6)
-    self.InpSys.setCurrentIndex(6)
+      self.InpRand = QtWidgets.QComboBox(InpError)
+      self.InpSys = QtWidgets.QComboBox(InpError)
 
-    self.InpRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inp'))
-    self.InpSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inp'))
+      self.InpRand.addItems(ErrorBoxLabels)
+      self.InpSys.addItems(ErrorBoxLabels)
+      self.InpRand.setCurrentIndex(6)
+      self.InpSys.setCurrentIndex(6)
 
-    IE_L.addWidget(InpRandLabel, 0, 0)
-    IE_L.addWidget(InpSysLabel, 0, 1)
-    IE_L.addWidget(self.InpRand, 1, 0)
-    IE_L.addWidget(self.InpSys, 1, 1)
-    bc_L.addWidget(InpError)
+      self.InpRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inp'))
+      self.InpSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inp'))
 
-    # Pane for Inventory
+      IE_L.addWidget(InpRandLabel, 0, 0)
+      IE_L.addWidget(InpSysLabel, 0, 1)
+      IE_L.addWidget(self.InpRand, 1, 0)
+      IE_L.addWidget(self.InpSys, 1, 1)
+      bc_L.addWidget(InpError)
 
-    InvError = QtWidgets.QGroupBox(BContain)
-    IV_L = QtWidgets.QGridLayout(InvError)
-    InvError.setTitle("Inventory Error")
+      # Pane for Inventory
 
-    InvRandLabel = QtWidgets.QLabel("Random Errors")
-    InvSysLabel = QtWidgets.QLabel("Systematic Errors")
+      InvError = QtWidgets.QGroupBox(BContain)
+      IV_L = QtWidgets.QGridLayout(InvError)
+      InvError.setTitle("Inventory Error")
 
-    self.InvRand = QtWidgets.QComboBox(InvError)
-    self.InvSys = QtWidgets.QComboBox(InvError)
+      InvRandLabel = QtWidgets.QLabel("Random")
+      InvSysLabel = QtWidgets.QLabel("Systematic")
 
-
-    self.InvRand.addItems(ErrorBoxLabels)
-    self.InvSys.addItems(ErrorBoxLabels)
-    self.InvRand.setCurrentIndex(6)
-    self.InvSys.setCurrentIndex(6)
-
-    self.InvRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inv'))
-    self.InvSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inv'))
-
-    IV_L.addWidget(InvRandLabel, 0, 0)
-    IV_L.addWidget(InvSysLabel, 0, 1)
-    IV_L.addWidget(self.InvRand, 1, 0)
-    IV_L.addWidget(self.InvSys, 1, 1)
-    bc_L.addWidget(InvError)
-
-    # Pane for Output
-
-    OutError = QtWidgets.QGroupBox(BContain)
-    OE_L = QtWidgets.QGridLayout(OutError)
-    OutError.setTitle("Output Error")
-
-    OutRandLabel = QtWidgets.QLabel("Random Errors")
-    OutSysLabel = QtWidgets.QLabel("Systematic Errors")
-
-    self.OutRand = QtWidgets.QComboBox(OutError)
-    self.OutSys = QtWidgets.QComboBox(OutError)
-
-    self.OutRand.addItems(ErrorBoxLabels)
-    self.OutSys.addItems(ErrorBoxLabels)
-    self.OutRand.setCurrentIndex(6)
-    self.OutSys.setCurrentIndex(6)
-
-    self.OutRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','out'))
-    self.OutSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','out'))
-
-    OE_L.addWidget(OutRandLabel, 0, 0)
-    OE_L.addWidget(OutSysLabel, 0, 1)
-    OE_L.addWidget(self.OutRand, 1, 0)
-    OE_L.addWidget(self.OutSys, 1, 1)
-    bc_L.addWidget(OutError)
-
-    # table pane
-    self.EP = QtWidgets.QTableWidget()
+      self.InvRand = QtWidgets.QComboBox(InvError)
+      self.InvSys = QtWidgets.QComboBox(InvError)
 
 
-    TotalLocs = GUIparams.nTotalLocations
-    dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = Path(dirname).resolve().parents[0]
-    self.EP.setColumnCount(2)
-    self.EP.setHorizontalHeaderLabels(['Rand ', 'Sys'])
-    #self.EP.setHorizontalHeaderLabels(GUIparams.rowNames)
+      self.InvRand.addItems(ErrorBoxLabels)
+      self.InvSys.addItems(ErrorBoxLabels)
+      self.InvRand.setCurrentIndex(6)
+      self.InvSys.setCurrentIndex(6)
 
+      self.InvRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inv'))
+      self.InvSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inv'))
 
+      IV_L.addWidget(InvRandLabel, 0, 0)
+      IV_L.addWidget(InvSysLabel, 0, 1)
+      IV_L.addWidget(self.InvRand, 1, 0)
+      IV_L.addWidget(self.InvSys, 1, 1)
+      bc_L.addWidget(InvError)
 
-    self.EP.setRowCount(TotalLocs + 2)
-    ep_L.addWidget(self.EP)
+      # Pane for Output
 
-    dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = Path(dirname).resolve().parents[0]
-    
-    self.EP.setVerticalHeaderLabels(GUIparams.rowNames)
-    self.PlotLocLabels = list(
-        filter(len, GUIparams.rowNames)
-    )  #remove spaces which don't serve a purpose in the plotter dropdown
+      OutError = QtWidgets.QGroupBox(BContain)
+      OE_L = QtWidgets.QGridLayout(OutError)
+      OutError.setTitle("Output Error")
 
-    # set the initial table items
-    # the 2 and 31 index are separator rows
-    if self.HasRunErrors == 0:
-      for i in range(0, self.EP.rowCount()):
-        for j in range(0, TotalLocs + 2):
-          if self.EP.verticalHeaderItem(j).text() != '' and self.EP.horizontalHeaderItem(i) is not None:
-            self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(3.0) + ' %'))
+      OutRandLabel = QtWidgets.QLabel("Random")
+      OutSysLabel = QtWidgets.QLabel("Systematic")
 
-    if self.HasRunErrors == 1:
-      for i in range(np.shape(pastEVals)[0]):
-        for j in range(np.shape(pastEVals)[1]):
-          if pastEVals[i, j] != 0:
+      self.OutRand = QtWidgets.QComboBox(OutError)
+      self.OutSys = QtWidgets.QComboBox(OutError)
+
+      self.OutRand.addItems(ErrorBoxLabels)
+      self.OutSys.addItems(ErrorBoxLabels)
+      self.OutRand.setCurrentIndex(6)
+      self.OutSys.setCurrentIndex(6)
+
+      self.OutRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','out'))
+      self.OutSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','out'))
+
+      OE_L.addWidget(OutRandLabel, 0, 0)
+      OE_L.addWidget(OutSysLabel, 0, 1)
+      OE_L.addWidget(self.OutRand, 1, 0)
+      OE_L.addWidget(self.OutSys, 1, 1)
+      bc_L.addWidget(OutError)
+
+      # table pane
+      self.EP = QtWidgets.QTableWidget()
+
+      TotalLocs = GUIparams.nTotalLocations
+      self.EP.setColumnCount(2)
+      self.EP.setHorizontalHeaderLabels(['Rand ', 'Sys'])
+      #self.EP.setHorizontalHeaderLabels(GUIparams.rowNames)
+
+      self.EP.setRowCount(TotalLocs + 2)
+
+      epat_L.addWidget(self.EP, 0, 0)
+      
+      self.EP.setVerticalHeaderLabels(GUIparams.rowNames)
+      self.PlotLocLabels = list(
+          filter(len, GUIparams.rowNames)
+      )  #remove spaces which don't serve a purpose in the plotter dropdown
+
+      # set the initial table items
+      # the 2 and 31 index are separator rows
+      if self.HasRunErrors == 0:
+        for i in range(0, self.EP.columnCount()):
+          for j in range(0, TotalLocs + 2):
+            if self.EP.verticalHeaderItem(j).text() != '' and self.EP.horizontalHeaderItem(i) is not None:
+              self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(3.0) + ' %'))
+
+      if self.HasRunErrors == 1:
+        for i in range(np.shape(pastEVals)[0]):
+          for j in range(0, 1):
+            if pastEVals[i, j] != 0:
+              self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])+' %'))
+              self.EP.setItem(i, j+1, QtWidgets.QTableWidgetItem(str(pastEVals[i, j+1])+' %'))
+
+      ep_L.addLayout(epat_L)
+      self.EP.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+      self.EP.setMinimumWidth(self.EP.sizeHint().width()+self.EP.sizeHintForColumn(1)*3) #HACK: minwidth for both columns
+      self.EP.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+
+    else:
+
+      BContain = QtWidgets.QGroupBox(self.ErrorPane)
+      bc_L = QtWidgets.QVBoxLayout(BContain)
+      epat_L.addWidget(BContain, 0, 2)
+      BContain.setTitle("Mass error control")
+
+      # pane for all errors
+      AllError = QtWidgets.QGroupBox(BContain)
+      AE_L = QtWidgets.QGridLayout(AllError)
+      AllError.setTitle("All errors")
+
+      AllLabel = QtWidgets.QLabel("Errors")
+
+      self.All = QtWidgets.QComboBox(AllError)
+
+      self.All.addItems(ErrorBoxLabels)
+      self.All.setCurrentIndex(6)
+
+      self.All.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'rand'))
+
+      AE_L.addWidget(AllLabel, 0, 0)
+      AE_L.addWidget(self.All, 1, 0)
+      bc_L.addWidget(AllError)
+
+      # Pane for Input
+      InpError = QtWidgets.QGroupBox(BContain)
+      IE_L = QtWidgets.QGridLayout(InpError)
+      InpError.setTitle("Input Error")
+
+      InpLabel = QtWidgets.QLabel("Errors")
+
+      self.Inp = QtWidgets.QComboBox(InpError)
+
+      self.Inp.addItems(ErrorBoxLabels)
+      self.Inp.setCurrentIndex(6)
+
+      self.Inp.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inp'))
+
+      IE_L.addWidget(InpLabel, 0, 0)
+      IE_L.addWidget(self.Inp, 1, 0)
+      bc_L.addWidget(InpError)
+
+      # Pane for Inventory
+
+      InvError = QtWidgets.QGroupBox(BContain)
+      IV_L = QtWidgets.QGridLayout(InvError)
+      InvError.setTitle("Inventory Error")
+
+      InvRandLabel = QtWidgets.QLabel("Random Errors")
+
+      self.InvRand = QtWidgets.QComboBox(InvError)
+
+      self.InvRand.addItems(ErrorBoxLabels)
+      self.InvRand.setCurrentIndex(6)
+
+      self.InvRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inv'))
+
+      IV_L.addWidget(InvRandLabel, 0, 0)
+      IV_L.addWidget(self.InvRand, 1, 0)
+      bc_L.addWidget(InvError)
+
+      # Pane for Output
+
+      OutError = QtWidgets.QGroupBox(BContain)
+      OE_L = QtWidgets.QGridLayout(OutError)
+      OutError.setTitle("Output Error")
+
+      OutLabel = QtWidgets.QLabel("Random Errors")
+
+      self.Out = QtWidgets.QComboBox(OutError)
+
+      self.Out.addItems(ErrorBoxLabels)
+      self.Out.setCurrentIndex(6)
+
+      self.Out.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','out'))
+
+      OE_L.addWidget(OutLabel, 0, 0)
+      OE_L.addWidget(self.Out, 1, 0)
+      bc_L.addWidget(OutError)
+
+      # table pane
+      self.EP = QtWidgets.QTableWidget()
+
+      TotalLocs = GUIparams.nTotalLocations
+      self.EP.setColumnCount(1)
+      self.EP.setHorizontalHeaderLabels(['Error '])
+      #self.EP.setHorizontalHeaderLabels(GUIparams.rowNames)
+
+      self.EP.setRowCount(TotalLocs + 2)
+      epat_L.addWidget(self.EP, 0, 0)
+      
+      self.EP.setVerticalHeaderLabels(GUIparams.rowNames)
+      self.PlotLocLabels = list(
+          filter(len, GUIparams.rowNames)
+      )  #remove spaces which don't serve a purpose in the plotter dropdown
+
+      # set the initial table items
+      # the 2 and 31 index are separator rows
+
+      if self.HasRunErrors == 0:
+        for i in range(0, self.EP.columnCount()):
+          for j in range(0, TotalLocs + 2):
+            if self.EP.verticalHeaderItem(j).text() != '' and self.EP.horizontalHeaderItem(i) is not None:
+              self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(3.0) + ' %'))
+
+      if self.HasRunErrors == 1:
+
+        for j in range(0, self.EP.columnCount()):
+          for i in range(0, GUIparams.nInputLocations):
             self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])+' %'))
+          for i in range(GUIparams.nInputLocations+1, GUIparams.nInventoryLocations+GUIparams.nInputLocations+1):
+            self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])+' %'))
+          for i in range(GUIparams.nInventoryLocations+GUIparams.nInputLocations+2, GUIparams.nInventoryLocations+GUIparams.nInputLocations+GUIparams.nOutputLocations+2):
+            self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])+' %'))
+        
+#        for i in range(np.shape(pastEVals)[0]):
+#          for j in range(np.shape(pastEVals)[1]):
+#            if pastEVals[i, j] != 0:
+#              self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])+' %'))
+
+      ep_L.addLayout(epat_L)
+
+
 
     # save/load buttons
     SLContain = QtWidgets.QFrame(self.ErrorPane)
@@ -415,9 +586,11 @@ class LaunchGUI(QtWidgets.QMainWindow):
     ep_L.addWidget(self.CloseEConfig)
 
     self.ErrorPane.setWindowTitle("Error Selection")
+    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'mapit_logo.png')
+    self.ErrorPane.setWindowIcon(QtGui.QIcon(F))
     self.ErrorPane.setWindowModality(QtCore.Qt.ApplicationModal)
     self.ErrorPane.finished.connect(self.RunStats._animation.start)
-    self.ErrorPane.resize(700, 750)
+    #self.ErrorPane.resize(1000, 800)
     self.ErrorPane.show()
     self.PB.setFormat("Ready to execute")
     self.HasRunErrors = 1
@@ -490,6 +663,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
     """
     dlg = DialogComponents.ViewErrorTabs(self, AnalysisData, GUIparams)
     dlg.setWindowTitle('SEID Contributions')
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
+    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'mapit_logo.png')
+    dlg.setWindowIcon(QtGui.QIcon(F))
     dlg.resize(1200,800)
     res = dlg.show()
 
@@ -500,6 +677,10 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     dlg = DialogComponents.ViewErrorTabsAI(self, AnalysisData, GUIparams)
     dlg.setWindowTitle('SEID(AI) Contributions')
+    dirname, _ = os.path.split(os.path.abspath(__file__))
+    x = Path(dirname).resolve().parents[0]
+    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'mapit_logo.png')
+    dlg.setWindowIcon(QtGui.QIcon(F))
     dlg.resize(1200, 800)
     res = dlg.exec_()
 
@@ -518,6 +699,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
             holds the QFrame created by this class.
     """
     # create main container frame
+    global GUIparams
     self.main_CF = QtWidgets.QFrame(self)
 
 
@@ -613,20 +795,27 @@ class LaunchGUI(QtWidgets.QMainWindow):
     menu.addAction(self.HPC_opts)
     self.HPC_opts.triggered.connect(self.RunHPCDlg)
 
+    redoExempPath = QtWidgets.QAction("Load exemplar data",self)
+    menu.addAction(redoExempPath)
+    redoExempPath.triggered.connect(self.launchSamplePathDlg)
+
     menubar.addMenu(accmenu)
 
     upfont = QtWidgets.QAction("Increase font size",self)
     downfont = QtWidgets.QAction("Decrease font size",self)
     restorewin = QtWidgets.QAction("Restore defaults",self)
+    errorsty = QtWidgets.QAction("Change error style", self)
 
     upfont.triggered.connect(lambda: StyleOps.IncreaseFont(self))
     downfont.triggered.connect(lambda: StyleOps.DecreaseFont(self))
     restorewin.triggered.connect(lambda: StyleOps.RestoreWindow(self))
+    errorsty.triggered.connect(lambda: ErrorStyleChange())
+
 
     accmenu.addAction(upfont)
     accmenu.addAction(downfont)
     accmenu.addAction(restorewin)
-
+    accmenu.addAction(errorsty)
 
 
 
@@ -646,16 +835,16 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
 
     
-    sysPalette = QtGui.QPalette()
-    #try to autodetect theme
-    if sum(sysPalette.base().color().getRgb()[0:3]) != 765:
-      self.MakeLight.setChecked(0)
-      self.MakeDark.setChecked(1)
-    else:
-      self.MakeLight.setChecked(1)
-      self.MakeDark.setChecked(0)
+    # sysPalette = QtGui.QPalette()
+    # #try to autodetect theme
+    # if sum(sysPalette.base().color().getRgb()[0:3]) != 765:
+    #   self.MakeLight.setChecked(0)
+    #   self.MakeDark.setChecked(1)
+    # else:
+    #   self.MakeLight.setChecked(1)
+    #   self.MakeDark.setChecked(0)
 
-    StyleOps.ChangeColor(self)
+    # StyleOps.ChangeColor(self)
 
     #HACK: theme here
     #note: light is default and this is just a force
@@ -710,6 +899,11 @@ def unloadInternalData(self):
     GUIparams = GUIopts()
     AnalysisData = DataHolder()
     GUIparams = GeneralOps.loadGUILabels(GUIparams)
+
+
+def ErrorStyleChange():
+    global GUIparams
+    GUIparams.errorstyle = not GUIparams.errorstyle
 
 
 def dataSourceChanged(self, flag):
@@ -1032,8 +1226,9 @@ def add_plot_box(self):
   self.mb1 = GUIComponents.SubBoxAni(self)
   self.mb1L = QtWidgets.QHBoxLayout(self.mb1)
   self.mb1.setObjectName('PB1')
+  self.mb1.setEnabled(0)
 
-  self.mb1.setTitle(GUIparams.labels['Box31L'])
+  #self.mb1.setTitle(GUIparams.labels['Box31L'])
 
 
   self.metricBox = QtWidgets.QComboBox(self.mb1)
@@ -1046,8 +1241,9 @@ def add_plot_box(self):
   PlotControlL.addWidget(self.mb1)
 
   self.mb2 = GUIComponents.SubBoxAni(self)
-  self.mb2.setTitle(GUIparams.labels["Box32L"])
+  #self.mb2.setTitle(GUIparams.labels["Box32L"])
   self.mb2.setObjectName('PB2')
+  self.mb2.setEnabled(0)
 
 
   self.mb2L = QtWidgets.QHBoxLayout(self.mb2)
@@ -1061,8 +1257,9 @@ def add_plot_box(self):
   self.mb3 = GUIComponents.SubBoxAni(self)
   self.mb3L = QtWidgets.QHBoxLayout(self.mb3)
   self.mb3.setObjectName('PB3')
-  self.mb3.setTitle(GUIparams.labels["Box33L"])
+  #self.mb3.setTitle(GUIparams.labels["Box33L"])
   self.NucIDBox = QtWidgets.QComboBox(self.PlotControls)
+  self.mb3.setEnabled(0)
 
   self.mb3L.addWidget(self.NucIDBox)
   #self.mb3L.setContentsMargins(10,15,10,15)
@@ -1073,7 +1270,8 @@ def add_plot_box(self):
   self.mb4L = QtWidgets.QHBoxLayout(self.mb4)
   #self.mb4L.setContentsMargins(10,15,10,15)
   self.mb4.setObjectName('PB4')
-  self.mb4.setTitle(GUIparams.labels["Box34L"])
+  #self.mb4.setTitle(GUIparams.labels["Box34L"])
+  self.mb4.setEnabled(0)
   self.NumToPlot = QtWidgets.QComboBox(self.PlotControls)
   self.NumToPlot.setMinimumWidth(50)
 
@@ -1130,6 +1328,7 @@ def add_plot_box(self):
   threshouterL.addWidget(self.TL1, 0, 0)
   threshouterL.addWidget(self.StatThresh, 1, 0)
   self.TL1.setToolTip("Parameter to find data above this value")
+  self.StatThresh.setEnabled(0)
 
   # set precision, more work to be done here in the future
   self.StatPrec = QtWidgets.QLineEdit("0.5", self.threshContainer)
@@ -1180,7 +1379,8 @@ def add_plot_box(self):
 
   
 def launch_explorer(mdlname, datname):
-  ss = ScenarioSelector.SceneExamine(mdlname, datname)
+  global GUIparams
+  ss = ScenarioSelector.SceneExamine(mdlname, datname, GUIparams)
   ss.setWindowModality(QtCore.Qt.ApplicationModal)
   ss.exec_()
 
@@ -1192,7 +1392,7 @@ if __name__ == "__main__":
 
   #splash
   x = Path(sys.argv[0]).resolve().parents[1]
-  F = os.path.join(x, 'docs_v2', 'codeAssets', 'splash3.png')
+  F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'splash3.png')
   splash_pix = QtGui.QPixmap(F)
   G = QtWidgets.QApplication.instance().devicePixelRatio()
   splash_pix.setDevicePixelRatio(G)
@@ -1205,7 +1405,7 @@ if __name__ == "__main__":
   
 
 
-  F = os.path.join(x, 'docs_v2','codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
+  F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
   splash.setWindowIcon(QtGui.QIcon(F))
 
   progressBar = QtWidgets.QProgressBar(splash)
@@ -1258,6 +1458,11 @@ if __name__ == "__main__":
     widget.currentFontSize = int(settings.value("fontsize"))
     widget.restoreGeometry(settings.value("geometry"))
     StyleOps.changeFontSize(widget,0)
+    if settings.value("theme") == "dark":
+      widget.MakeDark.setChecked(1)
+    else:
+      widget.MakeLight.setChecked(1) 
+    StyleOps.ChangeColor(widget)
   except:
     StyleOps.RestoreWindow(widget)
 
