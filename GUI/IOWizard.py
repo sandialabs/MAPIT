@@ -61,7 +61,7 @@ class IOWizardMain(QtWidgets.QWizard):
     #bring in the first page banner
     dirname, _ = os.path.split(os.path.abspath(__file__))
     x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'docs_v2','source', 'assets', 'codeAssets', 'SNL_Horizontal_Black.jpg')
+    F = os.path.join(x, 'docs_v2', 'codeAssets', 'SNL_Horizontal_Black.jpg')
     res = QtGui.QPixmap(F)
     geometry = qApp.desktop().availableGeometry(self)
     res = res.scaledToWidth(geometry.width()*0.25)
