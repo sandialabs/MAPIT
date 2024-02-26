@@ -1,2 +1,2 @@
-recursive-include docs_v2 *
-recursive-include labels *
+graft docs_v2
+graft labels
