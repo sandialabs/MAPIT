@@ -17,7 +17,6 @@ from pathlib import Path
 import time
 import queue
 import json
-sys.path.append(str(Path(sys.argv[0]).resolve().parents[2]))
 os.environ["QT_ENABLE_HIGHDPI_SCALING"]   = "1"
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 os.environ["QT_SCALE_FACTOR"]             = "1"
@@ -160,8 +159,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
     
 
     #
-    dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = Path(dirname).resolve().parents[0]
+
+    x = str(Path(__file__).resolve().parents[1])
     F = os.path.join(x, 'docs_v2', 'codeAssets', 'mapit_logo.png')
     self.setWindowIcon(QtGui.QIcon(F))
 
@@ -624,7 +623,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     label = QtWidgets.QLabel()
 
     dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = Path(dirname).resolve().parents[0]
+    x = str(Path(__file__).resolve().parents[1])
     F = os.path.join(x, 'docs','assets', 'codeAssets', 'SNL_Horizontal_Black_Blue.jpg')
     banner = QtGui.QPixmap(F)
 
@@ -663,8 +662,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     """
     dlg = DialogComponents.ViewErrorTabs(self, AnalysisData, GUIparams)
     dlg.setWindowTitle('SEID Contributions')
-    dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = Path(dirname).resolve().parents[0]
+    x = str(Path(__file__).resolve().parents[1])
     F = os.path.join(x, 'docs_v2', 'codeAssets', 'mapit_logo.png')
     dlg.setWindowIcon(QtGui.QIcon(F))
     dlg.resize(1200,800)
@@ -677,8 +675,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     dlg = DialogComponents.ViewErrorTabsAI(self, AnalysisData, GUIparams)
     dlg.setWindowTitle('SEID(AI) Contributions')
-    dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = Path(dirname).resolve().parents[0]
+    x = str(Path(__file__).resolve().parents[1])
     F = os.path.join(x, 'docs_v2', 'codeAssets', 'mapit_logo.png')
     dlg.setWindowIcon(QtGui.QIcon(F))
     dlg.resize(1200, 800)
@@ -1387,13 +1384,12 @@ def launch_explorer(mdlname, datname):
   ss.exec_()
 
 
-
-if __name__ == "__main__":
+def launchMAPIT():
   app = QtWidgets.QApplication(sys.argv)
   #app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
 
   #splash
-  x = Path(sys.argv[0]).resolve().parents[1]
+  x = str(Path(__file__).resolve().parents[1])
   F = os.path.join(x, 'docs_v2', 'codeAssets', 'splash3.png')
   splash_pix = QtGui.QPixmap(F)
   G = QtWidgets.QApplication.instance().devicePixelRatio()
@@ -1471,10 +1467,7 @@ if __name__ == "__main__":
   widget.show()
   widget.activateWindow()
 
-
-
-  
-    
-
   sys.exit(app.exec_())
 
+if __name__ == "__main__":
+  launchMAPIT()

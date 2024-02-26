@@ -60,8 +60,7 @@ class IOWizardMain(QtWidgets.QWizard):
 
     #bring in the first page banner
     dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'docs_v2', 'codeAssets', 'SNL_Horizontal_Black.jpg')
+    F = os.path.join(str(Path(__file__).resolve().parents[1]), 'docs_v2', 'codeAssets', 'SNL_Horizontal_Black.jpg')
     res = QtGui.QPixmap(F)
     geometry = qApp.desktop().availableGeometry(self)
     res = res.scaledToWidth(geometry.width()*0.25)
@@ -400,7 +399,7 @@ class DirPage(QtWidgets.QWizardPage):
     """
 
     x = [None]
-    p = Path(sys.argv[0]).resolve().parents[1]
+    p = str(Path(__file__).resolve().parents[1])
     outdir = os.path.join(p, 'IOsaveconfig.txt')
     with open(outdir, 'r') as f:
       x = f.read().splitlines()

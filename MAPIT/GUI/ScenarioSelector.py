@@ -272,7 +272,7 @@ class SceneExamine(QtWidgets.QDialog):
 
     #load the data
     dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = Path(dirname).resolve().parents[0]
+    x = GUIparams.exemplarDataPath
 
     F = os.path.join(GUIparams.exemplarDataPath, mdl_names[mdlname], setnames[dataname], 'data.mat')
     x1 = scipy.io.loadmat(F,squeeze_me=True)
@@ -289,7 +289,7 @@ class SceneExamine(QtWidgets.QDialog):
 
     self.sceneName = 'Normal'
 
-    F = os.path.join(x, 'docs_v2', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
+    F = os.path.join(str(Path(__file__).resolve().parents[1]), 'docs_v2', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
     self.setWindowIcon(QtGui.QIcon(F))
 
 
@@ -321,9 +321,8 @@ class SceneExamine(QtWidgets.QDialog):
     ICBContainer.setTitle('Animation Controls')
     ICBL = QtWidgets.QGridLayout(ICBContainer)
 
-    dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = Path(dirname).resolve().parents[0]
-    F = os.path.join(x, 'docs_v2', 'codeAssets', pName)
+
+    F = os.path.join(str(Path(__file__).resolve().parents[1]), 'docs_v2', 'codeAssets', pName)
     IC = QtGui.QPixmap(F)
 
     ICB = QtWidgets.QPushButton()

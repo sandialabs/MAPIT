@@ -21,7 +21,7 @@ def SaveStats(self, AnalysisData, GUIparams):
     """
 
     #create a directory for output if doesnt exist
-    outdir = os.path.join(Path(sys.argv[0]).resolve().parents[1], 'MAPIT_Output')
+    outdir = os.path.join(Path(__file__).resolve().parents[1], 'MAPIT_Output')
     if not os.path.isdir(outdir):
       os.makedirs(outdir)
 
@@ -454,13 +454,13 @@ def loadGUILabels(GUIparams,international=False):
   else:
     dictname = 'domLabels'
 
-  with open(os.path.join(str(Path(sys.argv[0]).resolve().parents[1]),'labels',dictname+'.json'),'r') as fp:
+  with open(os.path.join(str(Path(__file__).resolve().parents[1]),'labels',dictname+'.json'),'r') as fp:
     labels = json.load(fp)
 
-  with open(os.path.join(str(Path(sys.argv[0]).resolve().parents[1]),'labels','exemplarMdls'+'.json'),'r') as fp:
+  with open(os.path.join(str(Path(__file__).resolve().parents[1]),'labels','exemplarMdls'+'.json'),'r') as fp:
     GUIparams.availableMdls = json.load(fp)
 
-  with open(os.path.join(str(Path(sys.argv[0]).resolve().parents[1]),'labels','exemplarDatas'+'.json'),'r') as fp:
+  with open(os.path.join(str(Path(__file__).resolve().parents[1]),'labels','exemplarDatas'+'.json'),'r') as fp:
     GUIparams.availableDatas = json.load(fp)
 
   GUIparams.labels = labels
