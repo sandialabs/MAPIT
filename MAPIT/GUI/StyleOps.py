@@ -13,10 +13,10 @@ from MAPIT.GUI import PlotOps
 def get_palette(color,return_dict=False):
 
     if color == 'light':
-        with open(os.path.join(str(Path(__file__).resolve().parents[1]),'GUI','stylesheets','light_colors'+'.json'),'r') as fp:
+        with open(os.path.join(str(Path(__file__).resolve().parents[0]),'GUI','stylesheets','light_colors'+'.json'),'r') as fp:
             colordict = json.load(fp)
     else:
-        with open(os.path.join(str(Path(__file__).resolve().parents[1]),'GUI','stylesheets','dark_colors'+'.json'),'r') as fp:
+        with open(os.path.join(str(Path(__file__).resolve().parents[0]),'GUI','stylesheets','dark_colors'+'.json'),'r') as fp:
             colordict = json.load(fp)
 
     palette = QtCore.QCoreApplication.instance().palette() #get light pallet from here
@@ -107,7 +107,7 @@ def getDlgColorDict(self,parent,setInitStyle):
 def setInitialStyle(self):
 
     
-    with open(os.path.join(str(Path(__file__).resolve().parents[1]),'GUI','stylesheets','dark_colors'+'.json'),'r') as fp:
+    with open(os.path.join(str(Path(__file__).resolve().parents[0]),'GUI','stylesheets','dark_colors'+'.json'),'r') as fp:
       dark_color_dict = json.load(fp)
 
 

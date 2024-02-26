@@ -406,7 +406,7 @@ class checkForSampleData(QtWidgets.QDialog):
 
     StyleOps.getDlgColorDict(self,parent,setInitStyle)
 
-    self.ex_data_path = os.path.join(Path(os.path.realpath(__file__)).resolve().parents[1],
+    self.ex_data_path = os.path.join(Path(os.path.realpath(__file__)).resolve().parents[2],
                                 'data')
     
    

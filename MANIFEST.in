@@ -1,0 +1,2 @@
+recursive-include docs_v2 *
+recursive-include labels *
