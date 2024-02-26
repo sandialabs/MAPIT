@@ -447,6 +447,7 @@ def getSceneData(GUIObj,AnalysisData,GUIparams):
 
 
   return AnalysisData, GUIparams
+#os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'data.mat')
 
 def loadGUILabels(GUIparams,international=False):
   if international == True:
@@ -457,12 +458,47 @@ def loadGUILabels(GUIparams,international=False):
   with open(os.path.join(str(Path(__file__).resolve().parents[1]),'labels',dictname+'.json'),'r') as fp:
     labels = json.load(fp)
 
+  GUIparams.labels = labels
+
+  return GUIparams
+
+def loadDatasetLabels(GUIparams):
   with open(os.path.join(str(Path(__file__).resolve().parents[1]),'labels','exemplarMdls'+'.json'),'r') as fp:
     GUIparams.availableMdls = json.load(fp)
 
   with open(os.path.join(str(Path(__file__).resolve().parents[1]),'labels','exemplarDatas'+'.json'),'r') as fp:
     GUIparams.availableDatas = json.load(fp)
 
-  GUIparams.labels = labels
+def removeUnavailableDatasets(GUIparams):
+      setnames = {
+            "Normal": "Normal",
+            "Abrupt Loss": "Abrupt",
+            "Protracted Loss":"Protract"
+          }
+      
+      mdl_names = {
+              "Fuel Fab":"fuel_fab"
+          }
+      
+      itemsToRm = []
+      for model in GUIparams.availableMdls:
+        if not os.path.isdir(os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIparams.availableMdls[model]])):
+          itemsToRm.append(model)
 
-  return GUIparams
+      for item in itemsToRm:
+        del GUIparams.availableMdls[item]
+      
+      #if no models, don't bother
+      # TODO: will need updating if
+      # multiple models are available
+      itemsToRm=[]
+      if len(GUIparams.availableMdls) > 0: 
+        for dset in GUIparams.availableDatas:
+          if not (os.path.isfile(os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIparams.availableMdls['1']], setnames[GUIparams.availableDatas[dset]], 'data.mat'))):
+            itemsToRm.append(dset)
+      else:
+        GUIparams.availableDatas = {}
+
+
+      for item in itemsToRm:
+        del GUIparams.availableDatas[item]

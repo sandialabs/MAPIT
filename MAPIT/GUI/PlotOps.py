@@ -169,16 +169,10 @@ class MPLCanvas(FigureCanvas):
       self.draw()
 
   def update_figure_title(self, data):
-    #fontsize = QtWidgets.QApplication.font().pointSize()
-    self.axes.set_title(data.title,fontsize=self.main_gui.currentFontSize-2)
-#    font = ImageFont.truetype(size = 20)
-    self.axes.title.set_color(self.axes.yaxis.label.get_color())
-    self.axes.set_xlabel(data.xlabel, fontsize = self.main_gui.currentFontSize-2)
-    self.axes.set_ylabel(data.ylabel, fontsize=self.main_gui.currentFontSize-2)
+    self.axes.set_title(data.title,fontsize=self.main_gui.currentFontSize-2,color=self.main_gui.colordict["Text"])
+    self.axes.set_xlabel(data.xlabel, fontsize = self.main_gui.currentFontSize-2, color=self.main_gui.colordict["Text"])
+    self.axes.set_ylabel(data.ylabel, fontsize=self.main_gui.currentFontSize-2, color=self.main_gui.colordict["Text"])
     self.axes.ticklabel_format(axis='y', style='sci', useOffset=True,scilimits=(-4,4)) #use sci notation for large numbers
-    #self.axes.yaxis.set_tick_params(labelsize=20)
-    #self.axes.tick_params(labelsize=fontsize)
-    #self.axes.yaxis.get_offset_text().set_size(fontsize)
 
     self.draw()
 

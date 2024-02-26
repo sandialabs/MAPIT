@@ -171,6 +171,19 @@ class LaunchGUI(QtWidgets.QMainWindow):
     dlg.setWindowTitle("Exemplar data")
     dlg.exec_()
     self.updateSamplePath()
+    self.loadExemplarData()
+
+
+  def updateDataUI(self):
+    self.datopts.clear()
+    self.mdlopts.clear()
+
+    for item in GUIparams.availableDatas:
+      self.datopts.addItem(GUIparams.availableDatas[item])
+
+    for item in GUIparams.availableMdls:
+      self.mdlopts.addItem(GUIparams.availableMdls[item])
+
 
   def updateSamplePath(self):
     global GUIparams
@@ -858,11 +871,21 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
 
     #initial loading
-    loadInternalData(self)
+    self.loadExemplarData()
+      
+    
     
 
 
+  def loadExemplarData(self):
+    #initial loading
+    GeneralOps.loadDatasetLabels(GUIparams)
+    GeneralOps.removeUnavailableDatasets(GUIparams)
+    self.updateDataUI()
 
+    #only load data if some is available
+    if len(GUIparams.availableMdls) > 0 and len(GUIparams.availableDatas):
+      loadInternalData(self)
 
 
   def RunStatThresh(self):
@@ -882,6 +905,12 @@ def loadInternalData(self):
     global GUIparams
     global AnalysisData
 
+    # the signal for the combobox for data and model can trigger
+    # even when the combobox is being cleared, so if that happens,
+    # don't load data
+    if self.datopts.currentIndex() == -1:
+      return
+    
     inpdict = {'GUIparams': GUIparams, 'AnalysisData':AnalysisData}
     Q = queue.Queue()
     thread = ThreadTools.dataLoadThread(Q,self.handleLoadThread,parent=self)
@@ -896,7 +925,6 @@ def unloadInternalData(self):
     GUIparams = GUIopts(False, True)
     AnalysisData = DataHolder()
     GUIparams = GeneralOps.loadGUILabels(GUIparams)
-    self.updateSamplePath()
 
 
 
@@ -986,13 +1014,6 @@ def add_stats_box(self):
   self.datBox.setTitle('Scenario selection')
 
 
-
-  for lab in GUIparams.availableDatas:
-    self.datopts.addItem(GUIparams.availableDatas[lab])
-
-  for lab in GUIparams.availableMdls:
-    self.mdlopts.addItem(GUIparams.availableMdls[lab])
-
   self.sceneExplorePush = GUIComponents.AniButton(self)
   self.sceneExplorePush.setObjectName('SEPB')
   self.sceneExplorePush._animation.setLoopCount(3)
@@ -1003,8 +1024,8 @@ def add_stats_box(self):
   self.sceneExplorePush.clicked.connect(lambda: launch_explorer(self.mdlopts.currentText(), self.datopts.currentText()))
 
   #when options changed, change dataset
-  self.datopts.currentTextChanged.connect(lambda: loadInternalData(self))
-  self.mdlopts.currentTextChanged.connect(lambda: loadInternalData(self))
+  self.datopts.currentIndexChanged.connect(lambda: loadInternalData(self))
+  self.mdlopts.currentIndexChanged.connect(lambda: loadInternalData(self))
 
 
 
