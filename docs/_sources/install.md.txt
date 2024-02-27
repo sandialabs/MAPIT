@@ -4,7 +4,31 @@
 
  This document will show you how to download & install MAPIT onto your PCs! MAPIT is a toolkit written in Python to aid safeguards analysis on bulk facilities. MAPIT is able to be downloaded and installed on all modern operating systems (Windows, Mac, and Linux)
 
-## Downloading MAPIT
+
+ ## Experienced with Python
+
+ In most cases, you can simply install directly from our repository. We recommend using environments (either venv or conda).
+
+ Depending on what conda distribution you have (e.g., anaconda vs miniconda) these instructions might vary. Here's an example assuming you have an empty conda environment:
+
+ ```
+conda install pip "python<=3.10"
+pip install git+https://github.com/sandialabs/MAPIT
+ ```
+
+ After MAPIT has been installed, you can call the GUI entry point from the command line simply by calling `MAPIT` from your environment. You can also import the MAPIT API and use it as a library.
+
+:::{Warning}
+If you are running Apple silicon, there is some extra steps that must be taken. Unfortunately PyPI doesn't have a wheel for PySide2 on Apple silicon see [here](https://pypi.org/project/PySide2/5.15.2.1/#files). Before installing MAPIT, you will need to install PySide2 from conda-forge instead by entering `conda install -c "python<=3.10" PySide2`. In the future, we will upgrade to PySide6 and provide a conda-forge feedstock, but this is the current work around.
+:::
+
+Additional scripts and data can be found in the [MAPIT-tools repo](https://github.com/sandialabs/MAPIT-tools). The exemplar data is in the folder `data` and can be specified in MAPIT by going File -> Load exemplar data and pointing to the `data` folder. 
+
+ ## New to Python
+
+ If you're not very familiar with Python, we provide several setup scripts to help you get started.
+
+ ### Downloading MAPIT tools
 
 ```{image} ./assets/screenshots/gitExample.png
 :class: bg-primary
@@ -14,15 +38,15 @@
 
 <br>
 
-* The MAPIT files can be located at https://www.github.com/sandialabs/MAPIT
+* The MAPIT-tools files can be located at https://www.github.com/sandialabs/MAPIT-tools
   * In the directory click on the green code button in the top right
   * In the pull down menu click the download zip button
   * Once the download is complete, unzip the folder on your computer
 * Download complete!
 
-## Installing MAPIT
+### Installing MAPIT
 
- Once you have downloaded and unzipped the MAPIT folder you will have the following folders on your computer
+ Once you have downloaded and unzipped the MAPIT-tools folder you will have the following folders on your computer
 ```{image} ./assets/screenshots/folders.png
 :class: bg-primary
 :width: 50%

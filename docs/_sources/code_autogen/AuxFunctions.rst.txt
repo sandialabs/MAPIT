@@ -1,5 +1,5 @@
 AuxFunctions
 =============
 
-.. automodule:: MAPIT_internal.core.AuxFunctions
+.. automodule:: MAPIT.core.AuxFunctions
    :members:

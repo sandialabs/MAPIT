@@ -8,4 +8,4 @@ API home
 
    input_guide
    code_autogen/coreLanding
-   MAPIT_internal.GUI
+   MAPIT.GUI

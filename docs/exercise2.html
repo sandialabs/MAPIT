@@ -1,21 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exercise 2: Impacts of measurement error &mdash; MAPIT 1.1.0-beta documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <title>Exercise 2: Impacts of measurement error &mdash; MAPIT 1.3.25-beta documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="_static/doctools.js"></script>
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d04414f"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -30,11 +32,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> MAPIT
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            MAPIT
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -78,9 +84,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="guided_exercises.html">Guided exercises</a> &raquo;</li>
-      <li>Exercise 2: Impacts of measurement error</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="guided_exercises.html">Guided exercises</a></li>
+      <li class="breadcrumb-item active">Exercise 2: Impacts of measurement error</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/exercise2.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -91,18 +97,18 @@
            <div itemprop="articleBody">
              
   <section class="tex2jax_ignore mathjax_ignore" id="exercise-2-impacts-of-measurement-error">
-<h1>Exercise 2: Impacts of measurement error<a class="headerlink" href="#exercise-2-impacts-of-measurement-error" title="Permalink to this heading"></a></h1>
+<h1>Exercise 2: Impacts of measurement error<a class="headerlink" href="#exercise-2-impacts-of-measurement-error" title="Link to this heading"></a></h1>
 <section id="objective">
-<h2>Objective<a class="headerlink" href="#objective" title="Permalink to this heading"></a></h2>
+<h2>Objective<a class="headerlink" href="#objective" title="Link to this heading"></a></h2>
 <p>Explore the impact of measurement error on safeguards metrics. Recall that measurement error negatively impacts the ability to detect anomalies such as material loss.</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
-<p>This exercise assumes that you are familiar with MAPIT and can perform tasks discussed in the previous <a class="reference internal" href="exercise1.html"><span class="doc std std-doc">exercise</span></a> (i.e. launching MAPIT, loading the included scenarios, setting up MAPIT to perform analyses, etc).</p>
+<p>This exercise assumes that you are familiar with MAPIT and can perform tasks discussed in the previous <a class="reference internal" href="exercise1.html"><span class="std std-doc">exercise</span></a> (i.e. launching MAPIT, loading the included scenarios, setting up MAPIT to perform analyses, etc).</p>
 </div>
 </section>
 <hr class="docutils" />
 <section id="problem-setup">
-<h2>Problem setup<a class="headerlink" href="#problem-setup" title="Permalink to this heading"></a></h2>
+<h2>Problem setup<a class="headerlink" href="#problem-setup" title="Link to this heading"></a></h2>
 <hr class="docutils" />
 <ul class="simple">
 <li><p>Start this exercise by launching MAPIT, selecting the Fuel Fab model under <code class="docutils literal notranslate"><span class="pre">Model</span></code> option, and selecting the <code class="docutils literal notranslate"><span class="pre">Normal</span></code> dataset.</p>
@@ -151,7 +157,7 @@
 </section>
 <hr class="docutils" />
 <section id="data-exploration">
-<h2>Data exploration<a class="headerlink" href="#data-exploration" title="Permalink to this heading"></a></h2>
+<h2>Data exploration<a class="headerlink" href="#data-exploration" title="Link to this heading"></a></h2>
 <hr class="docutils" />
 <ul class="simple">
 <li><p>After running, several plot options should be available under the plot controls option (similar to image below).</p>
@@ -237,7 +243,7 @@
 </section>
 <hr class="docutils" />
 <section id="understanding-error-contribution">
-<h2>Understanding error contribution<a class="headerlink" href="#understanding-error-contribution" title="Permalink to this heading"></a></h2>
+<h2>Understanding error contribution<a class="headerlink" href="#understanding-error-contribution" title="Link to this heading"></a></h2>
 <hr class="docutils" />
 <ul class="simple">
 <li><p>After examining the different quantities calculated by MAPIT, open the error contribution table to better understand the contributions of different KMPs to the material balance uncertainty. Do this by selecting the <code class="docutils literal notranslate"><span class="pre">Tabular</span> <span class="pre">Data</span> <span class="pre">View</span></code> drop down at the top of the main MAPIT window and selecting <code class="docutils literal notranslate"><span class="pre">Error</span> <span class="pre">Contribution</span></code>.</p></li>
@@ -292,14 +298,14 @@
 </div>
 </section>
 <section id="summary">
-<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading"></a></h2>
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
 <p>🎉 You have finished the second MAPIT exercise. 🎉</p>
 <p>In this exercise, you learned about how to change simulated measurement errors in MAPIT and their impact on calculated statistical quantities. Further, the capability of MAPIT to show individual error components was also introduced.</p>
 <ul class="simple">
 <li><p>Higher measurement error leads to larger Sigma MUF values</p></li>
 <li><p>Uncertainty contributions rely on both measurement error and inventory size</p></li>
 </ul>
-<p>Continue to <a class="reference internal" href="exercise3.html"><span class="doc std std-doc">exercise 3</span></a>.</p>
+<p>Continue to <a class="reference internal" href="exercise3.html"><span class="std std-doc">exercise 3</span></a>.</p>
 </section>
 </section>
 

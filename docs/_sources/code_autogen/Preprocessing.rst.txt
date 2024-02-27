@@ -1,5 +1,5 @@
 Preprocessing
 =============
 
-.. automodule:: MAPIT_internal.core.Preprocessing
+.. automodule:: MAPIT.core.Preprocessing
    :members:
