@@ -95,8 +95,7 @@ We have included documentation for several guided exercises as well as the API, 
 
 ## Contact
 
-* Nathan Shoman, Sandia National Laboratories, nshoman@sandia.gov
-* Pat Moosir, Sandia National Laboratories, mhiggin@sandia.gov
+* MAPIT developers, Sandia National Laboratories, MAPIT-dev@sandia.gov
 
 ## Data Privacy
 
@@ -108,3 +107,11 @@ MAPIT is an entirely offline tool; we do not collect any data from MAPIT unless 
 * [Third-Party Notice](NOTICE.md)
 
 Sandia National Laboratories is a multimission laboratory managed and operated by National Technology and Engineering Solutions of Sandia, LLC, a wholly owned subsidiary of Honeywell International, Inc., for the U.S. Department of Energy's National Nuclear Security Administration under contract DE-NA-0003525.
+
+## Acknowledgements
+
+<p align="center">
+  <img src="./MAPIT/docs_v2/codeAssets/MPACT_ Logo.jpg" width="65%"/>
+</p>
+
+This work is supported by the DOE/NE Office of Materials and Chemical Technologies (NE-43) - Materials Protection, Accounting, and Control Technologies (MPACT) program.
