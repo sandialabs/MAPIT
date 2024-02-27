@@ -133,12 +133,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     global GUIparams
     
-    # show the window if needed, 
-    settings = QtCore.QSettings("current", "mapit")
-    if settings.value("dataPathBypass") == False or settings.value("dataPathBypass") == None:
-      self.launchSamplePathDlg(setInitStyle=True)
-    else:
-      self.updateSamplePath()
+
     
 
 
@@ -841,6 +836,8 @@ class LaunchGUI(QtWidgets.QMainWindow):
     add_plot_box(self)
     add_stats_box(self)
 
+    
+
 
 
 
@@ -871,6 +868,13 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
 
     #initial loading
+    # show the window if needed, 
+    settings = QtCore.QSettings("current", "mapit")
+    if settings.value("dataPathBypass") == False or settings.value("dataPathBypass") == None:
+      self.launchSamplePathDlg(setInitStyle=True)
+    else:
+      self.updateSamplePath()
+
     self.loadExemplarData()
       
     
