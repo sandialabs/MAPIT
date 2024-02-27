@@ -42,5 +42,10 @@ setup(
         "Documents": "https://sandialabs.github.io/MAPIT/index.html",
         "Source": "https://github.com/sandialabs/MAPIT",
     },
+    entry_points = {
+        'console_scripts':[
+            'MAPIT = MAPIT.GUI.MAPIT_main:launchMAPIT'
+        ],
+    },
 )
 
