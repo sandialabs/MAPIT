@@ -799,6 +799,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.HPC_opts = QtWidgets.QAction("High performance options",self)
     menu.addAction(self.HPC_opts)
     self.HPC_opts.triggered.connect(self.RunHPCDlg)
+    self.HPC_opts.setEnabled(0)
 
     redoExempPath = QtWidgets.QAction("Load exemplar data",self)
     menu.addAction(redoExempPath)
