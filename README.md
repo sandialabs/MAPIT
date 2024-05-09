@@ -5,9 +5,9 @@
 
 
 <p align="center">
-  <img src="https://img.shields.io/badge/platform-linux--64%20|%20win--64%20|%20macos--64-blue?style=plastic" />
-  <img src="https://img.shields.io/badge/python-3.9-blue?style=plastic" />
-  <img src="https://img.shields.io/badge/license-GPL-green?style=plastic)](https://www.gnu.org/licenses/gpl-3.0.en.html" />
+  <img src="https://img.shields.io/badge/platform-linux--64%20|%20win--64%20|%20macos--64-blue?style=flat" />
+  <img src="https://img.shields.io/badge/python-3.9.x | 3.10.x | 3.11.x -blue?style=flat" />
+  <img src="https://img.shields.io/badge/license-GPL-green?style=flat)](https://www.gnu.org/licenses/gpl-3.0.en.html" />
 </p>
 
 
@@ -18,7 +18,7 @@ MAPIT (Material Accountancy Performance Indicator Toolkit) is a Python package d
 
 MAPIT provides both a graphical user interface (GUI) and an application program interface (API). The API can be used with other popular Python libraries to extend functionality and integrate with other analytical workflows. 
 
-
+> :warning: The MAPIT API has breaking changes in v1.40.0-beta. The API was modified to accommodate a parallel processing capability. See [API documentation](https://sandialabs.github.io/MAPIT/apidocs.html) for more details.
 
 * [Features](#features)
 * [Development](#devlopment)
@@ -87,7 +87,7 @@ To streamline this process, we have included both Windows-based and Unix-based i
 
 ## Getting Started
 
-After installation, the MAPIT GUI can be launched using `MAPIT_main.py` and examples of the API can be found in the `API_examples.ipynb` notebook. We have included an exemplar dataset and several tutorial exercises to help you get started, which can be found [here](https://sandialabs.github.io/MAPIT/guided_exercises.html)
+After installation, the MAPIT GUI can be launched using `MAPIT` from terminal after installation. Examples of the API can be found in the API_examples folder. We have included an exemplar dataset (located in a separate [MAPIT-tools](https://github.com/sandialabs/MAPIT-tools) repository) and several tutorial exercises to help you get started, which can be found [here](https://sandialabs.github.io/MAPIT/guided_exercises.html)
 
 ## Documentation
 

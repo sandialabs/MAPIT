@@ -1,11 +1,14 @@
 from collections import namedtuple
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 import numpy as np
 import json
 from pathlib import Path
 import os
 import sys
 from MAPIT.GUI import PlotOps
+import site
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib import cbook
 
 #NOTE: qcheckbox color doesn't change as it's an image unfortunately
 # would require custom image
@@ -13,10 +16,10 @@ from MAPIT.GUI import PlotOps
 def get_palette(color,return_dict=False):
 
     if color == 'light':
-        with open(os.path.join(str(Path(__file__).resolve().parents[1]),'GUI','stylesheets','light_colors'+'.json'),'r') as fp:
+        with open(os.path.join(site.getsitepackages()[-1], 'MAPIT', 'GUI','stylesheets','light_colors'+'.json'),'r') as fp:
             colordict = json.load(fp)
     else:
-        with open(os.path.join(str(Path(__file__).resolve().parents[1]),'GUI','stylesheets','dark_colors'+'.json'),'r') as fp:
+        with open(os.path.join(site.getsitepackages()[-1], 'MAPIT','GUI','stylesheets','dark_colors'+'.json'),'r') as fp:
             colordict = json.load(fp)
 
     palette = QtCore.QCoreApplication.instance().palette() #get light pallet from here
@@ -107,7 +110,7 @@ def getDlgColorDict(self,parent,setInitStyle):
 def setInitialStyle(self):
 
     
-    with open(os.path.join(str(Path(__file__).resolve().parents[1]),'GUI','stylesheets','dark_colors'+'.json'),'r') as fp:
+    with open(os.path.join(site.getsitepackages()[-1], 'MAPIT', 'GUI','stylesheets','dark_colors'+'.json'),'r') as fp:
       dark_color_dict = json.load(fp)
 
 
@@ -156,7 +159,8 @@ def ChangeColor(self):
     self.canvas.axes.title.set_color(colordict["Text"])
 
 
-    update_naviStyle(self.colordict,self.navi_toolbar)
+
+    update_naviStyle(self.colordict,self.navi_toolbar, self.devicePixelRatioF())
 
 
     self.canvas.draw()
@@ -199,12 +203,35 @@ def ChangeColor(self):
     update_pbarStyle(self.PB,self.colordict)
 
 
-def update_naviStyle(cd,navibar):
+def update_naviStyle(cd,navibar, ratio):
     grad = "QToolBar{background-color: "+\
             cd["WindowBackground"] +\
             ";}"
 
     navibar.setStyleSheet(grad)
+    
+    # derived from matplotlib backend
+    names = ['home','back','forward','move','zoom_to_rect','subplots','qt4_editor_options','filesave']
+    for i in range(len(names)):
+        names[i] += '.png'
+    for i, action in enumerate(navibar._actions):
+
+        path_regular = cbook._get_data_path('images', names[i])
+        path_large = path_regular.with_name(
+            path_regular.name.replace('.png', '_large.png'))
+        filename = str(path_large if path_large.exists() else path_regular)
+
+        pm = QtGui.QPixmap(filename)
+        pm.setDevicePixelRatio(
+            ratio or 1)  
+        icon_color = QtGui.QColor(cd['Text'])
+        mask = pm.createMaskFromColor(
+            QtGui.QColor('black'), 
+            QtCore.Qt.MaskMode.MaskOutColor)
+        pm.fill(icon_color)
+        pm.setMask(mask)
+
+        navibar._actions[action].setIcon(QtGui.QIcon(pm))
 
 def get_ani_hex(colordict,valueA):
 
@@ -417,20 +444,20 @@ def update_scrollObjStype(area,frame,colordict):
     frame.setStyleSheet(B+grad)
     
 
-def disable_ani_button(guiobj, button_obj):
+def disable_ani_button(guiobj, button_obj, extraspace=0):
     button_obj._animation.stop()
     button_obj.doGradientAni = 0
     button_obj.setEnabled(0)
 
-    update_aniButton_styleSheet(button_obj,guiobj.colordict)
+    update_aniButton_styleSheet(button_obj,guiobj.colordict,extraspace=extraspace)
 
     
 
-def enable_ani_button(guiobj, button_obj, loc=None):
+def enable_ani_button(guiobj, button_obj, loc=None, extraspace=0):
     button_obj.doGradientAni = 1
     button_obj.setEnabled(1)
     button_obj.IsDone = 1
-    update_aniButton_styleSheet(button_obj,guiobj.colordict,colorborder=1,staticfill=1)
+    update_aniButton_styleSheet(button_obj,guiobj.colordict,colorborder=1,staticfill=1,extraspace=extraspace)
 
 
 def update_pbarStyle(pbarobj,colordict):

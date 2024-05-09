@@ -1,7 +1,5 @@
 import numpy as np
 from itertools import chain
-import warnings
-
 
 def trapSum(relevantIndex, time, data, IT=None, baseline_zero=1e-10):
     """

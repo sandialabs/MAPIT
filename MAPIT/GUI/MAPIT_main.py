@@ -16,26 +16,25 @@ import sys
 from pathlib import Path
 import time
 import queue
-import json
 os.environ["QT_ENABLE_HIGHDPI_SCALING"]   = "1"
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 os.environ["QT_SCALE_FACTOR"]             = "1"
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 import matplotlib
 matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import numpy as np
 import time
+from platformdirs import user_config_dir, user_data_dir
+import site
 
 
 
 
 
 
-from MAPIT.GUI.IOWizard import IOWizardMain 
-#from MAPIT.GUI.IOWizardMat import IOWizardMainMat
-from MAPIT.GUI import PlotOps, StyleOps, GeneralOps, DialogComponents, StatsPanelOps, ScenarioSelector, AnimationTools, ErrorPanelOps, ThreadTools, GUIComponents
+from MAPIT.GUI import PlotOps, StyleOps, GeneralOps, DialogComponents, StatsPanelOps, ScenarioSelector, ErrorPanelOps, ThreadTools, GUIComponents
 
 
 
@@ -56,7 +55,7 @@ class customExecp(Exception):
 
 
 GUIparams = GUIopts(False, True)
-GUIparams = GeneralOps.loadGUILabels(GUIparams, international = False)
+GUIparams = GeneralOps.loadGUILabels(GUIparams, international = True)
 
 AnalysisData = DataHolder()
 
@@ -71,7 +70,8 @@ class StatGUIInterface:
     StyleOps.disable_ani_button(button_obj=self.ErrorS, guiobj=self)
     StyleOps.disable_ani_button(button_obj=self.RunStats, guiobj=self)
     StyleOps.disable_ani_button(button_obj=self.CalcThresh, guiobj=self)
-    StyleOps.disable_ani_button(button_obj=self.PlotRunner, guiobj=self)
+    StyleOps.disable_ani_button(button_obj=self.PlotRunner, guiobj=self, extraspace=13)
+
 
 
     
@@ -89,18 +89,19 @@ class StatGUIInterface:
     else:
       IT = int(self.IterBox.text())
 
-    doError, doMUF, doAI, doCUMUF, doSEID, doSEIDAI, doSITMUF, doPage = StatsPanelOps.getRequestedTests(GUIObject = self)
+    doError, doMUF, doAI, doCUMUF, doSEMUF, doSEMUFAI, doSITMUF, doPage = StatsPanelOps.getRequestedTests(GUIObject = self)
 
     GLoc, GUIparams = StatsPanelOps.verifyGUIRequests(GUIObject = self, GUIparams = GUIparams)
 
     inpdict = {'doError': doError, 'doMUF': doMUF, 'doAI': doAI, 'doCUMUF': doCUMUF,
-               'doSEID': doSEID, 'doSEIDAI': doSEIDAI, 'doSITMUF': doSITMUF, 'doPage': doPage, 
+               'doSEMUF': doSEMUF, 'doSEMUFAI': doSEMUFAI, 'doSITMUF': doSITMUF, 'doPage': doPage, 
                'GLoc': GLoc, 'GUIparams': GUIparams, 'AnalysisData':AnalysisData, 'MBP':mbaTime,
                'IT':IT}
 
 
     Q = queue.Queue()
     thread = ThreadTools.AnalysisThread(Q,self.handleAnalysisThread,parent=self)
+    thread.finished.connect(thread.deleteLater)
     thread.start()
     Q.put(inpdict)                                                                   
 
@@ -133,7 +134,12 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     global GUIparams
     
-
+    # show the window if needed, 
+    settings = QtCore.QSettings("current", "mapit")
+    if settings.value("dataPathBypass") == False or settings.value("dataPathBypass") == None:
+      self.launchSamplePathDlg(setInitStyle=True)
+    else:
+      self.updateSamplePath()
     
 
 
@@ -154,31 +160,19 @@ class LaunchGUI(QtWidgets.QMainWindow):
     
 
     #
-
-    x = str(Path(__file__).resolve().parents[1])
-    F = os.path.join(x, 'docs_v2', 'codeAssets', 'mapit_logo.png')
+    F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'mapit_logo.png')
     self.setWindowIcon(QtGui.QIcon(F))
 
     StatsPanelOps.update_data_opts(self,0) #call for initial layout setup
 
-  def launchSamplePathDlg(self, setInitStyle=False):
+  def launchSamplePathDlg(self, setInitStyle=False, reload=False):
     dlg  = DialogComponents.checkForSampleData(self, setInitStyle)
     dlg.setWindowTitle("Exemplar data")
-    dlg.exec_()
+    dlg.exec()
     self.updateSamplePath()
-    self.loadExemplarData()
 
-
-  def updateDataUI(self):
-    self.datopts.clear()
-    self.mdlopts.clear()
-
-    for item in GUIparams.availableDatas:
-      self.datopts.addItem(GUIparams.availableDatas[item])
-
-    for item in GUIparams.availableMdls:
-      self.mdlopts.addItem(GUIparams.availableMdls[item])
-
+    if reload:
+      loadInternalData(self)
 
   def updateSamplePath(self):
     global GUIparams
@@ -200,27 +194,47 @@ class LaunchGUI(QtWidgets.QMainWindow):
     global GUIparams
     global AnalysisData
 
-    AnalysisData, GUIparams  = result
+    AnalysisData, GUIparams, pbar_mssg  = result
+
+    # modify GUIparams, if possible, update GUI
+
+
+    if pbar_mssg is not None:
+      self.PB.setFormat(pbar_mssg)
+      GUIparams.availableMdls = None
+      GUIparams.availableDatas = None
+
+      if hasattr(self, 'datopts') or hasattr(self, 'mdlopts'):
+        self.datopts.clear()
+        self.mdlopts.clear()
+
+    else:
+      GeneralOps.loadDataLabels(GUIparams)
+      if hasattr(self, 'datopts') or hasattr(self, 'mdlopts'):
+        GeneralOps.updateDataGUIOptions(self, GUIparams)
+
+
 
 
 
   def handleAnalysisThread(self, result):
     global AnalysisData
 
-    AnalysisData, doMUF, doAI, doCUMUF, doSEID, doSEIDAI, doSITMUF, doPage = result
+    AnalysisData, doMUF, doAI, doCUMUF, doSEMUF, doSEMUFAI, doSITMUF, doPage = result
 
     #reenable controls
     StyleOps.enable_ani_button(button_obj = self.ErrorS, guiobj = self, loc = 'EAB')
     StyleOps.enable_ani_button(button_obj = self.RunStats, guiobj = self, loc = 'RSB')
 
-    StatsPanelOps.preparePlotterOptions(self, doMUF, doAI, doCUMUF,doSEID, doSEIDAI,doSITMUF,doPage,GUIparams,AnalysisData)
+    StatsPanelOps.preparePlotterOptions(self, doMUF, doAI, doCUMUF,doSEMUF, doSEMUFAI,doSITMUF,doPage,GUIparams,AnalysisData)
     self.CalcThresh._animation.start()
     self.CalcThresh.setEnabled(1)
     StyleOps.enable_ani_button(button_obj = self.CalcThresh, guiobj = self)
 
+
+    StyleOps.enable_ani_button(button_obj = self.PlotRunner, guiobj = self, extraspace=13)
     self.PlotRunner._animation.start()
     self.PlotRunner.setEnabled(1)
-    StyleOps.enable_ani_button(button_obj = self.PlotRunner, guiobj = self)
 
 
 
@@ -252,8 +266,6 @@ class LaunchGUI(QtWidgets.QMainWindow):
     ]
     ErrorBoxLabels = [x + ' %' for x in ErrorBox]
 
-    dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = Path(dirname).resolve().parents[0]
 
     if self.HasRunErrors == 1 and GUIparams.errorstyle == True:  #if has run previously get those values
       pastEVals = np.zeros((self.EP.rowCount(), 2))
@@ -593,7 +605,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     ep_L.addWidget(self.CloseEConfig)
 
     self.ErrorPane.setWindowTitle("Error Selection")
-    F = os.path.join(x, 'docs_v2', 'codeAssets', 'mapit_logo.png')
+    F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'mapit_logo.png')
     self.ErrorPane.setWindowIcon(QtGui.QIcon(F))
     self.ErrorPane.setWindowModality(QtCore.Qt.ApplicationModal)
     self.ErrorPane.finished.connect(self.RunStats._animation.start)
@@ -630,9 +642,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     CPL = QtWidgets.QGridLayout(CheckPrint)
     label = QtWidgets.QLabel()
 
-    dirname, _ = os.path.split(os.path.abspath(__file__))
-    x = str(Path(__file__).resolve().parents[1])
-    F = os.path.join(x, 'docs','assets', 'codeAssets', 'SNL_Horizontal_Black_Blue.jpg')
+    F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'SNL_Horizontal_Black_Blue.jpg')
     banner = QtGui.QPixmap(F)
 
     banner = banner.scaled(banner.size() * 0.8)
@@ -641,25 +651,16 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     N1 = QtWidgets.QLineEdit()
     N1.setReadOnly(1)
-    N1.setText('Nathan Shoman')
+    N1.setText('MAPIT developers')
 
     N2 = QtWidgets.QLineEdit()
     N2.setReadOnly(1)
-    N2.setText('nshoman@sandia.gov')
+    N2.setText('MAPIT-dev@sandia.gov')
     N2.setMinimumWidth(190)
     CPL.addWidget(N1, 1, 0)
     CPL.addWidget(N2, 1, 1)
 
-    P1 = QtWidgets.QLineEdit()
-    P1.setReadOnly(1)
-    P1.setText('Pat Moosir')
 
-    P2 = QtWidgets.QLineEdit()
-    P2.setReadOnly(1)
-    P2.setText('mhiggin@sandia.gov')
-
-    CPL.addWidget(P1, 2, 0)
-    CPL.addWidget(P2, 2, 1)
  
     CheckPrint.show()
 
@@ -670,8 +671,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
     """
     dlg = DialogComponents.ViewErrorTabs(self, AnalysisData, GUIparams)
     dlg.setWindowTitle('SEID Contributions')
-    x = str(Path(__file__).resolve().parents[1])
-    F = os.path.join(x, 'docs_v2', 'codeAssets', 'mapit_logo.png')
+    F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'mapit_logo.png')
     dlg.setWindowIcon(QtGui.QIcon(F))
     dlg.resize(1200,800)
     res = dlg.show()
@@ -683,8 +683,7 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     dlg = DialogComponents.ViewErrorTabsAI(self, AnalysisData, GUIparams)
     dlg.setWindowTitle('SEID(AI) Contributions')
-    x = str(Path(__file__).resolve().parents[1])
-    F = os.path.join(x, 'docs_v2', 'codeAssets', 'mapit_logo.png')
+    F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'mapit_logo.png')
     dlg.setWindowIcon(QtGui.QIcon(F))
     dlg.resize(1200, 800)
     res = dlg.exec_()
@@ -750,14 +749,14 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.TabOpt = QtWidgets.QMenu("Tabular Data View", self)
     menubar.addMenu(self.TabOpt)
 
-    self.TabView = QtWidgets.QAction("Error Contribution", self)
+    self.TabView = QtGui.QAction("Error Contribution", self)
     self.TabView.triggered.connect(self.RunTable)
     
     self.TabOpt.addAction(self.TabView)
     self.TabView.setToolTip(GUIparams.labels["Box15L"] + ' calculation required')
     self.TabView.setEnabled(0)
 
-    self.TabView1 = QtWidgets.QAction("Error Contribution (AI)", self)
+    self.TabView1 = QtGui.QAction("Error Contribution (AI)", self)
     self.TabView1.triggered.connect(self.RunTableAI)
 
     self.TabOpt.addAction(self.TabView1)
@@ -770,47 +769,46 @@ class LaunchGUI(QtWidgets.QMainWindow):
     HelpLoader = QtWidgets.QMenu("Help", self)
     menubar.addMenu(HelpLoader)
 
-    InstructAction = QtWidgets.QAction("Tool Instructions", self)
+    InstructAction = QtGui.QAction("Tool Instructions", self)
     InstructAction.triggered.connect(self.helpLaunch)
     HelpLoader.addAction(InstructAction)
 
-    HelpAction = QtWidgets.QAction("Contact Information", self)
+    HelpAction = QtGui.QAction("Contact Information", self)
     HelpAction.triggered.connect(self.ContactLaunch)
     HelpLoader.addAction(HelpAction)
 
     
 
-    TG = QtWidgets.QActionGroup(self, exclusive=True)
+    TG = QtGui.QActionGroup(self, exclusive=True)
     self.MakeLight = TG.addAction(
-        QtWidgets.QAction("Light", self, checkable=True))
+        QtGui.QAction("Light", self, checkable=True))
     themeOpt.addAction(self.MakeLight)
-    self.MakeDark = TG.addAction(QtWidgets.QAction("Dark", self, checkable=True))
+    self.MakeDark = TG.addAction(QtGui.QAction("Dark", self, checkable=True))
     themeOpt.addAction(self.MakeDark)
     TG.triggered.connect(lambda: StyleOps.ChangeColor(self))
     StyleOps.setInitialStyle(self)
    
 
 
-    self.ExportDat = QtWidgets.QAction("Save Data", self)
+    self.ExportDat = QtGui.QAction("Save Data", self)
     menu.addAction(self.ExportDat)
     self.ExportDat.triggered.connect( lambda: GeneralOps.SaveStats(self,AnalysisData,GUIparams))
     self.ExportDat.setEnabled(0)
 
-    self.HPC_opts = QtWidgets.QAction("High performance options",self)
+    self.HPC_opts = QtGui.QAction("High performance options",self)
     menu.addAction(self.HPC_opts)
     self.HPC_opts.triggered.connect(self.RunHPCDlg)
-    self.HPC_opts.setEnabled(0)
 
-    redoExempPath = QtWidgets.QAction("Load exemplar data",self)
+    redoExempPath = QtGui.QAction("Load exemplar data",self)
     menu.addAction(redoExempPath)
-    redoExempPath.triggered.connect(self.launchSamplePathDlg)
+    redoExempPath.triggered.connect(lambda: self.launchSamplePathDlg(reload=True))
 
     menubar.addMenu(accmenu)
 
-    upfont = QtWidgets.QAction("Increase font size",self)
-    downfont = QtWidgets.QAction("Decrease font size",self)
-    restorewin = QtWidgets.QAction("Restore defaults",self)
-    errorsty = QtWidgets.QAction("Change error style", self)
+    upfont = QtGui.QAction("Increase font size",self)
+    downfont = QtGui.QAction("Decrease font size",self)
+    restorewin = QtGui.QAction("Restore defaults",self)
+    errorsty = QtGui.QAction("Change error style", self)
 
     upfont.triggered.connect(lambda: StyleOps.IncreaseFont(self))
     downfont.triggered.connect(lambda: StyleOps.DecreaseFont(self))
@@ -836,8 +834,6 @@ class LaunchGUI(QtWidgets.QMainWindow):
     
     add_plot_box(self)
     add_stats_box(self)
-
-    
 
 
 
@@ -869,28 +865,11 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
 
     #initial loading
-    # show the window if needed, 
-    settings = QtCore.QSettings("current", "mapit")
-    if settings.value("dataPathBypass") == False or settings.value("dataPathBypass") == None:
-      self.launchSamplePathDlg(setInitStyle=True)
-    else:
-      self.updateSamplePath()
-
-    self.loadExemplarData()
-      
-    
+    loadInternalData(self)
     
 
 
-  def loadExemplarData(self):
-    #initial loading
-    GeneralOps.loadDatasetLabels(GUIparams)
-    GeneralOps.removeUnavailableDatasets(GUIparams)
-    self.updateDataUI()
 
-    #only load data if some is available
-    if len(GUIparams.availableMdls) > 0 and len(GUIparams.availableDatas):
-      loadInternalData(self)
 
 
   def RunStatThresh(self):
@@ -910,15 +889,10 @@ def loadInternalData(self):
     global GUIparams
     global AnalysisData
 
-    # the signal for the combobox for data and model can trigger
-    # even when the combobox is being cleared, so if that happens,
-    # don't load data
-    if self.datopts.currentIndex() == -1:
-      return
-    
     inpdict = {'GUIparams': GUIparams, 'AnalysisData':AnalysisData}
     Q = queue.Queue()
     thread = ThreadTools.dataLoadThread(Q,self.handleLoadThread,parent=self)
+    thread.finished.connect(thread.deleteLater)
     thread.start()
     Q.put(inpdict)  
 
@@ -932,7 +906,6 @@ def unloadInternalData(self):
     GUIparams = GeneralOps.loadGUILabels(GUIparams)
 
 
-
 def ErrorStyleChange():
     global GUIparams
     GUIparams.errorstyle = not GUIparams.errorstyle
@@ -944,20 +917,23 @@ def dataSourceChanged(self, flag):
 
   if not flag:
     loadInternalData(self)
-    StyleOps.enable_ani_button(button_obj = self.sceneExplorePush, guiobj = self, loc = 'SEPB')
-    self.sceneExplorePush._animation.start()
+    #StyleOps.enable_ani_button(button_obj = self.sceneExplorePush, guiobj = self, loc = 'SEPB')
+    #self.sceneExplorePush._animation.start()
 
     StyleOps.enable_ani_button(button_obj = self.ErrorS, guiobj = self, loc = 'EAB')
     self.ErrorS._animation.start()
 
     StyleOps.disable_ani_button(button_obj=self.extDatBtn, guiobj=self)
+    self.GESelector.setEnabled(True)
+    #
   else:
     unloadInternalData(self)
-    StyleOps.disable_ani_button(button_obj=self.sceneExplorePush, guiobj=self)
+    #StyleOps.disable_ani_button(button_obj=self.sceneExplorePush, guiobj=self)
     StyleOps.disable_ani_button(button_obj=self.RunStats, guiobj=self)
     StyleOps.disable_ani_button(button_obj=self.ErrorS, guiobj=self)
     StyleOps.enable_ani_button(button_obj = self.extDatBtn, guiobj = self, loc = 'EXDB')
     self.extDatBtn._animation.start()
+    self.GESelector.setEnabled(False)
 
 def add_stats_box(self):
 
@@ -1018,19 +994,22 @@ def add_stats_box(self):
   self.mdlbox.setTitle('Model selection')
   self.datBox.setTitle('Scenario selection')
 
-
   self.sceneExplorePush = GUIComponents.AniButton(self)
   self.sceneExplorePush.setObjectName('SEPB')
   self.sceneExplorePush._animation.setLoopCount(3)
-  StyleOps.enable_ani_button(button_obj = self.sceneExplorePush, guiobj = self, loc = 'SEPB')
-  self.sceneExplorePush._animation.start()
+  #StyleOps.enable_ani_button(button_obj = self.sceneExplorePush, guiobj = self, loc = 'SEPB')
+
+  # TODO: scenario explorer needs an overhaul
+  #self.sceneExplorePush._animation.start()
   
   self.sceneExplorePush.setText('Scenario Explorer')
-  self.sceneExplorePush.clicked.connect(lambda: launch_explorer(self.mdlopts.currentText(), self.datopts.currentText()))
+  self.sceneExplorePush.setEnabled(False)
+  StyleOps.disable_ani_button(button_obj=self.sceneExplorePush, guiobj=self)
+  #self.sceneExplorePush.clicked.connect(lambda: launch_explorer(self.mdlopts.currentText(), self.datopts.currentText()))
 
   #when options changed, change dataset
-  self.datopts.currentIndexChanged.connect(lambda: loadInternalData(self))
-  self.mdlopts.currentIndexChanged.connect(lambda: loadInternalData(self))
+  self.datopts.currentTextChanged.connect(lambda: loadInternalData(self))
+  self.mdlopts.currentTextChanged.connect(lambda: loadInternalData(self))
 
 
 
@@ -1050,7 +1029,6 @@ def add_stats_box(self):
   sandDataContainL.addWidget(self.mdlbox)
   sandDataContainL.addWidget(self.datBox)
   sandDataContainL.addWidget(self.sceneExplorePush)
-  sandDataContainL.setMargin(0)
   sandDataContainL.setContentsMargins(0,0,0,0)
   extDataContainL.addWidget(self.extDatBtn)
 
@@ -1178,7 +1156,7 @@ def add_stats_box(self):
   self.ErrorS.setObjectName('EAB')
   # self.ErrorS.setStyleSheet('border:2px solid rgb(255,170,255);')
   SGS_L.addWidget(self.ErrorS)
-  SGS_L.setMargin(0)
+
   SGS_L.setContentsMargins(0,0,0,0)
   self.ErrorS.setToolTip('Measurement error specification')
   self.ErrorS._animation.setLoopCount(3)
@@ -1246,7 +1224,7 @@ def add_plot_box(self):
   self.PlotControls.setMaximumHeight(200)
   self.PlotControls.setObjectName('PB5')
   PlotContainerL.addWidget(self.PlotControls)
-  PlotControlL = QtWidgets.QHBoxLayout(self.PlotControls)
+  PlotControlL = QtWidgets.QGridLayout(self.PlotControls)
 
   self.mb1 = GUIComponents.SubBoxAni(self)
   self.mb1L = QtWidgets.QHBoxLayout(self.mb1)
@@ -1263,7 +1241,7 @@ def add_plot_box(self):
   self.mb1L.addWidget(self.metricBox)
 
 
-  PlotControlL.addWidget(self.mb1)
+  PlotControlL.addWidget(self.mb1, 0, 0)
 
   self.mb2 = GUIComponents.SubBoxAni(self)
   #self.mb2.setTitle(GUIparams.labels["Box32L"])
@@ -1276,7 +1254,7 @@ def add_plot_box(self):
 
   self.mb2L.addWidget(self.LocBox)
   #self.mb2L.setContentsMargins(10,15,10,15)
-  PlotControlL.addWidget(self.mb2)
+  PlotControlL.addWidget(self.mb2, 0, 1)
   self.LocBox.setMinimumWidth(50)
 
   self.mb3 = GUIComponents.SubBoxAni(self)
@@ -1288,7 +1266,7 @@ def add_plot_box(self):
 
   self.mb3L.addWidget(self.NucIDBox)
   #self.mb3L.setContentsMargins(10,15,10,15)
-  PlotControlL.addWidget(self.mb3)
+  PlotControlL.addWidget(self.mb3, 0, 2)
   self.NucIDBox.setMinimumWidth(50)
 
   self.mb4 = GUIComponents.SubBoxAni(self)
@@ -1303,12 +1281,14 @@ def add_plot_box(self):
 
   self.mb4L.addWidget(self.NumToPlot)
 
-  PlotControlL.addWidget(self.mb4)
+  PlotControlL.addWidget(self.mb4, 0, 3)
 
-  self.PlotRunner = GUIComponents.AniButton(self)
+  self.PlotRunner = GUIComponents.AniButton(self, extra_space=13)
   self.PlotRunner.setText('Plot')
   self.PlotRunner.setObjectName('PRB')
-  PlotControlL.addWidget(self.PlotRunner)
+  PlotControlL.addWidget(self.PlotRunner, 0, 4)
+  #PlotControlL.setAlignment(QtCore.Qt.AlignCenter)
+  
   #PlotControlL.setVerticalSpacing(PlotControlL.verticalSpacing())
   self.PlotRunner.setEnabled(0)
   StyleOps.disable_ani_button(self,self.PlotRunner)
@@ -1410,13 +1390,13 @@ def launch_explorer(mdlname, datname):
   ss.exec_()
 
 
+
 def launchMAPIT():
   app = QtWidgets.QApplication(sys.argv)
   #app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
 
   #splash
-  x = str(Path(__file__).resolve().parents[1])
-  F = os.path.join(x, 'docs_v2', 'codeAssets', 'splash3.png')
+  F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'splash3.png')
   splash_pix = QtGui.QPixmap(F)
   G = QtWidgets.QApplication.instance().devicePixelRatio()
   splash_pix.setDevicePixelRatio(G)
@@ -1429,7 +1409,7 @@ def launchMAPIT():
   
 
 
-  F = os.path.join(x, 'docs_v2', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
+  F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'SNL_Stacked_Black_Blue2.jpg')
   splash.setWindowIcon(QtGui.QIcon(F))
 
   progressBar = QtWidgets.QProgressBar(splash)
@@ -1475,6 +1455,19 @@ def launchMAPIT():
 
   splash.close()
 
+  # create folders for various MAPIT output and config files
+  # in user's home directory
+  
+  #config
+  if not os.path.isdir(user_config_dir('MAPIT',False)):
+    os.mkdir(user_config_dir('MAPIT',False))    
+
+  #data folders
+  if not os.path.isdir(user_data_dir('MAPIT',False)):
+    os.mkdir(os.path.join(user_data_dir('MAPIT',False)))   
+    os.mkdir(os.path.join(user_data_dir('MAPIT',False),'input'))   
+    os.mkdir(os.path.join(user_data_dir('MAPIT',False),'output'))   
+
   widget = LaunchGUI()
 
   try:
@@ -1493,7 +1486,12 @@ def launchMAPIT():
   widget.show()
   widget.activateWindow()
 
-  sys.exit(app.exec_())
+
+
+  
+    
+
+  sys.exit(app.exec())
 
 if __name__ == "__main__":
   launchMAPIT()

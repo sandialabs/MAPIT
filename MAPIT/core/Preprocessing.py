@@ -1,10 +1,8 @@
-from PySide2 import QtCore
 import numpy as np
 import os
 import string
 import copy
 from scipy.io import loadmat
-from MAPIT.GUI import StatsPanelOps, GeneralOps
 
 from tqdm import tqdm
 
@@ -351,7 +349,7 @@ def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,
 
 
 
-def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True):
+def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSize=10,dopar=False,bar=None):
     """
       Function to add simulated measurement error. Supports variable sample rates. 
       Assumes the traditional multiplicative measurement error model:
@@ -408,7 +406,7 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True):
     #len(list) = locations
     #list[n] = (iterations, samples, elements)
     for i in range(0, len(rawData)):
-        AppliedError.append(np.zeros((iterations, rawData[i].shape[0], rawData[i].shape[1]),dtype=np.float32))
+        AppliedError.append(np.zeros((iterations, rawData[i].shape[0]),dtype=np.float32))
 
 
     loopcounter = 0
@@ -426,66 +424,70 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True):
 
     #assume sys differs by location only and doesn't change for different elements
 
-    if doTQDM:
-      if iterations > 10:
-        outerloop = int(np.floor(iterations/10))
-        pbar = tqdm(desc="", total=int((outerloop+1)*len(rawData)), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")   
+    if doTQDM and not dopar:
+      if iterations > batchSize:
+        outerloop = int(np.floor(iterations/batchSize))
+        pbar = tqdm(desc="Error Prop", total=int((outerloop+1)*len(rawData)), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]",ncols=85)   
       else:
-        pbar = tqdm(desc="", total=int(len(rawData)), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
-
+        pbar = tqdm(desc="Error Prop", total=int(len(rawData)), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]",ncols=85)
     #------------ Start error prop ------------#
     for i in range(0, len(rawData)):
 
 
-      if iterations > 10:
-        outerloop = int(np.floor(iterations/10))
-        remruns = iterations%10
+      if iterations > batchSize:
+        outerloop = int(np.floor(iterations/batchSize))
+        remruns = iterations%batchSize
 
 
         for j in range(0,outerloop):
-          startIdx = j*10
-          endIdx = startIdx+10
-          sysRSD = np.random.normal(size=(10,1,1),loc=0,scale=ErrorMatrix[i,1])
-          randRSD = np.random.normal(size=(10,rawData[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
-          AppliedError[i][startIdx:endIdx,:,0] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((10,-1))
+          startIdx = j*batchSize
+          endIdx = startIdx+batchSize
+          sysRSD = np.random.normal(size=(batchSize,1,1),loc=0,scale=ErrorMatrix[i,1])
+          randRSD = np.random.normal(size=(batchSize,rawData[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
+          AppliedError[i][startIdx:endIdx,] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((batchSize,-1))
 
           if GUIObject is not None:
             totalloops = (outerloop+1)*len(rawData)
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
           
-          if doTQDM:
+          if doTQDM and not dopar:
             pbar.update(1)
         
         if remruns > 0:
           sysRSD = np.random.normal(size=(remruns,1,1),loc=0,scale=ErrorMatrix[i,1])
           randRSD = np.random.normal(size=(remruns,rawData[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
-          AppliedError[i][endIdx:,:,0] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((remruns,-1))
+          AppliedError[i][endIdx:,] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((remruns,-1))
 
           if GUIObject is not None:
               totalloops = (outerloop+1)*len(rawData)
               GUIObject.progress.emit(loopcounter / totalloops*100)
               loopcounter+=1 
           
-          if doTQDM:
+          if doTQDM and not dopar:
             pbar.update(1)
       
       else:
           sysRSD = np.random.normal(size=(iterations,1,1),loc=0,scale=ErrorMatrix[i,1])
           randRSD = np.random.normal(size=(iterations,rawData[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
-          AppliedError[i][:,:,0] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((iterations,-1))
+          AppliedError[i] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((iterations,-1))
 
           if GUIObject is not None:
             GUIObject.progress.emit(i/len(rawData)*100)
           
-          if doTQDM:
+          if doTQDM and not dopar:
             pbar.update(1)
 
 
+    if doTQDM and not dopar:
+      pbar.n=pbar.total
+    
+    if doTQDM and bar is not None:
+      bar.update.remote(1)
 
     if GUIObject is not None:
       GUIObject.progress.emit(100)
-      None
+      
     
 
 

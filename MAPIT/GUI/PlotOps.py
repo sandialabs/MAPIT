@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 from matplotlib.figure import Figure
 from PIL import ImageFont   ## MH added to test label sizing
 import time
@@ -161,7 +161,9 @@ class MPLCanvas(FigureCanvas):
                        facecolor=self.main_gui.colordict["plotBg"],
                        labelcolor=self.main_gui.colordict["Text"],
                        edgecolor=self.main_gui.colordict["Text"],
-                       fontsize = self.main_gui.currentFontSize-2)
+                       fontsize = self.main_gui.currentFontSize-2,
+                       handleheight=3,
+                       handlelength=4)
       #self.fig.subplots_adjust(right=0.75)
       #lgd.set_in_layout(True)
       #self.fig.tight_layout()
@@ -169,10 +171,15 @@ class MPLCanvas(FigureCanvas):
       self.draw()
 
   def update_figure_title(self, data):
-    self.axes.set_title(data.title,fontsize=self.main_gui.currentFontSize-2,color=self.main_gui.colordict["Text"])
-    self.axes.set_xlabel(data.xlabel, fontsize = self.main_gui.currentFontSize-2, color=self.main_gui.colordict["Text"])
-    self.axes.set_ylabel(data.ylabel, fontsize=self.main_gui.currentFontSize-2, color=self.main_gui.colordict["Text"])
+    #fontsize = QtWidgets.QApplication.font().pointSize()
+    tcolor = self.parent().colordict["Text"]
+    self.axes.set_title(data.title,fontsize=self.main_gui.currentFontSize-2, color=tcolor)
+    self.axes.set_xlabel(data.xlabel, fontsize = self.main_gui.currentFontSize-2, color=tcolor)
+    self.axes.set_ylabel(data.ylabel, fontsize=self.main_gui.currentFontSize-2, color=tcolor)
     self.axes.ticklabel_format(axis='y', style='sci', useOffset=True,scilimits=(-4,4)) #use sci notation for large numbers
+    #self.axes.yaxis.set_tick_params(labelsize=20)
+    #self.axes.tick_params(labelsize=fontsize)
+    #self.axes.yaxis.get_offset_text().set_size(fontsize)
 
     self.draw()
 
@@ -305,7 +312,7 @@ def getDataWithLocations(PlotIndex,GUIparams,AnalysisData,nPlot,raw):
   if nPlot == 1:
     np.random.shuffle(xx)
     xidx = int(xx[0])
-    dat = dat[xidx,]
+    dat = dat[xidx,].reshape((1,-1))
   elif nPlot == -1:
     dat = np.mean(dat,axis=0)
   elif nPlot == -2:
@@ -467,7 +474,7 @@ def getData(GUIObject,GUIparams,AnalysisData,ThresholdL = False):
        xnew = []
        tnew = []
        if len(dat.shape) == 2:
-        dat = np.expand_dims(dat,0)
+        dat = np.expand_dims(dat,2)
        for Q in range(dat.shape[0]):
          if Q == 0:
            #print(np.shape(dat[Q]))

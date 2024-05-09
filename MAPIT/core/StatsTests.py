@@ -1,16 +1,12 @@
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtWidgets
 import numpy as np
 from itertools import chain
-from scipy.integrate import trapz
-import sys
-#from MAPIT.GUI import GeneralOps
 import MAPIT.core.AuxFunctions as AuxFunctions
-import MAPIT.GUI.GeneralOps as GeneralOps
-
 from tqdm import tqdm
 
 
-def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None,doTQDM=True):
+
+def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None,doTQDM=True,ispar=False):
     """
       Function to calculate Material Unaccounted For (MUF), which is sometimes also called ID (inventory difference). 
       Specifically calculates the material balance sequence given some input time series. 
@@ -109,18 +105,7 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
 
     if GUIObject is not None:
       doTQDM = False
-
-    inputAppliedError, \
-    inventoryAppliedError, \
-    outputAppliedError = AuxFunctions.removeExtraDims(inputAppliedError,
-                                                        inventoryAppliedError,
-                                                        outputAppliedError)  
-
-
-    
-
-    
-  
+     
 
     #if one of the datasets are a list
     #then need check them all to figure
@@ -152,8 +137,8 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
     # use data from (i-1):i to set MUF for period i:i+1
     #TODO: this needs to be updated for csv
 
-    if doTQDM:
-       pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
+    if doTQDM and ispar == False:
+       pbar = tqdm(desc="MUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85)
 
     #-------------------------------------------------------------------------------#
     #------------------------------  MUF Calculation  ------------------------------#
@@ -172,7 +157,8 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
           GUIObject.progress.emit(loopcounter / totalloops*100)
           loopcounter+=1
         if doTQDM:
-           pbar.update(1)
+          if ispar == False:
+            pbar.update(1)
 
         #select the indices for the relevant time
         logicalInterval = np.logical_and(
@@ -191,7 +177,8 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
           GUIObject.progress.emit(loopcounter / totalloops*100)
           loopcounter+=1
         if doTQDM:
-           pbar.update(1)
+          if ispar == False:
+            pbar.update(1)
 
         logicalInterval = np.logical_and(
             processedOutputTimes[j] >= MBP * (i - 1),
@@ -208,7 +195,8 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
           GUIObject.progress.emit(loopcounter / totalloops*100)
           loopcounter+=1
         if doTQDM:
-           pbar.update(1)
+          if ispar == False:
+            pbar.update(1)
 
         startIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) - MBP *
                         (i - 1)).argmin()
@@ -226,28 +214,16 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
 
 
 
+
     return MUF
 
 
-def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None,doTQDM=True):
 
-    # if GUIObject is not None:
-    #     Loc = GUIparams.Loc
-    #     GUIObject.PB.setValue(0)
-    #     GUIObject.StatDlg.UpdateDispText('Calculating ' + GUIparams.labels['Box13L'])
-    #     QtCore.QCoreApplication.instance().processEvents()
-    #     GUIObject.PB.setValue(0)
-
-    if GUIObject is not None:
-      doTQDM = False
+def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None,doTQDM=True,ispar=False):
 
 
-    inputAppliedError, \
-    inventoryAppliedError, \
-    outputAppliedError = AuxFunctions.removeExtraDims(inputAppliedError,
-                                                        inventoryAppliedError,
-                                                        outputAppliedError)  
-    
+
+
     #if one of the datasets are a list
     #then need check them all to figure
     #out how long the imported data is
@@ -267,9 +243,12 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
 
     loopcounter = 0
     totalloops = ((MBPs-1)*(len(inputAppliedError)+len(outputAppliedError)+len(inventoryAppliedError)))
+    
+    if GUIObject is not None:
+      doTQDM = False
 
-    if doTQDM:
-       pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
+    if doTQDM and ispar == False:
+      pbar = tqdm(desc="Active Inventory", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85)
 
     for i in range(1, int(MBPs)):  #each MBP
         for j in range(0, len(inputAppliedError)):  
@@ -278,7 +257,8 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
           if doTQDM:
-           pbar.update(1)
+            if ispar == False:
+              pbar.update(1)
 
           logicalInterval = np.logical_and(
               processedInputTimes[j] >= MBP * (i - 1),
@@ -294,7 +274,8 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
           if doTQDM:
-           pbar.update(1)
+            if ispar == False:
+              pbar.update(1)
 
           logicalInterval = np.logical_and(
               processedOutputTimes[j] >= MBP * (i - 1),
@@ -309,12 +290,13 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
           if doTQDM:
-           pbar.update(1)
+            if ispar == False:
+              pbar.update(1)
 
           startIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) - MBP *
                           (i - 1)).argmin()
           endIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) -
-                         MBP * i).argmin()
+                        MBP * i).argmin()
 
           if i == 1:
               AI[:, i * MBP:(i + 1) * MBP] += \
@@ -324,10 +306,11 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
               AI[:, i * MBP:(i + 1) * MBP] += \
               np.tile((inventoryAppliedError[j][:, endIdx] - inventoryAppliedError[j][:, startIdx]), (MBP, 1)).transpose()
 
+
+
     return AI
 
-
-def CUMUF(MUF,GUIObject=None,doTQDM=True):
+def CUMUF(MUF,GUIObject=None,doTQDM=True, ispar=False):
   """
 
       This function performs the cumulative MUF test. This is simply the sum of all previous MUF values at a particular time. 
@@ -354,8 +337,8 @@ def CUMUF(MUF,GUIObject=None,doTQDM=True):
   idxs = np.concatenate(([0,],np.argwhere(z!=0).squeeze(),[int(MUF.shape[1]-1),])).astype(int)
   cumuf = np.zeros_like(MUF)
 
-  if doTQDM:
-      pbar = tqdm(desc="", total=int(len(idxs)-1), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
+  if doTQDM and ispar == False:
+      pbar = tqdm(desc="CUMUF", total=int(len(idxs)-1), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85)
 
 
 
@@ -366,7 +349,9 @@ def CUMUF(MUF,GUIObject=None,doTQDM=True):
     if GUIObject is not None:
       GUIObject.progress.emit(i/(len(idxs)-1))
     if doTQDM:
-      pbar.update(1)
+      if ispar == False:
+        pbar.update(1)
+
 
 
   #HACK: this is just due to how the indexing was done above
@@ -377,8 +362,8 @@ def CUMUF(MUF,GUIObject=None,doTQDM=True):
   
   return cumuf
 
-  
-def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,ErrorMatrix,GUIObject=None,doTQDM=True):
+
+def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,ErrorMatrix,GUIObject=None,doTQDM=True,ispar=False):
       """
         Function for calculating standard error of the material balance sequence (often called SEID or Standard Error of Inventory Difference; :math:`\\sigma _\\text{ID}`). This is accomplished by assuming the error incurred at each location (specified in the ErrorMatrix) rather than estimating it emperically, which is difficult in practice. The equation used here is suitable for most traditional bulk facilities such as enrichment or reprocessing where input and output flows are independent. This function should **not** be used for facilitiy types where there are more complex statistical dependencies between input, inventory, and output terms (e.g., molten salt reactors). See guide XX for more information.
 
@@ -433,11 +418,8 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
       if GUIObject is not None:
         doTQDM = False
       
-      inputAppliedError, \
-      inventoryAppliedError, \
-      outputAppliedError = AuxFunctions.removeExtraDims(inputAppliedError,
-                                                          inventoryAppliedError,
-                                                          outputAppliedError)  
+
+      
 
 
 
@@ -475,8 +457,8 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
       loopcounter = 0
       totalloops = ((MBPs-1)*(len(inputAppliedError)+len(outputAppliedError)+len(inventoryAppliedError)))
 
-      if doTQDM:
-       pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
+      if doTQDM and ispar == False:
+        pbar = tqdm(desc="Sigma MUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85)
 
 
       InpVar = np.zeros((iterations,int(MBPs * MBP)))
@@ -497,7 +479,8 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
           if doTQDM:
-             pbar.update(1)
+            if ispar == False:
+              pbar.update(1)
 
 
           logicalInterval = np.logical_and(
@@ -528,7 +511,8 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
           if doTQDM:
-             pbar.update(1)
+            if ispar == False:
+              pbar.update(1)
 
 
           if i == 1:
@@ -561,7 +545,8 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
           if doTQDM:
-             pbar.update(1)
+            if ispar == False:
+              pbar.update(1)
 
 
           AFTS = AuxFunctions.trapSum(logicalInterval,processedOutputTimes[j],outputAppliedError[j])
@@ -574,14 +559,15 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
           SEMUFContribS[:, j + len(inputAppliedError) + len(inventoryAppliedError), i] = VS
           SEMUFContribI[:, j + len(inputAppliedError) + len(inventoryAppliedError), i] = AFTS
 
+
+
+
       SEMUFCalcs = np.sqrt(InpVar + InvVar + OutVar)
-
-
-
 
       return SEMUFCalcs, SEMUFContribR, SEMUFContribS, SEMUFContribI
 
-
+#NOTE: parallel not supported given the relatively
+#simple nature of the calc
 def SEMUFAI(AI, SEMUF, SEMUFContribR, SEMUFContribS, MBP):
 
   SEMUFAI = np.zeros(np.shape(SEMUF))
@@ -592,25 +578,26 @@ def SEMUFAI(AI, SEMUF, SEMUFContribR, SEMUFContribS, MBP):
   
   AI_MBPs = []
   for i in range(len(AI[0])):
-     if i%MBP == 0:
+    if i%MBP == 0:
         AI_MBPs.append(AI[:,i])
   AI_MBPs = np.transpose(np.array(AI_MBPs))
 
   for i in range(len(AI[0])):
-     if AI[0, i] != 0:
+    if AI[0, i] != 0:
         SEMUFAI[:, i] = SEMUF[:, i]/AI[:, i] * 100
   for j in range(1,mbps):
       for k in range(kmps):
-         SEMUFAIContribR[:,k,j] = (SEMUFContribR[:, k, j])/AI_MBPs[:,j] * 100
-         SEMUFAIContribS[:,k,j] = (SEMUFContribS[:, k, j])/AI_MBPs[:,j] * 100      
+        SEMUFAIContribR[:,k,j] = (SEMUFContribR[:, k, j])/AI_MBPs[:,j] * 100
+        SEMUFAIContribS[:,k,j] = (SEMUFContribS[:, k, j])/AI_MBPs[:,j] * 100      
 
   return SEMUFAI, SEMUFAIContribR, SEMUFAIContribS
 
-def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,ErrorMatrix,MUF,MBP,GUIObject=None,doTQDM=True):
-      """
-       Function that carries out the standardized independent transformation of MUF. More detailed information can be found in the guide XX. 
 
-       Args: 
+def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,ErrorMatrix,MUF,MBP,GUIObject=None,doTQDM=True,ispar=False):
+      """
+      Function that carries out the standardized independent transformation of MUF. More detailed information can be found in the guide XX. 
+
+      Args: 
 
           inputAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of input locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites (as opposed to ground truths). Inputs are assumed to be flows in units of :math:`\\frac{1}{s}` and will be integrated. 
 
@@ -663,11 +650,7 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
       if GUIObject is not None:
         doTQDM = False
         
-      inputAppliedError, \
-      inventoryAppliedError, \
-      outputAppliedError = AuxFunctions.removeExtraDims(inputAppliedError,
-                                                          inventoryAppliedError,
-                                                          outputAppliedError)  
+
 
       decompStatus = 1
       iterations = inputAppliedError[0].shape[0]
@@ -698,9 +681,9 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
       loopcounter = 0
       covmatrix = np.zeros((iterations,int(MBPs), int(MBPs)))
 
-      if doTQDM:
-         pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc}: {percentage:.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
-       #pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc}: {n_fmt}/{total_fmt} ({percentage:.2f}%) |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
+      if doTQDM and ispar == False:
+        pbar = tqdm(desc="SITMUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85)
+      #pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc:10}: {n_fmt}/{total_fmt} ({percentage:3.2f}%) |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
 
 
       if decompStatus == 1:
@@ -712,7 +695,8 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
                 GUIObject.progress.emit(loopcounter / totalloops*100)
                 loopcounter+=1
               if doTQDM:
-                pbar.update(1)
+                if ispar == False:
+                  pbar.update(1)
 
               #it's easier to implement SITMUF using the actual indicies
               #from the statistical papers rather than the python loop variables
@@ -885,6 +869,7 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
               SITMUFCalcs[k,int((P - 1) * MBP):int(P * MBP)] = np.ones((MBP,)) * SITMUF[P - 1]
 
 
+      
       return SITMUFCalcs 
 
 
@@ -925,7 +910,7 @@ def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,doTQDM=True):
 
       
 
- 
+
   for k in range(PageCalcs.shape[0]):
     for P in range(1,int(MBPs)):
       
@@ -948,4 +933,4 @@ def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,doTQDM=True):
 
 
   return PageCalcs
-    
+  

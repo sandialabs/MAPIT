@@ -1,10 +1,8 @@
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore, QtGui
 from MAPIT.core import AuxFunctions as Aux
 from MAPIT.GUI import IOWizard, GeneralOps, StyleOps, GUIComponents
 import os
-import numpy as np
-import time
-from pathlib import Path
+from platformdirs import user_config_dir, user_data_dir
 
 
 def launchIOWindow(self, AnalysisData, GUIparams):
@@ -15,8 +13,11 @@ def launchIOWindow(self, AnalysisData, GUIparams):
 
 
 
-  GUIparams = GeneralOps.loadGUILabels(GUIparams)
-  GeneralOps.getExtData(self,AnalysisData,GUIparams,Wizard)
+  
+
+  if Wizard.gracefulExit:
+    GUIparams = GeneralOps.loadGUILabels(GUIparams)
+    GeneralOps.getExtData(self,AnalysisData,GUIparams,Wizard)
 
 
 
@@ -406,8 +407,10 @@ class checkForSampleData(QtWidgets.QDialog):
 
     StyleOps.getDlgColorDict(self,parent,setInitStyle)
 
-    self.ex_data_path = os.path.join(Path(os.path.realpath(__file__)).resolve().parents[2],
-                                'data')
+    if QtCore.QSettings("current", "mapit").value("dataPathDefault") is not None:
+      self.ex_data_path = QtCore.QSettings("current", "mapit").value("dataPathDefault")
+    else:
+      self.ex_data_path = os.path.join(os.path.join(user_data_dir('MAPIT',False),'input'))
     
    
 

@@ -3,13 +3,13 @@
 """
 
 
-from PySide2 import QtCore, QtWidgets, QtGui
-import time
-import numpy as np
+from PySide6 import QtCore, QtWidgets, QtGui
 import os
 import sys
 from pathlib import Path
 from MAPIT.GUI import GUIComponents, StyleOps
+import site
+from platformdirs import user_config_dir
 
 
 #temp
@@ -26,6 +26,7 @@ class IOWizardMain(QtWidgets.QWizard):
     self.addPage(IntroPage(self))
     self.addPage(DirPage(self))
     self.addPage(OptPage(self))
+    self.gracefulExit = 0
     
 
     self.setWindowTitle("Data IO Wizard")
@@ -59,8 +60,9 @@ class IOWizardMain(QtWidgets.QWizard):
 
 
     #bring in the first page banner
-    dirname, _ = os.path.split(os.path.abspath(__file__))
-    F = os.path.join(str(Path(__file__).resolve().parents[1]), 'docs_v2', 'codeAssets', 'SNL_Horizontal_Black.jpg')
+    dirname = site.getsitepackages()[-1] + '/MAPIT/'
+    x = Path(dirname).resolve().parents[0]
+    F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'SNL_Horizontal_Black.jpg')
     res = QtGui.QPixmap(F)
     geometry = qApp.desktop().availableGeometry(self)
     res = res.scaledToWidth(geometry.width()*0.25)
@@ -78,17 +80,19 @@ class IOWizardMain(QtWidgets.QWizard):
     self.InKMP = {}
     self.InvKMP = {}
     self.OutKMP = {}
-    self.InKMP_names = {}
-    self.InvKMP_names = {}
-    self.OutKMP_names = {}
+    self.InKMP_names = []
+    self.InvKMP_names = []
+    self.OutKMP_names = []
     self.TimeUnitVec = {}
     self.MassUnitVec = {}
+    self.EleIsoName = ""
 
     #set a flag here to say that imported
     #data is NOT a mat file
     self.IsMatV = 0
 
-
+  def IncompleteFinish(self):
+    self.gracefulExit = 0
 
   def SavePages(self):
     """
@@ -115,15 +119,79 @@ class IOWizardMain(QtWidgets.QWizard):
 
     self.TempVec_IN = self.page(2).TimeUnitVec.text()
 
+    if len(self.page(2).InpLabels.text()) > 0:
+      self.InKMP_names = [loc.strip() for loc in self.page(2).InpLabels.text().split(",")]
 
-    self.InKMP_names = self.page(2).InpLabels.text()
-    self.InvKMP_names = self.page(2).InvLabels.text()
-    self.OutKMP_names = self.page(2).OutLabels.text()
+    if len(self.page(2).InvLabels.text()) > 0:      
+      self.InvKMP_names = [loc.strip() for loc in self.page(2).InvLabels.text().split(",")]
+
+    if len(self.page(2).OutLabels.text()) > 0:
+      self.OutKMP_names = [loc.strip() for loc in self.page(2).OutLabels.text().split(",")]
+      
 
     self.TimeUnitVec = self.page(2).TimeUnitVec.text()
     self.MassUnitVec = self.page(2).MassUnitVec.text()
 
     self.dataType = self.page(1).inpFmt.currentText()
+
+    self.EleIsoName = self.page(2).EleIsoText.text()
+
+    self.gracefulExit = 1
+
+
+  def LoadCfg(self):
+    """
+            Function to load a previously
+            recorded configuration of input
+            information.
+    """
+
+    x = [None]
+    outdir = os.path.join(user_config_dir('MAPIT',False), 'IOsaveconfig.txt')
+    with open(outdir, 'r') as f:
+      x = f.read().splitlines()
+
+    self.page(1).inpFmt.setCurrentIndex(int(x[0])) if x[0] != 'null' else None
+    self.page(2).TimeUnitVec.setText(x[1]) if x[1] != 'null' else None
+    self.page(2).MassUnitVec.setText(x[2]) if x[2] != 'null' else None
+    self.page(2).EleIsoText.setText(x[3]) if x[3] != 'null' else None
+    self.page(1).InpDirDisp.setText(x[4]) if x[4] != 'null' else None
+    self.page(1).InvDirDisp.setText(x[5]) if x[5] != 'null' else None
+    self.page(1).OutDirDisp.setText(x[6]) if x[6] != 'null' else None
+    self.page(2).InpLabels.setText(x[7]) if x[7] != 'null' else None
+    self.page(2).InvLabels.setText(x[8]) if x[8] != 'null' else None
+    self.page(2).OutLabels.setText(x[9]) if x[9] != 'null' else None
+
+  def SaveCfg(self):
+    """
+            Function to save a specified
+            configuration of input information.
+    """
+    p = Path(sys.argv[0]).resolve().parents[1]
+
+
+    x = [
+        self.page(1).inpFmt.currentIndex(),
+        self.page(2).TimeUnitVec.text(),
+        self.page(2).MassUnitVec.text(),
+        self.page(2).EleIsoText.text(),
+        self.page(1).InpDirDisp.text(),
+        self.page(1).InvDirDisp.text(),
+        self.page(1).OutDirDisp.text(),
+        self.page(2).InpLabels.text(),
+        self.page(2).InvLabels.text(),
+        self.page(2).OutLabels.text()
+    ]
+
+    for i in range(len(x)):
+      if x[i] == '':
+        x[i] = 'null'
+
+    outdir = os.path.join(user_config_dir('MAPIT',False), 'IOsaveconfig.txt')
+
+    with open(outdir, 'w') as f:
+      for item in x:
+        f.write("%s\n" % item)
 
 
 class IntroPage(QtWidgets.QWizardPage):
@@ -157,6 +225,8 @@ class OptPage(QtWidgets.QWizardPage):
     self.setSubTitle('    ')
 
     layout = QtWidgets.QVBoxLayout(self)
+    F3 = QtWidgets.QGroupBox()
+    L3 = QtWidgets.QHBoxLayout(F3)
 
     #ReqForms = QtWidgets.QGroupBox(self)
     OptForms = QtWidgets.QGroupBox(self)
@@ -183,7 +253,11 @@ class OptPage(QtWidgets.QWizardPage):
     self.MassUnitTxt = QtWidgets.QLabel("Enter the mass units", self)
     layoutO.addWidget(self.MassUnitTxt, 2, 0)
 
+    self.EleIsoText = QtWidgets.QLineEdit(self, "")
+    self.EleIsoLabel = QtWidgets.QLabel("Enter element/isotope name")
 
+    layoutO.addWidget(self.EleIsoText, 3, 1)
+    layoutO.addWidget(self.EleIsoLabel, 3, 0)
 
     #layoutR.addWidget(self.inpFmt, 2, 1)
     #layoutR.addWidget(self.InpVecTxt, 2, 0)
@@ -191,8 +265,8 @@ class OptPage(QtWidgets.QWizardPage):
     self.InpLabels = QtWidgets.QLineEdit(self, "")
     self.InpLabelsTxt = QtWidgets.QLabel("Enter input labels")
 
-    layoutO.addWidget(self.InpLabels, 3, 1)
-    layoutO.addWidget(self.InpLabelsTxt, 3, 0)
+    layoutO.addWidget(self.InpLabels, 4, 1)
+    layoutO.addWidget(self.InpLabelsTxt, 4, 0)
 
 
 
@@ -208,8 +282,26 @@ class OptPage(QtWidgets.QWizardPage):
     self.OutLabels = QtWidgets.QLineEdit(self, "")
     self.OutLabelTxt = QtWidgets.QLabel("Enter output labels")
 
-    layoutO.addWidget(self.OutLabels, 7, 1)
-    layoutO.addWidget(self.OutLabelTxt, 7, 0)
+    layoutO.addWidget(self.OutLabels, 6, 1)
+    layoutO.addWidget(self.OutLabelTxt, 6, 0)
+
+    self.LoadConfigOpt = GUIComponents.AniButton(self)
+    self.LoadConfigOpt.setText("Load")
+    StyleOps.enable_ani_button(button_obj=self.LoadConfigOpt, guiobj=parent)
+
+    self.SaveConfigOpt = GUIComponents.AniButton(self)
+    self.SaveConfigOpt.setText("Save")
+    StyleOps.enable_ani_button(button_obj=self.SaveConfigOpt, guiobj=parent)
+
+    self.SaveConfigOpt.clicked.connect(parent.SaveCfg)
+    self.SaveConfigOpt.clicked.connect(parent.LoadCfg)
+
+    L3.addWidget(self.LoadConfigOpt)
+    L3.addWidget(self.SaveConfigOpt)
+
+    layout.addWidget(F3)
+
+    F3.setTitle("Configuration")
 
     self.setLayout(layout)
 
@@ -314,8 +406,8 @@ class DirPage(QtWidgets.QWizardPage):
     self.SaveConfig.setText("Save")
     StyleOps.enable_ani_button(button_obj=self.SaveConfig, guiobj=parent)
 
-    self.SaveConfig.clicked.connect(self.SaveCfg)
-    self.LoadConfig.clicked.connect(self.LoadCfg)
+    self.SaveConfig.clicked.connect(parent.SaveCfg)
+    self.LoadConfig.clicked.connect(parent.LoadCfg)
 
     L3.addWidget(self.LoadConfig)
     L3.addWidget(self.SaveConfig)
@@ -391,58 +483,7 @@ class DirPage(QtWidgets.QWizardPage):
 
     self.OutDirDisp.setText(fname)
 
-  def LoadCfg(self):
-    """
-            Function to load a previously
-            recorded configuration of input
-            information.
-    """
 
-    x = [None]
-    p = str(Path(__file__).resolve().parents[1])
-    outdir = os.path.join(p, 'IOsaveconfig.txt')
-    with open(outdir, 'r') as f:
-      x = f.read().splitlines()
-
-    self.wizard().page(1).inpFmt.setCurrentIndex(int(x[0])) if x[0] != 'null' else None
-    self.wizard().page(2).TimeUnitVec.setText(x[1]) if x[1] != 'null' else None
-    self.wizard().page(2).MassUnitVec.setText(x[2]) if x[2] != 'null' else None
-    self.wizard().page(1).InpDirDisp.setText(x[3]) if x[3] != 'null' else None
-    self.wizard().page(1).InvDirDisp.setText(x[4]) if x[4] != 'null' else None
-    self.wizard().page(1).OutDirDisp.setText(x[5]) if x[5] != 'null' else None
-    self.wizard().page(2).InpLabels.setText(x[6]) if x[6] != 'null' else None
-    self.wizard().page(2).InvLabels.setText(x[7]) if x[7] != 'null' else None
-    self.wizard().page(2).OutLabels.setText(x[8]) if x[8] != 'null' else None
-
-  def SaveCfg(self):
-    """
-            Function to save a specified
-            configuration of input information.
-    """
-    p = Path(sys.argv[0]).resolve().parents[1]
-
-
-    x = [
-        self.wizard().page(1).inpFmt.currentIndex(),
-        self.wizard().page(2).TimeUnitVec.text(),
-        self.wizard().page(2).MassUnitVec.text(),
-        self.InpDirDisp.text(),
-        self.InvDirDisp.text(),
-        self.OutDirDisp.text(),
-        self.wizard().page(2).InpLabels.text(),
-        self.wizard().page(2).InvLabels.text(),
-        self.wizard().page(2).OutLabels.text()
-    ]
-
-    for i in range(len(x)):
-      if x[i] == '':
-        x[i] = 'null'
-
-    outdir = os.path.join(p, 'IOsaveconfig.txt')
-
-    with open(outdir, 'w') as f:
-      for item in x:
-        f.write("%s\n" % item)
 
 
 if __name__ == '__main__':

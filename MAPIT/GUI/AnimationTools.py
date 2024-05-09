@@ -3,7 +3,7 @@
     animations.
 """
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 from MAPIT.GUI import StyleOps
 
 #All of these animations and stylesheets
@@ -35,7 +35,7 @@ def runAnimationSB(self):
 
 
 
-def runDualAnimation(self):
+def runDualAnimation(self, extraspace):
   """
         Two animations can be running at the same time
         the border (_animate) and the gradient change
@@ -60,15 +60,15 @@ def runDualAnimation(self):
       valueA = 1 - (value-1)
 
 
-  StyleOps.update_aniButton_styleSheet(self,self.window().colordict,isrunning=1,valueA=R4,valueB=valueA,colorborder=1)
+  StyleOps.update_aniButton_styleSheet(self,self.window().colordict,isrunning=1,valueA=R4,valueB=valueA,colorborder=1, extraspace=extraspace)
 
 
 
-def GradButtonChange(self):
+def GradButtonChange(self, extraspace=0):
 
   value = self._animation2.currentValue()
 
-  StyleOps.update_aniButton_styleSheet(self,self.window().colordict,isrunning=1,valueA=value,colorborder=1)
+  StyleOps.update_aniButton_styleSheet(self,self.window().colordict,isrunning=1,valueA=value,colorborder=1, extraspace=extraspace)
 
 
 def runMsgAnimation(self):

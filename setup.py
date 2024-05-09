@@ -19,10 +19,10 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="MAPIT",  # Required
-    version="1.3.25-beta",  # Required
+    version="1.4.5-beta",  # Required
     author="Nathan Shoman, Patrick Moosir",  # Optional
     author_email="nshoman@sandia.gov",  # Optional
-    install_requires = ["matplotlib>=3.3.4","numpy","Pillow","tqdm","scipy","PySide2>=5.15.0"],
+    install_requires = ["matplotlib","numpy","Pillow","tqdm","scipy","pyside6_essentials","ray[default]"],
     # Classifiers help users find your project by categorizing it.
     #
     # For a list of valid classifiers, see https://pypi.org/classifiers/
@@ -36,7 +36,7 @@ setup(
     ],
     packages=find_packages(),  # Required
     include_package_data=True,
-    python_requires="<=3.10",
+    python_requires="<3.12,>3.8",
     project_urls={  # Optional
         "Data": "https://github.com/sandialabs/MAPIT-tools/",
         "Documents": "https://sandialabs.github.io/MAPIT/index.html",

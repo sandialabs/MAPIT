@@ -1,13 +1,11 @@
-from PySide2 import QtCore
+from PySide6 import QtCore
 import time
 import MAPIT.core.Preprocessing as Preprocessing
 from MAPIT.GUI import StatsPanelOps, GeneralOps
-from MAPIT.core import StatsTests as Tests
-from MAPIT.core import AuxFunctions as Aux
 import numpy as np
 import glob
 from scipy.io import loadmat
-
+from MAPIT.core.StatsProcessor import MBArea
 
 
 
@@ -16,10 +14,11 @@ class AnalysisThread(QtCore.QThread):
     finished = QtCore.Signal(dict) #pass back dict of results
     progress = QtCore.Signal(float) #pass float describing progress
     pbartext = QtCore.Signal(str) #progress bar text
+    resultsReady = QtCore.Signal(tuple) # results
 
-    def __init__(self, queue, finished_callback, parent=None):
+    def __init__(self, queue, resultsReady_cb, parent=None):
         QtCore.QThread.__init__(self,parent)
-        self.finished.connect(finished_callback)
+        self.resultsReady.connect(resultsReady_cb)
         self.progress.connect(self.progress_cb)
         self.pbartext.connect(self.pbartext_callback)
         self.queue = queue
@@ -37,62 +36,64 @@ class AnalysisThread(QtCore.QThread):
         GUIparams = argz['GUIparams']
         IT = argz['IT']
 
-
-        processedInput, processedInputTimes, \
-        processedInventory, processedInventoryTimes, \
-        processedOutput, processedOutputTimes = Preprocessing.FormatInput(
-                                                rawInput = AnalysisData.rawInput,
-                                                rawInventory = AnalysisData.rawInventory,
-                                                rawOutput = AnalysisData.rawOutput,
-                                                rawInputTimes = AnalysisData.rawInputTimes,
-                                                rawInventoryTimes = AnalysisData.rawInventoryTimes,
-                                                rawOutputTimes = AnalysisData.rawOutputTimes,
-                                                dataOffset = AnalysisData.offset,
-                                                GUIObject = self,
-                                                IT = IT)
-
+        nInputs = len(AnalysisData.rawInput)
+        nInventories =  len(AnalysisData.rawInventory)
+        nOutputs = len(AnalysisData.rawOutput)
+        
 
         AnalysisData.ErrorMatrix = StatsPanelOps.getGUIErrorVals(self.parent,
-                                                                GUIparams,
-                                                                len(processedInput),
-                                                                len(processedInventory),
-                                                                len(processedOutput),
-                                                                argz['GLoc'])
-
-        nInputs = len(processedInput)
-        nInventories =  len(processedInventory)
+                                                        GUIparams,
+                                                        nInputs,
+                                                        nInventories,
+                                                        nOutputs,
+                                                        argz['GLoc'])
+        
 
 
-        if argz['doError'] == 1:
-            
+        MB1 = MBArea(rawInput = AnalysisData.rawInput,
+                                rawInventory = AnalysisData.rawInventory,
+                                rawOutput = AnalysisData.rawOutput,
+                                rawInputTimes = AnalysisData.rawInputTimes,
+                                rawInventoryTimes = AnalysisData.rawInventoryTimes,
+                                rawOutputTimes = AnalysisData.rawOutputTimes,
+                                inputErrorMatrix = AnalysisData.ErrorMatrix[:nInputs,],
+                                inventoryErrorMatrix = AnalysisData.ErrorMatrix[nInputs:nInventories+nInputs],
+                                outputErrorMatrix = AnalysisData.ErrorMatrix[nInputs+nInventories:,],
+                                mbaTime = argz['MBP'],
+                                iterations = IT,
+                                GUIObject = self,
+                                dataOffset = AnalysisData.offset) 
 
-            self.pbartext.emit('Processing: input errors')
-            AnalysisData.inputAppliedError = Preprocessing.SimErrors(rawData = processedInput, 
-                                                                    ErrorMatrix =  AnalysisData.ErrorMatrix[:nInputs,], 
-                                                                    iterations = argz['IT'],
-                                                                    GUIObject = self)
 
-            self.pbartext.emit('Processing: inventory errors')
-            AnalysisData.inventoryAppliedError = Preprocessing.SimErrors(rawData = processedInventory,
-                                                                        ErrorMatrix =  AnalysisData.ErrorMatrix[nInputs:nInventories+nInputs], 
-                                                                        iterations = argz['IT'],
-                                                                        GUIObject = self)
 
-            self.pbartext.emit('Processing: output errors')
-            AnalysisData.outputAppliedError = Preprocessing.SimErrors(rawData = processedOutput, 
-                                                                    ErrorMatrix =  AnalysisData.ErrorMatrix[nInputs+nInventories:,], 
-                                                                    iterations = argz['IT'],
-                                                                    GUIObject = self)
+        if argz['doError'] == 1:        
+             
+            # because of how the pbar is structured it's not easy to
+            # pass back the stages of input/inventory/output and I can't
+            # use intederminate with text because (https://bugreports.qt.io/browse/QTBUG-74)
+            # and (https://bugreports.qt.io/browse/QTBUG-16260, https://stackoverflow.com/questions/19995688/displaying-text-inside-qprogressbar)
+            # so this is how it's going to be for a bit, maybe this bug is fixed
+            # in QT6, but at least this provide some measure of progress even
+            # if its local to the error type rather than global across all
+            # errors
 
+            self.pbartext.emit('Applying errors')
+            MB1.calcErrors()
+            AnalysisData.inputAppliedError = MB1.inputAppliedError
+            AnalysisData.inventoryAppliedError = MB1.inventoryAppliedError
+            AnalysisData.outputAppliedError = MB1.outputAppliedError
 
 
         else:
-          #if no sim error, use what user supplied
-            
+          #if no sim error, use what user supplied        
 
-            AnalysisData.inputAppliedError = processedInput
-            AnalysisData.inventoryAppliedError = processedInventory
-            AnalysisData.outputAppliedError = processedOutput
+            MB1.inputAppliedError = MB1.rawInput
+            MB1.inventoryAppliedError = MB1.rawInventory
+            MB1.outputAppliedError = MB1.rawOutput
+
+            AnalysisData.inputAppliedError = MB1.rawInput
+            AnalysisData.inventoryAppliedError = MB1.rawInventory
+            AnalysisData.outputAppliedError = MB1.rawOutput
 
         # Here we check to see if either the test itself is requested
         # or if any of the dependency calculations are requested
@@ -102,99 +103,54 @@ class AnalysisThread(QtCore.QThread):
         # it's debatable which behavior is the more intuitive
 
 
-        if (argz['doMUF'] or argz['doCUMUF'] or argz['doSITMUF'] or argz['doPage']):
+        if argz['doMUF']:
             self.pbartext.emit('Processing: '+GUIparams.labels['Box12L'])
+            AnalysisData.MUF = MB1.calcMUF()
 
 
-            AnalysisData.MUF = Tests.MUF(inputAppliedError = AnalysisData.inputAppliedError,
-                                        inventoryAppliedError= AnalysisData.inventoryAppliedError,
-                                        outputAppliedError = AnalysisData.outputAppliedError,
-                                        processedInputTimes = processedInputTimes,
-                                        processedInventoryTimes = processedInventoryTimes,
-                                        processedOutputTimes = processedOutputTimes,
-                                        MBP = argz['MBP'],
-                                        GUIObject = self,
-                                        GUIparams = GUIparams)
-
-
-
-        if argz['doAI'] or argz['doSEIDAI']:   
+        if argz['doAI']:   
             self.pbartext.emit('Processing: '+GUIparams.labels['Box13L'])  
 
-            AnalysisData.AI = Tests.ActiveInventory(inputAppliedError = AnalysisData.inputAppliedError,
-                    inventoryAppliedError= AnalysisData.inventoryAppliedError,
-                    outputAppliedError = AnalysisData.outputAppliedError,
-                    processedInputTimes = processedInputTimes,
-                    processedInventoryTimes = processedInventoryTimes,
-                    processedOutputTimes = processedOutputTimes,
-                    MBP = argz['MBP'],
-                    GUIObject = self,
-                    GUIparams = GUIparams)
-
-
+            AnalysisData.AI = MB1.calcActiveInventory()
 
         if argz['doCUMUF']:
             self.pbartext.emit('Processing: '+GUIparams.labels['Box14L'])
 
-            AnalysisData.CUMUF = Tests.CUMUF(AnalysisData.MUF,
-                                            GUIObject = self)
+            AnalysisData.CUMUF = MB1.calcCUMUF()
 
 
 
-        if argz['doSEID'] or argz['doSEIDAI']:
+        if argz['doSEMUF']:
             self.pbartext.emit('Processing: '+GUIparams.labels['Box15L'])
 
             
             AnalysisData.SEMUF, \
             AnalysisData.SEMUFContribR, \
             AnalysisData.SEMUFContribS, \
-            AnalysisData.SEMUFContribI = Tests.SEMUF(inputAppliedError = AnalysisData.inputAppliedError,
-                                                    inventoryAppliedError= AnalysisData.inventoryAppliedError,
-                                                    outputAppliedError = AnalysisData.outputAppliedError,
-                                                    processedInputTimes = processedInputTimes,
-                                                    processedInventoryTimes = processedInventoryTimes,
-                                                    processedOutputTimes = processedOutputTimes,
-                                                    MBP = argz['MBP'],
-                                                    ErrorMatrix = AnalysisData.ErrorMatrix,
-                                                    GUIObject = self)
+            AnalysisData.SEMUFContribI = MB1.calcSEMUF()
 
-        if argz['doSEIDAI']:
+        if argz['doSEMUFAI']:
             self.pbartext.emit('Processing: '+GUIparams.labels['Box16L'])
 
             AnalysisData.SEMUFAI, \
             AnalysisData.SEMUFAIContribR, \
-            AnalysisData.SEMUFAIContribS = Tests.SEMUFAI(AI = AnalysisData.AI,
-                                                         SEMUF = AnalysisData.SEMUF, 
-                                                         SEMUFContribR = AnalysisData.SEMUFContribR,
-                                                         SEMUFContribS = AnalysisData.SEMUFContribS, 
-                                                         MBP = argz['MBP'])
+            AnalysisData.SEMUFAIContribS = MB1.calcSEMUFAI()
 
-        if (argz['doSITMUF'] or argz['doPage']):
+        if argz['doSITMUF']:
             self.pbartext.emit('Processing: '+GUIparams.labels['Box17L'])
 
 
-            AnalysisData.SITMUF = Tests.SITMUF(inputAppliedError = AnalysisData.inputAppliedError,
-                                                                inventoryAppliedError= AnalysisData.inventoryAppliedError,
-                                                                outputAppliedError = AnalysisData.outputAppliedError,
-                                                                processedInputTimes = processedInputTimes,
-                                                                processedInventoryTimes = processedInventoryTimes,
-                                                                processedOutputTimes = processedOutputTimes,
-                                                                ErrorMatrix = AnalysisData.ErrorMatrix,
-                                                                MBP = argz['MBP'],
-                                                                MUF = AnalysisData.MUF,
-                                                                GUIObject = self)  
+            AnalysisData.SITMUF = MB1.calcSITMUF()
 
         if argz['doPage']:
             self.pbartext.emit('Processing: '+GUIparams.labels['Box18L'])
 
-            MBPs = Aux.getMBPs(processedInputTimes,processedInventoryTimes,processedOutputTimes,argz['MBP'])
-
-            AnalysisData.Page = Tests.PageTrendTest(AnalysisData.SITMUF,argz['MBP'],MBPs,GUIObject = self)
+            AnalysisData.Page = MB1.calcPageTT()
 
         self.pbartext.emit('Ready')
         self.progress.emit(100)
-        self.finished.emit((AnalysisData, argz['doMUF'], argz['doAI'], argz['doCUMUF'],
-                           argz['doSEID'], argz['doSEIDAI'], argz['doSITMUF'], argz['doPage']))
+        self.resultsReady.emit((AnalysisData, argz['doMUF'], argz['doAI'], argz['doCUMUF'],
+                           argz['doSEMUF'], argz['doSEMUFAI'], argz['doSITMUF'], argz['doPage']))
         return
 
 
@@ -218,34 +174,42 @@ class AnalysisThread(QtCore.QThread):
 
 class dataLoadThread(QtCore.QThread):
     finished = QtCore.Signal(dict)
+    resultsReady = QtCore.Signal(tuple)
+    
 
-    def __init__(self, queue, finished_callback, parent=None):
+    def __init__(self, queue, resultsReady_cb, parent=None):
         QtCore.QThread.__init__(self,parent)
-        self.finished.connect(finished_callback)
+        self.resultsReady.connect(resultsReady_cb)
         self.queue = queue
         self.parent = parent
 
     def run(self):
         argz = self.queue.get()
+        pbar_mssg = None
 
         if argz is None:
             return
 
         AnalysisData = argz['AnalysisData']
         GUIparams = argz['GUIparams']
-        AnalysisData, GUIparams = GeneralOps.getSceneData(self.parent,AnalysisData,GUIparams)
 
-        self.finished.emit((AnalysisData,GUIparams))
+        try:
+            AnalysisData, GUIparams = GeneralOps.getSceneData(self.parent,AnalysisData,GUIparams)
+        except:
+            pbar_mssg = 'Warning! Failed to load data!'
+
+        self.resultsReady.emit((AnalysisData,GUIparams, pbar_mssg))
 
 
 class getExtData(QtCore.QThread):
     finished = QtCore.Signal(dict)
     progress = QtCore.Signal(float)
     pbartext = QtCore.Signal(str)
+    resultsReady = QtCore.Signal(tuple)
 
-    def __init__(self, queue, finished_callback, parent=None):
+    def __init__(self, queue, resultsReady_cb, parent=None):
         QtCore.QThread.__init__(self,parent)
-        self.finished.connect(finished_callback)
+        self.resultsReady.connect(resultsReady_cb)
         self.progress.connect(self.progress_cb)
         self.pbartext.connect(self.pbartext_callback)
         self.queue = queue
@@ -311,21 +275,42 @@ class getExtData(QtCore.QThread):
         elif fileext == '.mat':
             for i in range(len(infiles)):
                 z = loadmat(infiles[i])
-                for j in range(len(z['in']['data'].squeeze())):
-                    indat.append(z['in']['data'].squeeze()[j].squeeze())
-                    inTdat.append(z['in']['time'].squeeze()[j].squeeze())
+                nloc = z['in']['data'].squeeze().size
+                if nloc == 1:
+                    indat.append(z['in']['data'].squeeze()[()])
+                    inTdat.append(z['in']['time'].squeeze()[()])
+                else:
+                    for j in range(nloc):
+                        indat.append(z['in']['data'].squeeze()[j].squeeze())
+                        inTdat.append(z['in']['time'].squeeze()[j].squeeze())
+                n+=1
+                self.progress.emit(n/totf*100)
 
             for i in range(len(invfiles)):
                 z = loadmat(invfiles[i])
-                for j in range(len(z['invn']['data'].squeeze())):
-                    invdat.append(z['invn']['data'].squeeze()[j].squeeze())
-                    invTdat.append(z['invn']['time'].squeeze()[j].squeeze())
+                nloc = z['invn']['data'].squeeze().size
+                if nloc == 1:
+                    invdat.append(z['invn']['data'].squeeze()[()])
+                    invTdat.append(z['invn']['time'].squeeze()[()])
+                else:
+                    for j in range(nloc):
+                        invdat.append(z['invn']['data'].squeeze()[j].squeeze())
+                        invTdat.append(z['invn']['time'].squeeze()[j].squeeze())
+                n+=1
+                self.progress.emit(n/totf*100)
 
             for i in range(len(outfiles)):
                 z = loadmat(outfiles[i])
-                for j in range(len(z['outn']['data'].squeeze())):
-                    outdat.append(z['outn']['data'].squeeze()[j].squeeze())
-                    outTdat.append(z['outn']['time'].squeeze()[j].squeeze())    
+                nloc = z['outn']['data'].squeeze().size
+                if nloc == 1:
+                    outdat.append(z['outn']['data'].squeeze()[()])
+                    outTdat.append(z['outn']['time'].squeeze()[()])    
+                else:                       
+                    for j in range(nloc):
+                        outdat.append(z['outn']['data'].squeeze()[j].squeeze())
+                        outTdat.append(z['outn']['time'].squeeze()[j].squeeze()) 
+                n+=1
+                self.progress.emit(n/totf*100)
 
 
         elif fileext == '.npz':
@@ -334,7 +319,7 @@ class getExtData(QtCore.QThread):
         else:
             return
         
-        self.finished.emit((AnalysisData,GUIparams,Wizard,self.parent, indat, inTdat, invdat, invTdat, outdat, outTdat))
+        self.resultsReady.emit((AnalysisData,GUIparams,Wizard,self.parent, indat, inTdat, invdat, invTdat, outdat, outTdat))
 
     def progress_cb(self,G):
         if G == -1:

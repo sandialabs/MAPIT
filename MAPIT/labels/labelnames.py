@@ -38,7 +38,7 @@ intdictlab = {
       "Box47L" : "SEID Contribution (Relative)",
       "Box49L" : "Sigma MUF (AI) Contribution (Absolute)",
       "Box50L" : "Sigma MUF (AI) Contribution (Relative)",
-      "Box48L": "Total Contribution"
+      "Box48L": "Total"
     }
 
 domdictlab = {
@@ -75,7 +75,7 @@ domdictlab = {
       "Box47L" : "SEID Contribution (Relative)",
       "Box49L" : "SEID (AI) Contribution (Absolute)",
       "Box50L" : "SEID (AI) Contribution (Relative)",
-      "Box48L": "Total Contribution"
+      "Box48L": "Total "
     }
 
 mdls = {1: "Fuel Fab"}

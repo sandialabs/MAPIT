@@ -1,5 +1,5 @@
 from MAPIT.GUI import ThreadTools, StatsPanelOps
-from PySide2 import QtCore,QtWidgets, QtGui
+from PySide6 import QtCore,QtWidgets, QtGui
 import os
 import numpy as np
 from pathlib import Path
@@ -7,9 +7,11 @@ import sys
 import csv
 from scipy.io import savemat, loadmat
 import pickle
-import glob
+from datetime import datetime
 import queue
 import json
+from platformdirs import user_data_dir
+import site
 
 
 def SaveStats(self, AnalysisData, GUIparams):
@@ -21,9 +23,14 @@ def SaveStats(self, AnalysisData, GUIparams):
     """
 
     #create a directory for output if doesnt exist
-    outdir = os.path.join(Path(__file__).resolve().parents[1], 'MAPIT_Output')
+    t = datetime.now()
+    s = "%s%s%s%s%s%s" % (t.year, t.month, t.day, t.hour, t.minute, t.second)
+    outdir = os.path.join(user_data_dir('MAPIT',False),'output',s)
+
     if not os.path.isdir(outdir):
-      os.makedirs(outdir)
+      os.mkdir(outdir)
+
+
 
     self.PB.setMaximum(0)
     self.PB.setMinimum(0)
@@ -332,6 +339,7 @@ def getExtData(self,AnalysisData,GUIparams,Wizard):
   inpdict={"AnalysisData":AnalysisData, "GUIparams":GUIparams, "Wizard":Wizard}
   Q=queue.Queue()
   thread = ThreadTools.getExtData(Q,grabExt,parent=self)
+  thread.finished.connect(thread.deleteLater)
   thread.start()
   Q.put(inpdict)
 
@@ -350,7 +358,11 @@ def grabExt(result):
 
 
   GUIparams.nInferredEles = 1
-  GUIparams.eleList = 'element0'
+
+  if Wizard.EleIsoName != "":
+    GUIparams.eleList = Wizard.EleIsoName
+  else:    
+    GUIparams.eleList = 'element0'
 
   StatsPanelOps.enable_setup_controls(GUIObj)
 
@@ -406,8 +418,10 @@ def getSceneData(GUIObj,AnalysisData,GUIparams):
                 "Fuel Fab":"fuel_fab"
             }
 
-
-  F = os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'data.mat')
+  if GUIObj.mdlopts.currentText() == "" or GUIObj.datopts.currentText() == "":
+    F = os.path.join(GUIparams.exemplarDataPath, mdl_names[list(mdl_names.keys())[0]], setnames[list(setnames.keys())[0]], 'data.mat')
+  else:
+    F = os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'data.mat')
   x1 = loadmat(F,squeeze_me=True)
 
   AnalysisData.rawInventory = x1['invn']['data']
@@ -434,7 +448,10 @@ def getSceneData(GUIObj,AnalysisData,GUIparams):
   #fuel fab only has uranium and some other
   #non actinide materials
 
-  F = os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'auxData.npz')
+  if GUIObj.mdlopts.currentText() == "" or GUIObj.datopts.currentText() == "":
+    F = os.path.join(GUIparams.exemplarDataPath, mdl_names[list(mdl_names.keys())[0]], setnames[list(setnames.keys())[0]], 'auxData.npz')
+  else:
+    F = os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'auxData.npz')
   A = np.load(F)
   GUIparams.rowNames = A['arr2']
   GUIObj.GESelector.addItem("U")
@@ -447,7 +464,20 @@ def getSceneData(GUIObj,AnalysisData,GUIparams):
 
 
   return AnalysisData, GUIparams
-#os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIObj.mdlopts.currentText()], setnames[GUIObj.datopts.currentText()], 'data.mat')
+
+def loadDataLabels(GUIparams):
+  with open(os.path.join(site.getsitepackages()[-1], 'MAPIT', 'labels','exemplarMdls'+'.json'),'r') as fp:
+    GUIparams.availableMdls = json.load(fp)
+
+  with open(os.path.join(site.getsitepackages()[-1], 'MAPIT', 'labels','exemplarDatas'+'.json'),'r') as fp:
+    GUIparams.availableDatas = json.load(fp)
+
+def updateDataGUIOptions(GUIobject, GUIparams):
+  for lab in GUIparams.availableDatas:
+    GUIobject.datopts.addItem(GUIparams.availableDatas[lab])
+
+  for lab in GUIparams.availableMdls:
+    GUIobject.mdlopts.addItem(GUIparams.availableMdls[lab])
 
 def loadGUILabels(GUIparams,international=False):
   if international == True:
@@ -455,50 +485,10 @@ def loadGUILabels(GUIparams,international=False):
   else:
     dictname = 'domLabels'
 
-  with open(os.path.join(str(Path(__file__).resolve().parents[1]),'labels',dictname+'.json'),'r') as fp:
+  with open(os.path.join(site.getsitepackages()[-1], 'MAPIT','labels',dictname+'.json'),'r') as fp:
     labels = json.load(fp)
+
 
   GUIparams.labels = labels
 
   return GUIparams
-
-def loadDatasetLabels(GUIparams):
-  with open(os.path.join(str(Path(__file__).resolve().parents[1]),'labels','exemplarMdls'+'.json'),'r') as fp:
-    GUIparams.availableMdls = json.load(fp)
-
-  with open(os.path.join(str(Path(__file__).resolve().parents[1]),'labels','exemplarDatas'+'.json'),'r') as fp:
-    GUIparams.availableDatas = json.load(fp)
-
-def removeUnavailableDatasets(GUIparams):
-      setnames = {
-            "Normal": "Normal",
-            "Abrupt Loss": "Abrupt",
-            "Protracted Loss":"Protract"
-          }
-      
-      mdl_names = {
-              "Fuel Fab":"fuel_fab"
-          }
-      
-      itemsToRm = []
-      for model in GUIparams.availableMdls:
-        if not os.path.isdir(os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIparams.availableMdls[model]])):
-          itemsToRm.append(model)
-
-      for item in itemsToRm:
-        del GUIparams.availableMdls[item]
-      
-      #if no models, don't bother
-      # TODO: will need updating if
-      # multiple models are available
-      itemsToRm=[]
-      if len(GUIparams.availableMdls) > 0: 
-        for dset in GUIparams.availableDatas:
-          if not (os.path.isfile(os.path.join(GUIparams.exemplarDataPath, mdl_names[GUIparams.availableMdls['1']], setnames[GUIparams.availableDatas[dset]], 'data.mat'))):
-            itemsToRm.append(dset)
-      else:
-        GUIparams.availableDatas = {}
-
-
-      for item in itemsToRm:
-        del GUIparams.availableDatas[item]

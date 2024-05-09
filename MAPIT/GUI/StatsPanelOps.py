@@ -1,4 +1,4 @@
-from PySide2 import  QtCore
+from PySide6 import  QtCore
 import matplotlib
 import numpy as np
 from MAPIT.GUI import PlotOps, StyleOps
@@ -70,8 +70,8 @@ def getRequestedTests(GUIObject):
         doMUF = 0
         doAI = 0
         doCUMUF = 0
-        doSEID = 0
-        doSEIDAI = 0
+        doSEMUF = 0
+        doSEMUFAI = 0
         doSITMUF = 0
         doPage = 0
 
@@ -88,10 +88,10 @@ def getRequestedTests(GUIObject):
             doCUMUF = 1
 
         if (GUIObject.CB_SMUF.isChecked()) > 0:
-            doSEID = 1
+            doSEMUF = 1
 
         if (GUIObject.CB_SMUFAI.isChecked()) > 0:
-            doSEIDAI = 1
+            doSEMUFAI = 1
 
         if (GUIObject.CB_SITMUF.isChecked()) > 0:
             doSITMUF = 1
@@ -99,10 +99,10 @@ def getRequestedTests(GUIObject):
         if (GUIObject.CB_PAGE.isChecked()) > 0:
             doPage = 1
 
-        return doError, doMUF, doAI, doCUMUF, doSEID, doSEIDAI, doSITMUF, doPage
+        return doError, doMUF, doAI, doCUMUF, doSEMUF, doSEMUFAI, doSITMUF, doPage
 
 
-def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,doPage,GUIparams,AnalysisData):
+def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEMUF,doSEMUFAI,doSITMUF,doPage,GUIparams,AnalysisData):
       
 
 
@@ -120,11 +120,11 @@ def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEID,doSEIDAI,doSITMUF,
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box13L"])
       if doCUMUF:
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box14L"])
-      if doSEID == 1:
+      if doSEMUF == 1:
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box15L"])
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box46L"])
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box47L"])
-      if doSEIDAI == 1:
+      if doSEMUFAI == 1:
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box16L"])
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box49L"])
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box50L"])

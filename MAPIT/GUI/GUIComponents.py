@@ -1,4 +1,4 @@
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 from MAPIT.GUI import AnimationTools
 
 
@@ -12,7 +12,7 @@ class AniButton(QtWidgets.QPushButton):
         that changes once the mouse enters the area.
   """
 
-  def __init__(self, parent):
+  def __init__(self, parent, extra_space=0):
     super(AniButton, self).__init__()
 
     self.IsDone = 0
@@ -23,7 +23,7 @@ class AniButton(QtWidgets.QPushButton):
     self._animation.setEndValue(2.0)
     self._animation.setDuration(1000)
     self._animation.valueChanged.connect(
-        lambda: AnimationTools.runDualAnimation(self))
+        lambda: AnimationTools.runDualAnimation(self, extraspace=extra_space))
 
     self._animation.finished.connect(self.UpdateIState)
     self._animation.setLoopCount(3)
@@ -33,7 +33,7 @@ class AniButton(QtWidgets.QPushButton):
     self._animation2.setEndValue(1.0)
     self._animation2.setDuration(150)
     self._animation2.valueChanged.connect(
-        lambda: AnimationTools.GradButtonChange(self))
+        lambda: AnimationTools.GradButtonChange(self, extraspace=extra_space))
 
     self.doGradientAni = 1
 
@@ -55,7 +55,7 @@ class AniButton(QtWidgets.QPushButton):
       self._animation2.setDirection(QtCore.QAbstractAnimation.Backward)
       self._animation2.start()
 
-      super().enterEvent(event)
+      super().leaveEvent(event)
 
 
 class SubBoxAni(QtWidgets.QGroupBox):

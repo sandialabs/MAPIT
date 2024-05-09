@@ -1,6 +1,8 @@
 import numpy as np
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 import os
+import sys
+from platformdirs import user_config_dir, user_data_dir
 
 def MultiLocUpdate(GUIObject,GUIparams,errorType):
 
@@ -132,7 +134,7 @@ def loadErrorFromDisk(GUIObject):
                 configured error values
         """
 
-        outdir = os.path.abspath(os.path.join(os.path.dirname(__file__),'errorConfig.csv'))
+        outdir = os.path.join(user_config_dir('MAPIT',False),'errorConfig.csv')
         try:
             x = np.loadtxt(outdir, delimiter=',')
 
@@ -153,7 +155,7 @@ def saveErrorToDisk(GUIObject):
                 error values
         """
 
-        outdir = os.path.abspath(os.path.join(os.path.dirname(__file__),'errorConfig.csv'))
+        outdir = os.path.join(user_config_dir('MAPIT',False),'errorConfig.csv')
 
         x = np.zeros((GUIObject.EP.rowCount(), 2))
 
