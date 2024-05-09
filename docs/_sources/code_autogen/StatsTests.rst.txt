@@ -1,5 +1,0 @@
-StatsTest
-=============
-
-.. automodule:: MAPIT.core.StatsTests
-   :members:

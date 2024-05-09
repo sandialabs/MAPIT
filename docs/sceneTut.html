@@ -1,107 +1,434 @@
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
-<head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MAPIT Introduction &mdash; MAPIT 1.3.25-beta documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>MAPIT Introduction &#8212; MAPIT 1.4.5-beta documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
   
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=8d04414f"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="_static/js/theme.js"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="_static/documentation_options.js?v=bf7e922c"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'sceneTut';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Using your own data (.csv)" href="CsvTut.html" />
-    <link rel="prev" title="Tutorials" href="tutorials.html" /> 
-</head>
+    <link rel="prev" title="Tutorials" href="tutorials.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
 
-          
-          
-          <a href="index.html" class="icon icon-home">
-            MAPIT
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="index.html">MAPIT documentation home</a></li>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo_small.png" class="logo__image only-light" alt="MAPIT 1.4.5-beta documentation - Home"/>
+    <script>document.write(`<img src="_static/logo_small.png" class="logo__image only-dark" alt="MAPIT 1.4.5-beta documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">MAPIT Introduction</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#fuel-fabrication-overview">Fuel fabrication overview</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#walkthrough">Walkthrough</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting started</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#loading-the-included-dataset">Loading the included dataset</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#statistical-test-configuration">Statistical test configuration</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#analysis">Analysis</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="tutorials.html">Tutorials</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">MAPIT Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CsvTut.html">Using your own data (.csv)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MatTut.html">Using your own data (.mat)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="guided_exercises.html">Guided exercises</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="guided_exercises.html">Guided exercises</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="exercise1.html">Exercise 1: General MAPIT Familiarity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise2.html">Exercise 2: Impacts of measurement error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise3.html">Exercise 3: Material Loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise4.html">Exercise 4: Quantifying probability of detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5.html">Exercise 5: System Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5S.html">Exercise 5 Solution</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="theory.html">Theory</a></li>
-<li class="toctree-l1"><a class="reference internal" href="apidocs.html">API home</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="apidocs.html">API home</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="code_autogen/coreLanding.html">core</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/AuxFunctions.html">AuxFunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/Preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/StatsProcessor.html">StatsProcessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/StatsTests.html">StatsTests</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
-        </div>
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
       </div>
-    </nav>
+      
+      <main id="main-content" class="bd-main">
+        
+        
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">MAPIT</a>
-      </nav>
+<div class="sbt-scroll-pixel-helper"></div>
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials</a></li>
-      <li class="breadcrumb-item active">MAPIT Introduction</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/sceneTut.md.txt" rel="nofollow"> View page source</a>
-      </li>
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/sandialabs/MAPIT/blob/master/docs_v2/build/html/sceneTut.md?plain=1" target="_blank"
+   class="btn btn-sm btn-source-file-button dropdown-item"
+   title="Show source"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-code"></i>
+  </span>
+<span class="btn__text-container">Show source</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/sandialabs/MAPIT/edit/master/docs_v2/build/html/sceneTut.md" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/sandialabs/MAPIT/issues/new?title=Issue%20on%20page%20%2FsceneTut.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
   </ul>
-  <hr/>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/sceneTut.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>MAPIT Introduction</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fuel-fabrication-overview">Fuel fabrication overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#walkthrough">Walkthrough</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting started</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#downloading-the-exemplar-dataset">Downloading the exemplar dataset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-the-exemplar-dataset">Loading the exemplar dataset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#statistical-test-configuration">Statistical test configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#analysis">Analysis</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting">Plotting</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#thresholds">Thresholds</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#error-contributions">Error contributions</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#data-export">Data Export</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#figure">Figure</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <section class="tex2jax_ignore mathjax_ignore" id="mapit-introduction">
-<h1>MAPIT Introduction<a class="headerlink" href="#mapit-introduction" title="Link to this heading"></a></h1>
+<h1>MAPIT Introduction<a class="headerlink" href="#mapit-introduction" title="Link to this heading">#</a></h1>
 <section id="fuel-fabrication-overview">
-<h2>Fuel fabrication overview<a class="headerlink" href="#fuel-fabrication-overview" title="Link to this heading"></a></h2>
-<p>The purpose of this tutorial is to introduce you to the included example dataset. This dataset was based on a fuel fabrication facility described by <a class="reference external" href="https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216">IAEA-STR150</a>. There are some unique features of MAPIT that are only present when using the included datasets.</p>
-<p>Some information about the fuel fabrication facility is noted below:</p>
+<h2>Fuel fabrication overview<a class="headerlink" href="#fuel-fabrication-overview" title="Link to this heading">#</a></h2>
+<p>The purpose of this tutorial is to introduce you to the example dataset found in the <a class="reference external" href="https://github.com/sandialabs/MAPIT-tools">MAPIT tools repository</a>. This dataset was based on a fuel fabrication facility described by <a class="reference external" href="https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216">IAEA-STR150</a>. There are some unique features of MAPIT that are only present when using the included datasets and might not be available when analyzing an external dataset.</p>
+<p>Some features of the fuel fabrication facility is noted below:</p>
 <ul class="simple">
 <li><p>300 MT UO<span class="math notranslate nohighlight">\(_2\)</span></p></li>
 <li><p>3.0% weight percent <span class="math notranslate nohighlight">\(^{235}\)</span>U</p></li>
@@ -117,47 +444,47 @@
 </ul>
 </section>
 <section id="walkthrough">
-<h2>Walkthrough<a class="headerlink" href="#walkthrough" title="Link to this heading"></a></h2>
+<h2>Walkthrough<a class="headerlink" href="#walkthrough" title="Link to this heading">#</a></h2>
 <p>This tutorial describes basic functions of MAPIT and how to get started using the sample dataset that has been included.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This tutorial contains notes that are not necessary to understand the tool’s basic functionality, but may be useful to users looking for more advanced functionality.</p>
-</div>
 </section>
 <section id="getting-started">
-<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
-<section id="loading-the-included-dataset">
-<h3>Loading the included dataset<a class="headerlink" href="#loading-the-included-dataset" title="Link to this heading"></a></h3>
-<p>The pre-generated dataset described in the introduction can be accessed by selecting <code class="docutils literal notranslate"><span class="pre">SNL</span> <span class="pre">curated</span> <span class="pre">dataset</span></code> button when MAPIT is first loaded and prompts for data to be analyzed. This will open the scenario examiner area. The scenario examiner enables a detailed look of MBA2 of the fuel fabrication facility described in <a class="reference external" href="https://inis.iaea.org/search/search.aspx?orig_q=RN:17037216">IAEA-STR150</a>.</p>
-<p>It is often difficult to envision individual unit processes at a facility and how they relate to the over safeguards setup. The scenario examiner area has several drop down menus that enable animated plots showing the inventory behavior of various unit operations. Use this area before selecting the <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">data</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">to</span> <span class="pre">plots</span></code> button to gain an intuition of the fuel fabrication facility’s normal operation.</p>
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h2>
+<section id="downloading-the-exemplar-dataset">
+<h3>Downloading the exemplar dataset<a class="headerlink" href="#downloading-the-exemplar-dataset" title="Link to this heading">#</a></h3>
+<p>The exemplar dataset for MAPIT is no longer included in the main repository and must be downloaded from the <a class="reference external" href="https://github.com/sandialabs/MAPIT-tools">MAPIT tools</a> repository.</p>
+</section>
+<section id="loading-the-exemplar-dataset">
+<h3>Loading the exemplar dataset<a class="headerlink" href="#loading-the-exemplar-dataset" title="Link to this heading">#</a></h3>
+<p>The pre-generated dataset described in the introduction can be imported into MAPIT by specifying the path to the data folder. This usually occurs when launching MAPIT for the first time, but it can also be accessed by selecting <em>File</em> &gt; <em>Load Exemplar Data</em> &gt; <em>Select directory</em>.  The path selected here should be the path to the <code class="docutils literal notranslate"><span class="pre">data</span></code> folder downloaded from the <a class="reference external" href="https://github.com/sandialabs/MAPIT-tools">MAPIT tools</a> repository. For example, your path might be <code class="docutils literal notranslate"><span class="pre">/path/to/folder/data</span></code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This dataset only has data for Uranium. Selecting some of the other interactive plot options such as Plutonium or Xenon will plot a series of zeros. Future updates may add another scenario for reprocessing under the PUREX tab which would include these elements.</p>
+<p>Selecting the data path only needs to be performed once and is stored in MAPIT internally. If you move your data directory, you can always redefine the path to the data folder by again going to <em>File</em> &gt; <em>Load Exemplar Data</em> &gt; <em>Select directory</em>.</p>
 </div>
-<p>After selecting <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">data</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">to</span> <span class="pre">plots</span></code> you will be returned to the main MAPIT area where other options will be available (highlighted in blue - see below).</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Importing data only needs to be performed once. You can repeat the following steps below multiple times without needing to import the data again. For example, changing the simulated error can be done by selecting <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> followed by <code class="docutils literal notranslate"><span class="pre">Run</span></code>.</p>
-</div>
-<a class="bg-primary reference internal image-reference" href="_images/MAPITmain2.png"><img alt="_images/MAPITmain2.png" class="bg-primary align-center" src="_images/MAPITmain2.png" style="width: 100%;" /></a>
+<p>If a valid path to data is selected, then several of the options in the data selection area will populate. Currently, the MAPIT-tools repo includes data from a generic fuel fabrication facility with notional scenarios for nominal behavior, an abrupt material loss, and a protracted material loss. Your MAPIT window should look similar to the image below.</p>
+<a class="bg-primary reference internal image-reference" href="_images/MAPITmain2.png"><img alt="_images/MAPITmain2.png" class="bg-primary align-center" src="_images/MAPITmain2.png" style="width: 100%;" />
+</a>
 <br>
 </section>
 <section id="statistical-test-configuration">
-<h3>Statistical test configuration<a class="headerlink" href="#statistical-test-configuration" title="Link to this heading"></a></h3>
-<p>The boxes with blue borders are the next steps in the MAPIT workflow. The currently available statistical tests are denoted by check boxes, go ahead and select all of them.</p>
+<h3>Statistical test configuration<a class="headerlink" href="#statistical-test-configuration" title="Link to this heading">#</a></h3>
+<p>The boxes with gold borders are the next steps in the MAPIT workflow. The currently available statistical tests are denoted by check boxes, go ahead and select all of them.</p>
 <p>The suggest parameters for the statistics parameters are as follows:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">MBP</span></code> (Material Balance Period, units of hours) : <strong>320</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MBP</span></code> (Material Balance Period, units of hours) : <strong>416</strong></p></li>
 <li><p>Try different <code class="docutils literal notranslate"><span class="pre">MBP</span></code> lengths to see how performance statistics change</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Iterations</span></code> (Number of statistical realizations to run): <strong>100</strong></p>
+<li><p><code class="docutils literal notranslate"><span class="pre">Iterations</span></code> (Number of statistical realizations to run): <strong>50</strong></p>
 <ul>
 <li><p>Increasing the number of <code class="docutils literal notranslate"><span class="pre">Iterations</span></code> can reduce the simulation uncertainty in the probability of detection</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Generic</span> <span class="pre">Element</span> <span class="pre">Index</span></code>: <em><strong>Empty</strong></em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Analysis</span> <span class="pre">Element/Index</span></code>: <strong>U</strong></p>
+<ul>
+<li><p>The exemplar dataset only includes uranium, so multiple options are not available</p></li>
+</ul>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Temporal</span> <span class="pre">Offset</span></code>: <em><strong>Empty</strong></em></p></li>
 </ul>
-<p>After setting the required statistics inputs the final step before starting the calculation is setting the errors. As no measurements are perfect it is impossible to know the true value of some quantity of interest (in this case Uranium) at a particular location. Use <code class="docutils literal notranslate"><span class="pre">Select</span> <span class="pre">Errors</span></code> to open an interactive dialog to set measurement errors. These can be set individually or as a group. Press <code class="docutils literal notranslate"><span class="pre">Done</span></code> when finished.</p>
+<p>After setting the required statistics inputs the final step before starting the calculation is setting the errors. As no measurements are perfect it is impossible to know the true value of some quantity of interest (in this case Uranium) at a particular location. Use <kbd>Select Errors</kbd> to open an interactive dialog to set measurement errors. These can be set individually or as a group. Press <kbd>Done</kbd> when finished.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>One purpose of MAPIT is to understand how these errors impact common safeguards statistical tests, so feel free to choose any value. The <a class="reference external" href="https://inis.iaea.org/search/search.aspx?orig_q=RN:49058823">IAEA ITV</a> (International Target Values) provides a good reference for expected performance for different types of measurement systems.</p>
@@ -167,20 +494,31 @@ MAPIT has values listed for U, Pu, and Generic measurement errors. For this tuto
 ::: -->
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Entering a customized error table can be tedious. The included example scenario has 31 different measurement locations! MAPIT allows for loading (<code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">Error</span> <span class="pre">Config</span></code>) that reads a .csv table of errors so that manual specification is not required every time MAPIT is run. Similarly, you can use (<code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">Error</span> <span class="pre">Config</span></code>) to save a specified error configuration to disk.</p>
+<p>Entering a customized error table can be tedious. The included example scenario has 31 different measurement locations! MAPIT allows for loading (<kbd>Load Error Config</kbd>) that reads a .csv table of errors so that manual specification is not required every time MAPIT is run. Similarly, you can use (<kbd>Save Error Config</kbd>) to save a specified error configuration to disk. The directory containing this configuration file can be found using the <code class="docutils literal notranslate"><span class="pre">platformdirs</span></code> package as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platformdirs</span> <span class="kn">import</span> <span class="n">user_config_dir</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">user_config_dir</span><span class="p">(</span><span class="s2">&quot;MAPIT&quot;</span><span class="p">,</span><span class="kc">None</span><span class="p">))</span>
+</pre></div>
+</div>
 </div>
 </section>
 <section id="analysis">
-<h3>Analysis<a class="headerlink" href="#analysis" title="Link to this heading"></a></h3>
-<p>Once the statistical tests and errors have been configured press <code class="docutils literal notranslate"><span class="pre">Run</span></code> to start the calculation. MAPIT is a lightweight tool that should run fairly quickly for a small number of iterations (~100), but varies based on hardware configuration. Progress can be monitored through the dialog and progress bar at the bottom of the tool (see below).</p>
-<a class="bg-primary reference internal image-reference" href="_images/progress1.png"><img alt="_images/progress1.png" class="bg-primary align-center" src="_images/progress1.png" style="width: 100%;" /></a>
+<h3>Analysis<a class="headerlink" href="#analysis" title="Link to this heading">#</a></h3>
+<p>Once the statistical tests and errors have been configured press <kbd>Run</kbd> to start the calculation. MAPIT is a lightweight tool that should run fairly quickly for a small number of iterations (~100), but varies based on hardware configuration. Progress can be monitored through the dialog and progress bar at the bottom of the tool (see below).</p>
 <br>
+<a class="bg-primary reference internal image-reference" href="_images/progress1.png"><img alt="_images/progress1.png" class="bg-primary align-center" src="_images/progress1.png" style="width: 55%;" />
+</a>
+<br>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Large-scale jobs can be processed in parallel using <a class="reference internal" href="code_autogen/StatsProcessor.html"><span class="doc std std-doc">StatsProcessor</span></a> from the API.</p>
+</div>
 <section id="plotting">
-<h4>Plotting<a class="headerlink" href="#plotting" title="Link to this heading"></a></h4>
+<h4>Plotting<a class="headerlink" href="#plotting" title="Link to this heading">#</a></h4>
 <p>The first step in many analytical workflows is to plot data to gain an intuition for what is happening. MAPIT has multiple plot options (shown below) that dynamically change based on the option selected. Try plotting different quantities of interest (also make sure to note how these change with the selected errors).</p>
-<a class="bg-primary reference internal image-reference" href="_images/plot11.png"><img alt="_images/plot11.png" class="bg-primary align-center" src="_images/plot11.png" style="width: 25%;" /></a>
+<a class="bg-primary reference internal image-reference" href="_images/plot11.png"><img alt="_images/plot11.png" class="bg-primary align-center" src="_images/plot11.png" style="width: 100%;" />
+</a>
 <br>
-<p>The various options are as follows:</p>
+<p>The various options are as follows. Note that some options may not be available depending on what quantity is being plotted.</p>
 <ul class="simple">
 <li><p><strong>Plot Data Type</strong></p>
 <ul>
@@ -224,14 +562,15 @@ MAPIT has values listed for U, Pu, and Generic measurement errors. For this tuto
 </ul>
 </section>
 <section id="thresholds">
-<h4>Thresholds<a class="headerlink" href="#thresholds" title="Link to this heading"></a></h4>
+<h4>Thresholds<a class="headerlink" href="#thresholds" title="Link to this heading">#</a></h4>
 <p>Statistical tests used in safeguards usually require adjustment of at least one tunable parameter. For example, Page’s trend test actually has two (h and k) of which one is made available to users (h).</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Page’s trend test currently uses k=0 which is the ideal statistic for a one unit shift in SITMUF</p>
 </div>
 <p>The statistical threshold area of MAPIT (shown below) allows users to input a value and see how many times that threshold has been crossed. The threshold calculation is generic and can be applied to any of the plot quantities.</p>
-<a class="bg-primary reference internal image-reference" href="_images/Thresh1.png"><img alt="_images/Thresh1.png" class="bg-primary align-center" src="_images/Thresh1.png" style="width: 25%;" /></a>
+<a class="bg-primary reference internal image-reference" href="_images/Thresh1.png"><img alt="_images/Thresh1.png" class="bg-primary align-center" src="_images/Thresh1.png" style="width: 100%;" />
+</a>
 <br>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -243,69 +582,153 @@ MAPIT has values listed for U, Pu, and Generic measurement errors. For this tuto
 </div>
 </section>
 <section id="error-contributions">
-<h4>Error contributions<a class="headerlink" href="#error-contributions" title="Link to this heading"></a></h4>
-<p>Understanding the contribution of various facility measurements to the material balance uncertainty is often important. Identifying large sources of error can help prioritize areas for improvement. MAPIT facilitates this analysis by providing tabular data describing the error contribution of various components. This can be accessed through the <code class="docutils literal notranslate"><span class="pre">Tabular</span> <span class="pre">Data</span> <span class="pre">View</span></code> menu in the main MAPIT area and selecting <code class="docutils literal notranslate"><span class="pre">Error</span> <span class="pre">Contribution</span></code>.</p>
+<h4>Error contributions<a class="headerlink" href="#error-contributions" title="Link to this heading">#</a></h4>
+<p>Understanding the contribution of various facility measurements to the material balance uncertainty is often important. Identifying large sources of error can help prioritize areas for improvement. MAPIT facilitates this analysis by providing tabular data describing the error contribution of various components. This can be accessed through by selecting  <em>Tabular Data View</em> &gt;  <em>Error Contribution</em>. This view is only available if SEID/SEMUF  has been selected.</p>
 </section>
 <section id="data-export">
-<h4>Data Export<a class="headerlink" href="#data-export" title="Link to this heading"></a></h4>
+<h4>Data Export<a class="headerlink" href="#data-export" title="Link to this heading">#</a></h4>
 <p>While MAPIT has a wide range of capabilities it may be desirable to save data for secondary analysis or use with a report. MAPIT supports saving of figures generated in the plot area in addition to the raw data itself.</p>
 </section>
 <section id="figure">
-<h4>Figure<a class="headerlink" href="#figure" title="Link to this heading"></a></h4>
-<p>Figure can be saved in one of two different ways:</p>
-<ul class="simple">
-<li><p>First (recommended) use the save icon at the bottom of the plot (see below) which directly interacts with the <a class="reference external" href="https://matplotlib.org/">Matplotlib</a> backend.</p></li>
-<li><p>Second (not recommended), you can use the <code class="docutils literal notranslate"><span class="pre">Figure</span> <span class="pre">Options</span></code> in the main MAPIT area and select one of the <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">Figure</span></code> options.</p></li>
-<li><p>Plots can be further customized using the options on the navigation bar at the bottom of the plot (see below for an image of the navigation bar).</p></li>
-</ul>
-<a class="bg-primary reference internal image-reference" href="_images/navi1.png"><img alt="_images/navi1.png" class="bg-primary align-center" src="_images/navi1.png" style="width: 40%;" /></a>
-<br>
+<h4>Figure<a class="headerlink" href="#figure" title="Link to this heading">#</a></h4>
+<p>Figures can be saved by using the save icon at the bottom of the plot (see below) which directly interacts with the <a class="reference external" href="https://matplotlib.org/">Matplotlib</a> backend. Plots can be further customized by using the options on the navigation bar.</p>
+<a class="bg-primary reference internal image-reference" href="_images/navi1.png"><img alt="_images/navi1.png" class="bg-primary align-center" src="_images/navi1.png" style="width: 40%;" />
+</a>
 </section>
 <section id="data">
-<h4>Data<a class="headerlink" href="#data" title="Link to this heading"></a></h4>
+<h4>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h4>
 <p>The data can be exported by selecting the <code class="docutils literal notranslate"><span class="pre">File</span></code> menu option in the MAPIT main area and selecting <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">Data</span></code>. An option will be presented to save the underlying data used for the safeguards statistical tests (i.e. “observed data”). The default behavior is to save data in <code class="docutils literal notranslate"><span class="pre">.csv</span></code> format with a shape of [time x iterations]. For example, for a case where 100 iterations were requested and the time was 5000, then the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> would be of shape <code class="docutils literal notranslate"><span class="pre">(5000,100)</span></code>.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>The default behavior is to create a folder called “MAPIT_Output” containing output files in the same location where <code class="docutils literal notranslate"><span class="pre">MAPIT.py</span></code> is located.</p>
-</div>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
 <p>Do not expect reliable performance of this capability when using irregularly sampled data. Although MAPIT can handle this type of data, validation efforts are ongoing and have not yet been completed.</p>
 </div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The default output directory can be found by using the <code class="docutils literal notranslate"><span class="pre">platformdirs</span></code> package as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platformdirs</span> <span class="kn">import</span> <span class="n">user_data_dir</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">&quot;MAPIT&quot;</span><span class="p">,</span><span class="kc">None</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
 </section>
 </section>
 </section>
 </section>
 
 
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tutorials.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="CsvTut.html" class="btn btn-neutral float-right" title="Using your own data (.csv)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+                </article>
+              
 
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2021, National Technology and Engineering Solutions of Sandia, LLC (NTESS).</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
-        </div>
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="tutorials.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Tutorials</p>
       </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+    </a>
+    <a class="right-next"
+       href="CsvTut.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Using your own data (.csv)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-</body>
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fuel-fabrication-overview">Fuel fabrication overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#walkthrough">Walkthrough</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting started</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#downloading-the-exemplar-dataset">Downloading the exemplar dataset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-the-exemplar-dataset">Loading the exemplar dataset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#statistical-test-configuration">Statistical test configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#analysis">Analysis</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting">Plotting</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#thresholds">Thresholds</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#error-contributions">Error contributions</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#data-export">Data Export</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#figure">Figure</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sandia Nuclear Fuel Cycle and Safeguards Group
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, National Technology and Engineering Solutions of Sandia, LLC (NTESS).
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
 </html>
