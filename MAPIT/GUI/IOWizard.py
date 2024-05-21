@@ -64,7 +64,7 @@ class IOWizardMain(QtWidgets.QWizard):
     x = Path(dirname).resolve().parents[0]
     F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'SNL_Horizontal_Black.jpg')
     res = QtGui.QPixmap(F)
-    geometry = qApp.desktop().availableGeometry(self)
+    geometry = parent.screen().size()
     res = res.scaledToWidth(geometry.width()*0.25)
     self.setPixmap(QtWidgets.QWizard.BannerPixmap, res)
 
