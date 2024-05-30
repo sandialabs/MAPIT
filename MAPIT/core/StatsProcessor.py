@@ -721,16 +721,17 @@ class MBArea(object):
 
 
             for i in range(self.ntasks*3):
-                match np.argmax(rotation):
-                    case 0:
-                        inps.append(res[i])
-                        rotation = np.array([0,1,0])
-                    case 1:
-                        invs.append(res[i])
-                        rotation = np.array([0,0,1])
-                    case 2: 
-                        outs.append(res[i])
-                        rotation = np.array([1,0,0])
+                c = np.argmax(rotation)
+                if c == 0:
+                    inps.append(res[i])
+                    rotation = np.array([0,1,0])
+                elif c == 1:
+                    invs.append(res[i])
+                    rotation = np.array([0,0,1])
+                elif c == 2:
+                    outs.append(res[i])
+                    rotation = np.array([1,0,0])
+
             inps2 = []
             invs2 = []
             outs2 = []
