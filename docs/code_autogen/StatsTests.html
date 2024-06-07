@@ -40,6 +40,8 @@
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'code_autogen/StatsTests';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -369,7 +371,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -385,6 +389,18 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsTests.CUMUF"><code class="docutils literal notranslate"><span class="pre">CUMUF()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsTests.MUF"><code class="docutils literal notranslate"><span class="pre">MUF()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsTests.PageTrendTest"><code class="docutils literal notranslate"><span class="pre">PageTrendTest()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsTests.SEMUF"><code class="docutils literal notranslate"><span class="pre">SEMUF()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsTests.SITMUF"><code class="docutils literal notranslate"><span class="pre">SITMUF()</span></code></a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -399,6 +415,166 @@ document.write(`
 <hr class="docutils" />
 <p>Text</p>
 <hr class="docutils" />
+<dl class="py function" id="module-MAPIT.core.StatsTests">
+<dt class="sig sig-object py" id="MAPIT.core.StatsTests.CUMUF">
+<span class="sig-prename descclassname"><span class="pre">MAPIT.core.StatsTests.</span></span><span class="sig-name descname"><span class="pre">CUMUF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MUF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GUIObject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doTQDM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ispar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsTests.CUMUF" title="Link to this definition">#</a></dt>
+<dd><p>This function performs the cumulative MUF test. This is simply the sum of all previous MUF values at a particular time.</p>
+<p><span class="math notranslate nohighlight">\(\text{CUMUF}_t = \sum_{t=0}^t \text{MUF}_t\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>MUF</strong> (<em>ndarray</em>) – MUF sequence with shape <span class="math notranslate nohighlight">\([n,j]\)</span> where <span class="math notranslate nohighlight">\(n\)</span> is the number of iterations and <span class="math notranslate nohighlight">\(j\)</span> is the temporal dimension. Expects a continuous valued MUF sequence that is similar in format to what is returned by <cite>core.StatsTests.MUF</cite>.</p></li>
+<li><p><strong>GUIParams</strong> (<em>object</em><em>, </em><em>default=None</em>) – An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI.</p></li>
+<li><p><strong>doTQDM</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Controls the use of TQDM progress bar for command line or notebook operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>CUMUF sequence with identical shape to the input MUF.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MAPIT.core.StatsTests.MUF">
+<span class="sig-prename descclassname"><span class="pre">MAPIT.core.StatsTests.</span></span><span class="sig-name descname"><span class="pre">MUF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputAppliedError</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processedInputTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inventoryAppliedError</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processedInventoryTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputAppliedError</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processedOutputTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MBP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GUIObject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GUIparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doTQDM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ispar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsTests.MUF" title="Link to this definition">#</a></dt>
+<dd><p>Function to calculate Material Unaccounted For (MUF), which is sometimes also called ID (inventory difference).
+Specifically calculates the material balance sequence given some input time series.</p>
+<p><span class="math notranslate nohighlight">\(\text{MUF}_t = I_t - O_t - (C_t - C_{t-1})\)</span></p>
+<p><span class="math notranslate nohighlight">\(I_t\)</span> is input at time <span class="math notranslate nohighlight">\(t\)</span></p>
+<p><span class="math notranslate nohighlight">\(O_t\)</span> is output at <span class="math notranslate nohighlight">\(t\)</span></p>
+<p><span class="math notranslate nohighlight">\(C_t\)</span> is inventory at time <span class="math notranslate nohighlight">\(t\)</span> (note C is used to denote <cite>container</cite> to have clearer notation rather than using <span class="math notranslate nohighlight">\(I\)</span> with subscripts for both inventory and input)</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The lengths and shapes of appliedErrors and processedTimes should be the same. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">processedInputTimes</span><span class="p">)</span>
+<span class="k">assert</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">processedInputTimes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See the <span class="xref std std-ref">Input guide</span> for more information.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputAppliedError</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of input locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. This array should reflect observed quantites (as opposed to ground truths). Inputs are assumed to be flows in units of <span class="math notranslate nohighlight">\(\frac{1}{s}\)</span> and will be integrated.</p></li>
+<li><p><strong>processedInputTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of input locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. <cite>len(processedInputTimes)</cite> and the shape of each list entry (ndarray) should be the same as for <cite>inputAppliedError</cite>. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken.</p></li>
+<li><p><strong>inventoryAppliedError</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of inventory locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. This array should reflect observed quantites. Inventories are assumed to be in units of mass and will <em>not</em> be integrated.</p></li>
+<li><p><strong>processedInventoryTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of inventory locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. <cite>len(processedInventoryTimes)</cite> and shape of each list entry (ndarray) should be the same as for <cite>inventoryAppliedError</cite>. Each entry in the ndarray should corresond to a timestamp indicating when the value was taken.</p></li>
+<li><p><strong>outputAppliedError</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of output locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. This array should reflect observed quantites. Outputs are assumed to be in flows with units of <span class="math notranslate nohighlight">\(\frac{1}{s}\)</span> and will be integrated.</p></li>
+<li><p><strong>processedOutputTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of output locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. <cite>len(processedOutputTimes)</cite> and shape of each list entry (ndarray) should be the same as for <cite>outputAppliedError</cite>. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken.</p></li>
+<li><p><strong>MBP</strong> (<em>float</em>) – Defines the material balance period.</p></li>
+<li><p><strong>GUIObject</strong> (<em>object</em><em>, </em><em>default=None</em>) – An optional object that carries GUI related references when the API is used inside the MAPIT GUI.</p></li>
+<li><p><strong>GUIParams</strong> (<em>object</em><em>, </em><em>default=None</em>) – An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI.</p></li>
+<li><p><strong>doTQDM</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Controls the use of TQDM progress bar for command line or notebook operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MUF sequence with shape <span class="math notranslate nohighlight">\([n,j]\)</span> where <span class="math notranslate nohighlight">\(n\)</span> length equal to the maximum time based on the number of material balances that could be constructed given the user provided MBP and number of samples in the input data and <span class="math notranslate nohighlight">\(j\)</span> is the number of iterations given as input. The term <span class="math notranslate nohighlight">\(n\)</span> is calculated by finding the minimum of each of the provided input times.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">time1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">400</span>
+<span class="n">time2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">time3</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">800</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span>
+      <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">time1</span><span class="p">,</span><span class="n">time2</span><span class="p">,</span><span class="n">time3</span><span class="p">)))</span>
+</pre></div>
+</div>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MAPIT.core.StatsTests.PageTrendTest">
+<span class="sig-prename descclassname"><span class="pre">MAPIT.core.StatsTests.</span></span><span class="sig-name descname"><span class="pre">PageTrendTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inQty</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MBP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MBPs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GUIObject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doTQDM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsTests.PageTrendTest" title="Link to this definition">#</a></dt>
+<dd><p>Function for calculating Page’s trend test, which is commonly applied to the SITMUF sequence. Formally compares the null hypothesis that there is no trend versus the alternate trend where there is a trend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inQty</strong> (<em>ndarray</em>) – A ndarray with shape <span class="math notranslate nohighlight">\([m,n]\)</span> where <span class="math notranslate nohighlight">\(m\)</span> is the number of iterations and <span class="math notranslate nohighlight">\(n\)</span> is the total number of timesteps.</p></li>
+<li><p><strong>MBP</strong> (<em>float</em>) – A float expressing the material balance period.</p></li>
+<li><p><strong>MBPs</strong> (<em>float</em>) – The total number of material balance periods present in <strong>inQty</strong>.</p></li>
+<li><p><strong>K</strong> (<em>float</em><em>, </em><em>default = 0.5</em>) – Parameter in the trend test.</p></li>
+<li><p><strong>GUIObject</strong> (<em>object</em><em>, </em><em>default=None</em>) – An optional object that carries GUI related references when the API is used inside the MAPIT GUI.</p></li>
+<li><p><strong>GUIParams</strong> (<em>object</em><em>, </em><em>default=None</em>) – An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI.</p></li>
+<li><p><strong>doTQDM</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Controls the use of TQDM progress bar for command line or notebook operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The results of the trend test which has shape <span class="math notranslate nohighlight">\([m,n]\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MAPIT.core.StatsTests.SEMUF">
+<span class="sig-prename descclassname"><span class="pre">MAPIT.core.StatsTests.</span></span><span class="sig-name descname"><span class="pre">SEMUF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputAppliedError</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processedInputTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inventoryAppliedError</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processedInventoryTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputAppliedError</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processedOutputTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MBP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ErrorMatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GUIObject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doTQDM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ispar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsTests.SEMUF" title="Link to this definition">#</a></dt>
+<dd><p>Function for calculating standard error of the material balance sequence (often called SEID or Standard Error of Inventory Difference; <span class="math notranslate nohighlight">\(\sigma _\text{ID}\)</span>). This is accomplished by assuming the error incurred at each location (specified in the ErrorMatrix) rather than estimating it emperically, which is difficult in practice. The equation used here is suitable for most traditional bulk facilities such as enrichment or reprocessing where input and output flows are independent. This function should <strong>not</strong> be used for facilitiy types where there are more complex statistical dependencies between input, inventory, and output terms (e.g., molten salt reactors). See guide XX for more information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputAppliedError</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of input locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. This array should reflect observed quantites (as opposed to ground truths). Inputs are assumed to be flows in units of <span class="math notranslate nohighlight">\(\frac{1}{s}\)</span> and will be integrated.</p></li>
+<li><p><strong>processedInputTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of input locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. <cite>len(processedInputTimes)</cite> and the shape of each list entry (ndarray) should be the same as for <cite>inputAppliedError</cite>. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken.</p></li>
+<li><p><strong>inventoryAppliedError</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of inventory locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. This array should reflect observed quantites. Inventories are assumed to be in units of mass and will <em>not</em> be integrated.</p></li>
+<li><p><strong>processedInventoryTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of inventory locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. <cite>len(processedInventoryTimes)</cite> and shape of each list entry (ndarray) should be the same as for <cite>inventoryAppliedError</cite>. Each entry in the ndarray should corresond to a timestamp indicating when the value was taken.</p></li>
+<li><p><strong>outputAppliedError</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of output locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. This array should reflect observed quantites. Outputs are assumed to be in flows with units of <span class="math notranslate nohighlight">\(\frac{1}{s}\)</span> and will be integrated.</p></li>
+<li><p><strong>processedOutputTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of output locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. <cite>len(processedOutputTimes)</cite> and shape of each list entry (ndarray) should be the same as for <cite>outputAppliedError</cite>. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken.</p></li>
+<li><p><strong>MBP</strong> (<em>float</em>) – Defines the material balance period.</p></li>
+<li><p><strong>ErrorMatrix</strong> (<em>ndarray</em>) – mx1 A ndarray shaped <span class="math notranslate nohighlight">\([M,2]\)</span> where <span class="math notranslate nohighlight">\(M\)</span> is the <em>total</em> number of locations across inputs, inventories, and outputs stacked together (in that order) and 2 refers to the relative random and systematic errors. For example with 2 inputs, 2 inventories, and 2 outputs, ErrorMatrix[3,1] would be the relative systematic error of inventory 2. See guide XX for more information.</p></li>
+<li><p><strong>GUIObject</strong> (<em>object</em><em>, </em><em>default=None</em>) – An optional object that carries GUI related references when the API is used inside the MAPIT GUI.</p></li>
+<li><p><strong>GUIParams</strong> (<em>object</em><em>, </em><em>default=None</em>) – An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI.</p></li>
+<li><p><strong>doTQDM</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Controls the use of TQDM progress bar for command line or notebook operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>tuple containing:</p>
+<blockquote>
+<div><p>SEID (ndarray): sequence with shape <span class="math notranslate nohighlight">\([n,j,1]\)</span> where <span class="math notranslate nohighlight">\(n\)</span> is the number of material balances and <span class="math notranslate nohighlight">\(j\)</span> is the number of iterations given as input. The term <span class="math notranslate nohighlight">\(n\)</span> is calculated by finding the minimum of each of the provided input times.</p>
+<p>SEMUFContribR (ndarray): the random contribution to the overall SEMUF with shape <span class="math notranslate nohighlight">\([j,l,n]\)</span> where <span class="math notranslate nohighlight">\(j\)</span> is the number of iterations given as input, <span class="math notranslate nohighlight">\(l\)</span> is the total number of locations stacked in the order [inputs, inventories, outputs] and <span class="math notranslate nohighlight">\(n\)</span> is the number of material balances.</p>
+<p>SEMUFContribS (ndarray): the systematic contribution to the overall SEMUF with shape <span class="math notranslate nohighlight">\([j,l,n]\)</span> where <span class="math notranslate nohighlight">\(j\)</span> is the number of iterations given as input, <span class="math notranslate nohighlight">\(l\)</span> is the total number of locations stacked in the order [inputs, inventories, outputs] and <span class="math notranslate nohighlight">\(n\)</span> is the number of material balances.</p>
+<p>ObservedValues (ndarray): the observed values used to calculate SEMUF with shape <span class="math notranslate nohighlight">\([j,l,n]\)</span> where <span class="math notranslate nohighlight">\(j\)</span> is the number of iterations given as input, <span class="math notranslate nohighlight">\(l\)</span> is the total number of locations stacked in the order [inputs, inventories, outputs] and <span class="math notranslate nohighlight">\(n\)</span> is the number of material balances.</p>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MAPIT.core.StatsTests.SITMUF">
+<span class="sig-prename descclassname"><span class="pre">MAPIT.core.StatsTests.</span></span><span class="sig-name descname"><span class="pre">SITMUF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputAppliedError</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processedInputTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inventoryAppliedError</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processedInventoryTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputAppliedError</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processedOutputTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ErrorMatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MUF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">MBP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GUIObject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doTQDM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ispar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsTests.SITMUF" title="Link to this definition">#</a></dt>
+<dd><p>Function that carries out the standardized independent transformation of MUF. More detailed information can be found in the guide XX.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputAppliedError</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of input locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. This array should reflect observed quantites (as opposed to ground truths). Inputs are assumed to be flows in units of <span class="math notranslate nohighlight">\(\frac{1}{s}\)</span> and will be integrated.</p></li>
+<li><p><strong>processedInputTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of input locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. <cite>len(processedInputTimes)</cite> and the shape of each list entry (ndarray) should be the same as for <cite>inputAppliedError</cite>. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken.</p></li>
+<li><p><strong>inventoryAppliedError</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of inventory locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. This array should reflect observed quantites. Inventories are assumed to be in units of mass and will <em>not</em> be integrated.</p></li>
+<li><p><strong>processedInventoryTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of inventory locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. <cite>len(processedInventoryTimes)</cite> and shape of each list entry (ndarray) should be the same as for <cite>inventoryAppliedError</cite>. Each entry in the ndarray should corresond to a timestamp indicating when the value was taken.</p></li>
+<li><p><strong>outputAppliedError</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of output locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. This array should reflect observed quantites. Outputs are assumed to be in flows with units of <span class="math notranslate nohighlight">\(\frac{1}{s}\)</span> and will be integrated.</p></li>
+<li><p><strong>processedOutputTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of output locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. <cite>len(processedOutputTimes)</cite> and shape of each list entry (ndarray) should be the same as for <cite>outputAppliedError</cite>. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken.</p></li>
+<li><p><strong>MBP</strong> (<em>float</em>) – Defines the material balance period.</p></li>
+<li><p><strong>GUIObject</strong> (<em>object</em><em>, </em><em>default=None</em>) – An optional object that carries GUI related references when the API is used inside the MAPIT GUI.</p></li>
+<li><p><strong>GUIParams</strong> (<em>object</em><em>, </em><em>default=None</em>) – An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI.</p></li>
+<li><p><strong>doTQDM</strong> – Controls the use of TQDM progress bar for command line or notebook operation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -428,7 +604,24 @@ document.write(`
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"></div>
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsTests.CUMUF"><code class="docutils literal notranslate"><span class="pre">CUMUF()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsTests.MUF"><code class="docutils literal notranslate"><span class="pre">MUF()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsTests.PageTrendTest"><code class="docutils literal notranslate"><span class="pre">PageTrendTest()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsTests.SEMUF"><code class="docutils literal notranslate"><span class="pre">SEMUF()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsTests.SITMUF"><code class="docutils literal notranslate"><span class="pre">SITMUF()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

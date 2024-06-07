@@ -40,6 +40,8 @@
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'code_autogen/StatsProcessor';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -395,7 +397,18 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallel-processing">Parallel Processing</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-MAPIT.core.StatsProcessor">Classes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea"><code class="docutils literal notranslate"><span class="pre">MBArea</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcCUMUF"><code class="docutils literal notranslate"><span class="pre">MBArea.calcCUMUF()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcErrors"><code class="docutils literal notranslate"><span class="pre">MBArea.calcErrors()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcMUF"><code class="docutils literal notranslate"><span class="pre">MBArea.calcMUF()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcPageTT"><code class="docutils literal notranslate"><span class="pre">MBArea.calcPageTT()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcSEMUF"><code class="docutils literal notranslate"><span class="pre">MBArea.calcSEMUF()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcSITMUF"><code class="docutils literal notranslate"><span class="pre">MBArea.calcSITMUF()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -483,8 +496,145 @@ then have a few properties modified to compare “what-if” scenarios.</p>
 <p><code class="docutils literal notranslate"><span class="pre">nbatch</span></code> is provided as a parameter as there is overhead incurred when copying data to/from workers. If <code class="docutils literal notranslate"><span class="pre">nbatch</span></code> is too small, then parallel processing might be slower than sequential processing if the calculation time is small compared to the memory copying time. We do not provide guidance on setting these parameters as performance will be system specific.</p>
 </section>
 <hr class="docutils" />
-<section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
+<section id="module-MAPIT.core.StatsProcessor">
+<span id="classes"></span><h2>Classes<a class="headerlink" href="#module-MAPIT.core.StatsProcessor" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="MAPIT.core.StatsProcessor.MBArea">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">MAPIT.core.StatsProcessor.</span></span><span class="sig-name descname"><span class="pre">MBArea</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawInput</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rawInventory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rawOutput</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rawInputTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rawInventoryTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rawOutputTimes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputErrorMatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inventoryErrorMatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputErrorMatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mbaTime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dopar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nbatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GUIObject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataOffset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebaseToZero</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doTQDM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsProcessor.MBArea" title="Link to this definition">#</a></dt>
+<dd><p>Object representing a material balance area.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rawInput</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – Raw input data for the material balance area, list of 2D ndarrays. Each entry in the list should correspond to a different location and the shape of ndarray in the list should be [MxN] where M is the sample dimension (number of samples) and N is the isotopic dimension, if applicable. If only considering one isotope, each ndarray in the rawData list should be [Mx1]. It is expected that M will have rate units (i.e., kg/hr) as this quantity will be integrated.</p></li>
+<li><p><strong>rawInventory</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – Raw inventory data for the material balance area, list of 2D ndarrays. Shape structure is the same as <code class="docutils literal notranslate"><span class="pre">rawInput</span></code>. It is expected that M will have mass units (i.e., kg) as this quantity will not be integrated.</p></li>
+<li><p><strong>rawOutput</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – Raw output data for the material balance area, list of 2D ndarrays. Shape structure is the same as <code class="docutils literal notranslate"><span class="pre">rawInput</span></code>. It is expected that M will have rate units (i.e., kg/hr) as this quantity will be integrated.</p></li>
+<li><p><strong>rawInputTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of input locations. Each array should be <span class="math notranslate nohighlight">\([m,1]\)</span> in shape where <span class="math notranslate nohighlight">\(m\)</span> is the number of samples. <cite>len(rawInputTimes)</cite> and the shape of each list entry (ndarray) should be the same as for <cite>rawInput</cite>. Each entry in each ndarray should correspond to a timestamp indicating when the value was taken.</p></li>
+<li><p><strong>rawInventoryTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of inventory locations. Shape structure is the same as <code class="docutils literal notranslate"><span class="pre">rawInputTimes</span></code>.</p></li>
+<li><p><strong>rawOutputTimes</strong> (<em>list</em><em> of </em><em>ndarrays</em>) – A list of ndarrays that has length equal to the total number of output locations. Shape structure is the same as <code class="docutils literal notranslate"><span class="pre">rawInputTimes</span></code>.</p></li>
+<li><p><strong>inputErrorMatrix</strong> (<em>ndarray</em>) – 2D ndarray of shape [Mx2] describing the relative standard deviation to apply to <code class="docutils literal notranslate"><span class="pre">rawInput</span></code>. M sample dimension in each input array and should be identical to M described in  <code class="docutils literal notranslate"><span class="pre">rawInput</span></code>. The second dimension (e.g., 2) refers to the random and systematic error respectively such that <code class="docutils literal notranslate"><span class="pre">ErrorMatrix[0,0]</span></code> refers to the random relative standard deviation of the first location and <code class="docutils literal notranslate"><span class="pre">ErrorMatrix[0,1]</span></code> refers to the systematic relative standard deviation.</p></li>
+<li><p><strong>inventoryErrorMatrix</strong> (<em>ndarray</em>) – 2D ndarray with the same shape structure as <code class="docutils literal notranslate"><span class="pre">inputErrorMatrix</span></code> describing errors to apply to <code class="docutils literal notranslate"><span class="pre">rawInventory</span></code>.</p></li>
+<li><p><strong>outputErrorMatrix</strong> (<em>ndarray</em>) – 2D ndarray with the same shape structure as <code class="docutils literal notranslate"><span class="pre">inputErrorMatrix</span></code> describing errors to apply to <code class="docutils literal notranslate"><span class="pre">rawOutput</span></code>.</p></li>
+<li><p><strong>mbaTime</strong> (<em>int</em>) – The material balance period.</p></li>
+<li><p><strong>iterations</strong> (<em>int</em><em>, </em><em>default=1</em>) – Number of statistical realizations.</p></li>
+<li><p><strong>doPar</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Controls the use of parallel processing provided by Ray. If used, progress can be monitored on a local dashboard that is accessible at <a class="reference external" href="http://127.0.0.1:8265">http://127.0.0.1:8265</a>.</p></li>
+<li><p><strong>ncpu</strong> (<em>int</em><em>, </em><em>default=1</em>) – The number of CPUs to use if parallel processing is enabled.</p></li>
+<li><p><strong>nbatch</strong> (<em>int</em><em>, </em><em>default=1</em>) – The number of batches to process for each job.</p></li>
+<li><p><strong>GUIObject</strong> (<em>object</em><em>, </em><em>default=None</em>) – An object containing MAPIT GUI parameters. Only used interally by the GUI.</p></li>
+<li><p><strong>dataOffset</strong> (<em>int</em><em>, </em><em>default=0</em>) – Offset to apply to the data. If specified, data before this value in time will be removed. For example, if dataOffset=273, then any data with a corresponding time before 273 will be excluded from calculations.</p></li>
+<li><p><strong>rebaseToZero</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Used in conjunction with dataOffset. If true, then times after <code class="docutils literal notranslate"><span class="pre">dataOffset</span></code> will be rebased to start at zero (i.e., if dataOffset=273, then t=274 will be rebased to be t=1).</p></li>
+<li><p><strong>doTQDM</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Boolean used to control progress bar of calculations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="MAPIT.core.StatsProcessor.MBArea.calcCUMUF">
+<span class="sig-name descname"><span class="pre">calcCUMUF</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsProcessor.MBArea.calcCUMUF" title="Link to this definition">#</a></dt>
+<dd><p>Calculates cumulative MUF using <code class="docutils literal notranslate"><span class="pre">StatsTests.CUMUF</span></code>. The result is returned and stored as an attribute after the calculation is complete. Automatically calculates MUF if not present as an attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CUMUF sequence with identical shape to the input MUF.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MAPIT.core.StatsProcessor.MBArea.calcErrors">
+<span class="sig-name descname"><span class="pre">calcErrors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsProcessor.MBArea.calcErrors" title="Link to this definition">#</a></dt>
+<dd><p>Function that applies the specified error matrices to the supplied raw data and stores the results as object attributes. Uses the <code class="docutils literal notranslate"><span class="pre">Preprocessing.SimErrors</span></code> implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MAPIT.core.StatsProcessor.MBArea.calcMUF">
+<span class="sig-name descname"><span class="pre">calcMUF</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsProcessor.MBArea.calcMUF" title="Link to this definition">#</a></dt>
+<dd><p>Calculates MUF using <code class="docutils literal notranslate"><span class="pre">StatsTests.MUF</span></code>. The result is returned and stored as an attribute after the calculation is complete.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><p>MUF sequence with shape <span class="math notranslate nohighlight">\([n,j]\)</span> where <span class="math notranslate nohighlight">\(n\)</span> length equal to the maximum time based on the number of material balances that could be constructed given the user provided <code class="docutils literal notranslate"><span class="pre">mbaTime</span></code> and number of samples in the input data. <span class="math notranslate nohighlight">\(j\)</span> is the number of iterations given as input. The term <span class="math notranslate nohighlight">\(n\)</span> is calculated by finding the minimum of each of the provided input times.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">time1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">400</span>
+<span class="n">time2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">time3</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">800</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">time1</span><span class="p">,</span><span class="n">time2</span><span class="p">,</span><span class="n">time3</span><span class="p">)))</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>MAPIT doesn’t assume that time series provided have zero value if unspecified. For example, if a time series starts at t=800, it is assumed that values before t=800 are undefined so MUF cannot be calculated before t=800. The user can modify input data such that values before t=800 are present, but zero, if that assumption is valid.</p>
+</div>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MAPIT.core.StatsProcessor.MBArea.calcPageTT">
+<span class="sig-name descname"><span class="pre">calcPageTT</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsProcessor.MBArea.calcPageTT" title="Link to this definition">#</a></dt>
+<dd><p>Calculates Page’s trend test on SITMUF using <code class="docutils literal notranslate"><span class="pre">StatsTests.PageTrendTest</span></code>. The result is returned and stored as an attribute after the calculation is complete. Automatically calculates SITMUF if not present as an attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The results of the trend test which has shape <span class="math notranslate nohighlight">\([m,n]\)</span>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MAPIT.core.StatsProcessor.MBArea.calcSEMUF">
+<span class="sig-name descname"><span class="pre">calcSEMUF</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsProcessor.MBArea.calcSEMUF" title="Link to this definition">#</a></dt>
+<dd><p>Calculates <span class="math notranslate nohighlight">\(\sigma\)</span> MUF using <code class="docutils literal notranslate"><span class="pre">StatsTests.SEMUF</span></code>. The result is returned and stored as an attribute after the calculation is complete. Automatically calculates MUF if not present as an attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>SEID (ndarray): sequence with shape <span class="math notranslate nohighlight">\([n,j,1]\)</span> where <span class="math notranslate nohighlight">\(n\)</span> is the number of material balances and <span class="math notranslate nohighlight">\(j\)</span> is the number of iterations given as input. The term <span class="math notranslate nohighlight">\(n\)</span> is calculated by finding the minimum of each of the provided input times.</p></li>
+<li><p>SEMUFContribR (ndarray): the random contribution to the overall SEMUF with shape <span class="math notranslate nohighlight">\([j,l,n]\)</span> where <span class="math notranslate nohighlight">\(j\)</span> is the number of iterations given as input, <span class="math notranslate nohighlight">\(l\)</span> is the total number of locations stacked in the order [inputs, inventories, outputs] and <span class="math notranslate nohighlight">\(n\)</span> is the number of material balances.</p></li>
+<li><p>SEMUFContribS (ndarray): the systematic contribution to the overall SEMUF with shape <span class="math notranslate nohighlight">\([j,l,n]\)</span> where <span class="math notranslate nohighlight">\(j\)</span> is the number of iterations given as input, <span class="math notranslate nohighlight">\(l\)</span> is the total number of locations stacked in the order [inputs, inventories, outputs] and <span class="math notranslate nohighlight">\(n\)</span> is the number of material balances.</p></li>
+<li><p>ObservedValues (ndarray): the observed values used to calculate SEMUF with shape <span class="math notranslate nohighlight">\([j,l,n]\)</span> where <span class="math notranslate nohighlight">\(j\)</span> is the number of iterations given as input, <span class="math notranslate nohighlight">\(l\)</span> is the total number of locations stacked in the order [inputs, inventories, outputs] and <span class="math notranslate nohighlight">\(n\)</span> is the number of material balances.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple (ndarray, ndarray, ndarray, ndarray)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="MAPIT.core.StatsProcessor.MBArea.calcSITMUF">
+<span class="sig-name descname"><span class="pre">calcSITMUF</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.StatsProcessor.MBArea.calcSITMUF" title="Link to this definition">#</a></dt>
+<dd><p>Calculates SITMUF using <code class="docutils literal notranslate"><span class="pre">StatsTests.SITMUF</span></code>. The result is returned and stored as an attribute after the calculation is complete. Automatically calculates MUF if not present as an attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SITMUF sequence with shape <span class="math notranslate nohighlight">\([n,j]\)</span> where <span class="math notranslate nohighlight">\(n\)</span> length equal to the maximum time based on the number of material balances that could be constructed given the user provided MBP and number of samples in the input data and <span class="math notranslate nohighlight">\(j\)</span> is the number of iterations given as input. As is the case with MUF, the term <span class="math notranslate nohighlight">\(n\)</span> is calculated by finding the minimum of each of the provided input times.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
@@ -535,7 +685,18 @@ then have a few properties modified to compare “what-if” scenarios.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallel-processing">Parallel Processing</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-MAPIT.core.StatsProcessor">Classes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea"><code class="docutils literal notranslate"><span class="pre">MBArea</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcCUMUF"><code class="docutils literal notranslate"><span class="pre">MBArea.calcCUMUF()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcErrors"><code class="docutils literal notranslate"><span class="pre">MBArea.calcErrors()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcMUF"><code class="docutils literal notranslate"><span class="pre">MBArea.calcMUF()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcPageTT"><code class="docutils literal notranslate"><span class="pre">MBArea.calcPageTT()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcSEMUF"><code class="docutils literal notranslate"><span class="pre">MBArea.calcSEMUF()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.StatsProcessor.MBArea.calcSITMUF"><code class="docutils literal notranslate"><span class="pre">MBArea.calcSITMUF()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

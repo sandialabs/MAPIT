@@ -40,6 +40,8 @@
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'code_autogen/Preprocessing';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -370,7 +372,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
 </div></div>
       
     </div>
@@ -386,6 +390,14 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.Preprocessing.SimErrors"><code class="docutils literal notranslate"><span class="pre">SimErrors()</span></code></a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -400,6 +412,34 @@ document.write(`
 <hr class="docutils" />
 <p>Text</p>
 <hr class="docutils" />
+<dl class="py function" id="module-MAPIT.core.Preprocessing">
+<dt class="sig sig-object py" id="MAPIT.core.Preprocessing.SimErrors">
+<span class="sig-prename descclassname"><span class="pre">MAPIT.core.Preprocessing.</span></span><span class="sig-name descname"><span class="pre">SimErrors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ErrorMatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GUIObject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doTQDM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batchSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dopar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.Preprocessing.SimErrors" title="Link to this definition">#</a></dt>
+<dd><p>Function to add simulated measurement error. Supports variable sample rates.
+Assumes the traditional multiplicative measurement error model:</p>
+<p><span class="math notranslate nohighlight">\(M_{i,j} = T(1+R_{i,j}+S_j)\)</span></p>
+<p>Random errors: <span class="math notranslate nohighlight">\(R_{i,j} \sim \mathcal{N}(0,{\delta_R}_j^2)\)</span></p>
+<p>Systematic errors: <span class="math notranslate nohighlight">\(S_{j} \sim \mathcal{N}(0,{\delta_S}_j^2)\)</span></p>
+<p>where <span class="math notranslate nohighlight">\(i\)</span> is the measurement time and <span class="math notranslate nohighlight">\(j\)</span> is the location</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rawData</strong> (<em>list</em>) – Raw data to apply errors to, list of 2D ndarrays. Each entry in the list should correspond to a different location and the shape of ndarray in the list should be [MxN] where M is the sample dimension (number of samples) and N is the elemental dimension, if applicable. If only considering one element, each ndarray in the rawData list should be [Mx1].</p></li>
+<li><p><strong>ErrorMatrix</strong> (<em>ndarray</em>) – 2D ndarray of shape [Mx2] describing the relative standard deviation to apply to <code class="docutils literal notranslate"><span class="pre">rawData</span></code>. M sample dimension in each input array and should be identical to M described in  <code class="docutils literal notranslate"><span class="pre">rawData</span></code>. The second dimension (e.g., 2) refers to the random and systematic error respectively such that <code class="docutils literal notranslate"><span class="pre">ErrorMatrix[0,0]</span></code> refers to the random relative standard deviation of the first location and <code class="docutils literal notranslate"><span class="pre">ErrorMatrix[0,1]</span></code> refers to the systematic relative standard deviation.</p></li>
+<li><p><strong>iterations</strong> (<em>int</em>) – Number of iterations to calculate</p></li>
+<li><p><strong>GUIObject</strong> (<em>obj</em><em>, </em><em>default=None</em>) – GUI object for internal MAPIT use</p></li>
+<li><p><strong>doTQDM</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Controls the use of TQDM progress bar for command line or notebook operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of arrays identical in shape to <code class="docutils literal notranslate"><span class="pre">rawData</span></code>. A list is returned so that each location can have a different sample rate.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 
@@ -438,7 +478,20 @@ document.write(`
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"></div>
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.Preprocessing.SimErrors"><code class="docutils literal notranslate"><span class="pre">SimErrors()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
