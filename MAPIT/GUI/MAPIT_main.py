@@ -55,7 +55,7 @@ class customExecp(Exception):
 
 
 GUIparams = GUIopts(False, True)
-GUIparams = GeneralOps.loadGUILabels(GUIparams, international = True)
+GUIparams = GeneralOps.loadGUILabels(GUIparams, international = False)
 
 AnalysisData = DataHolder()
 
