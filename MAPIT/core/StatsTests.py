@@ -707,10 +707,10 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
               IPrime = P 
               IPrimePrevious = P-1
 
-              I_time = I*MBP
-              IPrevious_time = IPrevious*MBP
-              IPrime_time = IPrime*MBP
-              IPrimePrevious_time = IPrimePrevious*MBP
+              I_time = float(I*MBP)
+              IPrevious_time = float(IPrevious*MBP)
+              IPrime_time = float(IPrime*MBP)
+              IPrimePrevious_time = float(IPrimePrevious*MBP)
 
 
 
