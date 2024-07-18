@@ -473,11 +473,15 @@ def loadDataLabels(GUIparams):
     GUIparams.availableDatas = json.load(fp)
 
 def updateDataGUIOptions(GUIobject, GUIparams):
+  existingDatas = [GUIobject.datopts.itemText(i) for i in range(GUIobject.datopts.count())]
   for lab in GUIparams.availableDatas:
-    GUIobject.datopts.addItem(GUIparams.availableDatas[lab])
+    if GUIparams.availableDatas[lab] not in existingDatas:
+      GUIobject.datopts.addItem(GUIparams.availableDatas[lab])
 
+  existingMdls = [GUIobject.mdlopts.itemText(i) for i in range(GUIobject.mdlopts.count())]
   for lab in GUIparams.availableMdls:
-    GUIobject.mdlopts.addItem(GUIparams.availableMdls[lab])
+    if GUIparams.availableMdls[lab] not in existingMdls:
+      GUIobject.mdlopts.addItem(GUIparams.availableMdls[lab])
 
 def loadGUILabels(GUIparams,international=False):
   if international == True:
