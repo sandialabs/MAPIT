@@ -109,6 +109,7 @@ Currently, only options for statistical tests on uranium are available as it is 
   * This opens the error selection pane
   * All errors are in percents
     * For example, a value of 1 is a 1% error
+  * A recalibration period for the systematic errors, that simulates the effects of a new calibration, can also be specified.
   * Options are provided to adjust measurement errors for various KMPs
   * Users can manually enter values in the boxes
   * Alternatively, the drop down boxes can change all values for that measurement type automatically
@@ -127,6 +128,7 @@ print(user_config_dir("MAPIT",None))
 +++
 
 * For now, select 1% errors for all values using the drop down options.
+* Leave the recalibration period as the default value of `None`.
 
 +++
 

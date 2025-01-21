@@ -54,6 +54,7 @@ This exercise assumes that you are familiar with MAPIT and can perform tasks dis
 
 * Set the measurement errors by pressing the <kbd>Select Errors</kbd> button. 
     * Choose **3%** for **all random and systematic errors**.  
+* Leave the calibration period as the default `None` value.
 
 +++
 

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Home &#8212; MAPIT 1.4.5-beta documentation</title>
+    <title>Home &#8212; MAPIT 1.4.6-beta documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="_static/documentation_options.js?v=bf7e922c"></script>
+    <script src="_static/documentation_options.js?v=122ee2e0"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
@@ -136,8 +136,8 @@
       
     
     
-    <img src="_static/logo_small.png" class="logo__image only-light" alt="MAPIT 1.4.5-beta documentation - Home"/>
-    <script>document.write(`<img src="_static/logo_small.png" class="logo__image only-dark" alt="MAPIT 1.4.5-beta documentation - Home"/>`);</script>
+    <img src="_static/logo_small.png" class="logo__image only-light" alt="MAPIT 1.4.6-beta documentation - Home"/>
+    <script>document.write(`<img src="_static/logo_small.png" class="logo__image only-dark" alt="MAPIT 1.4.6-beta documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -173,9 +173,17 @@
 <li class="toctree-l2"><a class="reference internal" href="exercise5S.html">Exercise 5 Solution</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="apidocs.html">API home</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="code_autogen/coreLanding.html">core</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="theory.html">Theory guide</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="ErrorTheory.html">Error model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MufSeidTheory.html">MUF and SigmaMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CumufTheory.html">CuMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SitmufTheory.html">SITMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PageTheory.html">Page’s trend test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ComputeTheory.html">Special computational considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="apidocs.html">API home</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="code_autogen/coreLanding.html">core</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l3"><a class="reference internal" href="code_autogen/AuxFunctions.html">AuxFunctions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="code_autogen/Preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="code_autogen/StatsProcessor.html">StatsProcessor</a></li>
@@ -415,8 +423,14 @@ document.write(`
 <section class="tex2jax_ignore mathjax_ignore" id="home">
 <h1>Home<a class="headerlink" href="#home" title="Link to this heading">#</a></h1>
 <hr class="docutils" />
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.4.6: </span>Added the capability to handle both continuous (e.g., signals) and discrete (e.g., entities) separately. The GUI will now prompt you to select the type of data you are analyzing. The API also includes a separate argument to handle the two types of data. See the API documentation for further details.</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.4.6: </span>Added the capability to specify a recalibration period. This effectively recalculates the systematic error periodically. This capability is available in the GUI (in the error specification pane) and the API. See the API documentation for further details.</p>
+</div>
 <div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 1.40.0: </span>API breaking changes! Instead of accessing statistical tests directly, a new object, <code class="docutils literal notranslate"><span class="pre">MBArea</span></code>, is the preferred way to perform analyses using the API. The <code class="docutils literal notranslate"><span class="pre">StatsTests</span></code> module is provided to show implementation details, but it is expected that users instead user <code class="docutils literal notranslate"><span class="pre">MBArea</span></code> functions. See the API example notebooks for more details.</p>
+<p><span class="versionmodified changed">Changed in version 1.4.0: </span>API breaking changes! Instead of accessing statistical tests directly, a new object, <code class="docutils literal notranslate"><span class="pre">MBArea</span></code>, is the preferred way to perform analyses using the API. The <code class="docutils literal notranslate"><span class="pre">StatsTests</span></code> module is provided to show implementation details, but it is expected that users instead user <code class="docutils literal notranslate"><span class="pre">MBArea</span></code> functions. See the API example notebooks for more details.</p>
 </div>
 <p>MAPIT (Material Accountancy Performance Indicator Toolkit) is a Python package designed to aid in safeguards analysis of bulk materials. The inherent flexibility is designed to allow safeguards practitioners ask the “what if?” questions while providing transparency into commonly employed statistical tests.</p>
 <p>MAPIT provides both a graphical user interface (GUI) and an application program interface (API). The API can be used with other popular Python libraries to extend functionality and integrate with other analytical workflows.</p>
@@ -437,7 +451,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="guided_exercises.html">Guided exercises</a></li>
-<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidocs.html">API home</a></li>
 </ul>
 </div>

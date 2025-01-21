@@ -38,6 +38,7 @@ This exercise assumes that you are familiar with MAPIT and can perform tasks dis
 +++
 
 * Set the measurement errors by pressing the <kbd>Select Errors</kbd> button. Choose **3%** for **all random and systematic errors**.  
+* Leave the calibration period as the default `None` value.
 
 +++
 
@@ -88,6 +89,7 @@ This exercise assumes that you are familiar with MAPIT and can perform tasks dis
 
 * Perform the calculations again using a value of **0.5%** for **all random and systematic errors**.
     * MAPIT does not need to be restarted. Simply press <kbd>Select Errors</kbd> and use the dropdown menus to select the new error values. Then press <kbd>Run</kbd>.
+* Leave the calibration period as the default `None` value.
 
 +++
 

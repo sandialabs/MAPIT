@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Preprocessing &#8212; MAPIT 1.4.5-beta documentation</title>
+    <title>Preprocessing &#8212; MAPIT 1.4.6-beta documentation</title>
   
   
   
@@ -36,7 +36,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../_static/documentation_options.js?v=bf7e922c"></script>
+    <script src="../_static/documentation_options.js?v=122ee2e0"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
@@ -135,8 +135,8 @@
       
     
     
-    <img src="../_static/logo_small.png" class="logo__image only-light" alt="MAPIT 1.4.5-beta documentation - Home"/>
-    <script>document.write(`<img src="../_static/logo_small.png" class="logo__image only-dark" alt="MAPIT 1.4.5-beta documentation - Home"/>`);</script>
+    <img src="../_static/logo_small.png" class="logo__image only-light" alt="MAPIT 1.4.6-beta documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo_small.png" class="logo__image only-dark" alt="MAPIT 1.4.6-beta documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -172,9 +172,17 @@
 <li class="toctree-l2"><a class="reference internal" href="../exercise5S.html">Exercise 5 Solution</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory</a></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="../apidocs.html">API home</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="coreLanding.html">core</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../theory.html">Theory guide</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ErrorTheory.html">Error model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../MufSeidTheory.html">MUF and SigmaMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../CumufTheory.html">CuMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../SitmufTheory.html">SITMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../PageTheory.html">Page’s trend test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ComputeTheory.html">Special computational considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../apidocs.html">API home</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="coreLanding.html">core</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="AuxFunctions.html">AuxFunctions</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="StatsProcessor.html">StatsProcessor</a></li>
@@ -396,6 +404,7 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.Preprocessing.SimErrors"><code class="docutils literal notranslate"><span class="pre">SimErrors()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.Preprocessing.calcBatchError"><code class="docutils literal notranslate"><span class="pre">calcBatchError()</span></code></a></li>
 </ul>
             </nav>
         </div>
@@ -414,21 +423,40 @@ document.write(`
 <hr class="docutils" />
 <dl class="py function" id="module-MAPIT.core.Preprocessing">
 <dt class="sig sig-object py" id="MAPIT.core.Preprocessing.SimErrors">
-<span class="sig-prename descclassname"><span class="pre">MAPIT.core.Preprocessing.</span></span><span class="sig-name descname"><span class="pre">SimErrors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ErrorMatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GUIObject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doTQDM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batchSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dopar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.Preprocessing.SimErrors" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">MAPIT.core.Preprocessing.</span></span><span class="sig-name descname"><span class="pre">SimErrors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rawData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ErrorMatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GUIObject</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doTQDM</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batchSize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dopar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibrationPeriod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.Preprocessing.SimErrors" title="Link to this definition">#</a></dt>
 <dd><p>Function to add simulated measurement error. Supports variable sample rates.
 Assumes the traditional multiplicative measurement error model:</p>
 <p><span class="math notranslate nohighlight">\(M_{i,j} = T(1+R_{i,j}+S_j)\)</span></p>
 <p>Random errors: <span class="math notranslate nohighlight">\(R_{i,j} \sim \mathcal{N}(0,{\delta_R}_j^2)\)</span></p>
 <p>Systematic errors: <span class="math notranslate nohighlight">\(S_{j} \sim \mathcal{N}(0,{\delta_S}_j^2)\)</span></p>
 <p>where <span class="math notranslate nohighlight">\(i\)</span> is the measurement time and <span class="math notranslate nohighlight">\(j\)</span> is the location</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">rawData</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+
+<span class="c1"># [location1 (random, systematic), loction2 (random, systematic)]</span>
+<span class="n">ErrorMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]])</span>
+<span class="n">iterations</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">SimErrors</span><span class="p">(</span><span class="n">rawData</span><span class="p">,</span> <span class="n">ErrorMatrix</span><span class="p">,</span> <span class="n">iterations</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>rawData</strong> (<em>list</em>) – Raw data to apply errors to, list of 2D ndarrays. Each entry in the list should correspond to a different location and the shape of ndarray in the list should be [MxN] where M is the sample dimension (number of samples) and N is the elemental dimension, if applicable. If only considering one element, each ndarray in the rawData list should be [Mx1].</p></li>
+<li><p><strong>rawData</strong> (<em>list</em><em> of </em><em>ndarray</em>) – Raw data to apply errors to, list of 2D ndarrays. Each entry in the list should correspond to a different location and the shape of ndarray in the list should be [MxN] where M is the sample dimension (number of samples) and N is the elemental dimension, if applicable. If only considering one element, each ndarray in the rawData list should be [Mx1].</p></li>
 <li><p><strong>ErrorMatrix</strong> (<em>ndarray</em>) – 2D ndarray of shape [Mx2] describing the relative standard deviation to apply to <code class="docutils literal notranslate"><span class="pre">rawData</span></code>. M sample dimension in each input array and should be identical to M described in  <code class="docutils literal notranslate"><span class="pre">rawData</span></code>. The second dimension (e.g., 2) refers to the random and systematic error respectively such that <code class="docutils literal notranslate"><span class="pre">ErrorMatrix[0,0]</span></code> refers to the random relative standard deviation of the first location and <code class="docutils literal notranslate"><span class="pre">ErrorMatrix[0,1]</span></code> refers to the systematic relative standard deviation.</p></li>
 <li><p><strong>iterations</strong> (<em>int</em>) – Number of iterations to calculate</p></li>
 <li><p><strong>GUIObject</strong> (<em>obj</em><em>, </em><em>default=None</em>) – GUI object for internal MAPIT use</p></li>
 <li><p><strong>doTQDM</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Controls the use of TQDM progress bar for command line or notebook operation.</p></li>
+<li><p><strong>batchSize</strong> (<em>int</em><em>, </em><em>default=10</em>) – Batch size for parallel processing.</p></li>
+<li><p><strong>dopar</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Controls the use of parallel processing.</p></li>
+<li><p><strong>times</strong> (<em>list</em><em> of </em><em>ndarray</em><em>, </em><em>default=None</em>) – List of ndarrays of shape [Mx1] describing the time of each sample in the rawData. Required if <code class="docutils literal notranslate"><span class="pre">calibrationPeriod</span></code> is provided.</p></li>
+<li><p><strong>calibrationPeriod</strong> (<em>list</em><em> of </em><em>float</em><em>, </em><em>default=None</em>) – List of floats of length M describing the calibration period for each location in rawData. Required if <code class="docutils literal notranslate"><span class="pre">times</span></code> is provided.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -436,6 +464,31 @@ Assumes the traditional multiplicative measurement error model:</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="MAPIT.core.Preprocessing.calcBatchError">
+<span class="sig-prename descclassname"><span class="pre">MAPIT.core.Preprocessing.</span></span><span class="sig-name descname"><span class="pre">calcBatchError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calibrationPeriod</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ErrorMatrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batchSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim0shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MAPIT.core.Preprocessing.calcBatchError" title="Link to this definition">#</a></dt>
+<dd><p>Calculate batch error for a given location.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>calibrationPeriod</strong> (<em>numpy array</em><em> or </em><em>None</em>) – Calibration period for each location.</p></li>
+<li><p><strong>ErrorMatrix</strong> (<em>numpy array</em>) – Matrix containing error values (RSD) for each location.</p></li>
+<li><p><strong>batchSize</strong> (<em>int</em>) – Size of the batch.</p></li>
+<li><p><strong>times</strong> (<em>numpy array</em>) – Array of time values for each location.</p></li>
+<li><p><strong>loc</strong> (<em>int</em>) – Index of the current location.</p></li>
+<li><p><strong>dim0shape</strong> (<em>int</em>) – Shape of the first dimension of the raw data array.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Random error array.
+sysRSD (numpy array): Systematic error array.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>randRSD (numpy array)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -488,6 +541,7 @@ Assumes the traditional multiplicative measurement error model:</p>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.Preprocessing.SimErrors"><code class="docutils literal notranslate"><span class="pre">SimErrors()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#MAPIT.core.Preprocessing.calcBatchError"><code class="docutils literal notranslate"><span class="pre">calcBatchError()</span></code></a></li>
 </ul>
   </nav></div>
 

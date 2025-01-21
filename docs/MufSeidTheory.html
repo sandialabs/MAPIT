@@ -1,0 +1,943 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>MUF and SigmaMUF &#8212; MAPIT 1.4.6-beta documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="_static/documentation_options.js?v=122ee2e0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'MufSeidTheory';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CuMUF" href="CumufTheory.html" />
+    <link rel="prev" title="Error model" href="ErrorTheory.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo_small.png" class="logo__image only-light" alt="MAPIT 1.4.6-beta documentation - Home"/>
+    <script>document.write(`<img src="_static/logo_small.png" class="logo__image only-dark" alt="MAPIT 1.4.6-beta documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="sceneTut.html">MAPIT Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CsvTut.html">Using your own data (.csv)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MatTut.html">Using your own data (.mat)</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="guided_exercises.html">Guided exercises</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="exercise1.html">Exercise 1: General MAPIT Familiarity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise2.html">Exercise 2: Impacts of measurement error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise3.html">Exercise 3: Material Loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise4.html">Exercise 4: Quantifying probability of detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5.html">Exercise 5: System Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5S.html">Exercise 5 Solution</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="theory.html">Theory guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ErrorTheory.html">Error model</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">MUF and SigmaMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CumufTheory.html">CuMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SitmufTheory.html">SITMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PageTheory.html">Page’s trend test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ComputeTheory.html">Special computational considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="apidocs.html">API home</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="code_autogen/coreLanding.html">core</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/AuxFunctions.html">AuxFunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/Preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/StatsProcessor.html">StatsProcessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/StatsTests.html">StatsTests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/sandialabs/MAPIT/blob/master/docs_v2/build/html/MufSeidTheory.md?plain=1" target="_blank"
+   class="btn btn-sm btn-source-file-button dropdown-item"
+   title="Show source"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-code"></i>
+  </span>
+<span class="btn__text-container">Show source</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/sandialabs/MAPIT/edit/master/docs_v2/build/html/MufSeidTheory.md" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/sandialabs/MAPIT/issues/new?title=Issue%20on%20page%20%2FMufSeidTheory.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/MufSeidTheory.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>MUF and SigmaMUF</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#historical-context">Historical context</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theory">Theory</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#muf">MUF</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sigmamuf"><span class="math notranslate nohighlight">\(\sigma\)</span>MUF</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#discussion">Discussion</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#material-balance-iterations">Material balance iterations</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#muf-implementation">MUF implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sigmamuf-implementation"><span class="math notranslate nohighlight">\(\sigma\)</span>MUF implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#further-reading">Further reading</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="muf-and-sigmamuf">
+<h1>MUF and SigmaMUF<a class="headerlink" href="#muf-and-sigmamuf" title="Link to this heading">#</a></h1>
+<hr class="docutils" />
+<section id="historical-context">
+<h2>Historical context<a class="headerlink" href="#historical-context" title="Link to this heading">#</a></h2>
+<p>Fulfilling safeguards regulations and agreements requires demonstrating that nuclear material has not been lost, removed, or otherwise been unaccounted. Both containment and surveillance methods in addition to direct accountancy of nuclear material is used to meet these requirements. Containment and surveillance (C/S), as the name implies, is used to contain (e.g., seal containers) and surveil (e.g., optical cameras) nuclear material. C/S is complemented by quantitative material accountancy which seeks to quantify the amount and form of nuclear material in a given area. MAPIT focuses on providing tools and routines used in accountancy of nuclear material. The material balance, discussed in depth here, is the cornerstone of nuclear material accountancy.  For a longer overview of the goals and safeguards and C/S or the history of material accountancy, readers are encouraged to check the <a class="reference internal" href="#further-reading"><span class="xref myst">references</span></a> as a detailed history of these topics are out of scope for this document.</p>
+</section>
+<section id="theory">
+<h2>Theory<a class="headerlink" href="#theory" title="Link to this heading">#</a></h2>
+<section id="muf">
+<h3>MUF<a class="headerlink" href="#muf" title="Link to this heading">#</a></h3>
+<p>Accountancy of nuclear material is of interest to many regulatory bodies. One principle quantity used to ensure material is accounted for is the material balance calculation. This is sometimes also called Material Unaccounted For (MUF) or Inventory Difference (ID). Material balance calculations are performed over defined physical areas of a nuclear facility, called material balance areas (MBAs), at regular intervals called material balance periods (MBPs). There are a variety of metrics and criteria used to determine both the MBA (in both structure and quantity) for a given facility and the associated material balance period. Discussion of MBA selection criteria will not be discussed here and we refer the reader to the <a class="reference internal" href="#further-reading"><span class="xref myst">references</span></a> for further inquiry. The material balance can be calculated by understanding the inputs, inventories, and outputs for a given material balance area.  First, let the material balance period be represented as a non-zero,  positive real integer:</p>
+<div class="math notranslate nohighlight">
+\[
+    \text{mbp} \in \mathbb{R}^+_*
+\]</div>
+<p>Next, consider the sequence of material balance period values:</p>
+<div class="math notranslate nohighlight">
+\[
+    \text{MBP} = \{  1*\text{mbp}, 2*\text{mbp}, ..., \}
+\]</div>
+<p>Then the <span class="math notranslate nohighlight">\(i\)</span>th material balance can be calculate as follows:</p>
+<div class="math notranslate nohighlight" id="equation-eqn-muf1">
+<span class="eqno">(1)<a class="headerlink" href="#equation-eqn-muf1" title="Link to this equation">#</a></span>\[
+    \text{muf}_i =  \sum_{l \in l_0}\sum_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{t,l} - \sum_{l \in l_1}\sum_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}O_{t,l} - \sum_{l \in l_2}(C_{i,l} - C_{i-1, l})
+\]</div>
+<p>Alternatively, if continuous flows are present (i.e., continuous inputs and outputs), then the material balance can be represented as:</p>
+<div class="math notranslate nohighlight" id="equation-eqn-muf2">
+<span class="eqno">(2)<a class="headerlink" href="#equation-eqn-muf2" title="Link to this equation">#</a></span>\[
+    \text{muf}_i =  \sum_{l \in l_0}\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{t,l} - \sum_{l \in l_1}\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}O_{t,l} -  \sum_{l \in l_2}(C_{i,l} - C_{i-1, l})
+\]</div>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(I_{t,l}\)</span> is the input to the material balance area at time <span class="math notranslate nohighlight">\(t\)</span> and location <span class="math notranslate nohighlight">\(l\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(O_{t,l}\)</span>  is the output of the material balance area at time <span class="math notranslate nohighlight">\(t\)</span> and location <span class="math notranslate nohighlight">\(l\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(C_{i,l}\)</span> is the inventory at time <span class="math notranslate nohighlight">\(\text{MBP}_i\)</span> and location <span class="math notranslate nohighlight">\(l\)</span></p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(C\)</span> was chosen to denote <em>container</em> and avoid overloaded notation between inventory and input terms</p></li>
+</ul>
+</li>
+</ul>
+<p>The material balance for has three primary terms; input, output, and inventory. For each term, there may be multiple different locations so <span class="math notranslate nohighlight">\(l_0, l_1, l_2\)</span> are used to denote the set of different measurement locations for input, output, and inventory, respectively. Correspondingly, the sum <span class="math notranslate nohighlight">\(\sum_{l \in l_0}\)</span> indicates that the quantity should be summed over all input locations. The material balance simply sums all inputs over all locations during the material balance period, sums all the outputs over all locations during the material balance period, and takes the difference of inventory terms between the previous and current balance times for all locations. These terms are then used to calculate input - output - change in inventory.</p>
+<p>There is a separate expression for material balances with discrete items versus continuous flows. The expression for the latter uses integrals over the time period of interest to denote that these quantities are usually integral rather than summed. For example, discrete canisters of material arriving to a material balance area might have their contents weighed, assayed, and summed for the material balance period. A continuous input might be a flow measured in mass per unit time, which would be integrated over the material balance period instead of summed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Material balances are calculated at discrete intervals of time and are consequently not continuous. There are a variety of ways to represent the material balance graphically. In MAPIT, we opt to have a continuous representation by holding the value calculated at <span class="math notranslate nohighlight">\(t=\text{MBP}_i\)</span> to <span class="math notranslate nohighlight">\(t=\text{MBP}_{i+1}\)</span> at which point the value is updated. This representation results in a step-like representation which can be seen in the figure below.</p>
+<a class="only-dark reference internal image-reference" href="_images/MUF1.png"><img alt="_images/MUF1.png" class="only-dark align-center" src="_images/MUF1.png" style="width: 100%;" />
+</a>
+<a class="only-light reference internal image-reference" href="_images/MUF1L.png"><img alt="_images/MUF1L.png" class="only-light align-center" src="_images/MUF1L.png" style="width: 100%;" />
+</a>
+</div>
+<p>The material balance is intuitive and does not make assumptions about potential material loss pathways. The material balance should be exactly zero due under normal operating conditions as all material should be accounted for. In contrast, the material balance should be non-zero under anomalous conditions that cause material losses or gains that are not measured. However, the material balance will always be non-zero, even under normal operating conditions, due to the presence of measurement error. Additional analyses are then required to detect material loss in the presence of measurement uncertainty.</p>
+<p>It is useful to express a series of MUF values as a sequence which facilitates various trend testing and statistical analyses:</p>
+<div class="math notranslate nohighlight" id="equation-eqn-muf0">
+<span class="eqno">(3)<a class="headerlink" href="#equation-eqn-muf0" title="Link to this equation">#</a></span>\[
+    \boldsymbol{\text{muf}} = \{ \text{muf}_0, \text{muf}_1, ... \text{muf}_n \}
+\]</div>
+<!-- In practice, only a single MUF sequence can be observed. However, using simulation, multiple MUF sequences can be considered. Each MUF sequence can be thought of as one realization of a material balance evaluation with a specific set of measurement calibrations and measurement errors. The MUF sequence can be represented as a series of sequences as follows: -->
+<p>The MUF sequence can be represented as a Gaussian distribution as, over long enough periods of time and enough samples, even measurement biases behave as random errors. The fundamental goal of material accountancy then is to detect a <em>shift</em> in the distribution of values in a MUF sequence. Consider the two normal distributions below with different means and a standard deviation of one. This shift in the mean between two distributions represents behavior that would occur during an anomalous operation of a facility. However, the mean shift between the distribution would be difficult given that the shift is small compared to the standard deviation of the distributions.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You can verify this yourself by calculating an odds ratio using Bayesian principles. That is, for two normal distributions <span class="math notranslate nohighlight">\(\mathcal{N}(\mu_1, \sigma_1^2), \mathcal{N}(\mu_2, \sigma_2^2)\)</span>, the odds of belonging to <span class="math notranslate nohighlight">\(\mathcal{N}(\mu_1, \sigma_1^2)\)</span> over <span class="math notranslate nohighlight">\(\mathcal{N}(\mu_2, \sigma_2^2)\)</span> (assuming equal odds of MUF value being normal or off-normal) can be calculated as the radio of the two PDFs. While this isn’t an exactly true statement (the odds of a MUF value having equal odds of being normal or off-normal isn’t quite true), this is a simple way to illustrate the relationship between the shift in the mean of a MUF sequence and the standard deviation.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>The <a class="reference internal" href="guided_exercises.html"><span class="std std-doc">guided exercises</span></a> included in the documentation contain concrete examples of the impact of measurement error on the MUF distribution and overall detection probability.</p>
+</div>
+<a class="only-dark reference internal image-reference" href="_images/dist1.png"><img alt="_images/dist1.png" class="only-dark align-center" src="_images/dist1.png" style="width: 85%;" />
+</a>
+<a class="only-light reference internal image-reference" href="_images/dist1L.png"><img alt="_images/dist1L.png" class="only-light align-center" src="_images/dist1L.png" style="width: 85%;" />
+</a>
+<p>Now consider the same mean shift, but with a smaller standard deviation for both distributions. The overlap between the distributions has become notable smaller which makes discriminating between the two distributions easier. Any loss pattern, and thus the underlying anomalous MUF distribution, would be difficult to quantify in practice. However, this example should make clear that the uncertainty of the MUF sequence is an important factor in detecting material loss. There are a variety of techniques that can be applied to the MUF sequence to monitor for anomalous behavior, but all techniques are ultimately limited by the uncertainty.</p>
+<a class="only-dark reference internal image-reference" href="_images/dist2.png"><img alt="_images/dist2.png" class="only-dark align-center" src="_images/dist2.png" style="width: 85%;" />
+</a>
+<a class="only-light reference internal image-reference" href="_images/dist2L.png"><img alt="_images/dist2L.png" class="only-light align-center" src="_images/dist2L.png" style="width: 85%;" />
+</a>
+</section>
+<section id="sigmamuf">
+<h3><span class="math notranslate nohighlight">\(\sigma\)</span>MUF<a class="headerlink" href="#sigmamuf" title="Link to this heading">#</a></h3>
+<p><span class="math notranslate nohighlight">\(\sigma\)</span>MUF, or the uncertainty in the MUF sequence is an important metric given it’s impact on the probability of detection for anomalous conditions. It is important to quantify <span class="math notranslate nohighlight">\(\sigma\)</span>MUF given the connection to probability of detection. Regulatory stakeholders often implement limits on <span class="math notranslate nohighlight">\(\sigma\)</span>MUF for facilities. The following derivation below describes the analytical expression for <span class="math notranslate nohighlight">\(\sigma\)</span>muf.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For simplicity, the following derivation shows the calculation of a single entry of the <span class="math notranslate nohighlight">\(\sigma\)</span>MUF sequence (i.e., <span class="math notranslate nohighlight">\(\sigma\)</span>MUF<span class="math notranslate nohighlight">\(_i\)</span>). This calculation would need to be performed at each balance period to form the full <span class="math notranslate nohighlight">\(\sigma\)</span>MUF sequence. Note that the <span class="math notranslate nohighlight">\(\sigma\)</span>MUF sequence is as follows: <span class="math notranslate nohighlight">\(\sigma\text{MUF} = \{\sigma\text{muf}_0, \sigma\text{muf}_1, ..., \sigma\text{muf}_n  \} \\\)</span></p>
+</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}    
+    \sigma\text{muf}_i^2 &amp; = \text{var(muf_i)} \\
+\end{split}\]</div>
+<p>For simplicity we introduce the notation of <span class="math notranslate nohighlight">\(\sum_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{l,t} = I_{l}^*\)</span> and <span class="math notranslate nohighlight">\(\sum_{t=\text{MBP}_{i-1}}^{\text{MBP}_i} O_{l,t} = O_{l}^*\)</span> for the case of discrete input and outputs to denote the <em>total</em> input and output over the <span class="math notranslate nohighlight">\(i\)</span>-th material balance. It follows that</p>
+<div class="math notranslate nohighlight" id="equation-eqn-sigmamuf0">
+<span class="eqno">(4)<a class="headerlink" href="#equation-eqn-sigmamuf0" title="Link to this equation">#</a></span>\[
+    \sigma\text{muf}_i^2 = \text{var}\left( \sum_{l \in l_0} I_{l}^* - \sum_{l \in l_1} O_{l}^* - \sum_{l \in l_2}(C_{i,l} - C_{i-1, l}) \right)
+\]</div>
+<p>Substituting in the multiplicative error model for each term and starting with the input:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+    \text{var}\left(  I_{l}^*\right) &amp; = \text{var}(I_{\text{true}, l}^* * (1 + R_i + S_i)) \\
+    &amp; = \text{var}(I_{\text{true}, l}^* + I_{\text{true}, l}^*R_i + I_{\text{true}, l}^*S_i) \\
+    \\
+    &amp; = \text{cov}(I_{\text{true}, l}^* + I_{\text{true}, l}^*R_i + I_{\text{true}, l}^*S_i, I_{\text{true}, l}^* + I_{\text{true}, l}^*R_i + I_{\text{true}, l}^*S_i) \\
+    \\
+    &amp; = \text{cov}(I_{\text{true}, l}^*, I_{\text{true}, l}^*) 
+    + \text{cov}(I_{\text{true}, l}^*,  I_{\text{true}, l}^*R_i) 
+    + \text{cov}(I_{\text{true}, l}^*, I_{\text{true}, l}^*S_i)  \\
+    &amp; \phantom{=} + \text{cov}(I_{\text{true}, l}^*R_i, I_{\text{true}, l}^*) 
+    + \text{cov}(I_{\text{true}, l}^*R_i, I_{\text{true}, l}^*R_i)
+    + \text{cov}(I_{\text{true}, l}^*R_i, I_{\text{true}, l}^*S_i) \\
+    &amp; \phantom{=} + \text{cov}(I_{\text{true}, l}^*S_i, I_{\text{true}, l}^*) 
+    + \text{cov}(I_{\text{true}, l}^*S_i, I_{\text{true}, l}^*R_i)
+    + \text{cov}(I_{\text{true}, l}^*S_i, I_{\text{true}, l}^*S_i) \\
+\end{split}\]</div>
+<p>Note the following:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(I_{\text{true}, l}^*\)</span> behaves as a constant for a specific slice in time</p>
+<ul>
+<li><p>The true input won’t change at an instant in time regardless of how many times it is measured</p></li>
+</ul>
+</li>
+</ul>
+<p>Continuing on and zeroing out constant terms it follows that</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+    \text{var}\left(  I_{l}^*\right) &amp; = \text{var}(I_{\text{true}, l}^* * (1 + R_i + S_i)) \\
+    &amp; = \text{cov}(I_{\text{true}, l}^*R_i, I_{\text{true}, l}^*R_i) 
+    + \text{cov}(I_{\text{true}, l}^*R_i, I_{\text{true}, l}^*S_i) \\
+    &amp; \phantom{=} +  \text{cov}(I_{\text{true}, l}^*S_i, I_{\text{true}, l}^*R_i) 
+    + \text{cov}(I_{\text{true}, l}^*S_i, I_{\text{true}, l}^*S_i) \\\end{split}\]</div>
+<p>It’s generally assumed that the random and systematic errors are random variables, and consequently uncorrelated with each other, which leads to</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+    \text{var}\left(  I_{l}^*\right) &amp; = \text{var}(I_{\text{true}, l}^* * (1 + R_i + S_i)) \\
+    &amp; = \text{cov}(I_{\text{true}, l}^*R_i, I_{\text{true}, l}^*R_i) 
+    + \text{cov}(I_{\text{true}, l}^*S_i, I_{\text{true}, l}^*S_i) \\
+    &amp; = (I_{\text{true}, l}^*)^2 *\text{var}(R_i)  + (I_{\text{true}, l}^*)^2 *\text{var}(S_i) \\
+\end{split}\]</div>
+<p>As the true input, <span class="math notranslate nohighlight">\(I_{\text{true}, l}^*\)</span>, the variance of random variate <span class="math notranslate nohighlight">\(R_i\)</span>, and variance of systematic variate <span class="math notranslate nohighlight">\(S_i\)</span> cannot be known in practice, the observed inventory, <span class="math notranslate nohighlight">\({I_{l}^*}^2\)</span>, relative random standard deviation for location <span class="math notranslate nohighlight">\(l\)</span>, <span class="math notranslate nohighlight">\(\delta_{R,i}\)</span>, and relative systematic standard deviation for location <span class="math notranslate nohighlight">\(l\)</span>, <span class="math notranslate nohighlight">\(\delta_{S,i} \)</span>,  are substituted into the previous expression as an approximation leading to the final expression for the estimated variance of the input.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+    \text{var}\left(  I_{l}^*\right)  = &amp; \text{var}(I_{\text{true}, l}^* * (1 + R_i + S_i)) \\
+    &amp; \approx  (I_{l}^*)^2 * \left((\delta_{R,l})^2 + (\delta_{S,l})^2\right)
+\end{split}\]</div>
+<p>Assuming that each input location is uncorrelated, then it is possible to simply sum the variances for each location together such that</p>
+<div class="math notranslate nohighlight" id="equation-eqn-inpvar">
+<span class="eqno">(5)<a class="headerlink" href="#equation-eqn-inpvar" title="Link to this equation">#</a></span>\[
+ \text{var}\left(  \sum_{l \in l_0} I_{l}^*\right) \approx \sum_{l \in l_0} \left( \left(I_{l}^*\right)^2 * \left( (\delta_{R,l})^2 + (\delta_{S,l})^2 \right) \right)
+\]</div>
+<p>A similar exercise can be performed on the output term leading to the expression</p>
+<div class="math notranslate nohighlight" id="equation-eqn-outvar">
+<span class="eqno">(6)<a class="headerlink" href="#equation-eqn-outvar" title="Link to this equation">#</a></span>\[
+    \text{var}\left(  \sum_{l \in l_1} O_{l}^*\right) \approx \sum_{l \in l_1} \left( \left(O_{l}^*\right)^2 * \left( (\delta_{R,l})^2 + (\delta_{S,l})^2 \right) \right)
+\]</div>
+<p>The inventory term differs from the inputs and outputs since there is a temporal correlation between inventory <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(i-1\)</span>. Using the same reasoning as before</p>
+<div class="math notranslate nohighlight">
+\[
+    \text{var}\left(  C_{i,l} - C_{i-1, l} \right) = 
+    \text{var} \left(   (C_{\text{true},i,l} + 
+    C_{\text{true},i,l}R_i + C_{\text{true},i,l}S_i) - 
+    (C_{\text{true},i-1, l} + C_{\text{true},i-1, l}R_i + 
+    C_{\text{true},i-1, l}S_i)  \right)
+\]</div>
+<p>It is assumed that the constant values for inventories are uncorrelated, random and systematic errors are uncorrelated with each other, and random errors from different times are uncorrelated. <em>However,</em> systematic errors at the same location but different time, (i.e., <span class="math notranslate nohighlight">\(S_{i,l}\)</span> and <span class="math notranslate nohighlight">\(S_{i-1,l}\)</span>) are correlated as it is assumed there is no recalibration. This results in the expression below. Note the additional highlighted covariance term that arises correlated systematic errors between successive material balance periods.</p>
+<div class="only-dark math notranslate nohighlight">
+\[\begin{split} \text{var}\left(  C_{i,l} - C_{i-1, l} \right) &amp; = 
+ (C_{\text{true},i,l})^2 * (R_l^2 + S_l^2) \\
+ &amp; + (C_{\text{true},i-1,l})^2 * (R_l^2 + S_l^2) \\
+ &amp; - \colorbox{#5755aa}{$2(C_{\text{true},i-1,l})(C_{\text{true},i,l})S_l^2$}\end{split}\]</div>
+<div class="only-light math notranslate nohighlight">
+\[\begin{split}  \text{var}\left(  C_{i,l} - C_{i-1, l} \right) &amp; = 
+ (C_{\text{true},i,l})^2 * (R_l^2 + S_l^2) \\
+ &amp; + (C_{\text{true},i-1,l})^2 * (R_l^2 + S_l^2) \\
+ &amp; - \colorbox{#B0AED6}{$2(C_{\text{true},i-1,l})(C_{\text{true},i,l})S_l^2$}\end{split}\]</div>
+<p>This is again approximated using the actual measured values as the true values are unobservable and is summed across locations.</p>
+<div class="math notranslate nohighlight" id="equation-eqn-invvar">
+<span class="eqno">(7)<a class="headerlink" href="#equation-eqn-invvar" title="Link to this equation">#</a></span>\[\begin{split}
+    \text{var}\left(   \sum_{l \in l_2} (C_{i,l} - C_{i-1, l})  \right) &amp; \approx  
+    \sum_{l \in l_2} (C_{i,l})^2 * \left( (\delta_{R,l})^2 + (\delta_{S,l})^2 \right) \\
+    &amp; + \sum_{l \in l_2} (C_{i-1,l})^2 * \left((\delta_{R,l})^2 + (\delta_{S,l})^2\right)\\
+    &amp; - \sum_{l \in l_2} 2(C_{i-1,l})(C_{i,l})(\delta_{S,l})^2\\
+\end{split}\]</div>
+<p>Substituting expressions for variance of input  <a class="reference internal" href="#equation-eqn-inpvar">(5)</a>, inventory <a class="reference internal" href="#equation-eqn-invvar">(7)</a>, and output <a class="reference internal" href="#equation-eqn-outvar">(6)</a> into the definition of <span class="math notranslate nohighlight">\(\sigma\)</span>muf from <a class="reference internal" href="#equation-eqn-sigmamuf0">(4)</a>  yields the final expression <a class="reference internal" href="#equation-eqn-sigmamuf1">(8)</a> below. Note that <span class="math notranslate nohighlight">\(\sigma\)</span>muf is the square root of <a class="reference internal" href="#equation-eqn-sigmamuf1">(8)</a> as <a class="reference internal" href="#equation-eqn-sigmamuf1">(8)</a> expresses the <em>variance</em>.</p>
+<div class="math notranslate nohighlight" id="equation-eqn-sigmamuf1">
+<span class="eqno">(8)<a class="headerlink" href="#equation-eqn-sigmamuf1" title="Link to this equation">#</a></span>\[\begin{split}
+    \sigma\text{muf}_i^2 &amp; \approx 
+    \sum_{l \in l_0} \left( (I_{l}^*)^2 * ((\delta_{R,l})^2 +   (\delta_{S,l})^2) \right) +
+     \sum_{l \in l_2} \left( (C_{i,l})^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) \\
+     &amp; + \sum_{l \in l_2} \left( (C_{i-1,l})^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right)
+     - \sum_{l \in l_2} \left( 2*(C_{i-1,l})(C_{i,l})(\delta_{S,l})^2 \right)\\
+    &amp;  + \sum_{l \in l_1} \left( (O_{l}^*)^2 * \left((\delta_{R,l})^2 + (\delta_{S,l})^2 \right) \right)
+\end{split}\]</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This assumes one strata for each measurement. That is, an item or flow is measured once when it has the same attributes. Performing multiple measurements on the same strata will reduce the relative standard deviation terms by approximately <span class="math notranslate nohighlight">\(\frac{1}{n}\)</span> and should be accounted for in the <span class="math notranslate nohighlight">\(\sigma\)</span>muf calculation accordingly.</p>
+</div>
+<p>Equation <a class="reference internal" href="#equation-eqn-sigmamuf1">(8)</a> can be expanded by replacing the inputs and outputs with their non-integrated quantities. This is done to better illustrate the different components that are calculated in MAPIT.</p>
+<div class="math notranslate nohighlight" id="equation-eqn-sigmamuf2">
+<span class="eqno">(9)<a class="headerlink" href="#equation-eqn-sigmamuf2" title="Link to this equation">#</a></span>\[\begin{split}
+    \sigma\text{muf}_i^2 &amp; \approx 
+    \sum_{l \in l_0} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{l,t}\right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) 
+    + \sum_{l \in l_2} \left( (C_{i,l})^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) \\
+    &amp; + \sum_{l \in l_2} \left( (C_{i-1,l})^2 * ((\delta_{R,l})^2 +  (\delta_{S,l})^2)  \right)
+     - \sum_{l \in l_2} \left( 2C_{i-1,l}C_{i,l}(\delta_{S,l})^2  \right) \\
+    &amp;  + \sum_{l \in l_1} \left( \left( \int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i} O_{l,t} \right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right)
+\end{split}\]</div>
+</section>
+</section>
+<section id="discussion">
+<h2>Discussion<a class="headerlink" href="#discussion" title="Link to this heading">#</a></h2>
+<p>Much of the traditional literature and research around material balances and associated testing was developed in the 1980s. The relevant seminal papers are listed in the <a class="reference internal" href="#further-reading"><span class="xref myst">additional resources</span></a> portion of this document. There are a few key points from these papers that are important to note.</p>
+<p>A natural inclination to improve performance of any testing on the material balance would be to reduce the overall uncertainty through 1) smaller material balance areas which result in smaller inventory terms, 2) more frequent material balance frequency resulting in smaller input and output terms, or 3) some combination of the two. <a class="reference external" href="https://resources.inmm.org/jnmm/subdividing-material-balances-time-andor-space">Avenhaus and Jaech</a> considered this question and found that none of those procedures necessarily lead to better performance, and in some instances, might lead to a <em>lower</em> detection sensitivity. The work by Avenhaus and Jaech was particularly notable as it lead to several important findings:</p>
+<ul class="simple">
+<li><p>Considering a statistical test with maximum test power (i.e., a test with the highest probability of detection for any loss of material of a particular size) applied to a fix length of time, the <strong>optimal test is one that ignores intermediate balance evaluations</strong>. Put another way, the optimal test for a loss of material over a fixed period of time is one that considers the sum of all intermediate MUF values. This is the same as if no intermediate MUF values had been taken; as if the balance was conducted over the entire period of interest. <strong>This applies to protracted, but not abrupt, losses</strong>. Here, protracted loss is one that occurs over multiple balance periods or areas.</p>
+<ul>
+<li><p>Concrete example; there might be a regulatory goal for detecting a loss within 3 months. The optimal statistical test would be a balance over a 3 month period; performing a monthly balance provides no benefit with respect to maximum detection probability of a loss over a three month period.</p></li>
+</ul>
+</li>
+<li><p>Combining intermediate MUF values in some optimal way, perhaps as a weighted average, still results in a lower detection probability than a global MUF that only considers the beginning and ending states.
+* An important exception here is that this statement only applies to the <em>unknown</em> loss pattern. Performance improvements can be seen with an optimally ordered MUF sequence if the loss pattern is known, but in practice, the loss pattern is never known</p></li>
+<li><p>Even applying statistical tests to each intermediate MUF value and then linearly combining the results (as opposed to a test on the combined MUF values) still results in a lower detection probability than a test on a global MUF.</p></li>
+</ul>
+<p>Further, Avenhaus and Jaech showed that not only do these statements apply to time (i.e., different material balance periods), but <em>also to space</em>. Subdividing a material balance area provides no benefit in terms of detection probability, and perhaps even decrease detection probability, compared a test on the larger material balance.  These statements also assume a fixed false alarm probability.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Avenhaus and Jaech’s work applied <em>only</em> to the probability of detection. There are other benefits to subdividing material balances into smaller units of time or space; principally to localize a potential material loss in space or time, but this comes at a cost to detection probability, specifically for protracted losses that are split over multiple balances or areas. Again, this statement applies only to <em>protracted</em> losses, not abrupt. Avenhaus and Jaech’s work only considered random errors, but <a class="reference external" href="https://onlinelibrary.wiley.com/doi/10.1155/2013/961360">Burr and Hamada</a> later went on to show that the inclusion of systematic error does not change the limitations of subdividing material balance areas (i.e., probability of detection does not increase for more frequent balances and smaller balance areas).</p>
+</div>
+<section id="material-balance-iterations">
+<h3>Material balance iterations<a class="headerlink" href="#material-balance-iterations" title="Link to this heading">#</a></h3>
+<p>In practice, only one material balance sequence, <span class="math notranslate nohighlight">\(\text{MUF} = \{ \text{muf}_0, \text{muf}_1, ... \text{muf}_n \}\)</span>, can be observed. Following discussion from the error models, it is often advantageous to estimate the performance of a safeguards system by performing statistical analyses and determining probabilities of detection. It would be very difficult to estimate probability of detection for a facility using experimental data alone. However, simulation tools can help provide these estimates.  MUF and <span class="math notranslate nohighlight">\(\sigma\)</span>MUF can subsequently be represented as 2D matrix such that one dimension represents the MUF sequence in time and the other dimension represents different draws of random variates from the error model. Later sections will have additional discussion on the topic of this matrix representation, but for now, it is important to note this concept as this is how MAPIT calculates MUF and <span class="math notranslate nohighlight">\(\sigma\)</span>MUF.</p>
+<div class="math notranslate nohighlight" id="equation-eqn-mufdist">
+<span class="eqno">(10)<a class="headerlink" href="#equation-eqn-mufdist" title="Link to this equation">#</a></span>\[\begin{split}
+    \boldsymbol{\text{MUF}} = \{  \boldsymbol{\text{muf}}_0, \boldsymbol{\text{muf}}_1, ... \boldsymbol{\text{muf}}_n  \} \\
+        \boldsymbol{\sigma\text{MUF}} = \{\boldsymbol{\sigma\text{muf}}_0,\boldsymbol{\sigma\text{muf}}_1, ... \boldsymbol{\sigma\text{muf}}_n\}
+\end{split}\]</div>
+</section>
+</section>
+<section id="muf-implementation">
+<h2>MUF implementation<a class="headerlink" href="#muf-implementation" title="Link to this heading">#</a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Note that this function is not intended to be used standalone through direct calls, rather, it is designed to be called through the <code class="docutils literal notranslate"><span class="pre">MBArea</span></code> class of <code class="docutils literal notranslate"><span class="pre">StatsProcessor</span></code>.</p>
+</div>
+<p>The MAPIT implementation of MUF is  the first function in <code class="docutils literal notranslate"><span class="pre">MAPIT.core.StatsTests</span></code>. The MUF calculation requires a few key variables:</p>
+<ul class="simple">
+<li><p>Input, inventory, and output measurements</p></li>
+<li><p>Input, inventory, and output times</p>
+<ul>
+<li><p>Together the measurements and times should from a timeseries. The time entries should represent the time at which the measurement is taken and should monotonically increase. So a measurement taken at the start is t=0 and a measurement taken one day later should be t=24 (hours) or t=1440 (minutes), etc. There are no unit requirements, but the timeseries should all use the same units of time.</p></li>
+</ul>
+</li>
+<li><p>Material balance period</p>
+<ul>
+<li><p>This should have the same units as the input, inventory, and output time</p></li>
+</ul>
+</li>
+</ul>
+<p>Since each measurement provided to MAPIT could potentially have a different length and/or number of time steps, we first determine the maximum timestep:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">117</span>    <span class="c1">#out how long the imported data is</span>
+<span class="linenos">118</span>    <span class="c1">#as it cannot be assumed (len(data)) = time</span>
+<span class="linenos">119</span>
+<span class="linenos">120</span>    <span class="n">iterations</span> <span class="o">=</span> <span class="n">inputAppliedError</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="linenos">121</span>
+<span class="linenos">122</span>    <span class="n">A1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">processedInputTimes</span><span class="p">))))</span>  <span class="c1">#unroll list</span>
+</pre></div>
+</div>
+<p>MAPIT calculates the entire MUF and  <span class="math notranslate nohighlight">\(\sigma\)</span>MUF sequence (i.e., Equation <a class="reference internal" href="#equation-eqn-mufdist">(10)</a> ) which results in a 2D matrix that has a shape (iterations, MBPs) where iterations is the number of iterations/draws from the error model over the total length of the data and MPBs is the total number of balance periods for the dataset.</p>
+<div class="tip admonition">
+<p class="admonition-title">Example</p>
+<p>Consider the following example</p>
+<ul class="simple">
+<li><p>MBP = 100</p></li>
+<li><p>Largest time in dataset: 670</p></li>
+<li><p>Iterations: 25</p></li>
+</ul>
+<p>MAPIT will calculate a <span class="math notranslate nohighlight">\(\text{MUF}\)</span> sequence that is 6 balance periods long (0:100, 100:200, 200:300, 300:400, 400:500, 500:600). Since iterations are specified to be 25, MAPIT will perform the calculation of Equation <a class="reference internal" href="#equation-eqn-muf0">(3)</a>  25 times, each time, drawing a different set of random variates from the multiplicative error model with relative standard deviations that were specified by the user. The MUF value returned by MAPIT will have a shape of [25, 600].</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>MAPIT represents periodic statistical quantities as continuous, so although there are only 6 balance periods, this is represented as 600 timesteps (once per unit time). Each material balance iteration (i.e., slice [n, 0:600]) will only have 6 unique values that are held constant between material balance updates.</p>
+</div>
+</div>
+<div class="docutils">
+<p>MAPIT calculates the distribution of MUF values (i.e., <span class="math notranslate nohighlight">\(\boldsymbol{\text{MUF}} = \{\text{MUF}_0, \text{MUF}_1, ... \text{MUF}_n\}\)</span>) using the equation for individual <span class="math notranslate nohighlight">\(\text{muf}_i\)</span> values (Equation <a class="reference internal" href="#equation-eqn-muf1">(1)</a> or <a class="reference internal" href="#equation-eqn-muf2">(2)</a>). There are three dimensions that require iteration; time (the number of balance periods), locations (multiple input/inventory/output terms) and iterations (unique draws of the multiplicative error model). The only component that can be effectively vectorized is the iterations component as the potential for non-uniform sampling rates as a function of time and/or locations require consideration of each component individually. The MUF calculation still remains fairly quick in spite of a largely non-vectorized solution as the underlying computations are fairly trivial.</p>
+<blockquote>
+<div><p>At a high level, MAPIT vectorizes the error model iterations, but uses a for-loop to iterate over the location and time components.</p>
+</div></blockquote>
+<p>Of the two loops (balance periods and locations), MAPIT uses the time component as the outer for-loop and locations as the inner for-loop.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The outer time loop is indexed from <code class="docutils literal notranslate"><span class="pre">i</span></code> to <code class="docutils literal notranslate"><span class="pre">MBPs</span></code> rather than starting at zero. This facilitated more understandable indexing, particularly when slicing some of the time indices, but runs counter to the standard python notation that indices start at 0.</p>
+</div>
+</div>
+<p>The outer for-loop is defined as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">150</span>    <span class="c1">#-------------------------------------------------------------------------------#</span>
+</pre></div>
+</div>
+<p>The outer loop calculates the muf<span class="math notranslate nohighlight">\(_i\)</span> (assuming that the input and outputs are flows):</p>
+<div class="only-dark math notranslate nohighlight">
+\[\text{muf}_i =   \colorbox{#5755aa}{$\sum_{l \in l_0}$}\colorbox{#A2782A}{$\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}$}I_{t,l} -  \colorbox{#5755aa}{$\sum_{l \in l_1}$}\colorbox{#A2782A}{$\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}$}O_{t,l} -   \colorbox{#5755aa}{$\sum_{l \in l_2}$}(C_{i,l} - C_{i-1, l})\]</div>
+<div class="only-light math notranslate nohighlight">
+\[ \text{muf}_i =   \colorbox{#B0AED6}{$\sum_{l \in l_0}$}\colorbox{#EAD5AE}{$\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}$}I_{t,l} -  \colorbox{#B0AED6}{$\sum_{l \in l_1}$}\colorbox{#EAD5AE}{$\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}$}O_{t,l} -   \colorbox{#B0AED6}{$\sum_{l \in l_2}$}(C_{i,l} - C_{i-1, l})\]</div>
+<p>The <span style="color:#5755aa">summation component</span> represents the inner for-loop and is split across three separate loops, each representing the measurement type:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">154</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">174</span>            <span class="n">processedInputTimes</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">MBP</span> <span class="o">*</span> <span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>  
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">192</span>          <span class="k">if</span> <span class="n">ispar</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>The <span style="color:#A2782A">integral component</span>, assumed to be flows in units of mass/time, need to be integrated before they can used in the balance calculation. This is done using a customized trapezoidal integration routine, <code class="docutils literal notranslate"><span class="pre">MAPIT.core.AuxFunctions.trapSum</span></code>, which is explained in more depth in the <a class="reference internal" href="ComputeTheory.html"><span class="std std-doc">computational considerations</span></a> part of this guide.</p>
+<p>The relevant segment of time corresponding to <span class="math notranslate nohighlight">\([\text{MBP}_{t-1}, \text{MBP}_t]\)</span> must be determined before the integration is performed. This is represented by the <code class="docutils literal notranslate"><span class="pre">logicalInterval</span></code> variable (note that the interval for the input terms is shown, but it is also calculated for the output terms):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">164</span>        <span class="k">if</span> <span class="n">doTQDM</span><span class="p">:</span>
+<span class="linenos">165</span>          <span class="k">if</span> <span class="n">ispar</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+<span class="linenos">166</span>            <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The relevant times for the current balance period must also be identified for the inventory, but the procedure is easier as only the start and end points of the time series need to be identified, not all values in the interval. This is because the inventories, already assumed to be in the correct mass units, do not need to be integrated and can be subtracted (i.e., <span class="math notranslate nohighlight">\(C_{i,l} - C_{i-1, l}\)</span>).</p>
+<p>Finally, all of the components are combined and MAPIT iterates over material balance periods and locations to calculate <strong>MUF</strong>.</p>
+</section>
+<section id="sigmamuf-implementation">
+<h2><span class="math notranslate nohighlight">\(\sigma\)</span>MUF implementation<a class="headerlink" href="#sigmamuf-implementation" title="Link to this heading">#</a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The final expression for <span class="math notranslate nohighlight">\(\sigma\)</span>MUF derived in Equation <a class="reference internal" href="#equation-eqn-sigmamuf2">(9)</a> includes a covariance term that accounts for the shared systematic bias across two successive balance periods (assuming no recalibration). However, <strong>the MAPIT implementation of <span class="math notranslate nohighlight">\(\sigma\)</span>MUF does not include the shared covariance term</strong>. In practice, <span class="math notranslate nohighlight">\(\sigma\)</span>MUF is calculated as a sum of squared errors and neglects covariance. MAPIT consequently uses this more conservative estimate to be better aligned with the state of practice in material accountancy.</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Note that this function is not intended to be used standalone through direct calls, rather, it is designed to be called through the <code class="docutils literal notranslate"><span class="pre">MBArea</span></code> class of <code class="docutils literal notranslate"><span class="pre">StatsProcessor</span></code>.</p>
+</div>
+<p>The implementation of <span class="math notranslate nohighlight">\(\sigma\)</span>MUF follows much of the logic used in the material balance calculation;</p>
+<ul class="simple">
+<li><p>The entire sequence from Equation <code class="xref eq docutils literal notranslate"><span class="pre">mufdist</span></code> is calculated</p></li>
+<li><p>Input, inventory, and output terms are considered separately</p></li>
+<li><p>Time components are vectorized whereas locations and balance periods are expressed in explicit floor loops</p></li>
+</ul>
+<p>The structure of the calculation is identical to that of MUF. The key deference is the quantity calculated, here <span class="math notranslate nohighlight">\(\sigma\)</span>muf<span class="math notranslate nohighlight">\(_i\)</span> is calculated, instead of muf<span class="math notranslate nohighlight">\(_i\)</span>.  Recall that <span class="math notranslate nohighlight">\(\sigma\text{muf}_i\)</span> is calculated as follows (noting that we are ignoring the covariance term):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+    \sigma\text{muf}_i^2 &amp; \approx 
+    \sum_{l \in l_0} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{l,t}\right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) 
+    + \sum_{l \in l_2} \left( (C_{i,l})^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) \\
+    &amp; + \sum_{l \in l_2} \left( (C_{i-1,l})^2 * ((\delta_{R,l})^2 +  (\delta_{S,l})^2)  \right) \\
+    &amp;  + \sum_{l \in l_1} \left( \left( \int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i} O_{l,t} \right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right)
+\end{split}\]</div>
+<p>Following from the muf calculation, integral terms are integrated using <code class="docutils literal notranslate"><span class="pre">MAPIT.core.AuxFunctions.trapSum</span></code> with locations and balance periods iterated over using a for loop. It is often desireable to track the contribution to <span class="math notranslate nohighlight">\(\sigma\)</span>MUF by component, so MAPIT rearranges each term slightly to better track each component. For example, the inventory term is expressed as follows:</p>
+<div class="only-dark math notranslate nohighlight">
+\[\sum_{l \in l_2} \left( \colorbox{#5755aa}{$((C_{i,l})^2 + (C_{i-1,l})^2) * (\delta_{R,l})^2$} + \colorbox{#A2782A}{$((C_{i,l})^2 + (C_{i-1,l})^2) * (\delta_{S,l})^2$} \right)\]</div>
+<div class="only-light math notranslate nohighlight">
+\[\sum_{l \in l_2} \left( \colorbox{#B0AED6}{$((C_{i,l})^2 + (C_{i-1,l})^2) * (\delta_{R,l})^2$} + \colorbox{#EAD5AE}{$((C_{i,l})^2 + (C_{i-1,l})^2) * (\delta_{S,l})^2$} \right)\]</div>
+<p>Here, the <span style="color:#5755aa">random</span> and <span style="color:#A2782A">systematic</span> contributions can be tracked separately. The input and output terms are calculated in a similar way, but only the input term will be discussed for brevity.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">490</span>        <span class="n">pbar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Sigma MUF&quot;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">totalloops</span><span class="p">),</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bar_format</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{desc:10}</span><span class="s2">: </span><span class="si">{percentage:06.2f}</span><span class="s2">% |</span><span class="si">{bar}</span><span class="s2">|  [Elapsed: </span><span class="si">{elapsed}</span><span class="s2"> || Remaining: </span><span class="si">{remaining}</span><span class="s2">]&quot;</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="linenos">491</span>
+<span class="linenos">492</span>
+<span class="linenos">493</span>      <span class="n">InpVar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">iterations</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">MBPs</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">)))</span>
+<span class="linenos">494</span>      <span class="n">InvVar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">iterations</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">MBPs</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">)))</span>
+<span class="linenos">495</span>      <span class="n">OutVar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">iterations</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">MBPs</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">)))</span>
+<span class="linenos">496</span>
+<span class="linenos">497</span>      <span class="c1">#-------------------------------------------------------------------------------#</span>
+<span class="linenos">498</span>      <span class="c1">#------------------------------  SEID Calculation  -----------------------------#</span>
+<span class="linenos">499</span>      <span class="c1">#-------------------------------------------------------------------------------#</span>
+<span class="linenos">500</span>
+</pre></div>
+</div>
+<p>First, the input term is integrated. Then the integral quantity and user supplied relative standard deviations are squared and summed. These are added together and ‘‘tiled’’. Variables <code class="docutils literal notranslate"><span class="pre">VR</span></code> and <code class="docutils literal notranslate"><span class="pre">VS</span></code> are a vector with length equal to iterations and must be ‘‘tiled’’ for all time steps in the given balance. The contribution components are then stored in a separate array. This process repeats for all locations and balance periods.</p>
+<p>The inventory calculation proceeds in a similar manner but differs in that the first and subsequent balance period calculations differ. The previous inventory during the first balance is assumed to be zero, and rather than trying to account for that in the array by prepending a series of zeros, MAPIT simply drops that term. This is implemented by checking if the first balance period is being calculated (<code class="docutils literal notranslate"><span class="pre">i==1</span></code>), and if so, not including <code class="docutils literal notranslate"><span class="pre">inventoryAppliedError[j][:,</span> <span class="pre">startIdx]</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">518</span>
+<span class="linenos">519</span>
+<span class="linenos">520</span>          <span class="k">if</span> <span class="n">inputTypes</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;continuous&#39;</span><span class="p">:</span>
+<span class="linenos">521</span>            <span class="n">AFTS</span> <span class="o">=</span> <span class="n">AuxFunctions</span><span class="o">.</span><span class="n">trapSum</span><span class="p">(</span><span class="n">logicalInterval</span><span class="p">,</span><span class="n">processedInputTimes</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="n">inputAppliedError</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+<span class="linenos">522</span>          <span class="k">elif</span> <span class="n">inputTypes</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;discrete&#39;</span><span class="p">:</span>
+<span class="linenos">523</span>            <span class="n">AFTS</span> <span class="o">=</span> <span class="n">inputAppliedError</span><span class="p">[</span><span class="n">j</span><span class="p">][:,</span> <span class="n">logicalInterval</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">524</span>          <span class="k">else</span><span class="p">:</span>
+<span class="linenos">525</span>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;inputTypes[j] is not &#39;continuous&#39; or &#39;discrete&#39;&quot;</span><span class="p">)</span>
+<span class="linenos">526</span>          
+<span class="linenos">527</span>          <span class="n">VR</span> <span class="o">=</span> <span class="n">AFTS</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+<span class="linenos">528</span>          <span class="n">VS</span> <span class="o">=</span> <span class="n">AFTS</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
+<span class="linenos">529</span>
+</pre></div>
+</div>
+</section>
+<section id="further-reading">
+<h2>Further reading<a class="headerlink" href="#further-reading" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.jstor.org/stable/2981719">Speed and Culpin</a></p></li>
+<li><p><a class="reference external" href="https://resources.inmm.org/jnmm/subdividing-material-balances-time-andor-space">Avenhaus and Jaech</a></p></li>
+<li><p><a class="reference external" href="https://link.springer.com/referenceworkentry/10.1007/978-0-387-98149-9_29#Sec1_29">Handbook of Nuclear Engineering: Proliferation Resistance and Safeguards</a></p></li>
+<li><p><a class="reference external" href="https://digital.library.unt.edu/ark:/67531/metadc1086101/m2/1/high_res_d/5557057.pdf">Picard</a></p></li>
+<li><p><a class="reference external" href="https://onlinelibrary.wiley.com/doi/10.1155/2013/961360">Revisiting statistical aspects of NMA - Burr</a></p></li>
+<li><p><a class="reference external" href="https://inis.iaea.org/collection/NCLCollectionStore/_Public/21/068/21068554.pdf">Fundamentals of materials accounting for nuclear safeguards</a></p></li>
+<li><p><a class="reference external" href="https://inis.iaea.org/search/search.aspx?orig_q=RN:18086541">Jones 1</a></p>
+<ul>
+<li><p>Pages 402-408</p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://esarda.jrc.ec.europa.eu/publications/esarda-bulletin-n7_en">Jones 2</a></p>
+<ul>
+<li><p>Pages 19-22</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ErrorTheory.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Error model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="CumufTheory.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">CuMUF</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#historical-context">Historical context</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theory">Theory</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#muf">MUF</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sigmamuf"><span class="math notranslate nohighlight">\(\sigma\)</span>MUF</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#discussion">Discussion</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#material-balance-iterations">Material balance iterations</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#muf-implementation">MUF implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sigmamuf-implementation"><span class="math notranslate nohighlight">\(\sigma\)</span>MUF implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#further-reading">Further reading</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sandia Nuclear Fuel Cycle and Safeguards Group
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, National Technology and Engineering Solutions of Sandia, LLC (NTESS).
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -17,7 +17,7 @@ Exercises so far have focused on guided examples of MAPIT functionality. Here, y
 ## Objective
 ---
 
-Start by loading the `SNL curated dataset` labeled `protracted loss`. Your goal is to determine the optimal uncertainties to obtain a **70% detection rate** and **5% false alarm probability** using Page's trend test on Uranium. Start with the baseline assumption of 3% measurement uncertainties.  
+Start by loading the `SNL curated dataset` labeled `protracted loss`. Your goal is to determine the optimal uncertainties to obtain a **70% detection rate** and **5% false alarm probability** using Page's trend test on Uranium. Start with the baseline assumption of 3% measurement uncertainties.  Assume no recalibration period.
 
 An optimal solution will consist of the cheapest set of sensors that can reach the goals stated above.
 

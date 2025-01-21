@@ -2,9 +2,19 @@
 
 ---
 
-:::{versionchanged} 1.40.0
+:::{versionadded} 1.4.6
+   Added the capability to handle both continuous (e.g., signals) and discrete (e.g., entities) separately. The GUI will now prompt you to select the type of data you are analyzing. The API also includes a separate argument to handle the two types of data. See the API documentation for further details.
+:::
+
+:::{versionadded} 1.4.6
+   Added the capability to specify a recalibration period. This effectively recalculates the systematic error periodically. This capability is available in the GUI (in the error specification pane) and the API. See the API documentation for further details.
+:::
+
+:::{versionchanged} 1.4.0
    API breaking changes! Instead of accessing statistical tests directly, a new object, ``MBArea``, is the preferred way to perform analyses using the API. The ``StatsTests`` module is provided to show implementation details, but it is expected that users instead user ``MBArea`` functions. See the API example notebooks for more details.
 :::
+
+
 
 MAPIT (Material Accountancy Performance Indicator Toolkit) is a Python package designed to aid in safeguards analysis of bulk materials. The inherent flexibility is designed to allow safeguards practitioners ask the "what if?" questions while providing transparency into commonly employed statistical tests. 
 
