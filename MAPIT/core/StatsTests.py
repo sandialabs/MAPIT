@@ -360,7 +360,7 @@ def CUMUF(MUF,GUIObject=None,doTQDM=True, ispar=False):
     doTQDM = False  
 
   z = np.diff(MUF[0,])
-  idxs = np.concatenate(([0,],np.argwhere(z!=0).squeeze(),[int(MUF.shape[1]-1),])).astype(int)
+  idxs = np.concatenate(([0,],np.argwhere(z!=0).squeeze().reshape((-1,)),[int(MUF.shape[1]-1),])).astype(int)
   cumuf = np.zeros_like(MUF)
 
   if doTQDM and ispar == False:
