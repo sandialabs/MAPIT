@@ -154,8 +154,18 @@ def trapSum(relevantIndex, time, data, IT=None, baseline_zero=1e-10):
     # zero length pairs can occur in some
     # edge cases where pulses have just started
     # or ended and the pulse is undefined
+
+    # NOTE: 7/8/2024
+    # changed to be GEQ as pairs
+    # that are greater than one
+    # are erronous and occur when
+    # the last time step of a series
+    # is non-zero but the proceding is zero;
+    # this is a undefined quantity for the integral
+    # (since it's a point not an area) and should
+    # be discarded
     for Q in range(len(pairs)):
-        if pairs[Q, 0] - pairs[Q, 1] == 0:
+        if pairs[Q, 0] - pairs[Q, 1] >= 0:
             rowfordelete.append(Q)
 
     rowfordelete = np.asarray(rowfordelete).astype(int)

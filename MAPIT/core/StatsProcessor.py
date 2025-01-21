@@ -1,6 +1,5 @@
 import ray
 import numpy as np
-from tqdm import tqdm
 from MAPIT.core import StatsTests as Tests
 from MAPIT.core import Preprocessing, AuxFunctions
 import os
@@ -8,7 +7,7 @@ import logging
 os.environ["RAY_verbose_spill_logs"] = "0"
 
 import MAPIT
-
+from tqdm import tqdm
 def to_iterator(obj_ids):
     while obj_ids:
         done, obj_ids = ray.wait(obj_ids)
@@ -40,6 +39,17 @@ class MBArea(object):
 
             mbaTime (int): The material balance period. 
 
+
+            inputTypes (list of strings): Defines the type of input. This should be a list of strings that is the same length as the number of input locations. The strings should be one of the following: `'discrete'` or `'continuous'`.
+
+            outputTypes (list of strings): Defines the type of output. This should be a list of strings that is the same length as the number of output locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
+
+            inputCalibrationPeriod (list of float, default=None): List of floats of length M describing the calibration period for each location in `rawInput`. If not supplied, no recalibration is performed and it is assumed a single calibration period is applied to the length of the data.
+
+            inventoryCalibrationPeriod (list of float, default=None): List of floats of length M describing the calibration period for each location in `rawInventory`. If not supplied, no recalibration is performed and it is assumed a single calibration period is applied to the length of the data.
+
+            outputCalibrationPeriod (list of float, default=None): List of floats of length M describing the calibration period for each location in `rawOutput`. If not supplied, no recalibration is performed and it is assumed a single calibration period is applied to the length of the data.
+
             iterations (int, default=1): Number of statistical realizations.
 
             doPar(bool, default=False): Controls the use of parallel processing provided by Ray. If used, progress can be monitored on a local dashboard that is accessible at http://127.0.0.1:8265. 
@@ -63,8 +73,9 @@ class MBArea(object):
 
     """
     def __init__(self,rawInput, rawInventory, rawOutput, rawInputTimes, rawInventoryTimes, rawOutputTimes,
-                 inputErrorMatrix, inventoryErrorMatrix, outputErrorMatrix, mbaTime, iterations=1, dopar=False, ncpu=1, nbatch=1,
-                 GUIObject=None,dataOffset=0,rebaseToZero=True, doTQDM=True):
+                 inputErrorMatrix, inventoryErrorMatrix, outputErrorMatrix, mbaTime, inputTypes, outputTypes, inputCalibrationPeriod=None, inventoryCalibrationPeriod=None,
+                 outputCalibrationPeriod=None, iterations=1, dopar=False, ncpu=1, nbatch=1,
+                 GUIObject=None,dataOffset=0,rebaseToZero=True, doTQDM=True, ):
         
 
         # make sure data is present
@@ -89,6 +100,24 @@ class MBArea(object):
         self.nbatch = nbatch
         self.doTQDM = doTQDM
         self.GUIObject = GUIObject
+
+        self.inputCalibrationPeriod = inputCalibrationPeriod
+        self.inventoryCalibrationPeriod = inventoryCalibrationPeriod
+        self.outputCalibrationPeriod = outputCalibrationPeriod
+
+        # check to see if data format is provided
+        # valid types are 'continuous' and 'discrete'
+        if inputTypes is None:
+            self.inputTypes  = ['continuous']*len(rawInput)
+        else:
+            self.inputTypes = inputTypes       
+
+
+        if outputTypes is None:
+            self.outputTypes  = ['continuous']*len(rawOutput)
+        else:
+            self.outputTypes = outputTypes
+
 
         self.processedInput, self.processedInputTimes, \
         self.processedInventory, self.processedInventoryTimes, \
@@ -173,7 +202,10 @@ class MBArea(object):
                             MBP = self.mbaTime,
                             doTQDM = self.doTQDM,
                             ispar = False,
-                            GUIObject = self.GUIObject)
+                            GUIObject = self.GUIObject,
+                            inputTypes=self.inputTypes,
+                            outputTypes=self.outputTypes
+                            )
             
         # if parallel
         else:
@@ -219,7 +251,7 @@ class MBArea(object):
 
             if self.doTQDM:
                 for x in tqdm(to_iterator(tasklist),total=len(tasklist),desc="MUF", leave=True, 
-                    bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85):
+                    bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
                     pass
             
             res = ray.get(tasklist)
@@ -277,7 +309,9 @@ class MBArea(object):
                             MBP = self.mbaTime,
                             doTQDM = self.doTQDM,
                             ispar = False,
-                            GUIObject = self.GUIObject)
+                            GUIObject = self.GUIObject,
+                            inputTypes=self.inputTypes,
+                            outputTypes=self.outputTypes)
             
         # if parallel
         else:
@@ -327,7 +361,7 @@ class MBArea(object):
             # do the tasks
             if self.doTQDM:
                 for x in tqdm(to_iterator(tasklist),total=len(tasklist),desc="Active Inv", leave=True, 
-                                bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85):
+                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
                     pass
 
             res = ray.get(tasklist)
@@ -391,7 +425,9 @@ class MBArea(object):
                             ErrorMatrix = self.totalErrorMatrix,
                             doTQDM = self.doTQDM,
                             ispar = False,
-                            GUIObject = self.GUIObject)
+                            GUIObject = self.GUIObject,
+                            inputTypes=self.inputTypes,
+                            outputTypes=self.outputTypes)
             
         # if parallel
         else:
@@ -440,7 +476,7 @@ class MBArea(object):
             # do the tasks
             if self.doTQDM:
                 for x in tqdm(to_iterator(tasklist),total=len(tasklist),desc="Sigma MUF", leave=True, 
-                                bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85):
+                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
                     pass
             res = ray.get(tasklist)
             # TODO: check SEMUF for which vars are which since multiple returned
@@ -519,7 +555,9 @@ class MBArea(object):
                             MUF = self.MUF,
                             doTQDM = self.doTQDM,
                             ispar = False,
-                            GUIObject = self.GUIObject)
+                            GUIObject = self.GUIObject,
+                            inputTypes=self.inputTypes,
+                            outputTypes=self.outputTypes)
         else:
             # helpers for batching data
             idx1=0
@@ -562,7 +600,7 @@ class MBArea(object):
             # do the tasks
             if self.doTQDM:
                 for x in tqdm(to_iterator(tasklist),total=len(tasklist),desc="SITMUF", leave=True, 
-                                bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85):
+                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
                     pass
             
             res = ray.get(tasklist)
@@ -637,13 +675,17 @@ class MBArea(object):
         """
         if not self.dopar:
             self.inputAppliedError = Preprocessing.SimErrors(
-                                rawData = self.processedInput, 
+                                rawData = self.processedInput,
+                                times = self.processedInputTimes, 
+                                calibrationPeriod= self.inputCalibrationPeriod,
                                 ErrorMatrix =  self.inputErrorMatrix, 
                                 iterations = self.IT,
                                 GUIObject = self.GUIObject)
 
             self.inventoryAppliedError = Preprocessing.SimErrors(
                                         rawData = self.processedInventory,
+                                        times = self.processedInventoryTimes,
+                                        calibrationPeriod=self.inventoryCalibrationPeriod,
                                         ErrorMatrix =  self.inventoryErrorMatrix, 
                                         iterations = self.IT,
                                         GUIObject = self.GUIObject)
@@ -651,6 +693,8 @@ class MBArea(object):
 
             self.outputAppliedError = Preprocessing.SimErrors(
                                         rawData = self.processedOutput, 
+                                        times = self.processedOutputTimes,
+                                        calibrationPeriod=self.outputCalibrationPeriod,
                                         ErrorMatrix =  self.outputErrorMatrix, 
                                         iterations = self.IT,
                                         GUIObject = self.GUIObject)
@@ -697,7 +741,7 @@ class MBArea(object):
             # in order
             if self.doTQDM:
                 for x in tqdm(to_iterator(tasklist),total=len(tasklist),desc="Error Prop", leave=True, 
-                               bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85):
+                               bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
                     pass
 
             res = ray.get(tasklist)

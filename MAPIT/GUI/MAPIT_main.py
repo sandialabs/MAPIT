@@ -28,7 +28,7 @@ import numpy as np
 import time
 from platformdirs import user_config_dir, user_data_dir
 import site
-
+import re
 
 
 
@@ -48,14 +48,13 @@ class GUIopts:
 class DataHolder:
   pass
 
-
 class customExecp(Exception):
   pass
 #https://stackoverflow.com/questions/19442443/busy-indication-with-pyqt-progress-bar
 
 
 GUIparams = GUIopts(False, True)
-GUIparams = GeneralOps.loadGUILabels(GUIparams, international = False)
+GUIparams = GeneralOps.loadGUILabels(GUIparams, international = True)
 
 AnalysisData = DataHolder()
 
@@ -70,24 +69,65 @@ class StatGUIInterface:
     StyleOps.disable_ani_button(button_obj=self.ErrorS, guiobj=self)
     StyleOps.disable_ani_button(button_obj=self.RunStats, guiobj=self)
     StyleOps.disable_ani_button(button_obj=self.CalcThresh, guiobj=self)
-    StyleOps.disable_ani_button(button_obj=self.PlotRunner, guiobj=self, extraspace=13)
+    StyleOps.disable_ani_button(button_obj=self.PlotRunner, guiobj=self, extraspace=13)  
 
+    try:
+      allowedInt1 = set('0123456789')
+      allowedInt2 = set('-0123456789')
+      statsChecker = [1, 1, 1]
 
+      if set(self.MBPBox.text())<=allowedInt1:
+        if int(self.MBPBox.text()) == 0:
+          statsChecker[0] = 0
+        else:
+          statsChecker[0] = 1
+      else:
+        statsChecker[0] = 0
 
-    
+      if set(self.IterBox.text())<=allowedInt1:
+       if int(self.IterBox.text()) == 0:
+         statsChecker[1] = 0
+       else:
+         statsChecker[1] = 1
+      else:
+        statsChecker[1] = 0
 
+      if len(self.OBox.text()) > 0 and set(self.OBox.text()) <= allowedInt2:
+        statsChecker[2] = 0
+      elif len(self.OBox.text())  == 0:
+        statsChecker[2] = 1
+
+      if sum(statsChecker)<3:
+        raise ValueError()
+
+    except ValueError:
+      detailed_message = ''
+      for i, j in enumerate(statsChecker):
+        if j == 0 and i == 0:
+          MBPerrorstring = "The MBP needs to be an integer and above 0. \r"
+          detailed_message = detailed_message + MBPerrorstring
+        elif j == 0 and i == 1:
+          ITerrorstring = "The number of iterations needs to be an integer and above 0. \r"
+          detailed_message = detailed_message + ITerrorstring
+        elif j == 0 and i == 2:
+          Offseterrorstring = "The offset needs to be an integer. \r"
+          detailed_message = detailed_message + Offseterrorstring
+
+      F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'mapit_logo.png')
+      msgbox = QtWidgets.QMessageBox()
+      msgbox.setIcon(QtWidgets.QMessageBox.Critical)
+      msgbox.setWindowTitle('Statistical Test Settings Warning!')
+      msgbox.setWindowIcon(QtGui.QIcon(F))
+      msgbox.setText("There is an error with the statistical test settings. \r Show details for more information.")
+      msgbox.setDetailedText(detailed_message)
+      msgbox.exec_()
 
     if len(self.OBox.text()) > 0:
       AnalysisData.offset = int(self.OBox.text())
     else:
       AnalysisData.offset = 0
-
     mbaTime = int(self.MBPBox.text())
-
-    if self.IterBox.text() == '':
-      IT = 0
-    else:
-      IT = int(self.IterBox.text())
+    IT = int(self.IterBox.text())
 
     doError, doMUF, doAI, doCUMUF, doSEMUF, doSEMUFAI, doSITMUF, doPage = StatsPanelOps.getRequestedTests(GUIObject = self)
 
@@ -98,27 +138,18 @@ class StatGUIInterface:
                'GLoc': GLoc, 'GUIparams': GUIparams, 'AnalysisData':AnalysisData, 'MBP':mbaTime,
                'IT':IT}
 
-
     Q = queue.Queue()
     thread = ThreadTools.AnalysisThread(Q,self.handleAnalysisThread,parent=self)
     thread.finished.connect(thread.deleteLater)
     thread.start()
     Q.put(inpdict)                                                                   
 
-
-
-
-
-
-
-
-
 class customExecp(Exception):
     pass
 
-
-
-
+class ReadOnlyDelegate(QtWidgets.QStyledItemDelegate):
+  def ignore(self, parent, option, index):
+    return
 
 class LaunchGUI(QtWidgets.QMainWindow):
   """
@@ -150,6 +181,9 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.HasRunErrors = 0
     self.launch_master_window()
 
+
+
+
     self.RunStats.clicked.connect(lambda: StatGUIInterface.runAnalysisPipe(self))
     self.ErrorS.clicked.connect(self.InitErrors)
     self.PlotRunner.clicked.connect(lambda: PlotOps.ExecPlot(self,GUIparams,AnalysisData))
@@ -178,7 +212,6 @@ class LaunchGUI(QtWidgets.QMainWindow):
     global GUIparams
     settings = QtCore.QSettings("current", "mapit")
     GUIparams.exemplarDataPath = settings.value("dataPathDefault")
-
 
   def closeEvent(self,event):
     settings = QtCore.QSettings("current", "mapit")
@@ -213,10 +246,6 @@ class LaunchGUI(QtWidgets.QMainWindow):
       if hasattr(self, 'datopts') or hasattr(self, 'mdlopts'):
         GeneralOps.updateDataGUIOptions(self, GUIparams)
 
-
-
-
-
   def handleAnalysisThread(self, result):
     global AnalysisData
 
@@ -236,8 +265,6 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.PlotRunner._animation.start()
     self.PlotRunner.setEnabled(1)
 
-
-
   def update_errorB_text(self):
     if self.CB_ErrorProp.isChecked() == 1:
       self.ErrorS.setText('Set Simulated Errors')
@@ -247,341 +274,356 @@ class LaunchGUI(QtWidgets.QMainWindow):
       self.IterBox.setEnabled(0)
       self.IterBox.setText("")
 
+  def ValidateErrors(self):
+      """
+              This function ensures the error table measurement uncertainities 
+              are floats, i.e. >= 0
+      
+      """
+      invalid_entries = []
+      
+      for row in range(self.EP.rowCount()):
+          # Skip rows with no row labels
+          if not self.EP.verticalHeaderItem(row).text():
+              continue
+          
+          row_label = self.EP.verticalHeaderItem(row).text()
+          
+          for col in range(self.EP.columnCount()):
+              entry = self.EP.item(row, col).text() if self.EP.item(row, col) else ''
+              
+              if col in [0, 1]:
+                  # Validate columns 1 and 2
+                  pattern = r'^\d+(?:\.\d+)?\s*%$'
+                  if not re.match(pattern, entry, re.I):
+                      col_label = self.EP.horizontalHeaderItem(col).text()
+                      invalid_entries.append(f"{row_label}, {col_label}, failed validation.")
+              elif col == 2:
+                  # Validate column 3
+                  try:
+                      if entry != 'None'.strip(' '):
+                          if float(entry) < 0:
+                            col_label = self.EP.horizontalHeaderItem(col).text()
+                            invalid_entries.append(f"{row_label}, {col_label}, failed validation.")
+                  except ValueError:
+                      col_label = self.EP.horizontalHeaderItem(col).text()
+                      invalid_entries.append(f"{row_label}, {col_label}, failed validation.")
+      
+      if invalid_entries:
 
+        msgbox = QtWidgets.QMessageBox()
+        msgbox.setIcon(QtWidgets.QMessageBox.Critical)
+        msgbox.setWindowTitle('Error Selection Warning!')
+        F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'mapit_logo.png')
+        msgbox.setWindowIcon(QtGui.QIcon(F))
+        msgbox.setText("Error in table configuration. Please check the following entries.")
+        msgbox.setDetailedText("\n".join(invalid_entries))
+        msgbox.exec()
+      else:
+        self.HasRunErrors = 1
+        self.ErrorPane.close()
 
   def InitErrors(self):
     """
             This function creates the pop-up to select
-            errors for imported or scenario data.
-    """
+            errors for imported or scenario data.   """
+
+
 
 
     StyleOps.enable_ani_button(button_obj=self.RunStats, guiobj=self)
 
-    self.RunStats.setEnabled(
-        1)  #flag to show that the calc has run at least once
-
     ErrorBox = [
-        '0.005', '0.01','0.05', '0.1', '0.5', '1.0', '3.0', '5.0', '10.0', '15.0', '20.0', '25.0', '50.0'
-    ]
+        '0.0', '0.005', '0.01','0.05', '0.1', '0.5', '1.0', '3.0', '5.0', '10.0', '15.0', '20.0', '25.0', '50.0']
     ErrorBoxLabels = [x + ' %' for x in ErrorBox]
+    numbers = tuple(('0','1','2','3','4','5','6','7','8','9','.'))
+
+    maxIp = 0
+    maxIv = 0
+    maxOt = 0
+
+    for d in AnalysisData.rawInputTimes:
+      I = d.max()
+      if I > maxIp:
+        maxIp = I
+    
+    for d in AnalysisData.rawInventoryTimes:
+      I = d.max()
+      if I > maxIv:
+        maxIv = I
+    
+    for d in AnalysisData.rawOutputTimes:
+      I = d.max()
+      if I > maxOt:
+        maxOt = I
+
+    maxAll = np.max([maxIp,maxIv,maxOt])
+
+    # half the max, nearest 100
+    calibOptInp = np.linspace(0,np.floor((maxIp/2)/100)*100,6)[1:]
+    calibOptInv = np.linspace(0,np.floor((maxIv/2)/100)*100,6)[1:]
+    calibOptOut = np.linspace(0,np.floor((maxOt/2)/100)*100,6)[1:]
+    calibOptAll = np.linspace(0,np.floor((maxAll/2)/100)*100,6)[1:]
 
 
-    if self.HasRunErrors == 1 and GUIparams.errorstyle == True:  #if has run previously get those values
-      pastEVals = np.zeros((self.EP.rowCount(), 2))
+    calibOptInp = [str(int(x)) if x.is_integer() else str(x) for x in calibOptInp]
+    calibOptInv = [str(int(x)) if x.is_integer() else str(x) for x in calibOptInv]
+    calibOptOut = [str(int(x)) if x.is_integer() else str(x) for x in calibOptOut]
+    calibOptAll = [str(int(x)) if x.is_integer() else str(x) for x in calibOptAll]
+
+    calibOptInp.insert(0,'None')
+    calibOptInv.insert(0,'None')
+    calibOptOut.insert(0,'None')
+    calibOptAll.insert(0,'None')
+
+
+    if self.HasRunErrors == 1:  #if has run previously get those values
+      pastEVals = np.zeros((self.EP.rowCount(), self.EP.columnCount()))
       for i in range(0, self.EP.rowCount()):
-        for j in range(0, 1):
-          if self.EP.item(i, j) is None and self.EP.item(i, j+1) is None:
-            pastEVals[i, j] = 0
-            pastEVals[i, j+1] = 0
-          elif self.EP.item(i, j) is not None:
-
-            if self.EP.item(i, j+1) is None:
-              if self.EP.item(i, j).text().endswith('%'):
-                pastEVals[i, j] = self.EP.item(i, j).text()[:-2]
-                pastEVals[i, j+1] = '0.0'
-              else:
-                pastEVals[i, j] = self.EP.item(i, j).text()
-                pastEVals[i, j+1] = '0.0'            
-            else:
-              if self.EP.item(i, j).text().endswith('%'):
-                pastEVals[i, j] = self.EP.item(i, j).text()[:-2]
-                pastEVals[i, j+1] = self.EP.item(i, j+1).text()[:-2]
-              else:
-                pastEVals[i, j] = self.EP.item(i, j).text()
-                pastEVals[i, j+1] = self.EP.item(i, j+1).text()
-
-    elif self.HasRunErrors == 1 and GUIparams.errorstyle == False: 
-      pastEVals = np.zeros((self.EP.rowCount(), 2))
-      for i in range(0, self.EP.rowCount()):
-        for j in range(0, 1):
-          if self.EP.item(i, j) is None:
-            pastEVals[i, j] = 0
+        for j in range(0, self.EP.columnCount()):
+          if self.EP.item(i,j).text() == 'None':
+            pastEVals[i,j] = -1
+          elif self.EP.item(i,j).text().strip(' ') != '':
+            pastEVals[i, j] = self.EP.item(i, j).text().strip(' ').strip('%')
           else:
-            if self.EP.item(i, j).text().endswith('%'):
-                pastEVals[i, j] = self.EP.item(i, j).text()[:-2]
-            else:
-              pastEVals[i, j] = self.EP.item(i, j).text()
-
+            pastEVals[i,j] = np.nan
 
 
     self.ErrorPane = QtWidgets.QDialog()
     ep_L = QtWidgets.QVBoxLayout(self.ErrorPane)
     epat_L = QtWidgets.QGridLayout()
 
-    if GUIparams.errorstyle == True:
-      # errors for dropdown
 
-      # pane for all errors, all ins, outs, invs
-      # pane for all errors + table is a grid layout (0, 1) (all) and (0, 0) (table)
-      # buttons to save, load error config, and press done appear below in a QVBoxLayout
+    # errors for dropdown
 
-      BContain = QtWidgets.QGroupBox(self.ErrorPane)
-      bc_L = QtWidgets.QVBoxLayout(BContain)
-      epat_L.addWidget(BContain, 0, 2)
-      BContain.setTitle("Mass error control")
-      # pane for all errors
-      AllError = QtWidgets.QGroupBox(BContain)
-      AE_L = QtWidgets.QGridLayout(AllError)
-      AllError.setTitle("All errors")
+    # pane for all errors, all ins, outs, invs
+    # pane for all errors + table is a grid layout (0, 1) (all) and (0, 0) (table)
+    # buttons to save, load error config, and press done appear below in a QVBoxLayout
 
-      AllRandLabel = QtWidgets.QLabel("Random")
-      AllSysLabel = QtWidgets.QLabel("Systematic")
+    BContain = QtWidgets.QGroupBox(self.ErrorPane)
+    bc_L = QtWidgets.QVBoxLayout(BContain)
+    epat_L.addWidget(BContain, 0, 2)
+    BContain.setTitle("Mass error control")
+    # pane for all errors
+    AllError = QtWidgets.QGroupBox(BContain)
+    AE_L = QtWidgets.QGridLayout(AllError)
+    AllError.setTitle("All errors")
 
-      self.AllRand = QtWidgets.QComboBox(AllError)
-      self.AllSys = QtWidgets.QComboBox(AllError)
+    AllRandLabel = QtWidgets.QLabel("Random")
+    AllSysLabel = QtWidgets.QLabel("Systematic")
 
-      self.AllRand.addItems(ErrorBoxLabels)
-      self.AllSys.addItems(ErrorBoxLabels)
-      self.AllRand.setCurrentIndex(6)
-      self.AllSys.setCurrentIndex(6)
+    self.AllRand = QtWidgets.QComboBox(AllError)
+    self.AllSys = QtWidgets.QComboBox(AllError)
 
-      self.AllRand.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'rand'))
-      self.AllSys.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'sys'))
+    self.AllRand.addItems(ErrorBoxLabels)
+    self.AllSys.addItems(ErrorBoxLabels)
+    self.AllRand.setCurrentIndex(7)
+    self.AllSys.setCurrentIndex(7)
 
-      AE_L.addWidget(AllRandLabel, 0, 0)
-      AE_L.addWidget(AllSysLabel, 0, 1)
-      AE_L.addWidget(self.AllRand, 1, 0)
-      AE_L.addWidget(self.AllSys, 1, 1)
-      bc_L.addWidget(AllError)
+    self.AllRand.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'rand'))
+    self.AllSys.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'sys'))
 
-      # Pane for Input
-      InpError = QtWidgets.QGroupBox(BContain)
-      IE_L = QtWidgets.QGridLayout(InpError)
-      InpError.setTitle("Input Error")
+    AE_L.addWidget(AllRandLabel, 0, 0)
+    AE_L.addWidget(AllSysLabel, 0, 1)
+    AE_L.addWidget(self.AllRand, 1, 0)
+    AE_L.addWidget(self.AllSys, 1, 1)
+    bc_L.addWidget(AllError)
 
-      InpRandLabel = QtWidgets.QLabel("Random")
-      InpSysLabel = QtWidgets.QLabel("Systematic")
+    # Pane for Input
+    InpError = QtWidgets.QGroupBox(BContain)
+    IE_L = QtWidgets.QGridLayout(InpError)
+    InpError.setTitle("Input Error")
 
-      self.InpRand = QtWidgets.QComboBox(InpError)
-      self.InpSys = QtWidgets.QComboBox(InpError)
+    InpRandLabel = QtWidgets.QLabel("Random")
+    InpSysLabel = QtWidgets.QLabel("Systematic")
 
-      self.InpRand.addItems(ErrorBoxLabels)
-      self.InpSys.addItems(ErrorBoxLabels)
-      self.InpRand.setCurrentIndex(6)
-      self.InpSys.setCurrentIndex(6)
+    self.InpRand = QtWidgets.QComboBox(InpError)
+    self.InpSys = QtWidgets.QComboBox(InpError)
 
-      self.InpRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inp'))
-      self.InpSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inp'))
+    self.InpRand.addItems(ErrorBoxLabels)
+    self.InpSys.addItems(ErrorBoxLabels)
+    self.InpRand.setCurrentIndex(7)
+    self.InpSys.setCurrentIndex(7)
 
-      IE_L.addWidget(InpRandLabel, 0, 0)
-      IE_L.addWidget(InpSysLabel, 0, 1)
-      IE_L.addWidget(self.InpRand, 1, 0)
-      IE_L.addWidget(self.InpSys, 1, 1)
-      bc_L.addWidget(InpError)
+    self.InpRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inp'))
+    self.InpSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inp'))
 
-      # Pane for Inventory
+    IE_L.addWidget(InpRandLabel, 0, 0)
+    IE_L.addWidget(InpSysLabel, 0, 1)
+    IE_L.addWidget(self.InpRand, 1, 0)
+    IE_L.addWidget(self.InpSys, 1, 1)
+    bc_L.addWidget(InpError)
 
-      InvError = QtWidgets.QGroupBox(BContain)
-      IV_L = QtWidgets.QGridLayout(InvError)
-      InvError.setTitle("Inventory Error")
+    # Pane for Inventory
 
-      InvRandLabel = QtWidgets.QLabel("Random")
-      InvSysLabel = QtWidgets.QLabel("Systematic")
+    InvError = QtWidgets.QGroupBox(BContain)
+    IV_L = QtWidgets.QGridLayout(InvError)
+    InvError.setTitle("Inventory Error")
 
-      self.InvRand = QtWidgets.QComboBox(InvError)
-      self.InvSys = QtWidgets.QComboBox(InvError)
+    InvRandLabel = QtWidgets.QLabel("Random")
+    InvSysLabel = QtWidgets.QLabel("Systematic")
+
+    self.InvRand = QtWidgets.QComboBox(InvError)
+    self.InvSys = QtWidgets.QComboBox(InvError)
 
 
-      self.InvRand.addItems(ErrorBoxLabels)
-      self.InvSys.addItems(ErrorBoxLabels)
-      self.InvRand.setCurrentIndex(6)
-      self.InvSys.setCurrentIndex(6)
+    self.InvRand.addItems(ErrorBoxLabels)
+    self.InvSys.addItems(ErrorBoxLabels)
+    self.InvRand.setCurrentIndex(7)
+    self.InvSys.setCurrentIndex(7)
 
-      self.InvRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inv'))
-      self.InvSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inv'))
+    self.InvRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inv'))
+    self.InvSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','inv'))
 
-      IV_L.addWidget(InvRandLabel, 0, 0)
-      IV_L.addWidget(InvSysLabel, 0, 1)
-      IV_L.addWidget(self.InvRand, 1, 0)
-      IV_L.addWidget(self.InvSys, 1, 1)
-      bc_L.addWidget(InvError)
+    IV_L.addWidget(InvRandLabel, 0, 0)
+    IV_L.addWidget(InvSysLabel, 0, 1)
+    IV_L.addWidget(self.InvRand, 1, 0)
+    IV_L.addWidget(self.InvSys, 1, 1)
+    bc_L.addWidget(InvError)
 
-      # Pane for Output
+    # Pane for Output
 
-      OutError = QtWidgets.QGroupBox(BContain)
-      OE_L = QtWidgets.QGridLayout(OutError)
-      OutError.setTitle("Output Error")
+    OutError = QtWidgets.QGroupBox(BContain)
+    OE_L = QtWidgets.QGridLayout(OutError)
+    OutError.setTitle("Output Error")
 
-      OutRandLabel = QtWidgets.QLabel("Random")
-      OutSysLabel = QtWidgets.QLabel("Systematic")
+    OutRandLabel = QtWidgets.QLabel("Random")
+    OutSysLabel = QtWidgets.QLabel("Systematic")
 
-      self.OutRand = QtWidgets.QComboBox(OutError)
-      self.OutSys = QtWidgets.QComboBox(OutError)
+    self.OutRand = QtWidgets.QComboBox(OutError)
+    self.OutSys = QtWidgets.QComboBox(OutError)
 
-      self.OutRand.addItems(ErrorBoxLabels)
-      self.OutSys.addItems(ErrorBoxLabels)
-      self.OutRand.setCurrentIndex(6)
-      self.OutSys.setCurrentIndex(6)
+    self.OutRand.addItems(ErrorBoxLabels)
+    self.OutSys.addItems(ErrorBoxLabels)
+    self.OutRand.setCurrentIndex(7)
+    self.OutSys.setCurrentIndex(7)
 
-      self.OutRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','out'))
-      self.OutSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','out'))
+    self.OutRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','out'))
+    self.OutSys.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'sys','out'))
 
-      OE_L.addWidget(OutRandLabel, 0, 0)
-      OE_L.addWidget(OutSysLabel, 0, 1)
-      OE_L.addWidget(self.OutRand, 1, 0)
-      OE_L.addWidget(self.OutSys, 1, 1)
-      bc_L.addWidget(OutError)
+    OE_L.addWidget(OutRandLabel, 0, 0)
+    OE_L.addWidget(OutSysLabel, 0, 1)
+    OE_L.addWidget(self.OutRand, 1, 0)
+    OE_L.addWidget(self.OutSys, 1, 1)
+    bc_L.addWidget(OutError)
+    bc_L.addItem(QtWidgets.QSpacerItem(20,40,QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
 
-      # table pane
-      self.EP = QtWidgets.QTableWidget()
+    # table pane
+    self.EP = QtWidgets.QTableWidget()
 
-      TotalLocs = GUIparams.nTotalLocations
-      self.EP.setColumnCount(2)
-      self.EP.setHorizontalHeaderLabels(['Rand ', 'Sys'])
-      #self.EP.setHorizontalHeaderLabels(GUIparams.rowNames)
+    TotalLocs = GUIparams.nTotalLocations
+    self.EP.setColumnCount(3)
+    self.EP.setHorizontalHeaderLabels(['Rand ', 'Sys', 'Calib Freq'])
 
-      self.EP.setRowCount(TotalLocs + 2)
+    self.EP.setRowCount(TotalLocs + 2)
+    for i in range(self.EP.rowCount()):
+      for j in range(self.EP.columnCount()):
+        if i == GUIparams.nInputLocations or \
+            i == GUIparams.nInputLocations + GUIparams.nInventoryLocations + 1:
+          item = QtWidgets.QTableWidgetItem()
+          item.setText(" ")
+          item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
+          item.setFlags(item.flags() ^ QtCore.Qt.ItemIsSelectable)
+          item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEnabled)
+          self.EP.setItem(i, j, item)
 
-      epat_L.addWidget(self.EP, 0, 0)
-      
-      self.EP.setVerticalHeaderLabels(GUIparams.rowNames)
-      self.PlotLocLabels = list(
-          filter(len, GUIparams.rowNames)
-      )  #remove spaces which don't serve a purpose in the plotter dropdown
+    epat_L.addWidget(self.EP, 0, 0)
+    
+    self.EP.setVerticalHeaderLabels(GUIparams.rowNames)
+    
+    self.PlotLocLabels = list(
+        filter(len, GUIparams.rowNames)
+    )  #remove spaces which don't serve a purpose in the plotter dropdown
 
-      # set the initial table items
-      # the 2 and 31 index are separator rows
-      if self.HasRunErrors == 0:
-        for i in range(0, self.EP.columnCount()):
-          for j in range(0, TotalLocs + 2):
-            if self.EP.verticalHeaderItem(j).text() != '' and self.EP.horizontalHeaderItem(i) is not None:
+    # set the initial table items
+    # the 2 and 31 index are separator rows
+    if self.HasRunErrors == 0:
+      for i in range(0, self.EP.columnCount()):
+        for j in range(0, self.EP.rowCount()):
+          if self.EP.verticalHeaderItem(j).text() != '' and self.EP.horizontalHeaderItem(i) is not None:
+            if i == 2:
+              self.EP.setItem(j, i, QtWidgets.QTableWidgetItem('None'))
+            else:
               self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(3.0) + ' %'))
 
-      if self.HasRunErrors == 1:
-        for i in range(np.shape(pastEVals)[0]):
-          for j in range(0, 1):
-            if pastEVals[i, j] != 0:
+    if self.HasRunErrors == 1:
+      for i in range(np.shape(pastEVals)[0]):
+        for j in range(np.shape(pastEVals)[1]):
+          if np.isnan(pastEVals[i,j]):
+            self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(''))
+          elif pastEVals[i,j] == -1:
+            self.EP.setItem(i, j, QtWidgets.QTableWidgetItem('None'))
+          else:
+            if j == 0 or j == 1:
               self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])+' %'))
-              self.EP.setItem(i, j+1, QtWidgets.QTableWidgetItem(str(pastEVals[i, j+1])+' %'))
+            else:
+              self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])))
 
-      ep_L.addLayout(epat_L)
-      self.EP.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-      self.EP.setMinimumWidth(self.EP.sizeHint().width()+self.EP.sizeHintForColumn(1)*3) #HACK: minwidth for both columns
-      self.EP.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+    ep_L.addLayout(epat_L)
 
-    else:
 
-      BContain = QtWidgets.QGroupBox(self.ErrorPane)
-      bc_L = QtWidgets.QVBoxLayout(BContain)
-      epat_L.addWidget(BContain, 0, 2)
-      BContain.setTitle("Mass error control")
+    CContain = QtWidgets.QGroupBox(self.ErrorPane)
+    cc_L = QtWidgets.QGridLayout(CContain)
+    epat_L.addWidget(CContain, 0, 3)
+    CContain.setTitle("Calibration Frequency")
 
-      # pane for all errors
-      AllError = QtWidgets.QGroupBox(BContain)
-      AE_L = QtWidgets.QGridLayout(AllError)
-      AllError.setTitle("All errors")
+    self.allCalib = QtWidgets.QComboBox()
+    self.InpCalib = QtWidgets.QComboBox()
+    self.InvCalib = QtWidgets.QComboBox()
+    self.OutCalib = QtWidgets.QComboBox()
 
-      AllLabel = QtWidgets.QLabel("Errors")
+    self.InpCalib.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'freq','inp'))
+    self.InvCalib.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'freq','inv'))
+    self.OutCalib.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'freq','out'))
+    self.allCalib.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'freq'))
+    
+    allCBox = QtWidgets.QGroupBox()
+    allCBox.setTitle("All Sensors")
+    allCBox.setLayout(QtWidgets.QHBoxLayout())
+    allCBox.layout().addWidget(self.allCalib)
+    
+    cc_L.addItem(QtWidgets.QSpacerItem(20,20), 0, 0)
+    cc_L.addWidget(allCBox, 1, 0)
+    cc_L.addItem(QtWidgets.QSpacerItem(20,30), 2, 0)
 
-      self.All = QtWidgets.QComboBox(AllError)
+    inpCBox = QtWidgets.QGroupBox()
+    inpCBox.setTitle("Input Sensors")
+    inpCBox.setLayout(QtWidgets.QHBoxLayout())
+    inpCBox.layout().addWidget(self.InpCalib)
 
-      self.All.addItems(ErrorBoxLabels)
-      self.All.setCurrentIndex(6)
+    cc_L.addWidget(inpCBox, 3, 0)
+    cc_L.addItem(QtWidgets.QSpacerItem(20,30), 4, 0)
 
-      self.All.activated.connect(lambda: ErrorPanelOps.MultiLocUpdate(self,GUIparams,'rand'))
+    invCBox = QtWidgets.QGroupBox()
+    invCBox.setTitle("Inventory Sensors")
+    invCBox.setLayout(QtWidgets.QHBoxLayout())
+    invCBox.layout().addWidget(self.InvCalib)
 
-      AE_L.addWidget(AllLabel, 0, 0)
-      AE_L.addWidget(self.All, 1, 0)
-      bc_L.addWidget(AllError)
+    cc_L.addWidget(invCBox, 5, 0)
+    cc_L.addItem(QtWidgets.QSpacerItem(20,30), 6, 0)
 
-      # Pane for Input
-      InpError = QtWidgets.QGroupBox(BContain)
-      IE_L = QtWidgets.QGridLayout(InpError)
-      InpError.setTitle("Input Error")
 
-      InpLabel = QtWidgets.QLabel("Errors")
+    outCBox = QtWidgets.QGroupBox()
+    outCBox.setTitle("Output Sensors")
+    outCBox.setLayout(QtWidgets.QHBoxLayout())
+    outCBox.layout().addWidget(self.OutCalib)
+    cc_L.addWidget(outCBox, 7, 0)
 
-      self.Inp = QtWidgets.QComboBox(InpError)
+    vspace = QtWidgets.QSpacerItem(20,40,QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
 
-      self.Inp.addItems(ErrorBoxLabels)
-      self.Inp.setCurrentIndex(6)
+    cc_L.addItem(vspace,8,0)
 
-      self.Inp.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inp'))
+    self.allCalib.addItems(calibOptAll)
+    self.InpCalib.addItems(calibOptInp)
+    self.InvCalib.addItems(calibOptInv)
+    self.OutCalib.addItems(calibOptOut)
 
-      IE_L.addWidget(InpLabel, 0, 0)
-      IE_L.addWidget(self.Inp, 1, 0)
-      bc_L.addWidget(InpError)
 
-      # Pane for Inventory
+    self.EP.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
+    #self.EP.setMinimumWidth(self.EP.sizeHint().width()+self.EP.sizeHintForColumn(1)*5) #HACK: minwidth for both columns
+    self.ErrorPane.resize(self.ErrorPane.sizeHint().width()+self.EP.sizeHintForColumn(1)*5,self.ErrorPane.sizeHint().height())
 
-      InvError = QtWidgets.QGroupBox(BContain)
-      IV_L = QtWidgets.QGridLayout(InvError)
-      InvError.setTitle("Inventory Error")
 
-      InvRandLabel = QtWidgets.QLabel("Random Errors")
-
-      self.InvRand = QtWidgets.QComboBox(InvError)
-
-      self.InvRand.addItems(ErrorBoxLabels)
-      self.InvRand.setCurrentIndex(6)
-
-      self.InvRand.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','inv'))
-
-      IV_L.addWidget(InvRandLabel, 0, 0)
-      IV_L.addWidget(self.InvRand, 1, 0)
-      bc_L.addWidget(InvError)
-
-      # Pane for Output
-
-      OutError = QtWidgets.QGroupBox(BContain)
-      OE_L = QtWidgets.QGridLayout(OutError)
-      OutError.setTitle("Output Error")
-
-      OutLabel = QtWidgets.QLabel("Random Errors")
-
-      self.Out = QtWidgets.QComboBox(OutError)
-
-      self.Out.addItems(ErrorBoxLabels)
-      self.Out.setCurrentIndex(6)
-
-      self.Out.activated.connect(lambda: ErrorPanelOps.SingleLocUpdate(self,GUIparams,'rand','out'))
-
-      OE_L.addWidget(OutLabel, 0, 0)
-      OE_L.addWidget(self.Out, 1, 0)
-      bc_L.addWidget(OutError)
-
-      # table pane
-      self.EP = QtWidgets.QTableWidget()
-
-      TotalLocs = GUIparams.nTotalLocations
-      self.EP.setColumnCount(1)
-      self.EP.setHorizontalHeaderLabels(['Error '])
-      #self.EP.setHorizontalHeaderLabels(GUIparams.rowNames)
-
-      self.EP.setRowCount(TotalLocs + 2)
-      epat_L.addWidget(self.EP, 0, 0)
-      
-      self.EP.setVerticalHeaderLabels(GUIparams.rowNames)
-      self.PlotLocLabels = list(
-          filter(len, GUIparams.rowNames)
-      )  #remove spaces which don't serve a purpose in the plotter dropdown
-
-      # set the initial table items
-      # the 2 and 31 index are separator rows
-
-      if self.HasRunErrors == 0:
-        for i in range(0, self.EP.columnCount()):
-          for j in range(0, TotalLocs + 2):
-            if self.EP.verticalHeaderItem(j).text() != '' and self.EP.horizontalHeaderItem(i) is not None:
-              self.EP.setItem(j, i, QtWidgets.QTableWidgetItem(str(3.0) + ' %'))
-
-      if self.HasRunErrors == 1:
-
-        for j in range(0, self.EP.columnCount()):
-          for i in range(0, GUIparams.nInputLocations):
-            self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])+' %'))
-          for i in range(GUIparams.nInputLocations+1, GUIparams.nInventoryLocations+GUIparams.nInputLocations+1):
-            self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])+' %'))
-          for i in range(GUIparams.nInventoryLocations+GUIparams.nInputLocations+2, GUIparams.nInventoryLocations+GUIparams.nInputLocations+GUIparams.nOutputLocations+2):
-            self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])+' %'))
-        
-#        for i in range(np.shape(pastEVals)[0]):
-#          for j in range(np.shape(pastEVals)[1]):
-#            if pastEVals[i, j] != 0:
-#              self.EP.setItem(i, j, QtWidgets.QTableWidgetItem(str(pastEVals[i, j])+' %'))
-
-      ep_L.addLayout(epat_L)
 
 
 
@@ -596,13 +638,14 @@ class LaunchGUI(QtWidgets.QMainWindow):
     # self.OutRand.currentTextChanged.connect(self.OutRandFcn)
     self.saveEConfig.clicked.connect(lambda: ErrorPanelOps.saveErrorToDisk(self))
     self.loadEConfig.clicked.connect(lambda: ErrorPanelOps.loadErrorFromDisk(self))
-    self.CloseEConfig.clicked.connect(self.ErrorPane.accept)
+    self.CloseEConfig.clicked.connect(lambda: self.ValidateErrors())
 
     SL_L.addWidget(self.loadEConfig, 0, 0)
     SL_L.addWidget(self.saveEConfig, 0, 1)
 
     ep_L.addWidget(SLContain)
     ep_L.addWidget(self.CloseEConfig)
+    
 
     self.ErrorPane.setWindowTitle("Error Selection")
     F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'mapit_logo.png')
@@ -613,7 +656,6 @@ class LaunchGUI(QtWidgets.QMainWindow):
     self.ErrorPane.show()
     self.PB.setFormat("Ready to execute")
     self.HasRunErrors = 1
-    
 
   def helpLaunch(self):
     """
@@ -691,7 +733,6 @@ class LaunchGUI(QtWidgets.QMainWindow):
   def RunHPCDlg(self):
     dlg = DialogComponents.HPCWindow(self, AnalysisData)
     res = dlg.exec_()
-
 
   def launch_master_window(self):
     """
@@ -808,18 +849,16 @@ class LaunchGUI(QtWidgets.QMainWindow):
     upfont = QtGui.QAction("Increase font size",self)
     downfont = QtGui.QAction("Decrease font size",self)
     restorewin = QtGui.QAction("Restore defaults",self)
-    errorsty = QtGui.QAction("Change error style", self)
 
     upfont.triggered.connect(lambda: StyleOps.IncreaseFont(self))
     downfont.triggered.connect(lambda: StyleOps.DecreaseFont(self))
     restorewin.triggered.connect(lambda: StyleOps.RestoreWindow(self))
-    errorsty.triggered.connect(lambda: ErrorStyleChange())
+
 
 
     accmenu.addAction(upfont)
     accmenu.addAction(downfont)
     accmenu.addAction(restorewin)
-    accmenu.addAction(errorsty)
 
 
 
@@ -866,11 +905,6 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
     #initial loading
     loadInternalData(self)
-    
-
-
-
-
 
   def RunStatThresh(self):
     #call the function to update the threshold statistics
@@ -896,7 +930,6 @@ def loadInternalData(self):
     thread.start()
     Q.put(inpdict)  
 
-
 def unloadInternalData(self):
     global GUIparams
     global AnalysisData
@@ -904,12 +937,6 @@ def unloadInternalData(self):
     GUIparams = GUIopts(False, True)
     AnalysisData = DataHolder()
     GUIparams = GeneralOps.loadGUILabels(GUIparams)
-
-
-def ErrorStyleChange():
-    global GUIparams
-    GUIparams.errorstyle = not GUIparams.errorstyle
-
 
 def dataSourceChanged(self, flag):
   
@@ -1203,9 +1230,6 @@ def add_stats_box(self):
   #AnalysisContainerL
 
 
-
-
-
 #################################################################################################
 ###########################################  Plot Column  #######################################
 #################################################################################################
@@ -1376,20 +1400,12 @@ def add_plot_box(self):
   PlotContainerL.setStretch(1,1)
   PlotContainerL.setStretch(2,0)
   PlotContainerL.setStretch(3,0)
-
-
-
-
-
-
   
 def launch_explorer(mdlname, datname):
   global GUIparams
   ss = ScenarioSelector.SceneExamine(mdlname, datname, GUIparams)
   ss.setWindowModality(QtCore.Qt.ApplicationModal)
   ss.exec_()
-
-
 
 def launchMAPIT():
   app = QtWidgets.QApplication(sys.argv)

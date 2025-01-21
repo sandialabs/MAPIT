@@ -1,4 +1,4 @@
-from MAPIT.GUI import ThreadTools, StatsPanelOps
+from MAPIT.GUI import ThreadTools, StatsPanelOps, DialogComponents
 from PySide6 import QtCore,QtWidgets, QtGui
 import os
 import numpy as np
@@ -366,6 +366,21 @@ def grabExt(result):
 
   StatsPanelOps.enable_setup_controls(GUIObj)
 
+  entries = []
+  bypass = False
+  for n in GUIparams.rowNames:
+    if n == '':
+      bypass = not bypass
+    if bypass == False and n != '': # skip inventories
+      entries.append(n)
+
+  typeWizard = DialogComponents.getImportDataTypeDlg(entries, GUIObj.colordict)
+  typeWizard.exec()
+  types = typeWizard.get_types()
+  AnalysisData.inputTypes = types[:GUIparams.nInputLocations]
+  AnalysisData.outputTypes = types[GUIparams.nInputLocations:]
+
+
 
 def processWizardGUI(AnalysisData,WizardObj):
   ninputloc = len(AnalysisData.rawInput)
@@ -439,6 +454,8 @@ def getSceneData(GUIObj,AnalysisData,GUIparams):
   GUIparams.nTotalLocations = np.shape(AnalysisData.rawInput)[0] + np.shape(AnalysisData.rawInventory)[0] + np.shape(AnalysisData.rawOutput)[0]
   GUIparams.ExtData = False
 
+  AnalysisData.inputTypes = ['continuous']*GUIparams.nInputLocations
+  AnalysisData.outputTypes = ['continuous']*GUIparams.nOutputLocations
 
 
   GUIparams.eleList = ['U']

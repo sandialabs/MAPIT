@@ -3,6 +3,7 @@ from MAPIT.core import AuxFunctions as Aux
 from MAPIT.GUI import IOWizard, GeneralOps, StyleOps, GUIComponents
 import os
 from platformdirs import user_config_dir, user_data_dir
+import uuid
 
 
 def launchIOWindow(self, AnalysisData, GUIparams):
@@ -18,6 +19,8 @@ def launchIOWindow(self, AnalysisData, GUIparams):
   if Wizard.gracefulExit:
     GUIparams = GeneralOps.loadGUILabels(GUIparams)
     GeneralOps.getExtData(self,AnalysisData,GUIparams,Wizard)
+
+
 
 
 
@@ -475,3 +478,130 @@ class checkForSampleData(QtWidgets.QDialog):
     settings.setValue("dataPathDefault",self.dirtext.text())
     
     
+class dataTypeSelector(QtWidgets.QWidget):
+    def __init__(self, text, colordict):
+        super().__init__()
+
+        self.layout = QtWidgets.QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.gb = QtWidgets.QGroupBox(text)
+        self.layout.addWidget(self.gb)
+        self.gb_layout = QtWidgets.QVBoxLayout()
+        self.gb.setLayout(self.gb_layout)
+        self.gb.setObjectName(str(uuid.uuid4()))
+        StyleOps.update_aniGBoxSmall_styleSheet(colordict, self.gb, isactive=1)
+
+        self.rb_type_cont = QtWidgets.QRadioButton("Continuous")
+        self.rb_type_disc = QtWidgets.QRadioButton("Discrete")
+        self.rb_type_cont.setChecked(True)
+
+        self.gb_layout.addWidget(self.rb_type_cont)
+        self.gb_layout.addWidget(self.rb_type_disc)
+
+
+    def get_type(self):
+        if self.rb_type_cont.isChecked():
+            return "continuous"
+        else:
+            return "discrete"
+
+        
+class getImportDataTypeDlg(QtWidgets.QDialog):
+    def __init__(self, entries, colordict):
+      super().__init__()
+
+      self.entries = entries
+      self.entry_widgets = []
+
+      self.scroll_area = QtWidgets.QScrollArea()
+      self.scroll_area.setWidgetResizable(True)
+
+      
+
+      self.container = QtWidgets.QFrame()
+      self.scroll_area.setWidget(self.container)
+
+      StyleOps.update_scrollObjStype(self.scroll_area, self.container, colordict)
+
+      self.layout = QtWidgets.QVBoxLayout()
+      self.container.setLayout(self.layout)
+
+      for entry in self.entries:
+          widget = dataTypeSelector(entry, colordict)          
+          self.entry_widgets.append(widget)
+          self.layout.addWidget(widget)
+
+      #self.button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+      #self.button_box.accepted.connect(self.accept)
+      #self.button_box.rejected.connect(self.reject)
+
+      self.loadbtn = GUIComponents.AniButton(None)
+      self.loadbtn.setText("Load")
+
+      self.savebtn = GUIComponents.AniButton(None)
+      self.savebtn.setText("Save")
+
+      self.donebtn = GUIComponents.AniButton(None)
+      self.donebtn.setText("Done")
+
+      tlw = QtWidgets.QApplication.topLevelWidgets()
+      for w in tlw:
+        if hasattr(w,'colordict'):
+          mw = w
+
+      StyleOps.enable_ani_button(button_obj=self.loadbtn, guiobj=mw)
+      StyleOps.enable_ani_button(button_obj=self.savebtn, guiobj=mw)
+      StyleOps.enable_ani_button(button_obj=self.donebtn, guiobj=mw)
+
+
+      self.main_layout = QtWidgets.QVBoxLayout()
+      self.main_layout.addWidget(self.scroll_area)
+      #self.main_layout.addWidget(self.button_box)
+
+      self.subwidget = QtWidgets.QWidget()
+      self.sublayout = QtWidgets.QGridLayout()
+      self.subwidget.setLayout(self.sublayout)
+
+      self.sublayout.addWidget(self.loadbtn, 0, 0)
+      self.sublayout.addWidget(self.savebtn, 0, 1)
+      self.sublayout.addWidget(self.donebtn, 1, 0, 1, 2)
+      self.donebtn.clicked.connect(self.accept)
+      self.loadbtn.clicked.connect(self.load_data)
+      self.savebtn.clicked.connect(self.save_data)
+
+
+      self.main_layout.addWidget(self.subwidget)
+
+      self.setLayout(self.main_layout)
+
+
+    def get_types(self):
+        return [widget.get_type() for widget in self.entry_widgets]
+    
+    def set_option(self, options):
+      for i, option in enumerate(options):
+        if option == 'continuous':
+          self.entry_widgets[i].rb_type_cont.setChecked(True)
+        elif option == 'discrete':
+          self.entry_widgets[i].rb_type_disc.setChecked(True)
+        else:
+          print("error")
+    
+    def save_data(self):
+      dat = self.get_types()
+
+      outdir = os.path.join(user_config_dir('MAPIT',False), 'DatTypeConfig.txt')
+
+      with open(outdir, 'w') as f:
+        for item in dat:
+          f.write("%s\n" % item)
+
+    
+    def load_data(self):
+      outdir = os.path.join(user_config_dir('MAPIT',False), 'DatTypeConfig.txt')
+
+      with open(outdir, 'r') as f:
+        x = f.read().splitlines()
+
+      self.set_option(x)

@@ -10,7 +10,6 @@ from tqdm import tqdm
 
 
 
-
 def loadDataFromWizard(GUIObject):
       eleAppend = list(string.ascii_lowercase)
 
@@ -214,8 +213,6 @@ def loadDataFromWizard(GUIObject):
 
       return inpFrame, invFrame, outFrame
 
-
-
 def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,rawOutputTimes,GUIObject=None,dataOffset=0,IT=1, rebaseToZero=True):
 
     if GUIObject is not None:
@@ -345,11 +342,81 @@ def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,
     return rawInput, rawInputTimes, rawInventory, rawInventoryTimes, \
       rawOutput, rawOutputTimes
 
+def calcBatchError(calibrationPeriod, ErrorMatrix, batchSize, times, loc, dim0shape):
+    """
+    Calculate batch error for a given location.
 
+    Args:
+      calibrationPeriod (numpy array or None): Calibration period for each location.
 
+      ErrorMatrix (numpy array): Matrix containing error values (RSD) for each location.
 
+      batchSize (int): Size of the batch.
 
-def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSize=10,dopar=False,bar=None):
+      times (numpy array): Array of time values for each location.
+
+      loc (int): Index of the current location.
+
+      dim0shape (int): Shape of the first dimension of the raw data array.
+
+    Returns:
+      randRSD (numpy array): Random error array.
+      sysRSD (numpy array): Systematic error array.
+    """
+
+    # If calibration period is not provided, calculate a single
+    # set of systematic errors
+    if calibrationPeriod[loc] is None:
+        if ErrorMatrix[loc,1].sum() == 0:
+            # If systematic RSD is zero, set systematic error variates to zero
+            sysRSD = np.zeros((batchSize,1,1))
+        else:
+            # Otherwise, calculate systematic error array using a normal distribution with mean 0 
+            # and scale from ErrorMatrix
+            sysRSD = np.random.normal(size=(batchSize,1,1),loc=0,scale=ErrorMatrix[loc,1])
+    else:
+        # Calculate maximum time of the series provided
+        # and calibration time for the current location
+        maxT = times[loc].max()
+        calT = calibrationPeriod[loc]
+        
+        # Generate time segments based on the calibration period
+        tSegs = np.arange(calT, maxT, calT)
+        
+        # Initialize systematic error array with ones
+        sysRSD = np.ones((batchSize,len(times[loc]),1))
+        
+        # Initialize indices for slicing the systematic error array
+        idx0=0
+        idx1=0
+        
+        # If systematic RSD is zero, set the systematic variates array to zero for each time segment
+        if ErrorMatrix[loc,1].sum() == 0:
+            sysRSD[:,idx0:idx1,0] = 0
+        else:
+            # Otherwise, calculate systematic error for each time segment using a normal distribution with mean 0
+            # and scale from ErrorMatrix
+            for seg in tSegs:
+                # Find the index of the time segment in the time array
+                idx1 = np.argmin(np.abs(times[loc] - seg))
+                
+                # Update the systematic error array for the current time segment
+                sysRSD[:,idx0:idx1,0] = sysRSD[:,idx0:idx1,0] * np.random.normal(size=(batchSize, 1), loc=0, scale=ErrorMatrix[loc,1])
+                
+                # Update the indices for the next time segment
+                idx0 = idx1
+    
+    # If random RSD is zero, set the random variate array to zero
+    if ErrorMatrix[loc,0].sum() == 0:
+        randRSD = np.zeros((batchSize,dim0shape,1))
+    else:
+        # Calculate random error array using a normal distribution with mean 0 and scale from ErrorMatrix
+        randRSD = np.random.normal(size=(batchSize,dim0shape,1),loc=0,scale=ErrorMatrix[loc,0])
+    
+    # Return the random and systematic variate error arrays
+    return randRSD, sysRSD
+
+def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSize=10,dopar=False,bar=None, times=None, calibrationPeriod=None):
     """
       Function to add simulated measurement error. Supports variable sample rates. 
       Assumes the traditional multiplicative measurement error model:
@@ -362,10 +429,27 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
 
       where :math:`i` is the measurement time and :math:`j` is the location
 
-      
+      **Example:**
+
+      .. highlight:: python
+      .. code-block:: python
+
+        import numpy as np
+
+        rawData = [np.random.rand(10, 1), np.random.rand(10, 1)]
+        
+        # [location1 (random, systematic), loction2 (random, systematic)]
+        ErrorMatrix = np.array([[0.1, 0.2], [0.3, 0.4]])
+        iterations = 100
+
+        result = SimErrors(rawData, ErrorMatrix, iterations)
+
+        print(result[0].shape)
+        >>> (100, 10)
+
 
       Args:
-        rawData (list): Raw data to apply errors to, list of 2D ndarrays. Each entry in the list should correspond to a different location and the shape of ndarray in the list should be [MxN] where M is the sample dimension (number of samples) and N is the elemental dimension, if applicable. If only considering one element, each ndarray in the rawData list should be [Mx1].
+        rawData (list of ndarray): Raw data to apply errors to, list of 2D ndarrays. Each entry in the list should correspond to a different location and the shape of ndarray in the list should be [MxN] where M is the sample dimension (number of samples) and N is the elemental dimension, if applicable. If only considering one element, each ndarray in the rawData list should be [Mx1].
 
         ErrorMatrix (ndarray): 2D ndarray of shape [Mx2] describing the relative standard deviation to apply to ``rawData``. M sample dimension in each input array and should be identical to M described in  ``rawData``. The second dimension (e.g., 2) refers to the random and systematic error respectively such that ``ErrorMatrix[0,0]`` refers to the random relative standard deviation of the first location and ``ErrorMatrix[0,1]`` refers to the systematic relative standard deviation. 
 
@@ -375,12 +459,31 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
 
         doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
 
+        batchSize (int, default=10): Batch size for parallel processing.
+
+        dopar (bool, default=False): Controls the use of parallel processing.
+
+        times (list of ndarray, default=None): List of ndarrays of shape [Mx1] describing the time of each sample in the rawData. Required if ``calibrationPeriod`` is provided.
+
+        calibrationPeriod (list of float, default=None): List of floats of length M describing the calibration period for each location in rawData. Required if ``times`` is provided.
+
+
       Returns:
-        list: List of arrays identical in shape to ``rawData``. A list is returned so that each location can have a different sample rate. 
+        list: List of arrays identical in shape to ``rawData``. A list is returned so that each location can have a different sample rate.
+
     """
 
     if GUIObject is not None:
       doTQDM = False
+
+    # times and calibrationPeriod must be present
+    # there must be entries for every location as
+    # well
+    if calibrationPeriod is not None:
+      assert(times is not None)
+      assert(calibrationPeriod is not None)
+      assert(len(times) == len(rawData))
+      assert(len(calibrationPeriod) == len(rawData))
 
 
     # important -- going to assume every feature has different systematic error instance - in practice they might be shared
@@ -427,9 +530,9 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
     if doTQDM and not dopar:
       if iterations > batchSize:
         outerloop = int(np.floor(iterations/batchSize))
-        pbar = tqdm(desc="Error Prop", total=int((outerloop+1)*len(rawData)), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]",ncols=85)   
+        pbar = tqdm(desc="Error Prop", total=int((outerloop+1)*len(rawData)), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]",ncols=None)   
       else:
-        pbar = tqdm(desc="Error Prop", total=int(len(rawData)), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]",ncols=85)
+        pbar = tqdm(desc="Error Prop", total=int(len(rawData)), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]",ncols=None)
     #------------ Start error prop ------------#
     for i in range(0, len(rawData)):
 
@@ -442,8 +545,8 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
         for j in range(0,outerloop):
           startIdx = j*batchSize
           endIdx = startIdx+batchSize
-          sysRSD = np.random.normal(size=(batchSize,1,1),loc=0,scale=ErrorMatrix[i,1])
-          randRSD = np.random.normal(size=(batchSize,rawData[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
+
+          (randRSD, sysRSD) = calcBatchError(calibrationPeriod, ErrorMatrix, batchSize, times, i, rawData[i].shape[0])
           AppliedError[i][startIdx:endIdx,] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((batchSize,-1))
 
           if GUIObject is not None:
@@ -454,9 +557,9 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
           if doTQDM and not dopar:
             pbar.update(1)
         
+        # if there are any batches left over, do them now
         if remruns > 0:
-          sysRSD = np.random.normal(size=(remruns,1,1),loc=0,scale=ErrorMatrix[i,1])
-          randRSD = np.random.normal(size=(remruns,rawData[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
+          (randRSD, sysRSD) = calcBatchError(calibrationPeriod, ErrorMatrix, remruns, times, i, rawData[i].shape[0])
           AppliedError[i][endIdx:,] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((remruns,-1))
 
           if GUIObject is not None:
@@ -468,8 +571,7 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
             pbar.update(1)
       
       else:
-          sysRSD = np.random.normal(size=(iterations,1,1),loc=0,scale=ErrorMatrix[i,1])
-          randRSD = np.random.normal(size=(iterations,rawData[i].shape[0],1),loc=0,scale=ErrorMatrix[i,0])
+          (randRSD, sysRSD) = calcBatchError(calibrationPeriod, ErrorMatrix, iterations, times, i, rawData[i].shape[0])
           AppliedError[i] = rawData[i][:,0].reshape((1,-1)) * (1+sysRSD+randRSD).reshape((iterations,-1))
 
           if GUIObject is not None:

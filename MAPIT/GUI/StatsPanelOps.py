@@ -199,8 +199,40 @@ def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEMUF,doSEMUFAI,doSITMU
 
       matplotlib.rcParams.update(matplotlib.rcParamsDefault)
 
+def getGUICalibVals(GUIObject,lenInp,lenInv,lenOut):
 
-def getGUIErrorVals(GUIObject,GUIparams,lenInp,lenInv,lenOut,GLoc):
+        inpCali=[]
+        invCali=[]
+        outCali=[]
+        col = 2
+        for i in range(0,lenInp):
+            if GUIObject.EP.item(i,col).text() is None:
+                pass
+            elif GUIObject.EP.item(i,col).text() == 'None':
+                inpCali.append(None)
+            else:
+                inpCali.append(float(GUIObject.EP.item(i,col).text()))
+        
+        for i in range(lenInp+1,lenInp+lenInv+1):
+            if GUIObject.EP.item(i,col).text() is None:
+                pass
+            elif GUIObject.EP.item(i,col).text() == 'None':
+                invCali.append(None)
+            else:
+                invCali.append(float(GUIObject.EP.item(i,col).text()))
+
+        for i in range(lenInp+lenInv+2,lenInp+lenInv+lenOut+2):
+            if GUIObject.EP.item(i,col).text() is None:
+                pass
+            elif GUIObject.EP.item(i,col).text() == 'None':
+                outCali.append(None)
+            else:
+                outCali.append(float(GUIObject.EP.item(i,col).text()))
+
+        return inpCali,invCali,outCali
+        
+
+def getGUIErrorVals(GUIObject,lenInp,lenInv,lenOut,GLoc):
 
         if hasattr(GUIObject, 'Wizard'):  #if data was imported
             TotalLocs = int(GUIObject.Wizard.InKMP) + int(GUIObject.Wizard.InvKMP) + int(
@@ -227,59 +259,30 @@ def getGUIErrorVals(GUIObject,GUIparams,lenInp,lenInv,lenOut,GLoc):
         if GLoc != -1:
             ColLoc = 0
 
-        if GUIparams.errorstyle == True:
-            for j in range(ColLoc,ColLoc+2):
 
-                for i in range(0,lenInp):
-                    if GUIObject.EP.item(i,j) is not None:
-                        if  GUIObject.EP.item(i, j).text().endswith('%'):
-                            ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
-                        else:
-                            ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
-                for i in range(lenInp+1,lenInp+lenInv+1):
-                    if GUIObject.EP.item(i,j) is not None:
-                        if  GUIObject.EP.item(i, j).text().endswith('%'):
-                            ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+        for j in range(ColLoc,ColLoc+2):
 
-                        else:
-                            ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
+            for i in range(0,lenInp):
+                if GUIObject.EP.item(i,j) is not None:
+                    if  GUIObject.EP.item(i, j).text().endswith('%'):
+                        ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+                    else:
+                        ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
+            for i in range(lenInp+1,lenInp+lenInv+1):
+                if GUIObject.EP.item(i,j) is not None:
+                    if  GUIObject.EP.item(i, j).text().endswith('%'):
+                        ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
 
-                for i in range(lenInp+lenInv+1,lenInp+lenInv+lenOut+2):
-                    if GUIObject.EP.item(i,j) is not None:
-                        if  GUIObject.EP.item(i, j).text().endswith('%'):
-                            ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
-                        else:
-                            ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
-        else:
-            for j in range(ColLoc,ColLoc+1):
+                    else:
+                        ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
 
-                for i in range(0,lenInp):
-                    if GUIObject.EP.item(i,j) is not None:
-                        if  GUIObject.EP.item(i, j).text().endswith('%'):
-                            ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
-                            ErrorMatrix[i, j-ColLoc+1] = 0.0
-                        else:
-                            ErrorMatrix[i, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
-                            ErrorMatrix[i, j-ColLoc+1] = 0.0
+            for i in range(lenInp+lenInv+2,lenInp+lenInv+lenOut+2):
+                if GUIObject.EP.item(i,j) is not None:
+                    if  GUIObject.EP.item(i, j).text().endswith('%'):
+                        ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
+                    else:
+                        ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
 
-                for i in range(lenInp+1,lenInp+lenInv+1):
-                    if GUIObject.EP.item(i,j) is not None:
-                        if  GUIObject.EP.item(i, j).text().endswith('%'):
-                            ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
-                            ErrorMatrix[i, j-ColLoc+1] = 0.0
-
-                        else:
-                            ErrorMatrix[i-1, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
-                            ErrorMatrix[i-1, j-ColLoc+1] = 0.0
-
-                for i in range(lenInp+lenInv+1,lenInp+lenInv+lenOut+2):
-                    if GUIObject.EP.item(i,j) is not None:
-                        if  GUIObject.EP.item(i, j).text().endswith('%'):
-                            ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()[:-2]) / 100
-                            ErrorMatrix[i-2, j-ColLoc+1] = 0.0
-                        else:
-                            ErrorMatrix[i-2, j-ColLoc] = float(GUIObject.EP.item(i, j).text()) / 100
-                            ErrorMatrix[i-2, j-ColLoc+1] = 0.0
         return ErrorMatrix
 
 

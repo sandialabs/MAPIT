@@ -338,10 +338,6 @@ def update_aniGBoxLarge_styleSheet(colordict,gbox,isactive=0,valueA=None,isStati
 
         gbox.setStyleSheet( gradA.format(VAL=gbox.objectName()) + gradB + gradC.format(VAL=gbox.objectName()) + gradD)
 
-
-
-
-
 def update_aniButton_styleSheet(btn,colordict,colorborder=0,isrunning=0,valueA=None, valueB=None, staticfill=0,extraspace=0):
 
     EST = 0

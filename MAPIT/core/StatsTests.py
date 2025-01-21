@@ -2,11 +2,12 @@ from PySide6 import QtWidgets
 import numpy as np
 from itertools import chain
 import MAPIT.core.AuxFunctions as AuxFunctions
+
+
 from tqdm import tqdm
 
 
-
-def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None,doTQDM=True,ispar=False):
+def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,inputTypes,outputTypes,GUIObject=None,doTQDM=True,ispar=False):
     """
       Function to calculate Material Unaccounted For (MUF), which is sometimes also called ID (inventory difference). 
       Specifically calculates the material balance sequence given some input time series. 
@@ -54,6 +55,10 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
 
 
         MBP (float): Defines the material balance period. 
+
+        inputTypes (list of strings): Defines the type of input. This should be a list of strings that is the same length as the number of input locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
+
+        outputTypes (list of strings): Defines the type of output. This should be a list of strings that is the same length as the number of output locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
 
 
         GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
@@ -138,7 +143,7 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
     #TODO: this needs to be updated for csv
 
     if doTQDM and ispar == False:
-       pbar = tqdm(desc="MUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85)
+       pbar = tqdm(desc="MUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
 
     #-------------------------------------------------------------------------------#
     #------------------------------  MUF Calculation  ------------------------------#
@@ -161,13 +166,20 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
             pbar.update(1)
 
         #select the indices for the relevant time
+        # TODO: convert tile to broadcasting in some places
+        # because broadcasting is quicker and more memory efficient
+        # than tiling
         logicalInterval = np.logical_and(
             processedInputTimes[j] >= MBP * (i - 1),
             processedInputTimes[j] <= MBP * i).reshape((-1,))  
 
-
-        MUF[:, i * MBP:(i + 1) * MBP] += \
-        np.tile(AuxFunctions.trapSum(logicalInterval,processedInputTimes[j],inputAppliedError[j]), (MBP, 1)).transpose()
+        if inputTypes[j] == 'continuous':
+          MUF[:, i * MBP:(i + 1) * MBP] += AuxFunctions.trapSum(logicalInterval,processedInputTimes[j],inputAppliedError[j])[:, np.newaxis]
+        elif inputTypes[j] == 'discrete':
+          MUF[:, i * MBP:(i + 1) * MBP] += inputAppliedError[j][:, logicalInterval].sum(axis=1)[:,np.newaxis]
+        else:
+          raise Exception("inputTypes[j] is not 'continuous' or 'discrete'")
+           
 
 
       #------------ Output terms ------------#
@@ -183,9 +195,15 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
         logicalInterval = np.logical_and(
             processedOutputTimes[j] >= MBP * (i - 1),
             processedOutputTimes[j] <= MBP * i).reshape((-1,))
+        
+        if outputTypes[j] == 'continuous':
+          MUF[:, i * MBP:(i + 1) * MBP] -= AuxFunctions.trapSum(logicalInterval,processedOutputTimes[j],outputAppliedError[j])[:, np.newaxis]
+        elif outputTypes[j] == 'discrete':
+          MUF[:, i * MBP:(i + 1) * MBP] -= outputAppliedError[j][:, logicalInterval].sum(axis=1)[:,np.newaxis]
+        else:
+          raise Exception("outputTypes[j] is not 'continuous' or 'discrete'")
 
-        MUF[:, i * MBP:(i + 1) * MBP] -= \
-        np.tile(AuxFunctions.trapSum(logicalInterval,processedOutputTimes[j],outputAppliedError[j]), (MBP, 1)).transpose()
+
 
 
       #------------ Inventory terms ------------#
@@ -205,11 +223,11 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
 
         if i == 1:
           MUF[:, i * MBP:(i + 1) * MBP] -= \
-          np.tile((inventoryAppliedError[j][:, endIdx]), (MBP, 1)).transpose()
+          (inventoryAppliedError[j][:, endIdx])[:, np.newaxis]
 
         else:
           MUF[:, i * MBP:(i + 1) * MBP] -= \
-          np.tile((inventoryAppliedError[j][:, endIdx] - inventoryAppliedError[j][:, startIdx]), (MBP, 1)).transpose()
+          (inventoryAppliedError[j][:, endIdx] - inventoryAppliedError[j][:, startIdx])[:, np.newaxis]
 
 
 
@@ -218,8 +236,7 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
     return MUF
 
 
-
-def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,GUIObject=None,GUIparams=None,doTQDM=True,ispar=False):
+def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,inputTypes,outputTypes,GUIObject=None,doTQDM=True,ispar=False):
 
 
 
@@ -248,7 +265,7 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
       doTQDM = False
 
     if doTQDM and ispar == False:
-      pbar = tqdm(desc="Active Inventory", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85)
+      pbar = tqdm(desc="Active Inventory", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
 
     for i in range(1, int(MBPs)):  #each MBP
         for j in range(0, len(inputAppliedError)):  
@@ -264,8 +281,13 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
               processedInputTimes[j] >= MBP * (i - 1),
               processedInputTimes[j] <= MBP * i).reshape((-1,))  
 
-          AI[:, i * MBP:(i + 1) * MBP] += \
-          np.tile(AuxFunctions.trapSum(logicalInterval,processedInputTimes[j],inputAppliedError[j]), (MBP, 1)).transpose()
+
+          if inputTypes[j] == 'continuous':
+            AI[:, i * MBP:(i + 1) * MBP] += AuxFunctions.trapSum(logicalInterval,processedInputTimes[j],inputAppliedError[j])[:, np.newaxis]
+          elif inputTypes[j] == 'discrete':
+            AI[:, i * MBP:(i + 1) * MBP] += inputAppliedError[j][:, logicalInterval].sum(axis=1)[:,np.newaxis]
+          else:
+            raise Exception("inputTypes[j] is not 'continuous' or 'discrete'")
 
         
         for j in range(0, len(outputAppliedError)):
@@ -281,8 +303,12 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
               processedOutputTimes[j] >= MBP * (i - 1),
               processedOutputTimes[j] <= MBP * i).reshape((-1,))
 
-          AI[:, i * MBP:(i + 1) * MBP] += \
-          np.tile(AuxFunctions.trapSum(logicalInterval,processedOutputTimes[j],outputAppliedError[j]), (MBP, 1)).transpose()
+        if outputTypes[j] == 'continuous':
+          AI[:, i * MBP:(i + 1) * MBP] += AuxFunctions.trapSum(logicalInterval,processedOutputTimes[j],outputAppliedError[j])[:, np.newaxis]
+        elif outputTypes[j] == 'discrete':
+          AI[:, i * MBP:(i + 1) * MBP] += outputAppliedError[j][:, logicalInterval].sum(axis=1)[:,np.newaxis]
+        else:
+          raise Exception("outputTypes[j] is not 'continuous' or 'discrete'")
         
         for j in range(0, len(inventoryAppliedError)):
 
@@ -300,11 +326,11 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
 
           if i == 1:
               AI[:, i * MBP:(i + 1) * MBP] += \
-              np.tile((inventoryAppliedError[j][:, endIdx]), (MBP, 1)).transpose()
+              (inventoryAppliedError[j][:, endIdx])[:, np.newaxis]
 
           else:
               AI[:, i * MBP:(i + 1) * MBP] += \
-              np.tile((inventoryAppliedError[j][:, endIdx] - inventoryAppliedError[j][:, startIdx]), (MBP, 1)).transpose()
+              (inventoryAppliedError[j][:, endIdx] - inventoryAppliedError[j][:, startIdx])[:, np.newaxis]
 
 
 
@@ -338,13 +364,12 @@ def CUMUF(MUF,GUIObject=None,doTQDM=True, ispar=False):
   cumuf = np.zeros_like(MUF)
 
   if doTQDM and ispar == False:
-      pbar = tqdm(desc="CUMUF", total=int(len(idxs)-1), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85)
+      pbar = tqdm(desc="CUMUF", total=int(len(idxs)-1), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
 
 
 
   for i in range(1,len(idxs)): 
-    cumuf[:,idxs[i-1]:idxs[i]] = np.tile(cumuf[:,idxs[i-1]-1] + MUF[:,idxs[i]],
-                                          (int(idxs[i] - idxs[i-1]),1)).swapaxes(0,1)
+    cumuf[:,idxs[i-1]:idxs[i]] = (cumuf[:,idxs[i-1]-1] + MUF[:,idxs[i]])[:, np.newaxis] * np.ones((1, int(idxs[i] - idxs[i-1])))
 
     if GUIObject is not None:
       GUIObject.progress.emit(i/(len(idxs)-1))
@@ -363,7 +388,7 @@ def CUMUF(MUF,GUIObject=None,doTQDM=True, ispar=False):
   return cumuf
 
 
-def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,ErrorMatrix,GUIObject=None,doTQDM=True,ispar=False):
+def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,inputTypes,outputTypes,ErrorMatrix,GUIObject=None,doTQDM=True,ispar=False):
       """
         Function for calculating standard error of the material balance sequence (often called SEID or Standard Error of Inventory Difference; :math:`\\sigma _\\text{ID}`). This is accomplished by assuming the error incurred at each location (specified in the ErrorMatrix) rather than estimating it emperically, which is difficult in practice. The equation used here is suitable for most traditional bulk facilities such as enrichment or reprocessing where input and output flows are independent. This function should **not** be used for facilitiy types where there are more complex statistical dependencies between input, inventory, and output terms (e.g., molten salt reactors). See guide XX for more information.
 
@@ -388,6 +413,10 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
 
 
           MBP (float): Defines the material balance period. 
+
+          inputTypes (list of strings): Defines the type of input. This should be a list of strings that is the same length as the number of input locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
+
+          outputTypes (list of strings): Defines the type of output. This should be a list of strings that is the same length as the number of output locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
 
           ErrorMatrix (ndarray): mx1 A ndarray shaped :math:`[M,2]` where :math:`M` is the *total* number of locations across inputs, inventories, and outputs stacked together (in that order) and 2 refers to the relative random and systematic errors. For example with 2 inputs, 2 inventories, and 2 outputs, ErrorMatrix[3,1] would be the relative systematic error of inventory 2. See guide XX for more information. 
 
@@ -458,7 +487,7 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
       totalloops = ((MBPs-1)*(len(inputAppliedError)+len(outputAppliedError)+len(inventoryAppliedError)))
 
       if doTQDM and ispar == False:
-        pbar = tqdm(desc="Sigma MUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85)
+        pbar = tqdm(desc="Sigma MUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
 
 
       InpVar = np.zeros((iterations,int(MBPs * MBP)))
@@ -487,7 +516,14 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
               processedInputTimes[j] >= MBP * (i - 1),
               processedInputTimes[j] <= MBP * i).reshape((-1,))  #select the indices for the relevant time
 
-          AFTS = AuxFunctions.trapSum(logicalInterval,processedInputTimes[j],inputAppliedError[j])
+
+          if inputTypes[j] == 'continuous':
+            AFTS = AuxFunctions.trapSum(logicalInterval,processedInputTimes[j],inputAppliedError[j])
+          elif inputTypes[j] == 'discrete':
+            AFTS = inputAppliedError[j][:, logicalInterval].sum(axis=1)
+          else:
+            raise Exception("inputTypes[j] is not 'continuous' or 'discrete'")
+          
           VR = AFTS**2 * ErrorMatrix[j, 0]**2
           VS = AFTS**2 * ErrorMatrix[j, 1]**2
 
@@ -549,7 +585,12 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
               pbar.update(1)
 
 
-          AFTS = AuxFunctions.trapSum(logicalInterval,processedOutputTimes[j],outputAppliedError[j])
+          if outputTypes[j] == 'continuous':
+            AFTS = AuxFunctions.trapSum(logicalInterval,processedOutputTimes[j],outputAppliedError[j])
+          elif outputTypes[j] == 'discrete':
+            AFTS = outputAppliedError[j][:, logicalInterval].sum(axis=1)
+          else:
+            raise Exception("outputTypes[j] is not 'continuous' or 'discrete'")
           VR = AFTS**2 * ErrorMatrix[locMatrixRow, 0]**2
           VS = AFTS**2 * ErrorMatrix[locMatrixRow, 1]**2
 
@@ -593,7 +634,7 @@ def SEMUFAI(AI, SEMUF, SEMUFContribR, SEMUFContribS, MBP):
   return SEMUFAI, SEMUFAIContribR, SEMUFAIContribS
 
 
-def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,ErrorMatrix,MUF,MBP,GUIObject=None,doTQDM=True,ispar=False):
+def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,ErrorMatrix,MUF,MBP,inputTypes,outputTypes,GUIObject=None,doTQDM=True,ispar=False):
       """
       Function that carries out the standardized independent transformation of MUF. More detailed information can be found in the guide XX. 
 
@@ -619,6 +660,10 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
 
           MBP (float): Defines the material balance period. 
 
+          
+          inputTypes (list of strings): Defines the type of input. This should be a list of strings that is the same length as the number of input locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
+
+          outputTypes (list of strings): Defines the type of output. This should be a list of strings that is the same length as the number of output locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
 
 
           GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
@@ -682,8 +727,8 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
       covmatrix = np.zeros((iterations,int(MBPs), int(MBPs)))
 
       if doTQDM and ispar == False:
-        pbar = tqdm(desc="SITMUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:3.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=85)
-      #pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc:10}: {n_fmt}/{total_fmt} ({percentage:3.2f}%) |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
+        pbar = tqdm(desc="SITMUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+      #pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc:10}: {n_fmt}/{total_fmt} ({percentage:03.2f}%) |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
 
 
       if decompStatus == 1:
@@ -728,15 +773,28 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
                   for k in range(len(inputAppliedError)):
 
                       logicalInterval = np.logical_and(processedInputTimes[k] >= IPrevious_time,processedInputTimes[k] <= I_time).reshape((-1,))  #select the indices for the relevant time
-                      term1 += AuxFunctions.trapSum(logicalInterval,processedInputTimes[k],inputAppliedError[k]) **2 * (ErrorMatrix[k, 0]**2 + ErrorMatrix[k, 1]**2)
+
+                      if inputTypes[k] == 'continuous':
+                        term1 += AuxFunctions.trapSum(logicalInterval,processedInputTimes[k],inputAppliedError[k]) **2 * (ErrorMatrix[k, 0]**2 + ErrorMatrix[k, 1]**2)
+                      elif inputTypes[k] == 'discrete':
+                        term1 += (inputAppliedError[k][:, logicalInterval].sum(axis=1)**2 * (ErrorMatrix[k, 0]**2 + ErrorMatrix[k, 1]**2 ))
+                      else:
+                        raise Exception("inputTypes[j] is not 'continuous' or 'discrete'")
+
+                      
 
                   #------------ Output terms ------------#
                   for k in range(len(outputAppliedError)):
 
                       logicalInterval = np.logical_and(processedOutputTimes[k] >= IPrevious_time,processedOutputTimes[k] <= I_time).reshape((-1,))
-                      locMatrixRow = k + len(inputAppliedError) + len(inventoryAppliedError)
+                      locMatrixRow = k + len(inputAppliedError) + len(inventoryAppliedError)                      
 
-                      term2 += AuxFunctions.trapSum(logicalInterval,processedOutputTimes[k],outputAppliedError[k])**2 * (ErrorMatrix[locMatrixRow, 0]**2 + ErrorMatrix[locMatrixRow, 1]**2)
+                      if outputTypes[k] == 'continuous':
+                        term2 += AuxFunctions.trapSum(logicalInterval,processedOutputTimes[k],outputAppliedError[k])**2 * (ErrorMatrix[locMatrixRow, 0]**2 + ErrorMatrix[locMatrixRow, 1]**2)
+                      elif outputTypes[k] == 'discrete':
+                        term2 += (outputAppliedError[k][:, logicalInterval].sum(axis=1)**2 * (ErrorMatrix[locMatrixRow, 0]**2 + ErrorMatrix[locMatrixRow, 1]**2 ))
+                      else:
+                        raise Exception("outputTypes[j] is not 'continuous' or 'discrete'")
 
                   #------------ Inventory terms ------------#
                   for k in range(len(inventoryAppliedError)):
@@ -787,9 +845,16 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
                   for k in range(len(inputAppliedError)):
                       logicalInterval = np.logical_and(processedInputTimes[k] >= IPrevious_time, processedInputTimes[k] <= I_time).reshape((-1,))  #select the indices for the relevant time
                       logicalInterval2 = np.logical_and(processedInputTimes[k] >= IPrimePrevious_time, processedInputTimes[k] <= IPrime_time).reshape((-1,))  #select the indices for the relevant time
+                      
+                      if inputTypes[k] == 'continuous':
+                        A = AuxFunctions.trapSum(logicalInterval, processedInputTimes[k],inputAppliedError[k])
+                        B = AuxFunctions.trapSum(logicalInterval2, processedInputTimes[k],inputAppliedError[k])
+                      elif inputTypes[k] == 'discrete': 
+                        A = inputAppliedError[k][:, logicalInterval].sum(axis=1)
+                        B = inputAppliedError[k][:, logicalInterval2].sum(axis=1)
+                      else:
+                        raise Exception("inputTypes[j] is not 'continuous' or 'discrete'")                   
 
-                      A = AuxFunctions.trapSum(logicalInterval, processedInputTimes[k],inputAppliedError[k])
-                      B = AuxFunctions.trapSum(logicalInterval2, processedInputTimes[k],inputAppliedError[k])
                       C = ErrorMatrix[k, 1]**2
                       term1 += (A*B*C)
 
@@ -799,8 +864,17 @@ def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processed
                       logicalInterval2 = np.logical_and(processedOutputTimes[k] >= IPrimePrevious_time,processedOutputTimes[k] <= IPrime_time).reshape((-1,))  #select the indices for the relevant time
                       locMatrixRow = k + len(inputAppliedError) + len(inventoryAppliedError)
 
-                      A = AuxFunctions.trapSum(logicalInterval, processedOutputTimes[k],outputAppliedError[k])
-                      B = AuxFunctions.trapSum(logicalInterval2, processedOutputTimes[k],outputAppliedError[k])
+                      
+
+                      if outputTypes[k] == 'continuous':
+                        A = AuxFunctions.trapSum(logicalInterval, processedOutputTimes[k],outputAppliedError[k])
+                        B = AuxFunctions.trapSum(logicalInterval2, processedOutputTimes[k],outputAppliedError[k])
+                      elif outputTypes[k] == 'discrete': 
+                        A = outputAppliedError[k][:, logicalInterval].sum(axis=1)
+                        B = outputAppliedError[k][:, logicalInterval2].sum(axis=1)
+                      else:
+                        raise Exception("outputTypes[j] is not 'continuous' or 'discrete'")  
+                      
                       C = ErrorMatrix[locMatrixRow, 1]**2
                       term2 += (A*B*C)
 

@@ -42,13 +42,18 @@ class AnalysisThread(QtCore.QThread):
         
 
         AnalysisData.ErrorMatrix = StatsPanelOps.getGUIErrorVals(self.parent,
-                                                        GUIparams,
                                                         nInputs,
                                                         nInventories,
                                                         nOutputs,
                                                         argz['GLoc'])
         
-
+        (AnalysisData.inpCalibPeriod, 
+         AnalysisData.invCalibPeriod, 
+         AnalysisData.outCalibPeriod) = StatsPanelOps.getGUICalibVals(self.parent,
+                                                                      nInputs,
+                                                                      nInventories,
+                                                                      nOutputs)
+        
 
         MB1 = MBArea(rawInput = AnalysisData.rawInput,
                                 rawInventory = AnalysisData.rawInventory,
@@ -62,7 +67,12 @@ class AnalysisThread(QtCore.QThread):
                                 mbaTime = argz['MBP'],
                                 iterations = IT,
                                 GUIObject = self,
-                                dataOffset = AnalysisData.offset) 
+                                dataOffset = AnalysisData.offset,
+                                inputCalibrationPeriod=AnalysisData.inpCalibPeriod,
+                                inventoryCalibrationPeriod=AnalysisData.invCalibPeriod,
+                                outputCalibrationPeriod=AnalysisData.outCalibPeriod,
+                                inputTypes=AnalysisData.inputTypes,
+                                outputTypes=AnalysisData.outputTypes) 
 
 
 

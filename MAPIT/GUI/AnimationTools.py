@@ -68,7 +68,12 @@ def GradButtonChange(self, extraspace=0):
 
   value = self._animation2.currentValue()
 
-  StyleOps.update_aniButton_styleSheet(self,self.window().colordict,isrunning=1,valueA=value,colorborder=1, extraspace=extraspace)
+  tlw = QtWidgets.QApplication.topLevelWidgets()
+  for w in tlw:
+    if hasattr(w,'colordict'):
+      colordict = w.colordict
+
+  StyleOps.update_aniButton_styleSheet(self,colordict,isrunning=1,valueA=value,colorborder=1, extraspace=extraspace)
 
 
 def runMsgAnimation(self):
