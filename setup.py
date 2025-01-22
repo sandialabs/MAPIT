@@ -19,8 +19,8 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="MAPIT",  # Required
-    version="1.4.5-beta",  # Required
-    author="Nathan Shoman, Patrick Moosir",  # Optional
+    version="1.4.8-beta",  # Required
+    author="Nathan Shoman",  # Optional
     author_email="nshoman@sandia.gov",  # Optional
     install_requires = ["matplotlib","numpy","Pillow","tqdm","scipy","pyside6_essentials","ray[default]"],
     # Classifiers help users find your project by categorizing it.
