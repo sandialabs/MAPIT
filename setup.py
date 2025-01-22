@@ -22,7 +22,7 @@ setup(
     version="1.4.8-beta",  # Required
     author="Nathan Shoman",  # Optional
     author_email="nshoman@sandia.gov",  # Optional
-    install_requires = ["matplotlib","numpy","Pillow","tqdm","scipy","pyside6_essentials","ray[default]"],
+    install_requires = ["matplotlib","numpy","Pillow","tqdm","scipy","pyside6","ray[default]"],
     # Classifiers help users find your project by categorizing it.
     #
     # For a list of valid classifiers, see https://pypi.org/classifiers/
