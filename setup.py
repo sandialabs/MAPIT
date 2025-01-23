@@ -36,7 +36,7 @@ setup(
     ],
     packages=find_packages(),  # Required
     include_package_data=True,
-    python_requires="<3.12,>3.8",
+    python_requires=">3.8",
     project_urls={  # Optional
         "Data": "https://github.com/sandialabs/MAPIT-tools/",
         "Documents": "https://sandialabs.github.io/MAPIT/index.html",
