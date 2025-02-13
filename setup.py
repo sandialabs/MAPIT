@@ -19,7 +19,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="MAPIT",  # Required
-    version="1.4.8-beta",  # Required
+    version="1.4.90-beta",  # Required
     author="Nathan Shoman",  # Optional
     author_email="nshoman@sandia.gov",  # Optional
     install_requires = ["matplotlib","numpy","Pillow","tqdm","scipy","pyside6","ray[default]"],

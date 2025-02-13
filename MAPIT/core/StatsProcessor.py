@@ -121,7 +121,7 @@ class MBArea(object):
 
         self.processedInput, self.processedInputTimes, \
         self.processedInventory, self.processedInventoryTimes, \
-        self.processedOutput, self.processedOutputTimes = Preprocessing.FormatInput(
+        self.processedOutput, self.processedOutputTimes, idxRemoved = Preprocessing.FormatInput(
                                                     rawInput = rawInput,
                                                     rawInventory = rawInventory,
                                                     rawOutput = rawOutput,
@@ -133,6 +133,22 @@ class MBArea(object):
                                                     dataOffset = dataOffset,
                                                     rebaseToZero = rebaseToZero)
         
+        if len(idxRemoved[0]) != 0:
+            idxs = idxRemoved[0]
+            self.inputCalibrationPeriod = [v for i, v in enumerate( self.inputCalibrationPeriod) if i not in idxs]
+            self.inputTypes = [v for i, v in enumerate(self.inputTypes) if i not in idxs]
+
+        if len(idxRemoved[1]) != 0:
+            idxs = idxRemoved[1]
+            self.inventoryCalibrationPeriod = [v for i, v in enumerate( self.inventoryCalibrationPeriod) if i not in idxs]
+
+        if len(idxRemoved[2]) != 0:
+            idxs = idxRemoved[2]
+            self.outputCalibrationPeriod = [v for i, v in enumerate( self.outputCalibrationPeriod) if i not in idxs]
+            self.outputTypes = [v for i, v in enumerate(self.outputTypes) if i not in idxs]
+            
+
+
         self.inputAppliedError = None
         self.inventoryAppliedError = None
         self.outputAppliedError = None
@@ -244,6 +260,8 @@ class MBArea(object):
                     processedInputTimes = self.processedInputTimes,
                     processedInventoryTimes = self.processedInventoryTimes,
                     processedOutputTimes = self.processedOutputTimes,
+                    inputTypes=self.inputTypes,
+                    outputTypes=self.outputTypes,
                     MBP = self.mbaTime,
                     doTQDM=self.doTQDM,
                     ispar = True))
@@ -350,6 +368,8 @@ class MBArea(object):
                     processedInputTimes = self.processedInputTimes,
                     processedInventoryTimes = self.processedInventoryTimes,
                     processedOutputTimes = self.processedOutputTimes,
+                    inputTypes=self.inputTypes,
+                    outputTypes=self.outputTypes,
                     MBP = self.mbaTime,
                     doTQDM=self.doTQDM,
                     ispar = True))
@@ -466,6 +486,8 @@ class MBArea(object):
                     processedInputTimes = self.processedInputTimes,
                     processedInventoryTimes = self.processedInventoryTimes,
                     processedOutputTimes = self.processedOutputTimes,
+                    inputTypes=self.inputTypes,
+                    outputTypes=self.outputTypes,
                     MBP = self.mbaTime,
                     ErrorMatrix = self.totalErrorMatrix,
                     doTQDM=False, #self.doTQDM
@@ -587,6 +609,8 @@ class MBArea(object):
                     processedInputTimes = self.processedInputTimes,
                     processedInventoryTimes = self.processedInventoryTimes,
                     processedOutputTimes = self.processedOutputTimes,
+                    inputTypes=self.inputTypes,
+                    outputTypes=self.outputTypes,
                     MBP = self.mbaTime,
                     MUF = MUFslice,
                     ErrorMatrix = self.totalErrorMatrix,
@@ -677,7 +701,7 @@ class MBArea(object):
             self.inputAppliedError = Preprocessing.SimErrors(
                                 rawData = self.processedInput,
                                 times = self.processedInputTimes, 
-                                calibrationPeriod= self.inputCalibrationPeriod,
+                                calibrationPeriod = self.inputCalibrationPeriod,
                                 ErrorMatrix =  self.inputErrorMatrix, 
                                 iterations = self.IT,
                                 GUIObject = self.GUIObject)
@@ -685,7 +709,7 @@ class MBArea(object):
             self.inventoryAppliedError = Preprocessing.SimErrors(
                                         rawData = self.processedInventory,
                                         times = self.processedInventoryTimes,
-                                        calibrationPeriod=self.inventoryCalibrationPeriod,
+                                        calibrationPeriod = self.inventoryCalibrationPeriod,
                                         ErrorMatrix =  self.inventoryErrorMatrix, 
                                         iterations = self.IT,
                                         GUIObject = self.GUIObject)
@@ -694,7 +718,7 @@ class MBArea(object):
             self.outputAppliedError = Preprocessing.SimErrors(
                                         rawData = self.processedOutput, 
                                         times = self.processedOutputTimes,
-                                        calibrationPeriod=self.outputCalibrationPeriod,
+                                        calibrationPeriod = self.outputCalibrationPeriod,
                                         ErrorMatrix =  self.outputErrorMatrix, 
                                         iterations = self.IT,
                                         GUIObject = self.GUIObject)
@@ -707,6 +731,8 @@ class MBArea(object):
             for i in range(self.ntasks):
                 tasklist.append(gfunc.remote(
                             rawData = self.processedInput, 
+                            times = self.processedInputTimes, 
+                            calibrationPeriod = self.inputCalibrationPeriod,
                             ErrorMatrix =  self.inputErrorMatrix, 
                             iterations = self.nbatch,
                             batchSize = self.nbatch,
@@ -714,6 +740,8 @@ class MBArea(object):
 
                 tasklist.append(gfunc.remote(
                             rawData = self.processedInventory, 
+                            times = self.processedInventoryTimes, 
+                            calibrationPeriod = self.inventoryCalibrationPeriod,
                             ErrorMatrix =  self.inventoryErrorMatrix, 
                             iterations = self.nbatch,
                             batchSize = self.nbatch,
@@ -721,6 +749,8 @@ class MBArea(object):
 
                 tasklist.append(gfunc.remote(
                             rawData = self.processedOutput, 
+                            times = self.processedOutputTimes, 
+                            calibrationPeriod = self.outputCalibrationPeriod,
                             ErrorMatrix =  self.outputErrorMatrix, 
                             iterations = self.nbatch,
                             batchSize = self.nbatch,

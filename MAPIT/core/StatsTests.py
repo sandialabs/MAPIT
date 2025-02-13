@@ -221,13 +221,13 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
         endIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) -
                       MBP * i).argmin()
 
-        if i == 1:
-          MUF[:, i * MBP:(i + 1) * MBP] -= \
-          (inventoryAppliedError[j][:, endIdx])[:, np.newaxis]
+        # if i == 1:
+        #   MUF[:, i * MBP:(i + 1) * MBP] -= \
+        #   (inventoryAppliedError[j][:, endIdx])[:, np.newaxis]
 
-        else:
-          MUF[:, i * MBP:(i + 1) * MBP] -= \
-          (inventoryAppliedError[j][:, endIdx] - inventoryAppliedError[j][:, startIdx])[:, np.newaxis]
+        # else:
+        MUF[:, i * MBP:(i + 1) * MBP] -= \
+        (inventoryAppliedError[j][:, endIdx] - inventoryAppliedError[j][:, startIdx])[:, np.newaxis]
 
 
 

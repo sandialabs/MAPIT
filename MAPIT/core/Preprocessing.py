@@ -269,7 +269,7 @@ def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,
     #of the location then we just remove that
     #set as it's not applicable anymore
 
-    
+    allIdxToRemove=[[], [], []]
     if dataOffset > 0:
 
       #assumes raws are lists based on location
@@ -292,6 +292,7 @@ def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,
       if len(idxToRemove) > 0:
         rawInput = [v for i, v in enumerate(rawInput) if i not in idxToRemove]
         rawInputTimes = [v for i, v in enumerate(rawInputTimes) if i not in idxToRemove]
+        allIdxToRemove[0] = idxToRemove
 
       idxToRemove=[]
       for JR in range(len(rawInventory)):
@@ -308,10 +309,12 @@ def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,
         else:
           print("Cutoff exceeds total input time, removing inventory")
           idxToRemove.append(JR)
+          
 
       if len(idxToRemove) > 0:
         rawInventory = [v for i, v in enumerate(rawInventory) if i not in idxToRemove]
         rawInventoryTimes = [v for i, v in enumerate(rawInventoryTimes) if i not in idxToRemove]
+        allIdxToRemove[1] = idxToRemove
 
       idxToRemove=[]
       for JR in range(len(rawOutput)):
@@ -333,6 +336,7 @@ def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,
       if len(idxToRemove) > 0:
         rawOutput = [v for i, v in enumerate(rawOutput) if i not in idxToRemove]
         rawOutputTimes = [v for i, v in enumerate(rawOutputTimes) if i not in idxToRemove]
+        allIdxToRemove[2] = idxToRemove
 
 
 
@@ -340,7 +344,7 @@ def FormatInput(rawInput,rawInputTimes,rawInventory,rawInventoryTimes,rawOutput,
 
 
     return rawInput, rawInputTimes, rawInventory, rawInventoryTimes, \
-      rawOutput, rawOutputTimes
+      rawOutput, rawOutputTimes, allIdxToRemove
 
 def calcBatchError(calibrationPeriod, ErrorMatrix, batchSize, times, loc, dim0shape):
     """
@@ -366,7 +370,7 @@ def calcBatchError(calibrationPeriod, ErrorMatrix, batchSize, times, loc, dim0sh
 
     # If calibration period is not provided, calculate a single
     # set of systematic errors
-    if calibrationPeriod[loc] is None:
+    if calibrationPeriod is None or (isinstance(calibrationPeriod, list) and calibrationPeriod[loc] is None):
         if ErrorMatrix[loc,1].sum() == 0:
             # If systematic RSD is zero, set systematic error variates to zero
             sysRSD = np.zeros((batchSize,1,1))
