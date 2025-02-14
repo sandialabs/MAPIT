@@ -71,63 +71,16 @@ class StatGUIInterface:
     StyleOps.disable_ani_button(button_obj=self.CalcThresh, guiobj=self)
     StyleOps.disable_ani_button(button_obj=self.PlotRunner, guiobj=self, extraspace=13)  
 
-    try:
-      allowedInt1 = set('0123456789')
-      allowedInt2 = set('-0123456789')
-      statsChecker = [1, 1, 1]
-
-      if set(self.MBPBox.text())<=allowedInt1:
-        if int(self.MBPBox.text()) == 0:
-          statsChecker[0] = 0
-        else:
-          statsChecker[0] = 1
-      else:
-        statsChecker[0] = 0
-
-      if set(self.IterBox.text())<=allowedInt1:
-       if int(self.IterBox.text()) == 0:
-         statsChecker[1] = 0
-       else:
-         statsChecker[1] = 1
-      else:
-        statsChecker[1] = 0
-
-      if len(self.OBox.text()) > 0 and set(self.OBox.text()) <= allowedInt2:
-        statsChecker[2] = 0
-      elif len(self.OBox.text())  == 0:
-        statsChecker[2] = 1
-
-      if sum(statsChecker)<3:
-        raise ValueError()
-
-    except ValueError:
-      detailed_message = ''
-      for i, j in enumerate(statsChecker):
-        if j == 0 and i == 0:
-          MBPerrorstring = "The MBP needs to be an integer and above 0. \r"
-          detailed_message = detailed_message + MBPerrorstring
-        elif j == 0 and i == 1:
-          ITerrorstring = "The number of iterations needs to be an integer and above 0. \r"
-          detailed_message = detailed_message + ITerrorstring
-        elif j == 0 and i == 2:
-          Offseterrorstring = "The offset needs to be an integer. \r"
-          detailed_message = detailed_message + Offseterrorstring
-
-      F = os.path.join(site.getsitepackages()[-1], 'MAPIT', 'docs_v2', 'codeAssets', 'mapit_logo.png')
-      msgbox = QtWidgets.QMessageBox()
-      msgbox.setIcon(QtWidgets.QMessageBox.Critical)
-      msgbox.setWindowTitle('Statistical Test Settings Warning!')
-      msgbox.setWindowIcon(QtGui.QIcon(F))
-      msgbox.setText("There is an error with the statistical test settings. \r Show details for more information.")
-      msgbox.setDetailedText(detailed_message)
-      msgbox.exec_()
-
     if len(self.OBox.text()) > 0:
       AnalysisData.offset = int(self.OBox.text())
     else:
       AnalysisData.offset = 0
     mbaTime = int(self.MBPBox.text())
-    IT = int(self.IterBox.text())
+
+    if self.IterBox.text() == '':
+      IT = 0
+    else:
+      IT = int(self.IterBox.text())
 
     doError, doMUF, doAI, doCUMUF, doSEMUF, doSEMUFAI, doSITMUF, doPage = StatsPanelOps.getRequestedTests(GUIObject = self)
 

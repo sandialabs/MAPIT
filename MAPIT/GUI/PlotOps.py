@@ -66,6 +66,10 @@ class MPLCanvas(FigureCanvas):
     #FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding,
                                #QtWidgets.QSizePolicy.Expanding)
     self.Thresh = []
+  
+  def update_offset_text_color(self):
+    self.axes.yaxis.get_offset_text().set_color(self.main_gui.colordict["Text"])
+    self.fig.canvas.draw_idle()
 
   def compute_initial_figure(self):
     pass
@@ -553,6 +557,7 @@ def ExecPlot(GUIObject,GUIparams,AnalysisData):
     GUIObject.canvas.update_figure(dh,isVariableFlag=2,usehatch=hatchflag)
     GUIObject.canvas.update_figure_title(CanvasElements)
     GUIObject.canvas.update_figure_legend() if dh[2] == 'hist' else None #add a legend for SEID contrib plot
+    GUIObject.canvas.update_offset_text_color()
 
 
 #improve the look of sparse pulses

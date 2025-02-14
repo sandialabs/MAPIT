@@ -284,7 +284,7 @@ class getExtData(QtCore.QThread):
 
         elif fileext == '.mat':
             for i in range(len(infiles)):
-                z = loadmat(infiles[i])
+                z = loadmat(infiles[i], squeeze_me=True)
                 nloc = z['in']['data'].squeeze().size
                 if nloc == 1:
                     indat.append(z['in']['data'].squeeze()[()])
@@ -297,7 +297,7 @@ class getExtData(QtCore.QThread):
                 self.progress.emit(n/totf*100)
 
             for i in range(len(invfiles)):
-                z = loadmat(invfiles[i])
+                z = loadmat(invfiles[i], squeeze_me=True)
                 nloc = z['invn']['data'].squeeze().size
                 if nloc == 1:
                     invdat.append(z['invn']['data'].squeeze()[()])
@@ -310,7 +310,7 @@ class getExtData(QtCore.QThread):
                 self.progress.emit(n/totf*100)
 
             for i in range(len(outfiles)):
-                z = loadmat(outfiles[i])
+                z = loadmat(outfiles[i], squeeze_me=True)
                 nloc = z['outn']['data'].squeeze().size
                 if nloc == 1:
                     outdat.append(z['outn']['data'].squeeze()[()])
