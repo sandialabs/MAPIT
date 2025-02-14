@@ -81,9 +81,14 @@ We aim for biannual release updates for MAPIT, but if you have immediate needs t
 
 ## Installation
 
-MAPIT does not yet have a PyPI or Conda repository, so it must be installed manually. Download the source code from here and install the requirements via either the `requirements.txt` or `requirements.yml`. Once the requirements are installed, use the GUI by launching `MAPIT_main.py` or access the API by ensuring proper pathing.
+MAPIT is not hosted on PyPI and must be installed via source or conda. For installing from source, this can be done by `pip install git+https://github.com/MAPIT/MAPIT.git`. Alternatively, it can be installed from a local download using `pip install .`.
 
-To streamline this process, we have included both Windows-based and Unix-based installers for those new to Python. These can be found in the `windows_scripts` and `unix_scripts` folder respectively. 
+:::{important}
+The recommended install method is via conda; `conda install mapit -c conda-forge`.
+:::
+
+
+To streamline this process for users new to Python, we have included both Windows-based and Unix-based installers for those new to Python. These can be found in the `windows_scripts` and `unix_scripts` folder respectively. 
 
 ## Getting Started
 
