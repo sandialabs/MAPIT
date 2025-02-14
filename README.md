@@ -116,7 +116,7 @@ Sandia National Laboratories is a multimission laboratory managed and operated b
 ## Acknowledgements
 
 <p align="center">
-  <img src="./MAPIT/docs_v2/codeAssets/MPACT_ Logo.jpg" width="65%"/>
+  <img src="./MAPIT/docs_v2/codeAssets/MPACT_Logo.jpg" width="65%"/>
 </p>
 
 This work is supported by the DOE/NE Office of Materials and Chemical Technologies (NE-43) - Materials Protection, Accounting, and Control Technologies (MPACT) program.
