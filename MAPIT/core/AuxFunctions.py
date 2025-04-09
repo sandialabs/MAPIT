@@ -1,5 +1,6 @@
 import numpy as np
 from itertools import chain
+from tqdm import tqdm
 
 def trapSum(relevantIndex, time, data, IT=None, baseline_zero=1e-10):
     """
@@ -275,3 +276,285 @@ def SEIDcontrib(inArray,loc,time,typ='error',avg=True,Iter=None,):
     
     return out
   
+def calcCovMat(inputAppliedError, inventoryAppliedError, outputAppliedError, processedInputTimes, processedInventoryTimes, processedOutputTimes, ErrorMatrix, MBP, inputTypes, outputTypes, GUIObject=None, doTQDM=True,ispar=False):
+    """    
+        Function to calculate the material balance covariance matrix. 
+
+        Args: 
+            inputAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of input locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites (as opposed to ground truths). Inputs are assumed to be flows in units of :math:`\\frac{1}{s}` and will be integrated. 
+
+
+            processedInputTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of input locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedInputTimes)` and the shape of each list entry (ndarray) should be the same as for `inputAppliedError`. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken. 
+
+
+            inventoryAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of inventory locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites. Inventories are assumed to be in units of mass and will *not* be integrated.
+
+
+            processedInventoryTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of inventory locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedInventoryTimes)` and shape of each list entry (ndarray) should be the same as for `inventoryAppliedError`. Each entry in the ndarray should corresond to a timestamp indicating when the value was taken. 
+
+
+            outputAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of output locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites. Outputs are assumed to be in flows with units of :math:`\\frac{1}{s}` and will be integrated.
+
+
+            processedOutputTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of output locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedOutputTimes)` and shape of each list entry (ndarray) should be the same as for `outputAppliedError`. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken. 
+
+            ErrorMatrix (ndarray): mx1 A ndarray shaped :math:`[M,2]` where :math:`M` is the *total* number of locations across inputs, inventories, and outputs stacked together (in that order) and 2 refers to the relative random and systematic errors. For example with 2 inputs, 2 inventories, and 2 outputs, ErrorMatrix[3,1] would be the relative systematic error of inventory 2. See guide XX for more information. 
+
+            MBP (float): Defines the material balance period. 
+            
+            inputTypes (list of strings): Defines the type of input. This should be a list of strings that is the same length as the number of input locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
+
+            outputTypes (list of strings): Defines the type of output. This should be a list of strings that is the same length as the number of output locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
+
+            GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
+
+            doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
+
+            isPar (bool, default=False): Flag indicating if the function is being run in a parallel context. Only controls output formatting.
+
+        Returns:
+            (tuple):         
+                * SITMUF sequence (ndarray if `doSITMUF` otherwise None): SITMUF sequence with the shape :math:`[n,j]` where :math:`n` is the length equal to the maximum time based on the number of material balances that could be constructed given the user-provided MBP and number of samples in the input data, and :math:`j` is the number of iterations given as input.
+                
+                * GEMUF sequence (ndarray if `doGEMUF` otherwise None): GEMUF sequence with the shape :math:`[n,j]` where :math:`n` is the length equal to the maximum time based on the number of material balances that could be constructed given the user-provided MBP and number of samples in the input data, and :math:`j` is the number of iterations given as input.
+
+        The maximum time of the sequence is based on the minimum of all material balance components (e.g., input, inventories, and outputs) used for the calculation:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            import numpy as np
+
+            time1[-1] = 400
+            time2[-1] = 300
+            time3[-1] = 800
+
+            j = np.floor(
+                np.min(
+                    (time1, time2, time3)))
+
+    """
+    if GUIObject is not None:
+      doTQDM = False
+      loopcounter = 0
+
+    A1 = np.max(np.asarray(list(chain.from_iterable(processedInputTimes))))  #unroll list
+    A2 = np.max(np.asarray(list(chain.from_iterable(processedInventoryTimes))))
+    A3 = np.max(np.asarray(list(chain.from_iterable(processedOutputTimes))))
+
+
+    timeSteps = np.round(np.max(np.array([A1, A2, A3])))
+
+
+    totalMBPs = np.ceil(timeSteps / MBP)
+
+    iterations = inputAppliedError[0].shape[0]
+
+    #it's easier to implement SITMUF using the actual indicies
+    #from the statistical papers rather than the python loop variables
+    #so this translates python loop variables to indicides and times
+    #more closely aligned to the papers
+    covmatrix = np.zeros((iterations, int(totalMBPs), int(totalMBPs)))
+    pbar = None
+
+    totalloops = int(((totalMBPs-2)*(totalMBPs-1))/2)
+    if doTQDM and not ispar:        
+        pbar = tqdm(desc="CovMat", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+
+    #_covmat_loop-start
+    for currentMB in range(1, int(totalMBPs)):
+        for j in range(0, currentMB):
+    #_covmat_loop-end
+
+            if GUIObject is not None:
+                GUIObject.progress.emit(loopcounter / totalloops*100)
+                loopcounter+=1
+
+            I = j + 1 
+            IPrevious = j - 1               
+            IPrime = currentMB 
+            IPrimePrevious = currentMB-1
+
+            I_time = float(I*MBP)
+            IPrevious_time = float(IPrevious*MBP)
+            IPrime_time = float(IPrime*MBP)
+            IPrimePrevious_time = float(IPrimePrevious*MBP)
+
+
+
+
+            #------------ Diagonal terms ------------#
+            if j == currentMB-1:
+
+                term1 = np.zeros((iterations,))
+                term2 = np.zeros((iterations,))
+                term3 = np.zeros((iterations,))
+                term4 = np.zeros((iterations,))
+                term5 = np.zeros((iterations,))
+
+                #------------ Input terms ------------#
+
+                # _covmat_D1-start
+                for k in range(len(inputAppliedError)):
+
+                    logicalInterval = np.logical_and(processedInputTimes[k] >= IPrevious_time,processedInputTimes[k] <= I_time).reshape((-1,))  #select the indices for the relevant time
+
+                    if inputTypes[k] == 'continuous':
+                        term1 += trapSum(logicalInterval,processedInputTimes[k],inputAppliedError[k]) **2 * (ErrorMatrix[k, 0]**2 + ErrorMatrix[k, 1]**2)
+                    elif inputTypes[k] == 'discrete':
+                        term1 += (inputAppliedError[k][:, logicalInterval].sum(axis=1)**2 * (ErrorMatrix[k, 0]**2 + ErrorMatrix[k, 1]**2 ))
+                    else:
+                        raise Exception("inputTypes[j] is not 'continuous' or 'discrete'")                      
+                # _covmat_D1-end
+
+                    
+
+                #------------ Output terms ------------#
+                # _covmat_D2-start
+                for k in range(len(outputAppliedError)):
+
+                    logicalInterval = np.logical_and(processedOutputTimes[k] >= IPrevious_time,processedOutputTimes[k] <= I_time).reshape((-1,))
+                    locMatrixRow = k + len(inputAppliedError) + len(inventoryAppliedError)                      
+
+                    if outputTypes[k] == 'continuous':
+                        term2 += trapSum(logicalInterval,processedOutputTimes[k],outputAppliedError[k])**2 * (ErrorMatrix[locMatrixRow, 0]**2 + ErrorMatrix[locMatrixRow, 1]**2)
+                    elif outputTypes[k] == 'discrete':
+                        term2 += (outputAppliedError[k][:, logicalInterval].sum(axis=1)**2 * (ErrorMatrix[locMatrixRow, 0]**2 + ErrorMatrix[locMatrixRow, 1]**2 ))
+                    else:
+                        raise Exception("outputTypes[j] is not 'continuous' or 'discrete'")
+                # _covmat_D2-end
+
+                #------------ Inventory terms ------------#
+                # _covmat_D345-start
+                for k in range(len(inventoryAppliedError)):
+                    locMatrixRow = k+len(inputAppliedError)
+
+                    startIdx = np.abs(processedInventoryTimes[k].reshape((-1,)) - IPrevious_time).argmin()
+                    endIdx = np.abs(processedInventoryTimes[k].reshape((-1,)) - I_time).argmin()
+
+                    term3 += inventoryAppliedError[k][:,endIdx]**2 * (ErrorMatrix[locMatrixRow, 0]**2 + ErrorMatrix[locMatrixRow, 1]**2)
+
+
+                if j != 0:
+                    for k in range(len(inventoryAppliedError)):
+                        locMatrixRow = k + len(inputAppliedError)
+                        startIdx = np.abs(processedInventoryTimes[k].reshape((-1,)) -IPrevious_time).argmin()
+                        endIdx = np.abs(processedInventoryTimes[k].reshape((-1,)) - I_time).argmin()
+
+                        term4 += inventoryAppliedError[k][:,startIdx]**2 * (ErrorMatrix[locMatrixRow, 0]**2 + ErrorMatrix[locMatrixRow, 1]**2)
+                        term5 += inventoryAppliedError[k][:,startIdx] * inventoryAppliedError[k][:,endIdx] * ErrorMatrix[locMatrixRow, 1]**2
+
+                covmatrix[:,j,j] = term1 + term2 + term3 + term4 - 2 * term5
+                # _covmat_D345-end
+
+            #------------ Off-diagonal terms ------------#
+            else:
+                term1 = np.zeros((iterations,))
+                term2 = np.zeros((iterations,))
+                term3 = np.zeros((iterations,))
+                term4 = np.zeros((iterations,))
+                term5 = np.zeros((iterations,))
+
+                term3a = np.zeros((iterations,))
+                term3b = np.zeros((iterations,))
+                term3c = np.zeros((iterations,))
+
+                term4a = np.zeros((iterations,))
+                term4b = np.zeros((iterations,))
+                term4c = np.zeros((iterations,))
+
+                term5a = np.zeros((iterations,))
+                term5b = np.zeros((iterations,))
+                term5c = np.zeros((iterations,))
+
+                A = np.zeros((iterations,))
+                B = np.zeros((iterations,))
+                C = np.zeros((iterations,))
+
+                #------------ Input terms ------------#
+                # _covmat_OD1-start
+                for k in range(len(inputAppliedError)):
+                    logicalInterval = np.logical_and(processedInputTimes[k] >= IPrevious_time, processedInputTimes[k] <= I_time).reshape((-1,))  #select the indices for the relevant time
+                    logicalInterval2 = np.logical_and(processedInputTimes[k] >= IPrimePrevious_time, processedInputTimes[k] <= IPrime_time).reshape((-1,))  #select the indices for the relevant time
+                    
+                    if inputTypes[k] == 'continuous':
+                        A = trapSum(logicalInterval, processedInputTimes[k],inputAppliedError[k])
+                        B = trapSum(logicalInterval2, processedInputTimes[k],inputAppliedError[k])
+                    elif inputTypes[k] == 'discrete': 
+                        A = inputAppliedError[k][:, logicalInterval].sum(axis=1)
+                        B = inputAppliedError[k][:, logicalInterval2].sum(axis=1)
+                    else:
+                        raise Exception("inputTypes[j] is not 'continuous' or 'discrete'")                   
+
+                    C = ErrorMatrix[k, 1]**2
+                    term1 += (A*B*C)
+                # _covmat_OD1-end
+
+                #------------ Output terms ------------#
+                # _covmat_OD2-start
+                for k in range(len(outputAppliedError)):
+                    logicalInterval = np.logical_and(processedOutputTimes[k] >= IPrevious_time,processedOutputTimes[k] <= I_time).reshape((-1,))  #select the indices for the relevant time
+                    logicalInterval2 = np.logical_and(processedOutputTimes[k] >= IPrimePrevious_time,processedOutputTimes[k] <= IPrime_time).reshape((-1,))  #select the indices for the relevant time
+                    locMatrixRow = k + len(inputAppliedError) + len(inventoryAppliedError)
+
+                    
+
+                    if outputTypes[k] == 'continuous':
+                        A = trapSum(logicalInterval, processedOutputTimes[k],outputAppliedError[k])
+                        B = trapSum(logicalInterval2, processedOutputTimes[k],outputAppliedError[k])
+                    elif outputTypes[k] == 'discrete': 
+                        A = outputAppliedError[k][:, logicalInterval].sum(axis=1)
+                        B = outputAppliedError[k][:, logicalInterval2].sum(axis=1)
+                    else:
+                        raise Exception("outputTypes[j] is not 'continuous' or 'discrete'")  
+                    
+                    C = ErrorMatrix[locMatrixRow, 1]**2
+                    term2 += (A*B*C)
+                # _covmat_OD2-end
+
+                #------------ Inventory terms ------------#
+                # _covmat_OD345-start
+                for k in range(len(inventoryAppliedError)):
+                    startIdx =  np.abs(processedInventoryTimes[k].reshape((-1,)) -  I_time).argmin() #I
+                    endIdx = np.abs(processedInventoryTimes[k].reshape((-1,)) -  IPrime_time).argmin() 
+                    startIdx2 = np.abs(processedInventoryTimes[k].reshape((-1,)) - IPrevious_time).argmin() 
+                    endIdx2 = np.abs(processedInventoryTimes[k].reshape((-1,)) - IPrimePrevious_time).argmin() 
+                    locMatrixRow = k + len(inputAppliedError)
+
+                    term3a = inventoryAppliedError[k][:, startIdx] * inventoryAppliedError[k][:, endIdx]
+                    term3b = inventoryAppliedError[k][:, startIdx2] * inventoryAppliedError[k][:, endIdx2]
+                    term3c = ErrorMatrix[locMatrixRow, 1]**2
+                    term3 += (term3a+term3b)*term3c
+
+                    term4a = inventoryAppliedError[k][:, startIdx] * inventoryAppliedError[k][:, endIdx2]
+                    term4b = ErrorMatrix[locMatrixRow, 1]**2
+                    if IPrime-1 == I:
+                        term4c = ErrorMatrix[locMatrixRow, 0]**2
+                    else:
+                        term4c = np.zeros((iterations,))
+
+
+                    term4 += term4a*(term4b+term4c)
+
+                    term5a = inventoryAppliedError[k][:, startIdx2] * inventoryAppliedError[k][:, endIdx]
+                    term5b = ErrorMatrix[locMatrixRow, 1]**2
+
+                    if I - 1 == IPrime:
+                        term5c = ErrorMatrix[locMatrixRow, 0]**2
+                    else:
+                        term5c = np.zeros((iterations,))
+
+                    term5 += term5a*(term5b+term5c)
+                    
+                    
+
+                covmatrix[:,j,currentMB-1] = term1+term2+term3-term4-term5
+                covmatrix[:,currentMB-1,j] = term1+term2+term3-term4-term5
+                # _covmat_OD345-end
+
+                if pbar is not None:
+                    pbar.update(1)
+
+                
+
+    return covmatrix

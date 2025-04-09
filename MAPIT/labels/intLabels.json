@@ -4,7 +4,7 @@
     "Box13L": "Active Inventory",
     "Box14L": "Cumulative MUF",
     "Box15L": "Sigma MUF",
-    "Box16L": "Sigma MUF(Active Inventory)",
+    "Box16L": "Sigma MUF (Active Inventory)",
     "Box17L": "SITMUF",
     "Box18L": "Page's test on SITMUF",
     "Box1L": "Operations",
@@ -32,5 +32,7 @@
     "Box49L": "Sigma MUF (AI) Contribution (Absolute)",
     "Box4L": "Statistical Thresholds",
     "Box50L": "Sigma MUF (AI) Contribution (Relative)",
+    "Box51L": "GEMUF (V1)",
+    "Box52L": "GEMUF (V5)",
     "OuterL": "Analysis"
 }

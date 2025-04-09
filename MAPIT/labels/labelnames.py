@@ -12,7 +12,7 @@ intdictlab = {
       "Box13L" : "Active Inventory",
       "Box14L" : "Cumulative ID",
       "Box15L" : "Sigma MUF",
-      "Box16L" : "Sigma MUF(Active Inventory)",
+      "Box16L" : "Sigma MUF (Active Inventory)",
       "Box17L" : "SITMUF",
       "Box18L" : "Page's test on SITMUF",
       "Box2L" : "Statistics",
@@ -38,6 +38,8 @@ intdictlab = {
       "Box47L" : "SEID Contribution (Relative)",
       "Box49L" : "Sigma MUF (AI) Contribution (Absolute)",
       "Box50L" : "Sigma MUF (AI) Contribution (Relative)",
+      "Box51L": "GEMUF (V1)",
+      "Box52L": "GEMUF (V5)",
       "Box48L": "Total"
     }
 
@@ -49,7 +51,7 @@ domdictlab = {
       "Box13L" : "Active Inventory",
       "Box14L" : "CUMUF",
       "Box15L" : "SEID",
-      "Box16L" : "SEID(Active Inventory)",
+      "Box16L" : "SEID (Active Inventory)",
       "Box17L" : "SITMUF",
       "Box18L" : "Page's test on SITMUF",
       "Box2L" : "Statistics",
@@ -75,6 +77,8 @@ domdictlab = {
       "Box47L" : "SEID Contribution (Relative)",
       "Box49L" : "SEID (AI) Contribution (Absolute)",
       "Box50L" : "SEID (AI) Contribution (Relative)",
+      "Box51L": "GEMUF (V1)",
+      "Box52L": "GEMUF (V5)",
       "Box48L": "Total "
     }
 

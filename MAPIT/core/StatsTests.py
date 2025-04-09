@@ -633,318 +633,243 @@ def SEMUFAI(AI, SEMUF, SEMUFContribR, SEMUFContribS, MBP):
 
   return SEMUFAI, SEMUFAIContribR, SEMUFAIContribS
 
+def SITMUF(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
 
-def SITMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,ErrorMatrix,MUF,MBP,inputTypes,outputTypes,GUIObject=None,doTQDM=True,ispar=False):
-      """
-      Function that carries out the standardized independent transformation of MUF. More detailed information can be found in the guide XX. 
+  """
+    Function to calculate the standardized independent transformed MUF (SITMUF).
 
-      Args: 
+    Args:
 
-          inputAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of input locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites (as opposed to ground truths). Inputs are assumed to be flows in units of :math:`\\frac{1}{s}` and will be integrated. 
+        MUF (ndarray): The previously calculated MUF array. Should have shape [M, T] where M is the number of iterations (realizations) calculated and T is the total number of timesteps.
 
-
-          processedInputTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of input locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedInputTimes)` and the shape of each list entry (ndarray) should be the same as for `inputAppliedError`. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken. 
-
-
-          inventoryAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of inventory locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites. Inventories are assumed to be in units of mass and will *not* be integrated.
-
-
-          processedInventoryTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of inventory locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedInventoryTimes)` and shape of each list entry (ndarray) should be the same as for `inventoryAppliedError`. Each entry in the ndarray should corresond to a timestamp indicating when the value was taken. 
-
-
-          outputAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of output locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites. Outputs are assumed to be in flows with units of :math:`\\frac{1}{s}` and will be integrated.
-
-
-          processedOutputTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of output locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedOutputTimes)` and shape of each list entry (ndarray) should be the same as for `outputAppliedError`. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken. 
-
-
-          MBP (float): Defines the material balance period. 
-
-          
-          inputTypes (list of strings): Defines the type of input. This should be a list of strings that is the same length as the number of input locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
-
-          outputTypes (list of strings): Defines the type of output. This should be a list of strings that is the same length as the number of output locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
-
-
-          GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
-
-
-          GUIParams (object, default=None): An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI. 
-
-          doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
-
-        Returns:
-          ndarray: SITMUF sequence with shape :math:`[n,j]` where :math:`n` length equal to the maximum time based on the number of material balances that could be constructed given the user provided MBP and number of samples in the input data and :math:`j` is the number of iterations given as input. The term :math:`n` is calculated by finding the minimum of each of the provided input times. 
+        covmatrix (ndarray): The covariance matrix of the data. A symmetric [M, N, N] matrix where M is the number of iterations (realizations) N is the total number of balance periods calculated.
         
-          For example:
-
-          .. highlight:: python
-          .. code-block:: python
-
-            import numpy as np
-
-            time1[-1] = 400
-            time2[-1] = 300
-            time3[-1] = 800
-
-            j = np.floor(
-                  np.min(
-                    (time1,time2,time3)))
-
-      """
-      if GUIObject is not None:
-        doTQDM = False
+        MBP (float): The material balance period.
         
+        GUIObject (object, default=None): Optional object used by MAPIT GUI to warn users in the case of a Cholesky decomposition error. Defaults to None.
+        
+        doTQDM (bool, default=True): Whether to use a tqdm progress bar for the calculation. Defaults to True.
+        
+        ispar (bool, default=False): Whether to use a parallel calculation for the calculation. Defaults to False.
+
+    Returns:
+
+        ndarray: SITMUF sequence with shape [M, T] where M is number of iterations and T is the total number of timesteps.
+  """
+  if GUIObject is not None:
+    doTQDM = False
+
+  required_params = ["MUF", "covmatrix", "iterations", "nMBP", "MBP"]
+  missing_params = [param for param, value in locals().items() if value is None and param in required_params]
+
+  nMBP = covmatrix.shape[-1]
+
+  pbar = None
+  iterations = MUF.shape[0]
+  if doTQDM and not ispar:
+    pbar = tqdm(desc="SITMUF", total=int(iterations), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+
+  if missing_params:
+      raise ValueError(f"Missing required parameters: {', '.join(missing_params)}")
+  
+  
+  SITMUFCalcs = np.zeros((iterations,  int((nMBP - 1) * MBP)))
+
+  P = int(nMBP) - 1
+  for k in range(iterations):
+    if GUIObject is not None:
+      GUIObject.progress.emit((k+1) / (iterations+1)*100)
+    tempcovmatrix = covmatrix[k,:P,:P]
+    tempID = np.zeros((P,))
+    
+    #_sitmuf_IDs-start
+    for ZR in range(0,P):
+        tempID[ZR] = MUF[k,ZR*MBP]
+    #_sitmuf_IDs-end
+
+    #_sitmuf_chol-start
+    try:
+        V = np.linalg.cholesky(tempcovmatrix)
+    #_sitmuf_chol-end
+    except:                 
+        if GUIObject is not None:
+          msg = QtWidgets.QMessageBox()
+          msg.setIcon(QtWidgets.QMessageBox.Critical)
+          msg.setText("Covariance decomposition failure")
+          msg.setInformativeText("This usually occurs when the material balance is not setup correctly")
+          msg.setWindowTitle("Error")
+          msg.exec_()
+        else:
+          print('Covariance decomposition failure; This usually occurs when the material balance is not setup correctly')                    
+          return None
+
+    #_sitmuf_transform-start
+    SITMUF = np.matmul(np.linalg.inv(V),tempID)    
+    #_sitmuf_transform-end
+
+    for P in range(1, int(nMBP)):
+      SITMUFCalcs[k,int((P - 1) * MBP):int(P * MBP)] = np.ones((MBP,)) * SITMUF[P-1]
+    
+    if pbar is not None:
+      pbar.update(1)
+    
+  return SITMUFCalcs
+
+def GEMUF_V1(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
+  """
+  
+    Function that calculates the V1 version of GEMUF. Here, only the current value of MUF is used to estimate the loss vector for the GEMUF test statistic.
 
 
-      decompStatus = 1
-      iterations = inputAppliedError[0].shape[0]
+    Args:
+
+        MUF (ndarray): The previously calculated MUF array. Should have shape [M, T] where M is the number of iterations (realizations) calculated and T is the total number of timesteps.
+
+        covmatrix (ndarray): The covariance matrix of the data. A symmetric [M, N, N] matrix where M is the number of iterations (realizations) N is the total number of balance periods calculated.
+        
+        MBP (float): The material balance period.
+
+        GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
+        
+        doTQDM (bool, default=True): Whether to use a tqdm progress bar for the calculation. Defaults to True.
+        
+        ispar (bool, default=False): Whether to use a parallel calculation for the calculation. Defaults to False.
+
+    Returns:
+
+        ndarray: GEMUF-V1 sequence with shape [M, T] where M is number of iterations and T is the total number of timesteps.
 
 
-      A1 = np.max(np.asarray(list(chain.from_iterable(processedInputTimes))))  #unroll list
-      A2 = np.max(np.asarray(list(chain.from_iterable(processedInventoryTimes))))
-      A3 = np.max(np.asarray(list(chain.from_iterable(processedOutputTimes))))
+  """
+  if GUIObject is not None:
+    doTQDM = False
+  required_params = ["MUF", "covmatrix", "iterations", "nMBP", "MBP"]
+  missing_params = [param for param, value in locals().items() if value is None and param in required_params]
 
+  nMBP = covmatrix.shape[-1]
 
-      timeSteps = np.round(np.max(np.array([A1, A2, A3])))
+  if missing_params:
+      raise ValueError(f"Missing required parameters: {', '.join(missing_params)}")
 
+  iterations = MUF.shape[0]
+  pbar = None
+  if doTQDM and not ispar:
+    pbar = tqdm(desc="GEMUFV1", total=int(iterations), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
 
-      MBPs = np.ceil(timeSteps / MBP)
+  GEMUFCalcsV1 = np.zeros((iterations,  int((nMBP - 1) * MBP)))
+  P = int(nMBP)
+  for k in range(iterations):
+    if GUIObject is not None:
+      GUIObject.progress.emit((k+1) / (iterations+1)*100)
 
-      SITMUFCalcs = np.zeros((iterations,  int((MBPs - 1) * MBP)))
-      covmatrix = np.zeros((int(MBPs), int(MBPs)))
-      # Iterations, Locs, Samples, Elements eFrame
-
-      #----------------------------------------- SITMUF Calculation  ----------------------------------------#
-      #
-      # The first part is to calculate the covariance with consists of off-diagonal and diagonal terms
-      # Need to optimize this later as I think I could do better than what was originally implimented in matlab
-      #
-      #------------------------------------------------------------------------------------------------------#
-
-      totalloops = np.floor(((MBPs-1)**2 + MBPs) / 2) #nth triangle number, like factorial but addition
-      loopcounter = 0
-      covmatrix = np.zeros((iterations,int(MBPs), int(MBPs)))
-
-      if doTQDM and ispar == False:
-        pbar = tqdm(desc="SITMUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
-      #pbar = tqdm(desc="", total=int(totalloops), leave=True, bar_format = "{desc:10}: {n_fmt}/{total_fmt} ({percentage:03.2f}%) |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]")
-
-
-      if decompStatus == 1:
-
-        for P in range(1,int(MBPs)):
-            for j in range(0,P): 
-
-              if GUIObject is not None:
-                GUIObject.progress.emit(loopcounter / totalloops*100)
-                loopcounter+=1
-              if doTQDM:
-                if ispar == False:
-                  pbar.update(1)
-
-              #it's easier to implement SITMUF using the actual indicies
-              #from the statistical papers rather than the python loop variables
-              #so this translates python loop variables to indicides and times
-              #more closely aligned to the papers
-              I = j + 1 
-              IPrevious = j - 1               
-              IPrime = P 
-              IPrimePrevious = P-1
-
-              I_time = float(I*MBP)
-              IPrevious_time = float(IPrevious*MBP)
-              IPrime_time = float(IPrime*MBP)
-              IPrimePrevious_time = float(IPrimePrevious*MBP)
+    
+    IDs = np.zeros((P,)) 
+    IDs[0] = MUF[k, 0]
+    #_GEMUF_V1-start
+    for ZR in range(1, int(nMBP)):
+        IDs[ZR] = MUF[k,ZR*MBP]
+        tempID = IDs[:ZR]
+        tempcovmatrix = covmatrix[k,:ZR,:ZR]
+        ZG = np.matmul(np.matmul(np.transpose(tempID), np.linalg.inv(tempcovmatrix)), tempID)
+        GEMUFCalcsV1[k,int((ZR - 1) * MBP):int(ZR * MBP)] = np.ones((MBP,)) * ZG
+    #_GEMUF_V1-end
 
 
 
+    # _GEMUF_V1-end
 
-              #------------ Diagonal terms ------------#
-              if j == P-1:
+    if pbar is not None:
+      pbar.update(1)
 
-                  term1 = np.zeros((iterations,))
-                  term2 = np.zeros((iterations,))
-                  term3 = np.zeros((iterations,))
-                  term4 = np.zeros((iterations,))
-                  term5 = np.zeros((iterations,))
+  return GEMUFCalcsV1
 
-                  #------------ Input terms ------------#
-                  for k in range(len(inputAppliedError)):
+def GEMUF_V5B3(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
+  """
+  
+    Function that calculates the V5B3 version of GEMUF. A weighted window of MUF values are used to estimate the loss vector when calculating the test statistic. Note that the V5B3 version is only valid for only certain parts of the sequence. For example, at balance period 1 and balance period 2, V5B3 cannot be calculated as there isn't two past values to weigh. Similarly, V5B3 can't be calculated for the last two balance periods. Rather than modifying this from Seifert's original paper, we represent those values as zero.
 
-                      logicalInterval = np.logical_and(processedInputTimes[k] >= IPrevious_time,processedInputTimes[k] <= I_time).reshape((-1,))  #select the indices for the relevant time
-
-                      if inputTypes[k] == 'continuous':
-                        term1 += AuxFunctions.trapSum(logicalInterval,processedInputTimes[k],inputAppliedError[k]) **2 * (ErrorMatrix[k, 0]**2 + ErrorMatrix[k, 1]**2)
-                      elif inputTypes[k] == 'discrete':
-                        term1 += (inputAppliedError[k][:, logicalInterval].sum(axis=1)**2 * (ErrorMatrix[k, 0]**2 + ErrorMatrix[k, 1]**2 ))
-                      else:
-                        raise Exception("inputTypes[j] is not 'continuous' or 'discrete'")
-
-                      
-
-                  #------------ Output terms ------------#
-                  for k in range(len(outputAppliedError)):
-
-                      logicalInterval = np.logical_and(processedOutputTimes[k] >= IPrevious_time,processedOutputTimes[k] <= I_time).reshape((-1,))
-                      locMatrixRow = k + len(inputAppliedError) + len(inventoryAppliedError)                      
-
-                      if outputTypes[k] == 'continuous':
-                        term2 += AuxFunctions.trapSum(logicalInterval,processedOutputTimes[k],outputAppliedError[k])**2 * (ErrorMatrix[locMatrixRow, 0]**2 + ErrorMatrix[locMatrixRow, 1]**2)
-                      elif outputTypes[k] == 'discrete':
-                        term2 += (outputAppliedError[k][:, logicalInterval].sum(axis=1)**2 * (ErrorMatrix[locMatrixRow, 0]**2 + ErrorMatrix[locMatrixRow, 1]**2 ))
-                      else:
-                        raise Exception("outputTypes[j] is not 'continuous' or 'discrete'")
-
-                  #------------ Inventory terms ------------#
-                  for k in range(len(inventoryAppliedError)):
-                      locMatrixRow = k+len(inputAppliedError)
-
-                      startIdx = np.abs(processedInventoryTimes[k].reshape((-1,)) - IPrevious_time).argmin()
-                      endIdx = np.abs(processedInventoryTimes[k].reshape((-1,)) - I_time).argmin()
-
-                      term3 += inventoryAppliedError[k][:,endIdx]**2 * (ErrorMatrix[locMatrixRow, 0]**2 + ErrorMatrix[locMatrixRow, 1]**2)
+    .. IMPORTANT::
+      The first and last two material balance periods have undefined GEMUF values when using V5B3. We represent these as zero, but they are not truely zero!
 
 
-                  if j != 0:
-                      for k in range(len(inventoryAppliedError)):
-                          locMatrixRow = k + len(inputAppliedError)
-                          startIdx = np.abs(processedInventoryTimes[k].reshape((-1,)) -IPrevious_time).argmin()
-                          endIdx = np.abs(processedInventoryTimes[k].reshape((-1,)) - I_time).argmin()
+    Args:
 
-                          term4 += inventoryAppliedError[k][:,startIdx]**2 * (ErrorMatrix[locMatrixRow, 0]**2 + ErrorMatrix[locMatrixRow, 1]**2)
-                          term5 += inventoryAppliedError[k][:,startIdx] * inventoryAppliedError[k][:,endIdx] * ErrorMatrix[locMatrixRow, 1]**2
+        MUF (ndarray): The previously calculated MUF array. Should have shape [M, T] where M is the number of iterations (realizations) calculated and T is the total number of timesteps.
 
-                  covmatrix[:,j,j] = term1 + term2 + term3 + term4 - 2 * term5
+        covmatrix (ndarray): The covariance matrix of the data. A symmetric [M, N, N] matrix where M is the number of iterations (realizations) N is the total number of balance periods calculated.
+        
+        MBP (float): The material balance period.
 
-              #------------ Off-diagonal terms ------------#
-              else:
-                  term1 = np.zeros((iterations,))
-                  term2 = np.zeros((iterations,))
-                  term3 = np.zeros((iterations,))
-                  term4 = np.zeros((iterations,))
-                  term5 = np.zeros((iterations,))
+        GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
+        
+        doTQDM (bool, default=True): Whether to use a tqdm progress bar for the calculation. Defaults to True.
+        
+        ispar (bool, default=False): Whether to use a parallel calculation for the calculation. Defaults to False.
 
-                  term3a = np.zeros((iterations,))
-                  term3b = np.zeros((iterations,))
-                  term3c = np.zeros((iterations,))
+    Returns:
 
-                  term4a = np.zeros((iterations,))
-                  term4b = np.zeros((iterations,))
-                  term4c = np.zeros((iterations,))
-
-                  term5a = np.zeros((iterations,))
-                  term5b = np.zeros((iterations,))
-                  term5c = np.zeros((iterations,))
-
-                  A = np.zeros((iterations,))
-                  B = np.zeros((iterations,))
-                  C = np.zeros((iterations,))
-
-                  #------------ Input terms ------------#
-                  for k in range(len(inputAppliedError)):
-                      logicalInterval = np.logical_and(processedInputTimes[k] >= IPrevious_time, processedInputTimes[k] <= I_time).reshape((-1,))  #select the indices for the relevant time
-                      logicalInterval2 = np.logical_and(processedInputTimes[k] >= IPrimePrevious_time, processedInputTimes[k] <= IPrime_time).reshape((-1,))  #select the indices for the relevant time
-                      
-                      if inputTypes[k] == 'continuous':
-                        A = AuxFunctions.trapSum(logicalInterval, processedInputTimes[k],inputAppliedError[k])
-                        B = AuxFunctions.trapSum(logicalInterval2, processedInputTimes[k],inputAppliedError[k])
-                      elif inputTypes[k] == 'discrete': 
-                        A = inputAppliedError[k][:, logicalInterval].sum(axis=1)
-                        B = inputAppliedError[k][:, logicalInterval2].sum(axis=1)
-                      else:
-                        raise Exception("inputTypes[j] is not 'continuous' or 'discrete'")                   
-
-                      C = ErrorMatrix[k, 1]**2
-                      term1 += (A*B*C)
-
-                  #------------ Output terms ------------#
-                  for k in range(len(outputAppliedError)):
-                      logicalInterval = np.logical_and(processedOutputTimes[k] >= IPrevious_time,processedOutputTimes[k] <= I_time).reshape((-1,))  #select the indices for the relevant time
-                      logicalInterval2 = np.logical_and(processedOutputTimes[k] >= IPrimePrevious_time,processedOutputTimes[k] <= IPrime_time).reshape((-1,))  #select the indices for the relevant time
-                      locMatrixRow = k + len(inputAppliedError) + len(inventoryAppliedError)
-
-                      
-
-                      if outputTypes[k] == 'continuous':
-                        A = AuxFunctions.trapSum(logicalInterval, processedOutputTimes[k],outputAppliedError[k])
-                        B = AuxFunctions.trapSum(logicalInterval2, processedOutputTimes[k],outputAppliedError[k])
-                      elif outputTypes[k] == 'discrete': 
-                        A = outputAppliedError[k][:, logicalInterval].sum(axis=1)
-                        B = outputAppliedError[k][:, logicalInterval2].sum(axis=1)
-                      else:
-                        raise Exception("outputTypes[j] is not 'continuous' or 'discrete'")  
-                      
-                      C = ErrorMatrix[locMatrixRow, 1]**2
-                      term2 += (A*B*C)
-
-                  #------------ Inventory terms ------------#
-                  for k in range(len(inventoryAppliedError)):
-                      startIdx =  np.abs(processedInventoryTimes[k].reshape((-1,)) -  I_time).argmin() #I
-                      endIdx = np.abs(processedInventoryTimes[k].reshape((-1,)) -  IPrime_time).argmin() 
-                      startIdx2 = np.abs(processedInventoryTimes[k].reshape((-1,)) - IPrevious_time).argmin() 
-                      endIdx2 = np.abs(processedInventoryTimes[k].reshape((-1,)) - IPrimePrevious_time).argmin() 
-                      locMatrixRow = k + len(inputAppliedError)
-
-                      term3a = inventoryAppliedError[k][:, startIdx] * inventoryAppliedError[k][:, endIdx]
-                      term3b = inventoryAppliedError[k][:, startIdx2] * inventoryAppliedError[k][:, endIdx2]
-                      term3c = ErrorMatrix[locMatrixRow, 1]**2
-                      term3 += (term3a+term3b)*term3c
-
-                      term4a = inventoryAppliedError[k][:, startIdx] * inventoryAppliedError[k][:, endIdx2]
-                      term4b = ErrorMatrix[locMatrixRow, 1]**2
-                      if IPrime-1 == I:
-                          term4c = ErrorMatrix[locMatrixRow, 0]**2
-                      else:
-                          term4c = np.zeros((iterations,))
+        ndarray: GEMUF-V5B3 sequence with shape [M, T] where M is number of iterations and T is the total number of timesteps.
 
 
-                      term4 += term4a*(term4b+term4c)
+  """
+  if GUIObject is not None:
+    doTQDM = False
+  required_params = ["MUF", "covmatrix", "iterations", "nMBP", "MBP"]
+  missing_params = [param for param, value in locals().items() if value is None and param in required_params]
 
-                      term5a = inventoryAppliedError[k][:, startIdx2] * inventoryAppliedError[k][:, endIdx]
-                      term5b = ErrorMatrix[locMatrixRow, 1]**2
+  nMBP = covmatrix.shape[-1]
 
-                      if I - 1 == IPrime:
-                          term5c = ErrorMatrix[locMatrixRow, 0]**2
-                      else:
-                          term5c = np.zeros((iterations,))
+  if missing_params:
+      raise ValueError(f"Missing required parameters: {', '.join(missing_params)}")
 
-                      term5 += term5a*(term5b+term5c)
-                      
-                      
+  iterations = MUF.shape[0]
+  pbar = None
+  if doTQDM and not ispar:
+    pbar = pbar = tqdm(desc="GEMUFV5B3", total=int(iterations), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+  
+  GEMUFCalcsV5B3 = np.zeros((iterations,  int((nMBP - 1) * MBP)))
+  MSSeq = np.zeros((iterations, int(nMBP - 1)))
+  P = int(nMBP)
+  for k in range(iterations):
+    if GUIObject is not None:
+      GUIObject.progress.emit((k+1) / (iterations+1)*100)
 
-                  covmatrix[:,j,P-1] = term1+term2+term3-term4-term5
-                  covmatrix[:,P-1,j] = term1+term2+term3-term4-term5
+    
+    IDs = np.zeros((P,)) 
+    IDs[0] = MUF[k, 0]
 
-            #------------ SITMUF Transform ------------#
-            for k in range(iterations):
-              tempcovmatrix = covmatrix[k,:P,:P]
-              tempID = np.zeros((P,))
+    for ZR in range(1, int(nMBP)):
+        IDs[ZR] = MUF[k,ZR*MBP]
+        tempID = IDs[:ZR]
+        tempcovmatrix = covmatrix[k,:ZR,:ZR]
+        IDWindow = np.zeros((5,))
 
-              for ZR in range(0,P):
-                  tempID[ZR] = MUF[k,ZR*MBP]
+        #_GEMUF_V5B3Window-start
+        if ZR>=2 and ZR+2<int(nMBP):
+          msc = 0
+          for ZR2 in range(ZR-2,ZR+3):
+            IDWindow[msc] = MUF[k, ZR2*MBP]
+            msc += 1
+        #_GEMUF_V5B3Window-end
 
-              try:
-                  V = np.linalg.cholesky(tempcovmatrix)
-              except:
-                  decompStatus = 0                  
-                  if GUIObject is not None:
-                    msg = QtWidgets.QMessageBox()
-                    msg.setIcon(QtWidgets.QMessageBox.Critical)
-                    msg.setText("Covariance decomposition failure")
-                    msg.setInformativeText("This usually occurs when the material balance is not setup correctly")
-                    msg.setWindowTitle("Error")
-                    msg.exec_()
-                  else:
-                    print('Covariance decomposition failure; This usually occurs when the material balance is not setup correctly')                    
-                    break
-
-              SITMUF = np.matmul(np.linalg.inv(V),tempID)
-              SITMUFCalcs[k,int((P - 1) * MBP):int(P * MBP)] = np.ones((MBP,)) * SITMUF[P - 1]
+        #_GEMUF_V5B3C-start
+        if ZR>=2 and ZR+2<int(nMBP):
+          MS = (1/7)*(IDWindow[0] + IDWindow[1] + 3*IDWindow[2] + IDWindow[3] + IDWindow[4])
+          MSSeq[k,ZR] = MS
+          ZG = np.matmul(np.matmul(np.transpose(MSSeq[k,:ZR].reshape((-1,))), np.linalg.inv(tempcovmatrix)), tempID)
+        #_GEMUF_V5B3C-end
+        else:
+          ZG = np.nan
+    
+        GEMUFCalcsV5B3[k,int((ZR - 1) * MBP):int(ZR * MBP)] = np.ones((MBP,)) * ZG 
 
 
-      
-      return SITMUFCalcs 
+
+  
+    if pbar is not None:
+      pbar.update(1)
+
+  return GEMUFCalcsV5B3
 
 
 def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,doTQDM=True):

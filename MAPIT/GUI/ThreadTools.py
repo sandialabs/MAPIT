@@ -74,7 +74,12 @@ class AnalysisThread(QtCore.QThread):
                                 inputTypes=AnalysisData.inputTypes,
                                 outputTypes=AnalysisData.outputTypes) 
 
-
+        AnalysisData.processedInput = MB1.processedInput
+        AnalysisData.processedInputTimes = MB1.processedInputTimes
+        AnalysisData.processedInventory = MB1.processedInventory
+        AnalysisData.processedInventoryTimes = MB1.processedInventoryTimes
+        AnalysisData.processedOutput = MB1.processedOutput
+        AnalysisData.processedOutputTimes = MB1.processedOutputTimes
 
         if argz['doError'] == 1:        
              
@@ -145,6 +150,14 @@ class AnalysisThread(QtCore.QThread):
             AnalysisData.SEMUFAI, \
             AnalysisData.SEMUFAIContribR, \
             AnalysisData.SEMUFAIContribS = MB1.calcSEMUFAI()
+        
+        # just forcing the covariance calculation here
+        # rather than relying on the StatsProcessor internal checks
+        # works a bit better for passing info to the GUI given
+        # the threadded implementation
+        if argz['doSITMUF'] or argz['doGEMUFV1'] or argz['doGEMUFV5']:
+            self.pbartext.emit('Processing: CovMat')
+            _ = MB1._calcCovMat()
 
         if argz['doSITMUF']:
             self.pbartext.emit('Processing: '+GUIparams.labels['Box17L'])
@@ -157,10 +170,19 @@ class AnalysisThread(QtCore.QThread):
 
             AnalysisData.Page = MB1.calcPageTT()
 
+        if argz['doGEMUFV1']:
+            self.pbartext.emit('Processing: '+GUIparams.labels['Box51L'])
+            AnalysisData.GEMUFV1 = MB1.calcGEMUF_V1()
+        
+        if argz['doGEMUFV5']:
+            self.pbartext.emit('Processing: '+GUIparams.labels['Box52L'])
+            AnalysisData.GEMUFV5 = MB1.calcGEMUF_V5B3()
+
         self.pbartext.emit('Ready')
         self.progress.emit(100)
         self.resultsReady.emit((AnalysisData, argz['doMUF'], argz['doAI'], argz['doCUMUF'],
-                           argz['doSEMUF'], argz['doSEMUFAI'], argz['doSITMUF'], argz['doPage']))
+                           argz['doSEMUF'], argz['doSEMUFAI'], argz['doSITMUF'], argz['doPage'], 
+                           argz['doGEMUFV1'], argz['doGEMUFV5']))
         return
 
 

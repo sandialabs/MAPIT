@@ -104,8 +104,15 @@ class MPLCanvas(FigureCanvas):
         self.axes.plot(data[:, 0], data[:, 1])
       elif isVariableFlag == 2:
         if data[0].shape != data[1].shape:
+          if data[1].shape[0] == data[0].shape[0]:
+            data[1] = data[1].transpose((1,0))
           for J in range(data[1].shape[0]):
             self.axes.plot(data[0],data[1][J,])
+            
+          # helps with gemuf where V5 has nans for invalid
+          # times, so this ensures the timeseries is plotted
+          # correctly
+          self.axes.set_xlim([0, int(data[0].shape[0])])
         else:
           self.axes.plot(data[0], data[1])
       else:
@@ -187,26 +194,28 @@ class MPLCanvas(FigureCanvas):
 
     self.draw()
 
-  def update_thresh(self, data, data2):  #draw the threshold from the threshold calculator
-    if hasattr(self.Thresh, '__len__'):
-      TH = np.ones((int(self.axes.get_lines()[0]._x.max()),)) * data
-      self.Thresh, = self.axes.plot(TH, 'k')
-      self.draw()
-    else:
-      TH = np.ones((int(self.axes.get_lines()[0]._x.max()),)) * data
+  def update_thresh(self, thresh1, thresh0, data2):  #draw the threshold from the threshold calculator
+    xmax = int(self.axes.get_lines()[0]._x.max())
+    xx = np.linspace(0, xmax, xmax+1).astype(int)
+    thresh = xx*thresh1 + thresh0
+
+    if type(self.Thresh) == matplotlib.lines.Line2D:
       self.Thresh.remove()
-      self.Thresh, = self.axes.plot(TH, 'k')
-      self.draw()
+    
+    self.Thresh, = self.axes.plot(thresh, 'k')
+    
+    self.axes.relim()
+    self.axes.autoscale_view(scalex=False, scaley=True, tight=True)
+    self.draw()
 
     TotOver = 0
-    if len(np.shape(data2)) == 2:
-      TotOver = np.sum(np.max(data2, axis=1) > data) / np.shape(data2)[0] * 100
-    else:
-      TotOver = (np.max(data2) > data) / np.shape(data2)[0] * 100
+    for i in range(data2.shape[0]):
+      if np.sum(data2[i] > thresh) > 0:
+        TotOver+=1
 
-    # prob a better way/method to do this
-    # future TODO: fix this abomination of a code line
+    TotOver = (TotOver / data2.shape[0]) * 100
     self.main_gui.StatThreshDisp.setText(str(round(TotOver, 2)))
+    
 def UpdatePlotOpts(GUIObj):
     """
             Function to add GT and observed
@@ -288,30 +297,30 @@ def getDataWithLocations(PlotIndex,GUIparams,AnalysisData,nPlot,raw):
   if PlotIndex < GUIparams.nInputLocations:
     
     if raw == True:
-      dat = AnalysisData.rawInput[PlotIndex]
-      datT = AnalysisData.rawInputTimes[PlotIndex]
+      dat = AnalysisData.processedInput[PlotIndex]
+      datT = AnalysisData.processedInputTimes[PlotIndex]
     else:
       dat = AnalysisData.inputAppliedError[PlotIndex]
-      datT = AnalysisData.rawInputTimes[PlotIndex]
+      datT = AnalysisData.processedInputTimes[PlotIndex]
     
   elif PlotIndex >= GUIparams.nInputLocations and PlotIndex < GUIparams.nInventoryLocations+GUIparams.nInputLocations:
     PlotIndex -= GUIparams.nInputLocations
 
     if raw == True:
-      dat = AnalysisData.rawInventory[PlotIndex]
-      datT = AnalysisData.rawInventoryTimes[PlotIndex]
+      dat = AnalysisData.processedInventory[PlotIndex]
+      datT = AnalysisData.processedInventoryTimes[PlotIndex]
     else:
       dat = AnalysisData.inventoryAppliedError[PlotIndex]
-      datT = AnalysisData.rawInventoryTimes[PlotIndex]
+      datT = AnalysisData.processedInventoryTimes[PlotIndex]
 
   else:
     PlotIndex -= (GUIparams.nInputLocations + GUIparams.nInventoryLocations)
     if raw == True:
-      dat = AnalysisData.rawOutput[PlotIndex]
-      datT = AnalysisData.rawOutputTimes[PlotIndex]
+      dat = AnalysisData.processedOutput[PlotIndex]
+      datT = AnalysisData.processedOutputTimes[PlotIndex]
     else:
       dat = AnalysisData.outputAppliedError[PlotIndex]
-      datT = AnalysisData.rawOutputTimes[PlotIndex]
+      datT = AnalysisData.processedOutputTimes[PlotIndex]
 
   if nPlot == 1:
     np.random.shuffle(xx)
@@ -507,6 +516,12 @@ def getData(GUIObject,GUIparams,AnalysisData,ThresholdL = False):
         inp = AnalysisData.SEMUF
       elif currentText.endswith(GUIparams.labels["Box17L"]):
         inp = AnalysisData.SITMUF
+        CanvasElements.ylabel = 'Unitless'
+      elif currentText.endswith(GUIparams.labels["Box51L"]):
+        inp = AnalysisData.GEMUFV1
+        CanvasElements.ylabel = 'Unitless'
+      elif currentText.endswith(GUIparams.labels["Box52L"]):
+        inp = AnalysisData.GEMUFV5
         CanvasElements.ylabel = 'Unitless'
       elif currentText.endswith(GUIparams.labels["Box14L"]):
         inp = AnalysisData.CUMUF

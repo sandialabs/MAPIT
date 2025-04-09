@@ -74,6 +74,8 @@ def getRequestedTests(GUIObject):
         doSEMUFAI = 0
         doSITMUF = 0
         doPage = 0
+        doGEMUFV1 = 0
+        doGEMUFV5 = 0
 
         if (GUIObject.CB_ErrorProp.isChecked()) > 0:
           doError = 1
@@ -99,10 +101,16 @@ def getRequestedTests(GUIObject):
         if (GUIObject.CB_PAGE.isChecked()) > 0:
             doPage = 1
 
-        return doError, doMUF, doAI, doCUMUF, doSEMUF, doSEMUFAI, doSITMUF, doPage
+        if (GUIObject.CB_GEMUFV1.isChecked()) > 0:
+            doGEMUFV1 = 1
+
+        if (GUIObject.CB_GEMUFV5.isChecked()) > 0:
+            doGEMUFV5 = 1
+
+        return doError, doMUF, doAI, doCUMUF, doSEMUF, doSEMUFAI, doSITMUF, doPage, doGEMUFV1, doGEMUFV5
 
 
-def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEMUF,doSEMUFAI,doSITMUF,doPage,GUIparams,AnalysisData):
+def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEMUF,doSEMUFAI,doSITMUF,doPage,doGEMUFV1,doGEMUFV5,GUIparams,AnalysisData):
       
 
 
@@ -132,6 +140,11 @@ def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEMUF,doSEMUFAI,doSITMU
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box17L"])
       if doPage == 1:
         UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box18L"])
+      if doGEMUFV1:
+          UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box51L"])
+      if doGEMUFV5:
+          UpdatePlotterLocs(GUIObject,GUIparams,GUIparams.labels["Box52L"])
+
 
       # restore previous location selection, if relevant and present
       if GUIObject.metricBox.findText(currentMetric) != -1:
@@ -178,7 +191,8 @@ def preparePlotterOptions(GUIObject,doMUF,doAI,doCUMUF,doSEMUF,doSEMUFAI,doSITMU
 
 
       GUIObject.ExportDat.setEnabled(1)
-      GUIObject.StatThresh.setEnabled(1)
+      GUIObject.StatThresh1.setEnabled(1)
+      GUIObject.StatThresh0.setEnabled(1)
 
       if GUIObject.CB_SMUF.isChecked() == 1:
         GUIObject.TabView.setEnabled(1)

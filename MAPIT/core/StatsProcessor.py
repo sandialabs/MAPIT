@@ -4,6 +4,7 @@ from MAPIT.core import StatsTests as Tests
 from MAPIT.core import Preprocessing, AuxFunctions
 import os
 import logging
+from itertools import chain
 os.environ["RAY_verbose_spill_logs"] = "0"
 
 import MAPIT
@@ -12,6 +13,16 @@ def to_iterator(obj_ids):
     while obj_ids:
         done, obj_ids = ray.wait(obj_ids)
         yield 0
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'  # Reset to default color
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 class MBArea(object):
     """  
@@ -100,6 +111,8 @@ class MBArea(object):
         self.nbatch = nbatch
         self.doTQDM = doTQDM
         self.GUIObject = GUIObject
+        self.keepCovMat = False
+        self.covmatrix = None
 
         self.inputCalibrationPeriod = inputCalibrationPeriod
         self.inventoryCalibrationPeriod = inventoryCalibrationPeriod
@@ -161,10 +174,11 @@ class MBArea(object):
         if (self.inputAppliedError == None or self.inventoryAppliedError == None or self.outputAppliedError == None):
             if not self.dopar:
                 self._recalcBatchSize()
+
+            print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} Error data not found. Calculating...")
             self.calcErrors()
-                
-
-
+    
+   
     #performed in case batch size is changed after
     #initaliation
     def _recalcBatchSize(self):
@@ -539,48 +553,54 @@ class MBArea(object):
                                                                                       self.SEMUF_contribS,
                                                                                       self.mbaTime)
         return (self.SEMUFAI, self.SEMUFAI_contribR, self.SEMUFAI_contribS)
-    
+            
     def calcSITMUF(self):
-
         """
         
-
-            Calculates SITMUF using ``StatsTests.SITMUF``. The result is returned and stored as an attribute after the calculation is complete. Automatically calculates MUF if not present as an attribute.
-
+            Calculates the SITMUF transform using Picard's formulation with the Cholesky decomposition (:math:`C_i^{-1}\mathrm{muf}_i`). Automatically calculates relevant quantities needed for the calculation if not already present (e.g., covariance matrix, simulated measurement error, etc.).
 
             Returns:
-                ndarray: SITMUF sequence with shape :math:`[n,j]` where :math:`n` length equal to the maximum time based on the number of material balances that could be constructed given the user provided MBP and number of samples in the input data and :math:`j` is the number of iterations given as input. As is the case with MUF, the term :math:`n` is calculated by finding the minimum of each of the provided input times. 
-
+                ndarray: SITMUF sequence with shape :math:`[n,j]` where :math:`n` length equal to the maximum time based on the number of material balances that could be constructed given the user provided ``mbaTime`` and number of samples in the input data. :math:`j` is the number of iterations given as input. The term :math:`n` is calculated by finding the minimum of each of the provided input times.     
         
         """
-        
         self._recalcBatchSize()
         self._checkForErrorData()
 
+
+        # TODO: if parallel, calcMUF should also be parallel
         if not hasattr(self, "MUF"):
+            print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} MUF sequence not found. Calculating...")
             self.calcMUF()
         else:
             if self.MUF is None:
+                print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} MUF sequence not found. Calculating...")
                 self.calcMUF()
-
         
 
+        
         if not self.dopar:
-            self.SITMUF = Tests.SITMUF(inputAppliedError = self.inputAppliedError,
-                            inventoryAppliedError= self.inventoryAppliedError,
-                            outputAppliedError = self.outputAppliedError,
-                            processedInputTimes = self.processedInputTimes,
-                            processedInventoryTimes = self.processedInventoryTimes,
-                            processedOutputTimes = self.processedOutputTimes,
-                            MBP = self.mbaTime,
-                            ErrorMatrix = self.totalErrorMatrix,
-                            MUF = self.MUF,
-                            doTQDM = self.doTQDM,
-                            ispar = False,
-                            GUIObject = self.GUIObject,
-                            inputTypes=self.inputTypes,
-                            outputTypes=self.outputTypes)
+            
+            #check for covariance matrix presence
+            if not hasattr(self, "covmatrix"):
+                print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} Covariance matrix not found. Calculating...")
+                self._calcCovMat()
+            elif self.covmatrix is None:
+                print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} Covariance matrix not found. Calculating...")
+                self._calcCovMat()
+
+            self.SITMUF = Tests.SITMUF(self.MUF, self.covmatrix, self.mbaTime, self.GUIObject, self.doTQDM, self.dopar)
         else:
+
+            # check for covariance matrix presence
+            if not hasattr(self, "covmatrix"):
+                print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} Covariance matrix not found. Calculating...")
+                self.covmatrix = self._calcCovMatPar()
+            elif self.covmatrix is None:
+                print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} Covariance matrix not found. Calculating...")
+                self.covmatrix = self._calcCovMatPar()
+        
+
+
             # helpers for batching data
             idx1=0
             idx2=0
@@ -594,49 +614,283 @@ class MBArea(object):
                 idx2 = idx1 + self.nbatch
 
                 # batch the data into ntasks of nbatch size
-                inslice = self._parIterSlicer(idx1,idx2,'inputAppliedError')
-                invslice = self._parIterSlicer(idx1,idx2,'inventoryAppliedError')
-                outslice = self._parIterSlicer(idx1,idx2,'outputAppliedError')
                 MUFslice = self._parIterSlicer(idx1,idx2,'MUF')
+                covslice = self._parIterSlicer(idx1,idx2,'covmatrix')
+
 
                 idx1 += self.nbatch
 
                 # add the tasks
                 tasklist.append(gfunc.remote(
-                    inputAppliedError = inslice,
-                    inventoryAppliedError= invslice,
-                    outputAppliedError = outslice,
-                    processedInputTimes = self.processedInputTimes,
-                    processedInventoryTimes = self.processedInventoryTimes,
-                    processedOutputTimes = self.processedOutputTimes,
-                    inputTypes=self.inputTypes,
-                    outputTypes=self.outputTypes,
-                    MBP = self.mbaTime,
                     MUF = MUFslice,
-                    ErrorMatrix = self.totalErrorMatrix,
-                    doTQDM=self.doTQDM,
-                    ispar = True))
+                    covmatrix = covslice,
+                    MBP = self.mbaTime,
+                    doTQDM=False,
+                    ispar=True))
 
-            # print the progress until all tasks
-            # are completed 
-
-
+            
             # do the tasks
             if self.doTQDM:
-                for x in tqdm(to_iterator(tasklist),total=len(tasklist),desc="SITMUF", leave=True, 
+                for _ in tqdm(to_iterator(tasklist),total=len(tasklist),desc='SITMUF', leave=True, 
                                 bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
                     pass
             
             res = ray.get(tasklist)
+            # Nones returned if SITMUF or GEMUF
+            # isn't selected won't result in an error
+            # as it will be an array of Nones,
+            # but we won't return them -- just
+            # helps keep the code a little neater
+            # instead of doing checks here for
+            # what was selected
             for i in range(self.ntasks):
-                if i == 0:
+                if i == 0:                    
                     self.SITMUF = res[i]
                 else:
                     self.SITMUF = np.vstack((self.SITMUF,res[i]))
 
 
         return self.SITMUF
+
+    def calcGEMUF_V1(self):
+        """
         
+            Calculates the GEMUFV1 transform using the singular, current MUF value to estimate the unknown loss vector (e.g., :math:`{ZG}_i=\mathbf{M}_i^T \Sigma_N^{-1} \mathbf{muf}_i`). Automatically calculates relevant quantities needed for the calculation if not already present (e.g., covariance matrix, simulated measurement error, etc.).
+
+            Returns:
+                ndarray: GEMUFV1 sequence with shape :math:`[n,j]` where :math:`n` length equal to the maximum time based on the number of material balances that could be constructed given the user provided ``mbaTime`` and number of samples in the input data. :math:`j` is the number of iterations given as input. The term :math:`n` is calculated by finding the minimum of each of the provided input times.     
+        
+        """
+
+        self._recalcBatchSize()
+        self._checkForErrorData()
+
+        # TODO: update for parallel check here
+        if not hasattr(self, "MUF"):
+            self.calcMUF()
+        else:
+            if self.MUF is None:
+                self.calcMUF()
+        
+
+        
+        if not self.dopar:
+            if not hasattr(self, "covmatrix"):
+                self._calcCovMat()
+            elif self.covmatrix is None:
+                self._calcCovMat()
+            self.GEMUFV1 = Tests.GEMUF_V1(self.MUF, self.covmatrix, self.mbaTime, self.GUIObject, self.doTQDM, self.dopar)
+        else:
+
+            # check for covariance matrix presence
+            if not hasattr(self, "covmatrix"):
+                self.covmatrix = self._calcCovMatPar()
+            elif self.covmatrix is None:
+                self.covmatrix = self._calcCovMatPar()
+        
+
+
+            # helpers for batching data
+            idx1=0
+            idx2=0
+
+            # define the remote function
+            gfunc = ray.remote(Tests.GEMUF_V1)
+
+
+            tasklist = []
+            for i in range(self.ntasks):
+                idx2 = idx1 + self.nbatch
+
+                # batch the data into ntasks of nbatch size
+                MUFslice = self._parIterSlicer(idx1,idx2,'MUF')
+                covslice = self._parIterSlicer(idx1,idx2,'covmatrix')
+
+
+                idx1 += self.nbatch
+
+                # add the tasks
+                tasklist.append(gfunc.remote(
+                    MUF = MUFslice,
+                    covmatrix = covslice,
+                    MBP = self.mbaTime,
+                    doTQDM=False,
+                    ispar=True))
+
+            
+            # do the tasks
+            if self.doTQDM:
+                for _ in tqdm(to_iterator(tasklist),total=len(tasklist),desc='GEMUFV1', leave=True, 
+                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
+                    pass
+            
+            res = ray.get(tasklist)
+            # Nones returned if SITMUF or GEMUF
+            # isn't selected won't result in an error
+            # as it will be an array of Nones,
+            # but we won't return them -- just
+            # helps keep the code a little neater
+            # instead of doing checks here for
+            # what was selected
+            for i in range(self.ntasks):
+                if i == 0:                    
+                    self.GEMUFV1 = res[i]
+                else:
+                    self.GEMUFV1 = np.vstack((self.GEMUFV1,res[i]))
+
+        return self.GEMUFV1
+    
+    def calcGEMUF_V5B3(self):
+
+        """
+        
+            Calculates the GEMUFV5B3 transform using a weighted series of MUF values to estimate the unknown loss vector (e.g., :math:`{ZG}_i=\mathbf{M}_i^T \Sigma_N^{-1} \mathbf{muf}_i`). Automatically calculates relevant quantities needed for the calculation if not already present (e.g., covariance matrix, simulated measurement error, etc.).
+
+            Returns:
+                ndarray: GEMUFV5B3 sequence with shape :math:`[n,j]` where :math:`n` length equal to the maximum time based on the number of material balances that could be constructed given the user provided ``mbaTime`` and number of samples in the input data. :math:`j` is the number of iterations given as input. The term :math:`n` is calculated by finding the minimum of each of the provided input times.     
+        
+        """
+        self._recalcBatchSize()
+        self._checkForErrorData()
+
+        if not hasattr(self, "MUF"):
+            self.calcMUF()
+        else:
+            if self.MUF is None:
+                self.calcMUF()
+        
+        if not self.dopar:
+            if not hasattr(self, "covmatrix"):
+                self._calcCovMat()
+            elif self.covmatrix is None:
+                self._calcCovMat()
+            self.GEMUFV5B3 = Tests.GEMUF_V5B3(self.MUF, self.covmatrix, self.mbaTime, self.GUIObject, self.doTQDM, self.dopar)
+        else:
+
+            # check for covariance matrix presence
+            if not hasattr(self, "covmatrix"):
+                self.covmatrix = self._calcCovMatPar()
+            elif self.covmatrix is None:
+                self.covmatrix = self._calcCovMatPar()
+        
+
+
+            # helpers for batching data
+            idx1=0
+            idx2=0
+
+            # define the remote function
+            gfunc = ray.remote(Tests.GEMUF_V5B3)
+
+
+            tasklist = []
+            for i in range(self.ntasks):
+                idx2 = idx1 + self.nbatch
+
+                # batch the data into ntasks of nbatch size
+                MUFslice = self._parIterSlicer(idx1,idx2,'MUF')
+                covslice = self._parIterSlicer(idx1,idx2,'covmatrix')
+
+
+                idx1 += self.nbatch
+
+                # add the tasks
+                tasklist.append(gfunc.remote(
+                    MUF = MUFslice,
+                    covmatrix = covslice,
+                    MBP = self.mbaTime,
+                    doTQDM=False,
+                    ispar=True))
+
+            
+            # do the tasks
+            if self.doTQDM:
+                for _ in tqdm(to_iterator(tasklist),total=len(tasklist),desc='GEMUFV5B3', leave=True, 
+                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
+                    pass
+            
+            res = ray.get(tasklist)
+            # Nones returned if SITMUF or GEMUF
+            # isn't selected won't result in an error
+            # as it will be an array of Nones,
+            # but we won't return them -- just
+            # helps keep the code a little neater
+            # instead of doing checks here for
+            # what was selected
+            for i in range(self.ntasks):
+                if i == 0:                    
+                    self.GEMUFV5B3 = res[i]
+                else:
+                    self.GEMUFV5B3 = np.vstack((self.GEMUFV5B3,res[i]))
+
+        return self.GEMUFV5B3
+    
+    def _calcCovMat(self):
+        params = {
+            "inputAppliedError": self.inputAppliedError,
+            "inventoryAppliedError": self.inventoryAppliedError,
+            "outputAppliedError": self.outputAppliedError,
+            "processedInputTimes": self.processedInputTimes,
+            "processedInventoryTimes": self.processedInventoryTimes,
+            "processedOutputTimes": self.processedOutputTimes,
+            "MBP": self.mbaTime,
+            "ErrorMatrix": self.totalErrorMatrix,
+            "inputTypes": self.inputTypes, 
+            "outputTypes": self.outputTypes, 
+            "GUIObject": self.GUIObject,
+            "ispar": self.dopar,
+            "doTQDM": self.doTQDM
+        }
+
+        self.covmatrix = AuxFunctions.calcCovMat(**params)
+
+    def _calcCovMatPar(self):
+        idx1 = 0
+        idx2 = 0
+
+        gfunc = ray.remote(AuxFunctions.calcCovMat)
+
+        # inputAppliedError, inventoryAppliedError, outputAppliedError, processedInputTimes, processedInventoryTimes, processedOutputTimes, ErrorMatrix, MBP, inputTypes, outputTypes, GUIObject=None, doTQDM=True,ispar=False
+        tasklist = []
+        for i in range(self.ntasks):
+            idx2 = idx1 + self.nbatch
+
+            inpslice = self._parIterSlicer(idx1, idx2, 'inputAppliedError')
+            invslice = self._parIterSlicer(idx1, idx2, 'inventoryAppliedError')
+            outslice = self._parIterSlicer(idx1, idx2, 'outputAppliedError')
+
+            idx1 += self.nbatch
+
+            tasklist.append(gfunc.remote(
+                inputAppliedError = inpslice,
+                inventoryAppliedError = invslice,
+                outputAppliedError = outslice,
+                processedInputTimes = self.processedInputTimes,
+                processedInventoryTimes = self.processedInventoryTimes,
+                processedOutputTimes = self.processedOutputTimes,
+                ErrorMatrix = self.totalErrorMatrix,
+                MBP = self.mbaTime,
+                inputTypes = self.inputTypes,
+                outputTypes = self.outputTypes,
+                doTQDM = False,
+                ispar = True
+            ))
+
+        if self.doTQDM:
+            for _ in tqdm(to_iterator(tasklist), total = len(tasklist), desc='CovMat', leave=True, 
+                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
+                pass
+        
+        res = ray.get(tasklist)
+
+        for i in range(self.ntasks):
+            if i == 0:
+                covmatrix = res[i]
+            else:
+                covmatrix = np.concatenate((covmatrix, res[i]), axis = 0)
+
+        return covmatrix
+
     def calcPageTT(self):
 
         """
@@ -659,7 +913,6 @@ class MBArea(object):
         self.Page = Tests.PageTrendTest(self.SITMUF,self.mbaTime,MBPs,doTQDM=False, GUIObject=self.GUIObject)
         return self.Page
     
-
     def _parIterSlicer(self, I1, I2, attr):
         dat = getattr(self,attr)
         outdat = []
@@ -671,7 +924,6 @@ class MBArea(object):
         
         return outdat
             
-    #bc list
     def _parErrorConcat(self,newdat,attstr):
 
         olddat = getattr(self,attstr)

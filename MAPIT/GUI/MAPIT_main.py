@@ -82,14 +82,14 @@ class StatGUIInterface:
     else:
       IT = int(self.IterBox.text())
 
-    doError, doMUF, doAI, doCUMUF, doSEMUF, doSEMUFAI, doSITMUF, doPage = StatsPanelOps.getRequestedTests(GUIObject = self)
+    doError, doMUF, doAI, doCUMUF, doSEMUF, doSEMUFAI, doSITMUF, doPage, doGEMUFV1, doGEMUFV5 = StatsPanelOps.getRequestedTests(GUIObject = self)
 
     GLoc, GUIparams = StatsPanelOps.verifyGUIRequests(GUIObject = self, GUIparams = GUIparams)
 
     inpdict = {'doError': doError, 'doMUF': doMUF, 'doAI': doAI, 'doCUMUF': doCUMUF,
-               'doSEMUF': doSEMUF, 'doSEMUFAI': doSEMUFAI, 'doSITMUF': doSITMUF, 'doPage': doPage, 
+               'doSEMUF': doSEMUF, 'doSEMUFAI': doSEMUFAI, 'doSITMUF': doSITMUF, 'doPage': doPage,
                'GLoc': GLoc, 'GUIparams': GUIparams, 'AnalysisData':AnalysisData, 'MBP':mbaTime,
-               'IT':IT}
+               'IT':IT, 'doGEMUFV1': doGEMUFV1, 'doGEMUFV5': doGEMUFV5}
 
     Q = queue.Queue()
     thread = ThreadTools.AnalysisThread(Q,self.handleAnalysisThread,parent=self)
@@ -202,13 +202,13 @@ class LaunchGUI(QtWidgets.QMainWindow):
   def handleAnalysisThread(self, result):
     global AnalysisData
 
-    AnalysisData, doMUF, doAI, doCUMUF, doSEMUF, doSEMUFAI, doSITMUF, doPage = result
+    AnalysisData, doMUF, doAI, doCUMUF, doSEMUF, doSEMUFAI, doSITMUF, doPage, doGEMUFV1, doGEMUFV5 = result
 
     #reenable controls
     StyleOps.enable_ani_button(button_obj = self.ErrorS, guiobj = self, loc = 'EAB')
     StyleOps.enable_ani_button(button_obj = self.RunStats, guiobj = self, loc = 'RSB')
 
-    StatsPanelOps.preparePlotterOptions(self, doMUF, doAI, doCUMUF,doSEMUF, doSEMUFAI,doSITMUF,doPage,GUIparams,AnalysisData)
+    StatsPanelOps.preparePlotterOptions(self, doMUF, doAI, doCUMUF,doSEMUF, doSEMUFAI, doSITMUF, doPage, doGEMUFV1, doGEMUFV5, GUIparams,AnalysisData)
     self.CalcThresh._animation.start()
     self.CalcThresh.setEnabled(1)
     StyleOps.enable_ani_button(button_obj = self.CalcThresh, guiobj = self)
@@ -861,8 +861,17 @@ class LaunchGUI(QtWidgets.QMainWindow):
 
   def RunStatThresh(self):
     #call the function to update the threshold statistics
+    p1 = self.StatThresh1.text()
+    p2 = self.StatThresh0.text()
+
+    # if either parameter is empty for the thresholds,
+    # just assume its zero
+    if p1 == '':
+      p1 = '0.0'
+    if p2 == '':
+      p2 = '0.0'
     dh, _ = PlotOps.getData(self,GUIparams,AnalysisData, ThresholdL = True)
-    self.canvas.update_thresh(float(self.StatThresh.text()), dh[1])
+    self.canvas.update_thresh(float(p1), float(p2), dh[1])
 
   def RunPlotTresh(self):
     self.StatThreshDisp.setText("0.0")
@@ -1042,6 +1051,8 @@ def add_stats_box(self):
   self.CB_SMUF = QtWidgets.QCheckBox(GUIparams.labels["Box15L"])
   self.CB_SMUFAI = QtWidgets.QCheckBox(GUIparams.labels["Box16L"])
   self.CB_SITMUF = QtWidgets.QCheckBox(GUIparams.labels["Box17L"])
+  self.CB_GEMUFV1 = QtWidgets.QCheckBox(GUIparams.labels["Box51L"])
+  self.CB_GEMUFV5 = QtWidgets.QCheckBox(GUIparams.labels["Box52L"])
   self.CB_PAGE = QtWidgets.QCheckBox(GUIparams.labels["Box18L"])
 
   self.CB_ErrorProp.clicked.connect(self.update_errorB_text)
@@ -1054,6 +1065,8 @@ def add_stats_box(self):
   scrollHolderH.addWidget(self.CB_SMUFAI)
   scrollHolderH.addWidget(self.CB_SITMUF)
   scrollHolderH.addWidget(self.CB_PAGE)
+  scrollHolderH.addWidget(self.CB_GEMUFV1)
+  scrollHolderH.addWidget(self.CB_GEMUFV5)
 
   self.scrollTests.setWidget(self.scrollHolder)
   self.scrollTests.horizontalScrollBar().setEnabled(False)
@@ -1302,26 +1315,26 @@ def add_plot_box(self):
 
   # set threshold
 
-  self.StatThresh = QtWidgets.QLineEdit("", self.threshContainer)
-  self.TL1 = QtWidgets.QLabel(GUIparams.labels["Box41L"])
+  self.StatThresh1 = QtWidgets.QLineEdit("", self.threshContainer)
+  self.TL1 = QtWidgets.QLabel("a1")
   #self.TL1.setContentsMargins(5,15,5,15)
-  self.StatThresh.setMaxLength(4)
-  self.StatThresh.setMaximumWidth(75)
+  self.StatThresh1.setMaxLength(7)
+  self.StatThresh1.setMaximumWidth(75)
   threshouterL.addWidget(self.TL1, 0, 0)
-  threshouterL.addWidget(self.StatThresh, 1, 0)
-  self.TL1.setToolTip("Parameter to find data above this value")
-  self.StatThresh.setEnabled(0)
+  threshouterL.addWidget(self.StatThresh1, 1, 0)
+  self.TL1.setToolTip("a1 term for threshold with form y = a1*x + a0")
+  self.StatThresh1.setEnabled(0)
 
   # set precision, more work to be done here in the future
-  self.StatPrec = QtWidgets.QLineEdit("0.5", self.threshContainer)
-  self.TL2 = QtWidgets.QLabel("Sensitivity") #HACK: PM: fix this please
+  self.StatThresh0 = QtWidgets.QLineEdit("", self.threshContainer)
+  self.TL2 = QtWidgets.QLabel("a0") #HACK: 
   #self.TL2.setContentsMargins(10,15,10,15)
-  self.StatPrec.setMaxLength(4)
-  self.StatPrec.setMaximumWidth(75)
+  self.StatThresh0.setMaxLength(7)
+  self.StatThresh0.setMaximumWidth(75)
   threshouterL.addWidget(self.TL2, 0, 1)
-  threshouterL.addWidget(self.StatPrec, 1, 1)
-  self.StatPrec.setEnabled(0)
-  self.TL2.setToolTip("Sensitivity helps calibrate Page's Trend Test")
+  threshouterL.addWidget(self.StatThresh0, 1, 1)
+  self.StatThresh0.setEnabled(0)
+  self.TL2.setToolTip("a0 term for threshold with form y = a1*x + a0")
 
   
   # threshold display
