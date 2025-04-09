@@ -81,202 +81,62 @@ Where $ \boldsymbol{\text{C}_i}$ is the lower triangular Cholesky factor of the 
 
 ### Calculation of the covariance matrix
 
-The covariance matrix itself is often calculated using relative standard deviations, similar to the calculation for $\sigma$muf. In fact, the diagonal terms (i.e., $\Sigma_{1,1},  \Sigma_{2,2}, ... $) are the variance of the material balance (the covariance of material balance $i$ with itself is the variance). Recall the expression that was derived from $\sigma$muf. 
-
-$$
-        \sigma_{i,i}^2 & \approx 
-    \sum_{l \in l_0} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{l,t}\right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) 
-    + \sum_{l \in l_2} \left( (C_{i,l})^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) \\
-    & + \sum_{l \in l_2} \left( (C_{i-1,l})^2 * ((\delta_{R,l})^2 +  (\delta_{S,l})^2)  \right) \\
-    &  + \sum_{l \in l_1} \left( \left( \int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i} O_{l,t} \right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right)
-$$
-
-:::{note}
-The covariance term for the variance **will** be included in the covariance matrix calculation.
-:::
-
-The off-diagonal is calculated in a similar manner, but has more terms. The off-diagonal is the covariance between material balance $i$ and $j$.
-
-$$
-    \sigma_{i,j}^2  \approx
-    \text{cov} \bigg(& \sum_{l \in l_0}\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{t,l} - \sum_{l \in l_1}\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}O_{t,l} -  \sum_{l \in l_2}(C_{i,l} - C_{i-1, l}), \\
-    & \sum_{l \in l_0}\int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}I_{t,l} - \sum_{l \in l_1}\int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}O_{t,l} -  \sum_{l \in l_2}(C_{j,l} - C_{j-1, l}) \bigg)\\
-$$
-
-Following the same rules used to derive $\sigma$muf leads to the expression for the covariance off diagonal:
-
-$$
-\sigma_{i,j}^2  \approx
-    & \sum_{l \in l_2} \left( \left(   C_{i,l}C_{j,l} + C_{i-1,l}C_{j-1,l}   \right) * (\delta_{S,l})^2 \right) \\
-     - & \sum_{l \in l_2} \left( \left(   C_{i,l}C_{j-1,l}    \right) * \left(  (\delta_{S,l})^2 + P(j-1 == i)*(\delta_{R,l})^2 \right)   \right)\\
-     - & \sum_{l \in l_2} \left( \left(   C_{i-1,l}C_{j,l}    \right) * \left(  (\delta_{S,l})^2 + P(i-1 == j)*(\delta_{R,l})^2 \right)   \right)\\
-     + &  \sum_{l \in l_0} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_j}I_{t,l}\right) \left( \int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}I_{t,l} \right)  (\delta_{S,l})^2 \right) \\
-     + & \sum_{l \in l_1} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_j}O_{t,l}\right) \left( \int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}O_{t,l} \right)  (\delta_{S,l})^2 \right) \\
-$$
-
-Where 
-
-$$
-
-    [P] \equiv 
-    \begin{cases}
-      0 & P \text{ is false} \\
-      1 &  P \text{ is true} \\ 
-    \end{cases}
-
-$$
-
-:::{note}
-The goal of the SITMUF transform is to result in an standardized independent 
-::: 
+The covariance matrix is calculated using the `AuxFunctions.calcCovMat()` function. Setting up and calculating the covariance matrix is the most tedious and involved part of the SITMUF transform and is handled by it's own function. More details regarding the covariance matrix can be found [here](./covmat.md).  
 
 ## Discussion
 
-The Cholesky-based approach above has the property that the variance of SITMUF decreases with time as the estimated covariance matrix approaches the true value. This is the implementation used in MAPIT, however, one could also do a yearly SITMUF transform wherein the transform was applied only after the covariance matrix was well approximated from a year's worth of material balances. 
+It's important to note that the variance of SITMUF decreases with time as the estimated covariance matrix approaches the true value. The SITMUF transform is a ''forward-only'' method in that the transformed MUF values only benefit from the current covariance matrix entries. So, for example, even if you have an entire MUF sequence, the first MUF (MUF$_1$) value can't benefit from the fact that you have an entire covariance matrix filled with entries from the entire sequence. It only benefits from the information contained in the 1x1 submatrix of the covariance matrix (similarly MUF$_4$ only benefits from the 4x4 submatrix of the covariance matrix) There's no way to ''back-propagate'' the covariance matrix to previous MUF values, and this is be design. SITMUF values are usually fixed from a regulatory perspective. It's not desirable to  back correct SITMUF in most cases. If there was ever a use case to ''back-propagate'' the covariance matrix to past values, a different model would be required (perhaps something like a Kalman filter which could estimate state).
+
+
 
 ## Implementation
+
+The SITMUF implementation in MAPIT isn't very expensive thanks to optimized linear algebra libraries used to perform the Cholesky decomposition and other associated matrix operations.  The SITMUF function only computes this quantity:
+
+$$
+    \boldsymbol{\Sigma}_i = \boldsymbol{\text{C}_i}\boldsymbol{\text{C}_i}^T \\
+    \text{sitmuf}_i = \boldsymbol{\text{C}_i}^{-1} \text{muf}_{i} \\
+$$
+
+
+Each SITMUF realization (that is, each iteration) is calculated separately as the Cholesky decomposition from Numpy isn't vectorized (it's pretty quick on modern machines, anyways). We start by converting the MUF values from a continuous vector in time to a discrete vector on a per balance basis:
+
+<span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span>
+```{literalinclude} ../../MAPIT/core/StatsTests.py
+:start-after: _sitmuf_IDs-start
+:end-before: _sitmuf_IDs-end
+:language: python
+:linenos:
+:lineno-match:
+```
+After that, we attempt to perform the Cholesky decomposition. The decomposition will fail if the covariance matrix wasn't constructed properly, so we try to pass a warning/error if this happens.
+
+<span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span>
+```{literalinclude} ../../MAPIT/core/StatsTests.py
+:start-after: _sitmuf_chol-start
+:end-before: _sitmuf_chol-end
+:language: python
+:linenos:
+:lineno-match:
+```
+
+If the decomposition succeeds, then we proceed directly to the transform itself:
+
+<span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span>
+```{literalinclude} ../../MAPIT/core/StatsTests.py
+:start-after: _sitmuf_transform-start
+:end-before: _sitmuf_transform-end
+:language: python
+:linenos:
+:lineno-match:
+```
+
 :::{important}
-Note that this function is not intended to be used standalone through direct calls, rather, it is designed to be called through the `MBArea` class of `StatsProcessor`. 
+MAPIT's implementation calculates the entire SITMUF sequence in one pass resulting in the full length sequence. In practice, a more near-real time approach is adopted wherein, at each balance period, new values are appended to the covariance matrix and the MUF sequence is extended. Then the calculation is performed on the new sequence and the last value of the resulting SITMUF sequence is the current SITMUF value that is recorded for regulatory purposes. There's no benefit for us to perform the calculation this way as the values are the same if you iteratively calculate SITMUF (with a increasingly large covariance matrix) or do it at once as we do. 
 :::
 
-The SITMUF implementation in MAPIT is particularly computationally intensive as the "NRTA" type calculation is used. In a simulation space, we can calculate the entire covariance matrix at once with all entries from all balance periods. However, a "NRTA" styled calculation performs the SITMUF transform with a reduced covariance matrix that grows as new observations are added. This results in a decrease in variance of SITMUF over time. 
+We then convert the discrete SITMUF sequence to a continuous representation before continuing through all iterations. Then the final matrix is returned.
 
-The covariance matrix is a $NxN$ matrix at the N-th material balance period. Since MAPIT adopts the "NRTA" style calculation, all $NxN$ entries must be updated at each balance period which simulates the arrival of new information. The MAPIT SITMUF calculation is not well vectorized as the $NxN$ must be resized and calculated at each balance. The calculation starts by looping over balance periods and each entry in the covariance matrix at balance $P$:
-
-
-```{literalinclude} ../../MAPIT/core/StatsTests.py
-:lines: 691-692
-:language: python
-:linenos:
-:lineno-start: 691
-```
-
-The variables for the different times have a different meaning than in the expressions that were defined above. This is for legacy purposes and to improve alignment with the papers. The following table describes the mapping between the derived expressions and associated code:
-
-| Model Component | Code Expression |
-| --- | --- |
-| Balance $i$ | `I` |
-| Balance $j$ | `IPrime`
-
-For simplicity, the diagonal and off-diagonal terms are broken into multiple components.
-
-### Diagonal terms
-
-```{math}
-:class: only-dark
-    \sigma_{i,i}^2 & \approx 
-    \colorbox{#5755aa}{$\sum_{l \in l_0} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{l,t}\right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) $}
-    + \colorbox{#A2782A}{$\sum_{l \in l_2} \left( (C_{i,l})^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right)$} \\
-    & +  \colorbox{#3E8E87}{$\sum_{l \in l_2} \left( (C_{i-1,l})^2 * ((\delta_{R,l})^2 +  (\delta_{S,l})^2)  \right)$}
-     -  \colorbox{#CC3300}{$\sum_{l \in l_2} \left( 2C_{i-1,l}C_{i,l}(\delta_{S,l})^2  \right)$} \\
-    &  +  \colorbox{#0074CC}{$\sum_{l \in l_1} \left( \left( \int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i} O_{l,t} \right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right)$}
-```
-
-<span style="color:#5755aa; font-weight:bold">Term 1</span>
-```{literalinclude} ../../MAPIT/core/StatsTests.py
-:lines: 728-731
-:language: python
-:linenos:
-:emphasize-lines: 4
-:lineno-start: 728
-```
-
-<span style="color:#A2782A; font-weight:bold">Term 2</span>
-```{literalinclude} ../../MAPIT/core/StatsTests.py
-:lines: 742-748
-:language: python
-:linenos:
-:emphasize-lines: 7
-:lineno-start: 748
-```
-
-<span style="color:#3E8E87; font-weight:bold">Term 3</span>
-```{literalinclude} ../../MAPIT/core/StatsTests.py
-:lines: 742-759
-:language: python
-:linenos:
-:emphasize-lines: 16
-:lineno-start: 742
-```
-
-<span style="color:#CC3300; font-weight:bold">Term 4</span>
-```{literalinclude} ../../MAPIT/core/StatsTests.py
-:lines: 742-759
-:language: python
-:linenos:
-:emphasize-lines: 17
-:lineno-start: 742
-:caption: The factor 2 is included later when the terms are added and assigned to the covariance matrix.
-```
-
-<span style="color:#0074CC; font-weight:bold">Term 5</span>
-
-```{literalinclude} ../../MAPIT/core/StatsTests.py
-:lines: 734-739
-:language: python
-:linenos:
-:lineno-start: 739
-:emphasize-lines: 6
-```
-
-### Off-diagonal terms
-
-```{math}
-:class: only-dark
-
-\sigma_{i,j}^2  \approx
-    &  \colorbox{#5755aa}{$\sum_{l \in l_2} \left( \left(   C_{i,l}C_{j,l} + C_{i-1,l}C_{j-1,l}   \right) * (\delta_{S,l})^2 \right)$} \\
-     - & \colorbox{#A2782A}{$\sum_{l \in l_2} \left( \left(   C_{i,l}C_{j-1,l}    \right) * \left(  (\delta_{S,l})^2 + P(j-1 == i)*(\delta_{R,l})^2 \right)   \right) $}\\
-     - &  \colorbox{#3E8E87}{$\sum_{l \in l_2} \left( \left(   C_{i-1,l}C_{j,l}    \right) * \left(  (\delta_{S,l})^2 + P(i-1 == j)*(\delta_{R,l})^2 \right)   \right) $}\\
-     + &   \colorbox{#CC3300}{$ \sum_{l \in l_0} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_j}I_{t,l}\right) \left( \int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}I_{t,l} \right)  (\delta_{S,l})^2 \right)  $}\\
-     + &  \colorbox{#0074CC}{$ \sum_{l \in l_1} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_j}O_{t,l}\right) \left( \int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}O_{t,l} \right)  (\delta_{S,l})^2 \right) $} \\
-```
-
-<span style="color:#5755aa; font-weight:bold">Term 1</span>
-```{literalinclude} ../../MAPIT/core/StatsTests.py
-:lines: 808-818
-:language: python
-:linenos:
-:emphasize-lines: 8,9,10
-:lineno-start: 808
-```
-
-<span style="color:#A2782A; font-weight:bold">Term 2</span>
-```{literalinclude} ../../MAPIT/core/StatsTests.py
-:lines: 808-828
-:language: python
-:linenos:
-:emphasize-lines: 13-18
-:lineno-start: 808
-```
-
-<span style="color:#3E8E87; font-weight:bold">Term 3</span>
-```{literalinclude} ../../MAPIT/core/StatsTests.py
-:lines: 808-838
-:language: python
-:linenos:
-:emphasize-lines: 23,24,26,27,28,29
-:lineno-start: 808
-```
-
-<span style="color:#CC3300; font-weight:bold">Term 4</span>
-```{literalinclude} ../../MAPIT/core/StatsTests.py
-:lines: 787-794
-:language: python
-:linenos:
-:emphasize-lines: 5,6,7
-:lineno-start: 787
-```
-
-<span style="color:#0074CC; font-weight:bold">Term 5</span>
-
-```{literalinclude} ../../MAPIT/core/StatsTests.py
-:lines: 797-805
-:language: python
-:linenos:
-:lineno-start: 797
-:emphasize-lines: 6,7,8
-```
 
 ## Further reading
 * [Speed and Culpin](https://www.jstor.org/stable/2981719)

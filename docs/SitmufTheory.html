@@ -8,47 +8,51 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>SITMUF &#8212; MAPIT 1.4.6-beta documentation</title>
+    <title>SITMUF &#8212; MAPIT 1.5.0-beta documentation</title>
   
   
   
   <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
-    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-
-  
-  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
   
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
-  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
-    <script src="_static/documentation_options.js?v=122ee2e0"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/documentation_options.js?v=81393923"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'SitmufTheory';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Page’s trend test" href="PageTheory.html" />
-    <link rel="prev" title="CuMUF" href="CumufTheory.html" />
+    <link rel="next" title="GEMUF" href="GemufTheory.html" />
+    <link rel="prev" title="Covariance Matrix" href="covmat.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -56,31 +60,16 @@
 
   
   
-  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>
-    Back to top
-  </button>
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          name="__primary"
-          id="__primary"/>
-  <label class="overlay overlay-primary" for="__primary"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          name="__secondary"
-          id="__secondary"/>
-  <label class="overlay overlay-secondary" for="__secondary"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="search.html"
       method="get">
@@ -88,7 +77,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search..."
          aria-label="Search..."
          autocomplete="off"
@@ -96,10 +84,15 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
     </header>
   
 
@@ -108,7 +101,8 @@
       
       
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -123,6 +117,8 @@
         <div class="sidebar-primary-item">
 
   
+    
+  
 
 <a class="navbar-brand logo" href="index.html">
   
@@ -135,35 +131,31 @@
       
     
     
-    <img src="_static/logo_small.png" class="logo__image only-light" alt="MAPIT 1.4.6-beta documentation - Home"/>
-    <script>document.write(`<img src="_static/logo_small.png" class="logo__image only-dark" alt="MAPIT 1.4.6-beta documentation - Home"/>`);</script>
+    <img src="_static/logo_small.png" class="logo__image only-light" alt="MAPIT 1.5.0-beta documentation - Home"/>
+    <img src="_static/logo_small.png" class="logo__image only-dark pst-js-only" alt="MAPIT 1.5.0-beta documentation - Home"/>
   
   
 </a></div>
         <div class="sidebar-primary-item">
 
- <script>
- document.write(`
-   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script></div>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="sceneTut.html">MAPIT Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CsvTut.html">Using your own data (.csv)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MatTut.html">Using your own data (.mat)</a></li>
 </ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="guided_exercises.html">Guided exercises</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="guided_exercises.html">Guided exercises</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="exercise1.html">Exercise 1: General MAPIT Familiarity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exercise2.html">Exercise 2: Impacts of measurement error</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exercise3.html">Exercise 3: Material Loss</a></li>
@@ -171,26 +163,28 @@
 <li class="toctree-l2"><a class="reference internal" href="exercise5.html">Exercise 5: System Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exercise5S.html">Exercise 5 Solution</a></li>
 </ul>
-</li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="theory.html">Theory guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="theory.html">Theory guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="ErrorTheory.html">Error model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MufSeidTheory.html">MUF and SigmaMUF</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CumufTheory.html">CuMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="covmat.html">Covariance Matrix</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">SITMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GemufTheory.html">GEMUF</a></li>
 <li class="toctree-l2"><a class="reference internal" href="PageTheory.html">Page’s trend test</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ComputeTheory.html">Special computational considerations</a></li>
 </ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="apidocs.html">API home</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="code_autogen/coreLanding.html">core</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="apidocs.html">API home</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="code_autogen/coreLanding.html">core</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="code_autogen/AuxFunctions.html">AuxFunctions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="code_autogen/Preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="code_autogen/StatsProcessor.html">StatsProcessor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="code_autogen/StatsTests.html">StatsTests</a></li>
 </ul>
-</li>
+</details></li>
 </ul>
-</li>
+</details></li>
 </ul>
 
     </div>
@@ -206,7 +200,7 @@
 
       </div>
       
-      <main id="main-content" class="bd-main">
+      <main id="main-content" class="bd-main" role="main">
         
         
 
@@ -215,14 +209,14 @@
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article">
+              <div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
   
     <div class="header-article-items__start">
       
-        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
   <span class="fa-solid fa-bars"></span>
-</label></div>
+</button></div>
       
     </div>
   
@@ -362,27 +356,19 @@
 
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
-  </button>
-`);
-</script>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-  </button>
-`);
-</script>
-<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <span class="fa-solid fa-list"></span>
-</label>
+</button>
 </div></div>
       
     </div>
@@ -409,11 +395,7 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#discussion">Discussion</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#diagonal-terms">Diagonal terms</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#off-diagonal-terms">Off-diagonal terms</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#further-reading">Further reading</a></li>
 </ul>
             </nav>
@@ -492,7 +474,7 @@ document.write(`
 \[\begin{split}
     \text{sitmuf}_i = \text{itmuf}_i / \sigma_{\text{itmuf}} \\
 \end{split}\]</div>
-<p>The using the expression for conditional expectation of the <a class="reference external" href="https://en.wikipedia.org/wiki/Multivariate_normal_distribution">multivariate normal distribution</a> with the covariance expression <a class="reference internal" href="#equation-eqn-cov">(1)</a> from the expression then becomes:</p>
+<p>The using the expression for conditional expectation of the <a class="reference external" href="https://en.wikipedia.org/wiki/Multivariate_normal_distribution">multivariate normal distribution</a> with the covariance expression <a class="reference internal" href="covmat.html#equation-eqn-cov">(1)</a> from the expression then becomes:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
     \text{itmuf}_i = \left( \text{muf}_i -   \boldsymbol{\sigma_{i-1}}^T \boldsymbol{\Sigma_{i-1}}^{-1} \text{muf}_{i-1}  \right)  \\
@@ -507,354 +489,43 @@ document.write(`
 <p>Where <span class="math notranslate nohighlight">\( \boldsymbol{\text{C}_i}\)</span> is the lower triangular Cholesky factor of the covariance matrix.</p>
 <section id="calculation-of-the-covariance-matrix">
 <h3>Calculation of the covariance matrix<a class="headerlink" href="#calculation-of-the-covariance-matrix" title="Link to this heading">#</a></h3>
-<p>The covariance matrix itself is often calculated using relative standard deviations, similar to the calculation for <span class="math notranslate nohighlight">\(\sigma\)</span>muf. In fact, the diagonal terms (i.e., <span class="math notranslate nohighlight">\(\Sigma_{1,1},  \Sigma_{2,2}, ... \)</span>) are the variance of the material balance (the covariance of material balance <span class="math notranslate nohighlight">\(i\)</span> with itself is the variance). Recall the expression that was derived from <span class="math notranslate nohighlight">\(\sigma\)</span>muf.</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
-        \sigma_{i,i}^2 &amp; \approx 
-    \sum_{l \in l_0} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{l,t}\right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) 
-    + \sum_{l \in l_2} \left( (C_{i,l})^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) \\
-    &amp; + \sum_{l \in l_2} \left( (C_{i-1,l})^2 * ((\delta_{R,l})^2 +  (\delta_{S,l})^2)  \right) \\
-    &amp;  + \sum_{l \in l_1} \left( \left( \int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i} O_{l,t} \right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right)
-\end{split}\]</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The covariance term for the variance <strong>will</strong> be included in the covariance matrix calculation.</p>
-</div>
-<p>The off-diagonal is calculated in a similar manner, but has more terms. The off-diagonal is the covariance between material balance <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>.</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
-    \sigma_{i,j}^2  \approx
-    \text{cov} \bigg(&amp; \sum_{l \in l_0}\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{t,l} - \sum_{l \in l_1}\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}O_{t,l} -  \sum_{l \in l_2}(C_{i,l} - C_{i-1, l}), \\
-    &amp; \sum_{l \in l_0}\int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}I_{t,l} - \sum_{l \in l_1}\int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}O_{t,l} -  \sum_{l \in l_2}(C_{j,l} - C_{j-1, l}) \bigg)\\
-\end{split}\]</div>
-<p>Following the same rules used to derive <span class="math notranslate nohighlight">\(\sigma\)</span>muf leads to the expression for the covariance off diagonal:</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
-\sigma_{i,j}^2  \approx
-    &amp; \sum_{l \in l_2} \left( \left(   C_{i,l}C_{j,l} + C_{i-1,l}C_{j-1,l}   \right) * (\delta_{S,l})^2 \right) \\
-     - &amp; \sum_{l \in l_2} \left( \left(   C_{i,l}C_{j-1,l}    \right) * \left(  (\delta_{S,l})^2 + P(j-1 == i)*(\delta_{R,l})^2 \right)   \right)\\
-     - &amp; \sum_{l \in l_2} \left( \left(   C_{i-1,l}C_{j,l}    \right) * \left(  (\delta_{S,l})^2 + P(i-1 == j)*(\delta_{R,l})^2 \right)   \right)\\
-     + &amp;  \sum_{l \in l_0} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_j}I_{t,l}\right) \left( \int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}I_{t,l} \right)  (\delta_{S,l})^2 \right) \\
-     + &amp; \sum_{l \in l_1} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_j}O_{t,l}\right) \left( \int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}O_{t,l} \right)  (\delta_{S,l})^2 \right) \\
-\end{split}\]</div>
-<p>Where</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}    [P] \equiv 
-    \begin{cases}
-      0 &amp; P \text{ is false} \\
-      1 &amp;  P \text{ is true} \\ 
-    \end{cases}\end{split}\]</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The goal of the SITMUF transform is to result in an standardized independent</p>
-</div>
+<p>The covariance matrix is calculated using the <code class="docutils literal notranslate"><span class="pre">AuxFunctions.calcCovMat()</span></code> function. Setting up and calculating the covariance matrix is the most tedious and involved part of the SITMUF transform and is handled by it’s own function. More details regarding the covariance matrix can be found <a class="reference internal" href="covmat.html"><span class="std std-doc">here</span></a>.</p>
 </section>
 </section>
 <section id="discussion">
 <h2>Discussion<a class="headerlink" href="#discussion" title="Link to this heading">#</a></h2>
-<p>The Cholesky-based approach above has the property that the variance of SITMUF decreases with time as the estimated covariance matrix approaches the true value. This is the implementation used in MAPIT, however, one could also do a yearly SITMUF transform wherein the transform was applied only after the covariance matrix was well approximated from a year’s worth of material balances.</p>
+<p>It’s important to note that the variance of SITMUF decreases with time as the estimated covariance matrix approaches the true value. The SITMUF transform is a ‘‘forward-only’’ method in that the transformed MUF values only benefit from the current covariance matrix entries. So, for example, even if you have an entire MUF sequence, the first MUF (MUF<span class="math notranslate nohighlight">\(_1\)</span>) value can’t benefit from the fact that you have an entire covariance matrix filled with entries from the entire sequence. It only benefits from the information contained in the 1x1 submatrix of the covariance matrix (similarly MUF<span class="math notranslate nohighlight">\(_4\)</span> only benefits from the 4x4 submatrix of the covariance matrix) There’s no way to ‘‘back-propagate’’ the covariance matrix to previous MUF values, and this is be design. SITMUF values are usually fixed from a regulatory perspective. It’s not desirable to  back correct SITMUF in most cases. If there was ever a use case to ‘‘back-propagate’’ the covariance matrix to past values, a different model would be required (perhaps something like a Kalman filter which could estimate state).</p>
 </section>
 <section id="implementation">
 <h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading">#</a></h2>
+<p>The SITMUF implementation in MAPIT isn’t very expensive thanks to optimized linear algebra libraries used to perform the Cholesky decomposition and other associated matrix operations.  The SITMUF function only computes this quantity:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+    \boldsymbol{\Sigma}_i = \boldsymbol{\text{C}_i}\boldsymbol{\text{C}_i}^T \\
+    \text{sitmuf}_i = \boldsymbol{\text{C}_i}^{-1} \text{muf}_{i} \\
+\end{split}\]</div>
+<p>Each SITMUF realization (that is, each iteration) is calculated separately as the Cholesky decomposition from Numpy isn’t vectorized (it’s pretty quick on modern machines, anyways). We start by converting the MUF values from a continuous vector in time to a discrete vector on a per balance basis:</p>
+<p><span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">686</span>    <span class="k">for</span> <span class="n">ZR</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">P</span><span class="p">):</span>
+<span class="linenos">687</span>        <span class="n">tempID</span><span class="p">[</span><span class="n">ZR</span><span class="p">]</span> <span class="o">=</span> <span class="n">MUF</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">ZR</span><span class="o">*</span><span class="n">MBP</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>After that, we attempt to perform the Cholesky decomposition. The decomposition will fail if the covariance matrix wasn’t constructed properly, so we try to pass a warning/error if this happens.</p>
+<p><span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">691</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos">692</span>        <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">tempcovmatrix</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the decomposition succeeds, then we proceed directly to the transform itself:</p>
+<p><span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">707</span>    <span class="n">SITMUF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">V</span><span class="p">),</span><span class="n">tempID</span><span class="p">)</span>    
+</pre></div>
+</div>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Note that this function is not intended to be used standalone through direct calls, rather, it is designed to be called through the <code class="docutils literal notranslate"><span class="pre">MBArea</span></code> class of <code class="docutils literal notranslate"><span class="pre">StatsProcessor</span></code>.</p>
+<p>MAPIT’s implementation calculates the entire SITMUF sequence in one pass resulting in the full length sequence. In practice, a more near-real time approach is adopted wherein, at each balance period, new values are appended to the covariance matrix and the MUF sequence is extended. Then the calculation is performed on the new sequence and the last value of the resulting SITMUF sequence is the current SITMUF value that is recorded for regulatory purposes. There’s no benefit for us to perform the calculation this way as the values are the same if you iteratively calculate SITMUF (with a increasingly large covariance matrix) or do it at once as we do.</p>
 </div>
-<p>The SITMUF implementation in MAPIT is particularly computationally intensive as the “NRTA” type calculation is used. In a simulation space, we can calculate the entire covariance matrix at once with all entries from all balance periods. However, a “NRTA” styled calculation performs the SITMUF transform with a reduced covariance matrix that grows as new observations are added. This results in a decrease in variance of SITMUF over time.</p>
-<p>The covariance matrix is a <span class="math notranslate nohighlight">\(NxN\)</span> matrix at the N-th material balance period. Since MAPIT adopts the “NRTA” style calculation, all <span class="math notranslate nohighlight">\(NxN\)</span> entries must be updated at each balance period which simulates the arrival of new information. The MAPIT SITMUF calculation is not well vectorized as the <span class="math notranslate nohighlight">\(NxN\)</span> must be resized and calculated at each balance. The calculation starts by looping over balance periods and each entry in the covariance matrix at balance <span class="math notranslate nohighlight">\(P\)</span>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">691</span>                  <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span>
-<span class="linenos">692</span>                    <span class="p">(</span><span class="n">time1</span><span class="p">,</span><span class="n">time2</span><span class="p">,</span><span class="n">time3</span><span class="p">)))</span>
-</pre></div>
-</div>
-<p>The variables for the different times have a different meaning than in the expressions that were defined above. This is for legacy purposes and to improve alignment with the papers. The following table describes the mapping between the derived expressions and associated code:</p>
-<table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Model Component</p></th>
-<th class="head"><p>Code Expression</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Balance <span class="math notranslate nohighlight">\(i\)</span></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">I</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>Balance <span class="math notranslate nohighlight">\(j\)</span></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">IPrime</span></code></p></td>
-</tr>
-</tbody>
-</table>
-<p>For simplicity, the diagonal and off-diagonal terms are broken into multiple components.</p>
-<section id="diagonal-terms">
-<h3>Diagonal terms<a class="headerlink" href="#diagonal-terms" title="Link to this heading">#</a></h3>
-<div class="only-dark math notranslate nohighlight">
-\[\begin{split}    \sigma_{i,i}^2 &amp; \approx 
-    \colorbox{#5755aa}{$\sum_{l \in l_0} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{l,t}\right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) $} \\
-        &amp;  +  \colorbox{#0074CC}{$\sum_{l \in l_1} \left( \left( \int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i} O_{l,t} \right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right)$} \\
-    &amp; + \colorbox{#A2782A}{$\sum_{l \in l_2} \left( (C_{i,l})^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right)$} \\
-    &amp; +  \colorbox{#3E8E87}{$\sum_{l \in l_2} \left( (C_{i-1,l})^2 * ((\delta_{R,l})^2 +  (\delta_{S,l})^2)  \right)$}
-     -  \colorbox{#CC3300}{$\sum_{l \in l_2} \left( 2C_{i-1,l}C_{i,l}(\delta_{S,l})^2  \right)$} \\\end{split}\]</div>
-<p><span style="color:#5755aa; font-weight:bold">Term 1</span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">773</span>                  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)):</span>
-<span class="linenos">774</span>
-<span class="linenos">775</span>                      <span class="n">logicalInterval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">processedInputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">IPrevious_time</span><span class="p">,</span><span class="n">processedInputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>  <span class="c1">#select the indices for the relevant time</span>
-<span class="linenos">776</span>
-<span class="linenos">777</span>                      <span class="k">if</span> <span class="n">inputTypes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;continuous&#39;</span><span class="p">:</span>
-<span class="hll"><span class="linenos">778</span>                        <span class="n">term1</span> <span class="o">+=</span> <span class="n">AuxFunctions</span><span class="o">.</span><span class="n">trapSum</span><span class="p">(</span><span class="n">logicalInterval</span><span class="p">,</span><span class="n">processedInputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">inputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-</span><span class="linenos">779</span>                      <span class="k">elif</span> <span class="n">inputTypes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;discrete&#39;</span><span class="p">:</span>
-<span class="hll"><span class="linenos">780</span>                        <span class="n">term1</span> <span class="o">+=</span> <span class="p">(</span><span class="n">inputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">logicalInterval</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="p">))</span>
-</span><span class="linenos">781</span>                      <span class="k">else</span><span class="p">:</span>
-<span class="linenos">782</span>                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;inputTypes[j] is not &#39;continuous&#39; or &#39;discrete&#39;&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><span style="color:#0074CC; font-weight:bold">Term 2</span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">787</span>                  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">outputAppliedError</span><span class="p">)):</span>
-<span class="linenos">788</span>
-<span class="linenos">789</span>                      <span class="n">logicalInterval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">processedOutputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">IPrevious_time</span><span class="p">,</span><span class="n">processedOutputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>
-<span class="linenos">790</span>                      <span class="n">locMatrixRow</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">inventoryAppliedError</span><span class="p">)</span>                      
-<span class="linenos">791</span>
-<span class="linenos">792</span>                      <span class="k">if</span> <span class="n">outputTypes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;continuous&#39;</span><span class="p">:</span>
-<span class="hll"><span class="linenos">793</span>                        <span class="n">term2</span> <span class="o">+=</span> <span class="n">AuxFunctions</span><span class="o">.</span><span class="n">trapSum</span><span class="p">(</span><span class="n">logicalInterval</span><span class="p">,</span><span class="n">processedOutputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">outputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-</span><span class="linenos">794</span>                      <span class="k">elif</span> <span class="n">outputTypes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;discrete&#39;</span><span class="p">:</span>
-<span class="hll"><span class="linenos">795</span>                        <span class="n">term2</span> <span class="o">+=</span> <span class="p">(</span><span class="n">outputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">logicalInterval</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="p">))</span>
-</span><span class="linenos">796</span>                      <span class="k">else</span><span class="p">:</span>
-<span class="linenos">797</span>                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;outputTypes[j] is not &#39;continuous&#39; or &#39;discrete&#39;&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p><span style="color:#A2782A; font-weight:bold">Term 3</span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">800</span>                  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inventoryAppliedError</span><span class="p">)):</span>
-<span class="linenos">801</span>                      <span class="n">locMatrixRow</span> <span class="o">=</span> <span class="n">k</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span>
-<span class="linenos">802</span>
-<span class="linenos">803</span>                      <span class="n">startIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">IPrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">804</span>                      <span class="n">endIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">805</span>
-<span class="hll"><span class="linenos">806</span>                      <span class="n">term3</span> <span class="o">+=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">endIdx</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-</span><span class="linenos">807</span>
-<span class="linenos">808</span>
-<span class="linenos">809</span>                  <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-<span class="linenos">810</span>                      <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inventoryAppliedError</span><span class="p">)):</span>
-<span class="linenos">811</span>                          <span class="n">locMatrixRow</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span>
-<span class="linenos">812</span>                          <span class="n">startIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span><span class="n">IPrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">813</span>                          <span class="n">endIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">814</span>
-<span class="linenos">815</span>                          <span class="n">term4</span> <span class="o">+=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">startIdx</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-<span class="linenos">816</span>                          <span class="n">term5</span> <span class="o">+=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">startIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">endIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">817</span>
-<span class="linenos">818</span>                  <span class="n">covmatrix</span><span class="p">[:,</span><span class="n">j</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">term1</span> <span class="o">+</span> <span class="n">term2</span> <span class="o">+</span> <span class="n">term3</span> <span class="o">+</span> <span class="n">term4</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">term5</span>
-</pre></div>
-</div>
-<p><span style="color:#3E8E87; font-weight:bold">Term 4</span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">800</span>                  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inventoryAppliedError</span><span class="p">)):</span>
-<span class="linenos">801</span>                      <span class="n">locMatrixRow</span> <span class="o">=</span> <span class="n">k</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span>
-<span class="linenos">802</span>
-<span class="linenos">803</span>                      <span class="n">startIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">IPrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">804</span>                      <span class="n">endIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">805</span>
-<span class="linenos">806</span>                      <span class="n">term3</span> <span class="o">+=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">endIdx</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-<span class="linenos">807</span>
-<span class="linenos">808</span>
-<span class="linenos">809</span>                  <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-<span class="linenos">810</span>                      <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inventoryAppliedError</span><span class="p">)):</span>
-<span class="linenos">811</span>                          <span class="n">locMatrixRow</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span>
-<span class="linenos">812</span>                          <span class="n">startIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span><span class="n">IPrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">813</span>                          <span class="n">endIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">814</span>
-<span class="hll"><span class="linenos">815</span>                          <span class="n">term4</span> <span class="o">+=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">startIdx</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-</span><span class="linenos">816</span>                          <span class="n">term5</span> <span class="o">+=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">startIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">endIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">817</span>
-<span class="linenos">818</span>                  <span class="n">covmatrix</span><span class="p">[:,</span><span class="n">j</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">term1</span> <span class="o">+</span> <span class="n">term2</span> <span class="o">+</span> <span class="n">term3</span> <span class="o">+</span> <span class="n">term4</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">term5</span>
-</pre></div>
-</div>
-<p><span style="color:#CC3300; font-weight:bold">Term 5</span></p>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">The factor 2 is included later when the terms are added and assigned to the covariance matrix.</span><a class="headerlink" href="#id1" title="Link to this code">#</a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">800</span>                  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inventoryAppliedError</span><span class="p">)):</span>
-<span class="linenos">801</span>                      <span class="n">locMatrixRow</span> <span class="o">=</span> <span class="n">k</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span>
-<span class="linenos">802</span>
-<span class="linenos">803</span>                      <span class="n">startIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">IPrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">804</span>                      <span class="n">endIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">805</span>
-<span class="linenos">806</span>                      <span class="n">term3</span> <span class="o">+=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">endIdx</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-<span class="linenos">807</span>
-<span class="linenos">808</span>
-<span class="linenos">809</span>                  <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-<span class="linenos">810</span>                      <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inventoryAppliedError</span><span class="p">)):</span>
-<span class="linenos">811</span>                          <span class="n">locMatrixRow</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span>
-<span class="linenos">812</span>                          <span class="n">startIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span><span class="n">IPrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">813</span>                          <span class="n">endIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
-<span class="linenos">814</span>
-<span class="linenos">815</span>                          <span class="n">term4</span> <span class="o">+=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">startIdx</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
-<span class="hll"><span class="linenos">816</span>                          <span class="n">term5</span> <span class="o">+=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">startIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span><span class="n">endIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-</span><span class="linenos">817</span>
-<span class="linenos">818</span>                  <span class="n">covmatrix</span><span class="p">[:,</span><span class="n">j</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">term1</span> <span class="o">+</span> <span class="n">term2</span> <span class="o">+</span> <span class="n">term3</span> <span class="o">+</span> <span class="n">term4</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">term5</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="off-diagonal-terms">
-<h3>Off-diagonal terms<a class="headerlink" href="#off-diagonal-terms" title="Link to this heading">#</a></h3>
-<div class="only-dark math notranslate nohighlight">
-\[\begin{split}\sigma_{i,j}^2  \approx    
-    &amp;   \colorbox{#5755aa}{$ \sum_{l \in l_0} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_j}I_{t,l}\right) \left( \int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}I_{t,l} \right)  (\delta_{S,l})^2 \right)  $}\\
-    + &amp;  \colorbox{#0074CC}{$ \sum_{l \in l_1} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_j}O_{t,l}\right) \left( \int_{t=\text{MBP}_{j-1}}^{\text{MBP}_j}O_{t,l} \right)  (\delta_{S,l})^2 \right) $} \\
-    + &amp;  \colorbox{#A2782A}{$\sum_{l \in l_2} \left( \left(   C_{i,l}C_{j,l} + C_{i-1,l}C_{j-1,l}   \right) * (\delta_{S,l})^2 \right)$} \\
-    - &amp; \colorbox{#3E8E87}{$\sum_{l \in l_2} \left( \left(   C_{i,l}C_{j-1,l}    \right) * \left(  (\delta_{S,l})^2 + P(j-1 == i)*(\delta_{R,l})^2 \right)   \right) $}\\
-    - &amp;  \colorbox{#CC3300}{$\sum_{l \in l_2} \left( \left(   C_{i-1,l}C_{j,l}    \right) * \left(  (\delta_{S,l})^2 + P(i-1 == j)*(\delta_{R,l})^2 \right)   \right) $}\\\end{split}\]</div>
-<p><span style="color:#5755aa; font-weight:bold">Term 1</span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">845</span>                  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)):</span>
-<span class="linenos">846</span>                      <span class="n">logicalInterval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">processedInputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">IPrevious_time</span><span class="p">,</span> <span class="n">processedInputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>  <span class="c1">#select the indices for the relevant time</span>
-<span class="linenos">847</span>                      <span class="n">logicalInterval2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">processedInputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">IPrimePrevious_time</span><span class="p">,</span> <span class="n">processedInputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">IPrime_time</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>  <span class="c1">#select the indices for the relevant time</span>
-<span class="linenos">848</span>                      
-<span class="linenos">849</span>                      <span class="k">if</span> <span class="n">inputTypes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;continuous&#39;</span><span class="p">:</span>
-<span class="hll"><span class="linenos">850</span>                        <span class="n">A</span> <span class="o">=</span> <span class="n">AuxFunctions</span><span class="o">.</span><span class="n">trapSum</span><span class="p">(</span><span class="n">logicalInterval</span><span class="p">,</span> <span class="n">processedInputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">inputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-</span><span class="hll"><span class="linenos">851</span>                        <span class="n">B</span> <span class="o">=</span> <span class="n">AuxFunctions</span><span class="o">.</span><span class="n">trapSum</span><span class="p">(</span><span class="n">logicalInterval2</span><span class="p">,</span> <span class="n">processedInputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">inputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-</span><span class="linenos">852</span>                      <span class="k">elif</span> <span class="n">inputTypes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;discrete&#39;</span><span class="p">:</span> 
-<span class="hll"><span class="linenos">853</span>                        <span class="n">A</span> <span class="o">=</span> <span class="n">inputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">logicalInterval</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="hll"><span class="linenos">854</span>                        <span class="n">B</span> <span class="o">=</span> <span class="n">inputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">logicalInterval2</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="linenos">855</span>                      <span class="k">else</span><span class="p">:</span>
-<span class="linenos">856</span>                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;inputTypes[j] is not &#39;continuous&#39; or &#39;discrete&#39;&quot;</span><span class="p">)</span>                   
-<span class="linenos">857</span>
-<span class="hll"><span class="linenos">858</span>                      <span class="n">C</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-</span><span class="hll"><span class="linenos">859</span>                      <span class="n">term1</span> <span class="o">+=</span> <span class="p">(</span><span class="n">A</span><span class="o">*</span><span class="n">B</span><span class="o">*</span><span class="n">C</span><span class="p">)</span>
-</span></pre></div>
-</div>
-<p><span style="color:#0074CC; font-weight:bold">Term 2</span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">862</span>                  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">outputAppliedError</span><span class="p">)):</span>
-<span class="linenos">863</span>                      <span class="n">logicalInterval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">processedOutputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">IPrevious_time</span><span class="p">,</span><span class="n">processedOutputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>  <span class="c1">#select the indices for the relevant time</span>
-<span class="linenos">864</span>                      <span class="n">logicalInterval2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">processedOutputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">IPrimePrevious_time</span><span class="p">,</span><span class="n">processedOutputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">IPrime_time</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>  <span class="c1">#select the indices for the relevant time</span>
-<span class="linenos">865</span>                      <span class="n">locMatrixRow</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">inventoryAppliedError</span><span class="p">)</span>
-<span class="linenos">866</span>
-<span class="linenos">867</span>                      
-<span class="linenos">868</span>
-<span class="linenos">869</span>                      <span class="k">if</span> <span class="n">outputTypes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;continuous&#39;</span><span class="p">:</span>
-<span class="hll"><span class="linenos">870</span>                        <span class="n">A</span> <span class="o">=</span> <span class="n">AuxFunctions</span><span class="o">.</span><span class="n">trapSum</span><span class="p">(</span><span class="n">logicalInterval</span><span class="p">,</span> <span class="n">processedOutputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">outputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-</span><span class="hll"><span class="linenos">871</span>                        <span class="n">B</span> <span class="o">=</span> <span class="n">AuxFunctions</span><span class="o">.</span><span class="n">trapSum</span><span class="p">(</span><span class="n">logicalInterval2</span><span class="p">,</span> <span class="n">processedOutputTimes</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="n">outputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
-</span><span class="linenos">872</span>                      <span class="k">elif</span> <span class="n">outputTypes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;discrete&#39;</span><span class="p">:</span> 
-<span class="hll"><span class="linenos">873</span>                        <span class="n">A</span> <span class="o">=</span> <span class="n">outputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">logicalInterval</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="hll"><span class="linenos">874</span>                        <span class="n">B</span> <span class="o">=</span> <span class="n">outputAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">logicalInterval2</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="linenos">875</span>                      <span class="k">else</span><span class="p">:</span>
-<span class="linenos">876</span>                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;outputTypes[j] is not &#39;continuous&#39; or &#39;discrete&#39;&quot;</span><span class="p">)</span>  
-<span class="linenos">877</span>                      
-<span class="hll"><span class="linenos">878</span>                      <span class="n">C</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-</span><span class="hll"><span class="linenos">879</span>                      <span class="n">term2</span> <span class="o">+=</span> <span class="p">(</span><span class="n">A</span><span class="o">*</span><span class="n">B</span><span class="o">*</span><span class="n">C</span><span class="p">)</span>
-</span></pre></div>
-</div>
-<p><span style="color:#A2782A; font-weight:bold">Term 3</span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">882</span>                  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inventoryAppliedError</span><span class="p">)):</span>
-<span class="linenos">883</span>                      <span class="n">startIdx</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span>  <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> <span class="c1">#I</span>
-<span class="linenos">884</span>                      <span class="n">endIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span>  <span class="n">IPrime_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> 
-<span class="linenos">885</span>                      <span class="n">startIdx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">IPrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> 
-<span class="linenos">886</span>                      <span class="n">endIdx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">IPrimePrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> 
-<span class="linenos">887</span>                      <span class="n">locMatrixRow</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span>
-<span class="linenos">888</span>
-<span class="hll"><span class="linenos">889</span>                      <span class="n">term3a</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx</span><span class="p">]</span>
-</span><span class="hll"><span class="linenos">890</span>                      <span class="n">term3b</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx2</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx2</span><span class="p">]</span>
-</span><span class="hll"><span class="linenos">891</span>                      <span class="n">term3c</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-</span><span class="hll"><span class="linenos">892</span>                      <span class="n">term3</span> <span class="o">+=</span> <span class="p">(</span><span class="n">term3a</span><span class="o">+</span><span class="n">term3b</span><span class="p">)</span><span class="o">*</span><span class="n">term3c</span>
-</span><span class="linenos">893</span>
-<span class="linenos">894</span>                      <span class="n">term4a</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx2</span><span class="p">]</span>
-<span class="linenos">895</span>                      <span class="n">term4b</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">896</span>                      <span class="k">if</span> <span class="n">IPrime</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">I</span><span class="p">:</span>
-<span class="linenos">897</span>                          <span class="n">term4c</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">898</span>                      <span class="k">else</span><span class="p">:</span>
-<span class="linenos">899</span>                          <span class="n">term4c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">iterations</span><span class="p">,))</span>
-<span class="linenos">900</span>
-<span class="linenos">901</span>
-<span class="linenos">902</span>                      <span class="n">term4</span> <span class="o">+=</span> <span class="n">term4a</span><span class="o">*</span><span class="p">(</span><span class="n">term4b</span><span class="o">+</span><span class="n">term4c</span><span class="p">)</span>
-<span class="linenos">903</span>
-<span class="linenos">904</span>                      <span class="n">term5a</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx2</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx</span><span class="p">]</span>
-<span class="linenos">905</span>                      <span class="n">term5b</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">906</span>
-<span class="linenos">907</span>                      <span class="k">if</span> <span class="n">I</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">IPrime</span><span class="p">:</span>
-<span class="linenos">908</span>                          <span class="n">term5c</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">909</span>                      <span class="k">else</span><span class="p">:</span>
-<span class="linenos">910</span>                          <span class="n">term5c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">iterations</span><span class="p">,))</span>
-<span class="linenos">911</span>
-<span class="linenos">912</span>                      <span class="n">term5</span> <span class="o">+=</span> <span class="n">term5a</span><span class="o">*</span><span class="p">(</span><span class="n">term5b</span><span class="o">+</span><span class="n">term5c</span><span class="p">)</span>
-<span class="linenos">913</span>                      
-<span class="linenos">914</span>                      
-<span class="linenos">915</span>
-<span class="linenos">916</span>                  <span class="n">covmatrix</span><span class="p">[:,</span><span class="n">j</span><span class="p">,</span><span class="n">P</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">term1</span><span class="o">+</span><span class="n">term2</span><span class="o">+</span><span class="n">term3</span><span class="o">-</span><span class="n">term4</span><span class="o">-</span><span class="n">term5</span>
-<span class="linenos">917</span>                  <span class="n">covmatrix</span><span class="p">[:,</span><span class="n">P</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">term1</span><span class="o">+</span><span class="n">term2</span><span class="o">+</span><span class="n">term3</span><span class="o">-</span><span class="n">term4</span><span class="o">-</span><span class="n">term5</span>
-</pre></div>
-</div>
-<p><span style="color:#3E8E87; font-weight:bold">Term 4</span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">882</span>                  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inventoryAppliedError</span><span class="p">)):</span>
-<span class="linenos">883</span>                      <span class="n">startIdx</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span>  <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> <span class="c1">#I</span>
-<span class="linenos">884</span>                      <span class="n">endIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span>  <span class="n">IPrime_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> 
-<span class="linenos">885</span>                      <span class="n">startIdx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">IPrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> 
-<span class="linenos">886</span>                      <span class="n">endIdx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">IPrimePrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> 
-<span class="linenos">887</span>                      <span class="n">locMatrixRow</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span>
-<span class="linenos">888</span>
-<span class="linenos">889</span>                      <span class="n">term3a</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx</span><span class="p">]</span>
-<span class="linenos">890</span>                      <span class="n">term3b</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx2</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx2</span><span class="p">]</span>
-<span class="linenos">891</span>                      <span class="n">term3c</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">892</span>                      <span class="n">term3</span> <span class="o">+=</span> <span class="p">(</span><span class="n">term3a</span><span class="o">+</span><span class="n">term3b</span><span class="p">)</span><span class="o">*</span><span class="n">term3c</span>
-<span class="linenos">893</span>
-<span class="hll"><span class="linenos">894</span>                      <span class="n">term4a</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx2</span><span class="p">]</span>
-</span><span class="hll"><span class="linenos">895</span>                      <span class="n">term4b</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-</span><span class="hll"><span class="linenos">896</span>                      <span class="k">if</span> <span class="n">IPrime</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">I</span><span class="p">:</span>
-</span><span class="hll"><span class="linenos">897</span>                          <span class="n">term4c</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-</span><span class="hll"><span class="linenos">898</span>                      <span class="k">else</span><span class="p">:</span>
-</span><span class="hll"><span class="linenos">899</span>                          <span class="n">term4c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">iterations</span><span class="p">,))</span>
-</span><span class="linenos">900</span>
-<span class="linenos">901</span>
-<span class="hll"><span class="linenos">902</span>                      <span class="n">term4</span> <span class="o">+=</span> <span class="n">term4a</span><span class="o">*</span><span class="p">(</span><span class="n">term4b</span><span class="o">+</span><span class="n">term4c</span><span class="p">)</span>
-</span><span class="linenos">903</span>
-<span class="linenos">904</span>                      <span class="n">term5a</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx2</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx</span><span class="p">]</span>
-<span class="linenos">905</span>                      <span class="n">term5b</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">906</span>
-<span class="linenos">907</span>                      <span class="k">if</span> <span class="n">I</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">IPrime</span><span class="p">:</span>
-<span class="linenos">908</span>                          <span class="n">term5c</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">909</span>                      <span class="k">else</span><span class="p">:</span>
-<span class="linenos">910</span>                          <span class="n">term5c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">iterations</span><span class="p">,))</span>
-<span class="linenos">911</span>
-<span class="linenos">912</span>                      <span class="n">term5</span> <span class="o">+=</span> <span class="n">term5a</span><span class="o">*</span><span class="p">(</span><span class="n">term5b</span><span class="o">+</span><span class="n">term5c</span><span class="p">)</span>
-<span class="linenos">913</span>                      
-<span class="linenos">914</span>                      
-<span class="linenos">915</span>
-<span class="linenos">916</span>                  <span class="n">covmatrix</span><span class="p">[:,</span><span class="n">j</span><span class="p">,</span><span class="n">P</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">term1</span><span class="o">+</span><span class="n">term2</span><span class="o">+</span><span class="n">term3</span><span class="o">-</span><span class="n">term4</span><span class="o">-</span><span class="n">term5</span>
-<span class="linenos">917</span>                  <span class="n">covmatrix</span><span class="p">[:,</span><span class="n">P</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">term1</span><span class="o">+</span><span class="n">term2</span><span class="o">+</span><span class="n">term3</span><span class="o">-</span><span class="n">term4</span><span class="o">-</span><span class="n">term5</span>
-</pre></div>
-</div>
-<p><span style="color:#CC3300; font-weight:bold">Term 5</span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">882</span>                  <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inventoryAppliedError</span><span class="p">)):</span>
-<span class="linenos">883</span>                      <span class="n">startIdx</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span>  <span class="n">I_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> <span class="c1">#I</span>
-<span class="linenos">884</span>                      <span class="n">endIdx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span>  <span class="n">IPrime_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> 
-<span class="linenos">885</span>                      <span class="n">startIdx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">IPrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> 
-<span class="linenos">886</span>                      <span class="n">endIdx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">processedInventoryTimes</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span> <span class="o">-</span> <span class="n">IPrimePrevious_time</span><span class="p">)</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span> 
-<span class="linenos">887</span>                      <span class="n">locMatrixRow</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">inputAppliedError</span><span class="p">)</span>
-<span class="linenos">888</span>
-<span class="linenos">889</span>                      <span class="n">term3a</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx</span><span class="p">]</span>
-<span class="linenos">890</span>                      <span class="n">term3b</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx2</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx2</span><span class="p">]</span>
-<span class="linenos">891</span>                      <span class="n">term3c</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">892</span>                      <span class="n">term3</span> <span class="o">+=</span> <span class="p">(</span><span class="n">term3a</span><span class="o">+</span><span class="n">term3b</span><span class="p">)</span><span class="o">*</span><span class="n">term3c</span>
-<span class="linenos">893</span>
-<span class="linenos">894</span>                      <span class="n">term4a</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx2</span><span class="p">]</span>
-<span class="linenos">895</span>                      <span class="n">term4b</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">896</span>                      <span class="k">if</span> <span class="n">IPrime</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">I</span><span class="p">:</span>
-<span class="linenos">897</span>                          <span class="n">term4c</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-<span class="linenos">898</span>                      <span class="k">else</span><span class="p">:</span>
-<span class="linenos">899</span>                          <span class="n">term4c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">iterations</span><span class="p">,))</span>
-<span class="linenos">900</span>
-<span class="linenos">901</span>
-<span class="linenos">902</span>                      <span class="n">term4</span> <span class="o">+=</span> <span class="n">term4a</span><span class="o">*</span><span class="p">(</span><span class="n">term4b</span><span class="o">+</span><span class="n">term4c</span><span class="p">)</span>
-<span class="linenos">903</span>
-<span class="hll"><span class="linenos">904</span>                      <span class="n">term5a</span> <span class="o">=</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">startIdx2</span><span class="p">]</span> <span class="o">*</span> <span class="n">inventoryAppliedError</span><span class="p">[</span><span class="n">k</span><span class="p">][:,</span> <span class="n">endIdx</span><span class="p">]</span>
-</span><span class="hll"><span class="linenos">905</span>                      <span class="n">term5b</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-</span><span class="linenos">906</span>
-<span class="hll"><span class="linenos">907</span>                      <span class="k">if</span> <span class="n">I</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">IPrime</span><span class="p">:</span>
-</span><span class="hll"><span class="linenos">908</span>                          <span class="n">term5c</span> <span class="o">=</span> <span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">locMatrixRow</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span>
-</span><span class="hll"><span class="linenos">909</span>                      <span class="k">else</span><span class="p">:</span>
-</span><span class="hll"><span class="linenos">910</span>                          <span class="n">term5c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">iterations</span><span class="p">,))</span>
-</span><span class="linenos">911</span>
-<span class="hll"><span class="linenos">912</span>                      <span class="n">term5</span> <span class="o">+=</span> <span class="n">term5a</span><span class="o">*</span><span class="p">(</span><span class="n">term5b</span><span class="o">+</span><span class="n">term5c</span><span class="p">)</span>
-</span><span class="linenos">913</span>                      
-<span class="linenos">914</span>                      
-<span class="linenos">915</span>
-<span class="linenos">916</span>                  <span class="n">covmatrix</span><span class="p">[:,</span><span class="n">j</span><span class="p">,</span><span class="n">P</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">term1</span><span class="o">+</span><span class="n">term2</span><span class="o">+</span><span class="n">term3</span><span class="o">-</span><span class="n">term4</span><span class="o">-</span><span class="n">term5</span>
-<span class="linenos">917</span>                  <span class="n">covmatrix</span><span class="p">[:,</span><span class="n">P</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">term1</span><span class="o">+</span><span class="n">term2</span><span class="o">+</span><span class="n">term3</span><span class="o">-</span><span class="n">term4</span><span class="o">-</span><span class="n">term5</span>
-</pre></div>
-</div>
-</section>
+<p>We then convert the discrete SITMUF sequence to a continuous representation before continuing through all iterations. Then the final matrix is returned.</p>
 </section>
 <section id="further-reading">
 <h2>Further reading<a class="headerlink" href="#further-reading" title="Link to this heading">#</a></h2>
@@ -887,24 +558,24 @@ document.write(`
               
               
               
-                <footer class="prev-next-footer">
+                <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="CumufTheory.html"
+       href="covmat.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">CuMUF</p>
+        <p class="prev-next-title">Covariance Matrix</p>
       </div>
     </a>
     <a class="right-next"
-       href="PageTheory.html"
+       href="GemufTheory.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Page’s trend test</p>
+        <p class="prev-next-title">GEMUF</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -915,7 +586,8 @@ document.write(`
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
   <div class="sidebar-secondary-item">
@@ -930,11 +602,7 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#discussion">Discussion</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#diagonal-terms">Diagonal terms</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#off-diagonal-terms">Off-diagonal terms</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation">Implementation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#further-reading">Further reading</a></li>
 </ul>
   </nav></div>
@@ -984,8 +652,8 @@ By Sandia Nuclear Fuel Cycle and Safeguards Group
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
   <footer class="bd-footer">
   </footer>

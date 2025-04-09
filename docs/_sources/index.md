@@ -2,6 +2,10 @@
 
 ---
 
+:::{versionadded} 1.5.0
+   Added two variations of the GEMUF test; GEMUF-V1 and GEMUF-V5B3. The covariance matrix calculation has been refactored into a standalone calculation since MAPIT now supports several covariance-based tests. The statistical threshold in the GUI was also updated to support linear thresholds, since that is typically used for GEMUF tests.
+:::
+
 :::{versionadded} 1.4.6
    Added the capability to handle both continuous (e.g., signals) and discrete (e.g., entities) separately. The GUI will now prompt you to select the type of data you are analyzing. The API also includes a separate argument to handle the two types of data. See the API documentation for further details.
 :::
@@ -10,9 +14,6 @@
    Added the capability to specify a recalibration period. This effectively recalculates the systematic error periodically. This capability is available in the GUI (in the error specification pane) and the API. See the API documentation for further details.
 :::
 
-:::{versionchanged} 1.4.0
-   API breaking changes! Instead of accessing statistical tests directly, a new object, ``MBArea``, is the preferred way to perform analyses using the API. The ``StatsTests`` module is provided to show implementation details, but it is expected that users instead user ``MBArea`` functions. See the API example notebooks for more details.
-:::
 
 
 

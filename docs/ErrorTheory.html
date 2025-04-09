@@ -8,38 +8,41 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Error model &#8212; MAPIT 1.4.6-beta documentation</title>
+    <title>Error model &#8212; MAPIT 1.5.0-beta documentation</title>
   
   
   
   <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
-    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-
-  
-  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
   
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
-  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
-    <script src="_static/documentation_options.js?v=122ee2e0"></script>
-    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/documentation_options.js?v=81393923"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'ErrorTheory';</script>
@@ -49,6 +52,7 @@
     <link rel="prev" title="Theory guide" href="theory.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -56,31 +60,16 @@
 
   
   
-  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>
-    Back to top
-  </button>
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          name="__primary"
-          id="__primary"/>
-  <label class="overlay overlay-primary" for="__primary"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          name="__secondary"
-          id="__secondary"/>
-  <label class="overlay overlay-secondary" for="__secondary"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="search.html"
       method="get">
@@ -88,7 +77,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search..."
          aria-label="Search..."
          autocomplete="off"
@@ -96,10 +84,15 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
     </header>
   
 
@@ -108,7 +101,8 @@
       
       
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -123,6 +117,8 @@
         <div class="sidebar-primary-item">
 
   
+    
+  
 
 <a class="navbar-brand logo" href="index.html">
   
@@ -135,35 +131,31 @@
       
     
     
-    <img src="_static/logo_small.png" class="logo__image only-light" alt="MAPIT 1.4.6-beta documentation - Home"/>
-    <script>document.write(`<img src="_static/logo_small.png" class="logo__image only-dark" alt="MAPIT 1.4.6-beta documentation - Home"/>`);</script>
+    <img src="_static/logo_small.png" class="logo__image only-light" alt="MAPIT 1.5.0-beta documentation - Home"/>
+    <img src="_static/logo_small.png" class="logo__image only-dark pst-js-only" alt="MAPIT 1.5.0-beta documentation - Home"/>
   
   
 </a></div>
         <div class="sidebar-primary-item">
 
- <script>
- document.write(`
-   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script></div>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials.html">Tutorials</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="sceneTut.html">MAPIT Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CsvTut.html">Using your own data (.csv)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MatTut.html">Using your own data (.mat)</a></li>
 </ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="guided_exercises.html">Guided exercises</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="guided_exercises.html">Guided exercises</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="exercise1.html">Exercise 1: General MAPIT Familiarity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exercise2.html">Exercise 2: Impacts of measurement error</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exercise3.html">Exercise 3: Material Loss</a></li>
@@ -171,26 +163,28 @@
 <li class="toctree-l2"><a class="reference internal" href="exercise5.html">Exercise 5: System Optimization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exercise5S.html">Exercise 5 Solution</a></li>
 </ul>
-</li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="theory.html">Theory guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="theory.html">Theory guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Error model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="MufSeidTheory.html">MUF and SigmaMUF</a></li>
 <li class="toctree-l2"><a class="reference internal" href="CumufTheory.html">CuMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="covmat.html">Covariance Matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="SitmufTheory.html">SITMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="GemufTheory.html">GEMUF</a></li>
 <li class="toctree-l2"><a class="reference internal" href="PageTheory.html">Page’s trend test</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ComputeTheory.html">Special computational considerations</a></li>
 </ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="apidocs.html">API home</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="code_autogen/coreLanding.html">core</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="apidocs.html">API home</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="code_autogen/coreLanding.html">core</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="code_autogen/AuxFunctions.html">AuxFunctions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="code_autogen/Preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="code_autogen/StatsProcessor.html">StatsProcessor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="code_autogen/StatsTests.html">StatsTests</a></li>
 </ul>
-</li>
+</details></li>
 </ul>
-</li>
+</details></li>
 </ul>
 
     </div>
@@ -206,7 +200,7 @@
 
       </div>
       
-      <main id="main-content" class="bd-main">
+      <main id="main-content" class="bd-main" role="main">
         
         
 
@@ -215,14 +209,14 @@
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article">
+              <div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
   
     <div class="header-article-items__start">
       
-        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
   <span class="fa-solid fa-bars"></span>
-</label></div>
+</button></div>
       
     </div>
   
@@ -362,27 +356,19 @@
 
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
-    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
-  </button>
-`);
-</script>
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
 
 
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-  </button>
-`);
-</script>
-<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <span class="fa-solid fa-list"></span>
-</label>
+</button>
 </div></div>
       
     </div>
@@ -500,61 +486,61 @@ document.write(`
 <p>While the random error component, <span class="math notranslate nohighlight">\(R_{n,p,t}\)</span> is sampled at every time step, sensor setup might complicated the specification of the systematic error component. It is assumed here that the systematic error changes with location but <em>not</em> time as no calibration time is assumed (<span class="math notranslate nohighlight">\(S_{n,p,t=0} = S_{n,p,t=50} = S_{n,p,t=t}\)</span>).</p>
 </div>
 <p>The implementation of this error model is performed in MAPIT by <code class="docutils literal notranslate"><span class="pre">MAPIT.core.Preprocessing.SimErrors</span></code> starting on line 352:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>      <span class="n">ErrorMatrix</span> <span class="p">(</span><span class="n">numpy</span> <span class="n">array</span><span class="p">):</span> <span class="n">Matrix</span> <span class="n">containing</span> <span class="n">error</span> <span class="n">values</span> <span class="p">(</span><span class="n">RSD</span><span class="p">)</span> <span class="k">for</span> <span class="n">each</span> <span class="n">location</span><span class="o">.</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
 <p>The function generates <code class="docutils literal notranslate"><span class="pre">iterations</span></code> simulated realizations of measurements (i.e., the iteration dimension <span class="math notranslate nohighlight">\(n\)</span>) for each list entry. Each <code class="docutils literal notranslate"><span class="pre">iteration</span></code> represents a possible result of measuring at the specific key measurement point (i.e., location dimension <span class="math notranslate nohighlight">\(p\)</span>) represented by the list entry.</p>
 <p>First, a list of arrays is initialized to hold the errors calculated by the function (Lines 408-409).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">408</span>    
-<span class="linenos">409</span>    <span class="c1"># If random RSD is zero, set the random variate array to zero</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">408</span>                <span class="n">sysRSD</span><span class="p">[:,</span><span class="n">idx0</span><span class="p">:</span><span class="n">idx1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">sysRSD</span><span class="p">[:,</span><span class="n">idx0</span><span class="p">:</span><span class="n">idx1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">batchSize</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="n">loc</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="linenos">409</span>                
 </pre></div>
 </div>
 <p>Each entry in the <code class="docutils literal notranslate"><span class="pre">AppliedError</span></code> list is an array with shape (iterations <span class="math notranslate nohighlight">\(n\)</span>, time steps <span class="math notranslate nohighlight">\(t\)</span>) and <em>presumably</em> refers to a different location in a measurement type. For example, the first entry in the list might be a (time steps <span class="math notranslate nohighlight">\(t\)</span>, 1) shaped array of data collected at the first input key measurement point. Since each list entry might have a different number of time steps, the arrays are stored in a list rather than being concatenated. The list and constituent arrays are preinitalized.</p>
 <p>The main calculation loop occurs between lines 442 and 479:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">442</span>        <span class="n">ErrorMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]])</span>
-<span class="linenos">443</span>        <span class="n">iterations</span> <span class="o">=</span> <span class="mi">100</span>
-<span class="linenos">444</span>
-<span class="linenos">445</span>        <span class="n">result</span> <span class="o">=</span> <span class="n">SimErrors</span><span class="p">(</span><span class="n">rawData</span><span class="p">,</span> <span class="n">ErrorMatrix</span><span class="p">,</span> <span class="n">iterations</span><span class="p">)</span>
-<span class="linenos">446</span>
-<span class="linenos">447</span>        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="linenos">448</span>        <span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-<span class="linenos">449</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">442</span>
+<span class="linenos">443</span>        <span class="n">rawData</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="linenos">444</span>        
+<span class="linenos">445</span>        <span class="c1"># [location1 (random, systematic), loction2 (random, systematic)]</span>
+<span class="linenos">446</span>        <span class="n">ErrorMatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]])</span>
+<span class="linenos">447</span>        <span class="n">iterations</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="linenos">448</span>
+<span class="linenos">449</span>        <span class="n">result</span> <span class="o">=</span> <span class="n">SimErrors</span><span class="p">(</span><span class="n">rawData</span><span class="p">,</span> <span class="n">ErrorMatrix</span><span class="p">,</span> <span class="n">iterations</span><span class="p">)</span>
 <span class="linenos">450</span>
-<span class="linenos">451</span>      <span class="n">Args</span><span class="p">:</span>
-<span class="linenos">452</span>        <span class="n">rawData</span> <span class="p">(</span><span class="nb">list</span> <span class="n">of</span> <span class="n">ndarray</span><span class="p">):</span> <span class="n">Raw</span> <span class="n">data</span> <span class="n">to</span> <span class="n">apply</span> <span class="n">errors</span> <span class="n">to</span><span class="p">,</span> <span class="nb">list</span> <span class="n">of</span> <span class="mi">2</span><span class="n">D</span> <span class="n">ndarrays</span><span class="o">.</span> <span class="n">Each</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">the</span> <span class="nb">list</span> <span class="n">should</span> <span class="n">correspond</span> <span class="n">to</span> <span class="n">a</span> <span class="n">different</span> <span class="n">location</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">shape</span> <span class="n">of</span> <span class="n">ndarray</span> <span class="ow">in</span> <span class="n">the</span> <span class="nb">list</span> <span class="n">should</span> <span class="n">be</span> <span class="p">[</span><span class="n">MxN</span><span class="p">]</span> <span class="n">where</span> <span class="n">M</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">sample</span> <span class="n">dimension</span> <span class="p">(</span><span class="n">number</span> <span class="n">of</span> <span class="n">samples</span><span class="p">)</span> <span class="ow">and</span> <span class="n">N</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">elemental</span> <span class="n">dimension</span><span class="p">,</span> <span class="k">if</span> <span class="n">applicable</span><span class="o">.</span> <span class="n">If</span> <span class="n">only</span> <span class="n">considering</span> <span class="n">one</span> <span class="n">element</span><span class="p">,</span> <span class="n">each</span> <span class="n">ndarray</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">rawData</span> <span class="nb">list</span> <span class="n">should</span> <span class="n">be</span> <span class="p">[</span><span class="n">Mx1</span><span class="p">]</span><span class="o">.</span>
+<span class="linenos">451</span>        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="linenos">452</span>        <span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 <span class="linenos">453</span>
-<span class="linenos">454</span>        <span class="n">ErrorMatrix</span> <span class="p">(</span><span class="n">ndarray</span><span class="p">):</span> <span class="mi">2</span><span class="n">D</span> <span class="n">ndarray</span> <span class="n">of</span> <span class="n">shape</span> <span class="p">[</span><span class="n">Mx2</span><span class="p">]</span> <span class="n">describing</span> <span class="n">the</span> <span class="n">relative</span> <span class="n">standard</span> <span class="n">deviation</span> <span class="n">to</span> <span class="n">apply</span> <span class="n">to</span> <span class="err">``</span><span class="n">rawData</span><span class="err">``</span><span class="o">.</span> <span class="n">M</span> <span class="n">sample</span> <span class="n">dimension</span> <span class="ow">in</span> <span class="n">each</span> <span class="nb">input</span> <span class="n">array</span> <span class="ow">and</span> <span class="n">should</span> <span class="n">be</span> <span class="n">identical</span> <span class="n">to</span> <span class="n">M</span> <span class="n">described</span> <span class="ow">in</span>  <span class="err">``</span><span class="n">rawData</span><span class="err">``</span><span class="o">.</span> <span class="n">The</span> <span class="n">second</span> <span class="n">dimension</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="n">refers</span> <span class="n">to</span> <span class="n">the</span> <span class="n">random</span> <span class="ow">and</span> <span class="n">systematic</span> <span class="n">error</span> <span class="n">respectively</span> <span class="n">such</span> <span class="n">that</span> <span class="err">``</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="err">``</span> <span class="n">refers</span> <span class="n">to</span> <span class="n">the</span> <span class="n">random</span> <span class="n">relative</span> <span class="n">standard</span> <span class="n">deviation</span> <span class="n">of</span> <span class="n">the</span> <span class="n">first</span> <span class="n">location</span> <span class="ow">and</span> <span class="err">``</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="err">``</span> <span class="n">refers</span> <span class="n">to</span> <span class="n">the</span> <span class="n">systematic</span> <span class="n">relative</span> <span class="n">standard</span> <span class="n">deviation</span><span class="o">.</span> 
-<span class="linenos">455</span>
-<span class="linenos">456</span>        <span class="n">iterations</span> <span class="p">(</span><span class="nb">int</span><span class="p">):</span> <span class="n">Number</span> <span class="n">of</span> <span class="n">iterations</span> <span class="n">to</span> <span class="n">calculate</span>
+<span class="linenos">454</span>
+<span class="linenos">455</span>      <span class="n">Args</span><span class="p">:</span>
+<span class="linenos">456</span>        <span class="n">rawData</span> <span class="p">(</span><span class="nb">list</span> <span class="n">of</span> <span class="n">ndarray</span><span class="p">):</span> <span class="n">Raw</span> <span class="n">data</span> <span class="n">to</span> <span class="n">apply</span> <span class="n">errors</span> <span class="n">to</span><span class="p">,</span> <span class="nb">list</span> <span class="n">of</span> <span class="mi">2</span><span class="n">D</span> <span class="n">ndarrays</span><span class="o">.</span> <span class="n">Each</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">the</span> <span class="nb">list</span> <span class="n">should</span> <span class="n">correspond</span> <span class="n">to</span> <span class="n">a</span> <span class="n">different</span> <span class="n">location</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">shape</span> <span class="n">of</span> <span class="n">ndarray</span> <span class="ow">in</span> <span class="n">the</span> <span class="nb">list</span> <span class="n">should</span> <span class="n">be</span> <span class="p">[</span><span class="n">MxN</span><span class="p">]</span> <span class="n">where</span> <span class="n">M</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">sample</span> <span class="n">dimension</span> <span class="p">(</span><span class="n">number</span> <span class="n">of</span> <span class="n">samples</span><span class="p">)</span> <span class="ow">and</span> <span class="n">N</span> <span class="ow">is</span> <span class="n">the</span> <span class="n">elemental</span> <span class="n">dimension</span><span class="p">,</span> <span class="k">if</span> <span class="n">applicable</span><span class="o">.</span> <span class="n">If</span> <span class="n">only</span> <span class="n">considering</span> <span class="n">one</span> <span class="n">element</span><span class="p">,</span> <span class="n">each</span> <span class="n">ndarray</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">rawData</span> <span class="nb">list</span> <span class="n">should</span> <span class="n">be</span> <span class="p">[</span><span class="n">Mx1</span><span class="p">]</span><span class="o">.</span>
 <span class="linenos">457</span>
-<span class="linenos">458</span>        <span class="n">GUIObject</span> <span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="n">GUI</span> <span class="nb">object</span> <span class="k">for</span> <span class="n">internal</span> <span class="n">MAPIT</span> <span class="n">use</span>
+<span class="linenos">458</span>        <span class="n">ErrorMatrix</span> <span class="p">(</span><span class="n">ndarray</span><span class="p">):</span> <span class="mi">2</span><span class="n">D</span> <span class="n">ndarray</span> <span class="n">of</span> <span class="n">shape</span> <span class="p">[</span><span class="n">Mx2</span><span class="p">]</span> <span class="n">describing</span> <span class="n">the</span> <span class="n">relative</span> <span class="n">standard</span> <span class="n">deviation</span> <span class="n">to</span> <span class="n">apply</span> <span class="n">to</span> <span class="err">``</span><span class="n">rawData</span><span class="err">``</span><span class="o">.</span> <span class="n">M</span> <span class="n">sample</span> <span class="n">dimension</span> <span class="ow">in</span> <span class="n">each</span> <span class="nb">input</span> <span class="n">array</span> <span class="ow">and</span> <span class="n">should</span> <span class="n">be</span> <span class="n">identical</span> <span class="n">to</span> <span class="n">M</span> <span class="n">described</span> <span class="ow">in</span>  <span class="err">``</span><span class="n">rawData</span><span class="err">``</span><span class="o">.</span> <span class="n">The</span> <span class="n">second</span> <span class="n">dimension</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="n">refers</span> <span class="n">to</span> <span class="n">the</span> <span class="n">random</span> <span class="ow">and</span> <span class="n">systematic</span> <span class="n">error</span> <span class="n">respectively</span> <span class="n">such</span> <span class="n">that</span> <span class="err">``</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="err">``</span> <span class="n">refers</span> <span class="n">to</span> <span class="n">the</span> <span class="n">random</span> <span class="n">relative</span> <span class="n">standard</span> <span class="n">deviation</span> <span class="n">of</span> <span class="n">the</span> <span class="n">first</span> <span class="n">location</span> <span class="ow">and</span> <span class="err">``</span><span class="n">ErrorMatrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="err">``</span> <span class="n">refers</span> <span class="n">to</span> <span class="n">the</span> <span class="n">systematic</span> <span class="n">relative</span> <span class="n">standard</span> <span class="n">deviation</span><span class="o">.</span> 
 <span class="linenos">459</span>
-<span class="linenos">460</span>        <span class="n">doTQDM</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span> <span class="n">Controls</span> <span class="n">the</span> <span class="n">use</span> <span class="n">of</span> <span class="n">TQDM</span> <span class="n">progress</span> <span class="n">bar</span> <span class="k">for</span> <span class="n">command</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">notebook</span> <span class="n">operation</span><span class="o">.</span> 
+<span class="linenos">460</span>        <span class="n">iterations</span> <span class="p">(</span><span class="nb">int</span><span class="p">):</span> <span class="n">Number</span> <span class="n">of</span> <span class="n">iterations</span> <span class="n">to</span> <span class="n">calculate</span>
 <span class="linenos">461</span>
-<span class="linenos">462</span>        <span class="n">batchSize</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span> <span class="n">Batch</span> <span class="n">size</span> <span class="k">for</span> <span class="n">parallel</span> <span class="n">processing</span><span class="o">.</span>
+<span class="linenos">462</span>        <span class="n">GUIObject</span> <span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="n">GUI</span> <span class="nb">object</span> <span class="k">for</span> <span class="n">internal</span> <span class="n">MAPIT</span> <span class="n">use</span>
 <span class="linenos">463</span>
-<span class="linenos">464</span>        <span class="n">dopar</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span> <span class="n">Controls</span> <span class="n">the</span> <span class="n">use</span> <span class="n">of</span> <span class="n">parallel</span> <span class="n">processing</span><span class="o">.</span>
+<span class="linenos">464</span>        <span class="n">doTQDM</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span> <span class="n">Controls</span> <span class="n">the</span> <span class="n">use</span> <span class="n">of</span> <span class="n">TQDM</span> <span class="n">progress</span> <span class="n">bar</span> <span class="k">for</span> <span class="n">command</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">notebook</span> <span class="n">operation</span><span class="o">.</span> 
 <span class="linenos">465</span>
-<span class="linenos">466</span>        <span class="n">times</span> <span class="p">(</span><span class="nb">list</span> <span class="n">of</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="n">List</span> <span class="n">of</span> <span class="n">ndarrays</span> <span class="n">of</span> <span class="n">shape</span> <span class="p">[</span><span class="n">Mx1</span><span class="p">]</span> <span class="n">describing</span> <span class="n">the</span> <span class="n">time</span> <span class="n">of</span> <span class="n">each</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">rawData</span><span class="o">.</span> <span class="n">Required</span> <span class="k">if</span> <span class="err">``</span><span class="n">calibrationPeriod</span><span class="err">``</span> <span class="ow">is</span> <span class="n">provided</span><span class="o">.</span>
+<span class="linenos">466</span>        <span class="n">batchSize</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span> <span class="n">Batch</span> <span class="n">size</span> <span class="k">for</span> <span class="n">parallel</span> <span class="n">processing</span><span class="o">.</span>
 <span class="linenos">467</span>
-<span class="linenos">468</span>        <span class="n">calibrationPeriod</span> <span class="p">(</span><span class="nb">list</span> <span class="n">of</span> <span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="n">List</span> <span class="n">of</span> <span class="n">floats</span> <span class="n">of</span> <span class="n">length</span> <span class="n">M</span> <span class="n">describing</span> <span class="n">the</span> <span class="n">calibration</span> <span class="n">period</span> <span class="k">for</span> <span class="n">each</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">rawData</span><span class="o">.</span> <span class="n">Required</span> <span class="k">if</span> <span class="err">``</span><span class="n">times</span><span class="err">``</span> <span class="ow">is</span> <span class="n">provided</span><span class="o">.</span>
+<span class="linenos">468</span>        <span class="n">dopar</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span> <span class="n">Controls</span> <span class="n">the</span> <span class="n">use</span> <span class="n">of</span> <span class="n">parallel</span> <span class="n">processing</span><span class="o">.</span>
 <span class="linenos">469</span>
-<span class="linenos">470</span>
-<span class="linenos">471</span>      <span class="n">Returns</span><span class="p">:</span>
-<span class="linenos">472</span>        <span class="nb">list</span><span class="p">:</span> <span class="n">List</span> <span class="n">of</span> <span class="n">arrays</span> <span class="n">identical</span> <span class="ow">in</span> <span class="n">shape</span> <span class="n">to</span> <span class="err">``</span><span class="n">rawData</span><span class="err">``</span><span class="o">.</span> <span class="n">A</span> <span class="nb">list</span> <span class="ow">is</span> <span class="n">returned</span> <span class="n">so</span> <span class="n">that</span> <span class="n">each</span> <span class="n">location</span> <span class="n">can</span> <span class="n">have</span> <span class="n">a</span> <span class="n">different</span> <span class="n">sample</span> <span class="n">rate</span><span class="o">.</span>
+<span class="linenos">470</span>        <span class="n">times</span> <span class="p">(</span><span class="nb">list</span> <span class="n">of</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="n">List</span> <span class="n">of</span> <span class="n">ndarrays</span> <span class="n">of</span> <span class="n">shape</span> <span class="p">[</span><span class="n">Mx1</span><span class="p">]</span> <span class="n">describing</span> <span class="n">the</span> <span class="n">time</span> <span class="n">of</span> <span class="n">each</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">rawData</span><span class="o">.</span> <span class="n">Required</span> <span class="k">if</span> <span class="err">``</span><span class="n">calibrationPeriod</span><span class="err">``</span> <span class="ow">is</span> <span class="n">provided</span><span class="o">.</span>
+<span class="linenos">471</span>
+<span class="linenos">472</span>        <span class="n">calibrationPeriod</span> <span class="p">(</span><span class="nb">list</span> <span class="n">of</span> <span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="n">List</span> <span class="n">of</span> <span class="n">floats</span> <span class="n">of</span> <span class="n">length</span> <span class="n">M</span> <span class="n">describing</span> <span class="n">the</span> <span class="n">calibration</span> <span class="n">period</span> <span class="k">for</span> <span class="n">each</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">rawData</span><span class="o">.</span> <span class="n">Required</span> <span class="k">if</span> <span class="err">``</span><span class="n">times</span><span class="err">``</span> <span class="ow">is</span> <span class="n">provided</span><span class="o">.</span>
 <span class="linenos">473</span>
-<span class="linenos">474</span>    <span class="s2">&quot;&quot;&quot;</span>
-<span class="linenos">475</span>
-<span class="linenos">476</span><span class="s2">    if GUIObject is not None:</span>
-<span class="linenos">477</span><span class="s2">      doTQDM = False</span>
-<span class="linenos">478</span>
-<span class="linenos">479</span><span class="s2">    # times and calibrationPeriod must be present</span>
+<span class="linenos">474</span>
+<span class="linenos">475</span>      <span class="n">Returns</span><span class="p">:</span>
+<span class="linenos">476</span>        <span class="nb">list</span><span class="p">:</span> <span class="n">List</span> <span class="n">of</span> <span class="n">arrays</span> <span class="n">identical</span> <span class="ow">in</span> <span class="n">shape</span> <span class="n">to</span> <span class="err">``</span><span class="n">rawData</span><span class="err">``</span><span class="o">.</span> <span class="n">A</span> <span class="nb">list</span> <span class="ow">is</span> <span class="n">returned</span> <span class="n">so</span> <span class="n">that</span> <span class="n">each</span> <span class="n">location</span> <span class="n">can</span> <span class="n">have</span> <span class="n">a</span> <span class="n">different</span> <span class="n">sample</span> <span class="n">rate</span><span class="o">.</span>
+<span class="linenos">477</span>
+<span class="linenos">478</span>    <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">479</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">SimErrors</span></code> has a parameter <code class="docutils literal notranslate"><span class="pre">batchSize</span></code> that controls the number of <code class="docutils literal notranslate"><span class="pre">iterations</span></code> that are calculated at once. The most efficient implementation would calculate all <code class="docutils literal notranslate"><span class="pre">iterations</span></code> at once using a single matrix calculation. However, this could consume more memory than available in some scenarios, so the <code class="docutils literal notranslate"><span class="pre">batchSize</span></code> parameter is provided. The code tries to batch <code class="docutils literal notranslate"><span class="pre">iterations</span></code> into <code class="docutils literal notranslate"><span class="pre">batchSize</span></code> chunks. If <code class="docutils literal notranslate"><span class="pre">iterations</span></code> is not equally divisible by <code class="docutils literal notranslate"><span class="pre">batchSize</span></code>, then an extra <code class="docutils literal notranslate"><span class="pre">remRuns</span></code> sized calculation is performed after the all <code class="docutils literal notranslate"><span class="pre">iterations/batchSize</span></code> chunks are calculated.</p>
 <!-- For each batch, the multiplicative error model is calculated and applied. The table below shows the components of the model and the equivalent code. The [`reshape`](https://numpy.org/doc/stable/reference/generated/numpy.reshape.html) method has been omitted from the table for improved clarity.  -->
 <p>MAPIT specifically uses vectorized representations to more efficiently calculated the simulated error model. The sections below map the model components to the relevant code expressions.</p>
-<table class="table">
+<div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Model Component</p></th>
 <th class="head"><p>Code Expression</p></th>
@@ -575,6 +561,7 @@ document.write(`
 </tr>
 </tbody>
 </table>
+</div>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Note that <code class="docutils literal notranslate"><span class="pre">sysRSD</span></code> has a shape of 1 for dim 1 (i.e., <code class="code docutils literal highlight highlight-python"><span class="n">sysRSD</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span></code>) as a single random variate from the underlying distribution is applied to <em>all</em> time steps for location <code class="docutils literal notranslate"><span class="pre">i</span></code>. <a class="reference external" href="https://numpy.org/doc/stable/user/basics.broadcasting.html">Numpy broadcasting</a> ensures that the shape of <span class="math notranslate nohighlight">\(\boldsymbol{S_{n,p}}\)</span> is the same for all <span class="math notranslate nohighlight">\(t\)</span>. This will be configurable in a future update.</p>
@@ -616,7 +603,7 @@ document.write(`
               
               
               
-                <footer class="prev-next-footer">
+                <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
     <a class="left-prev"
@@ -644,7 +631,8 @@ document.write(`
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
   <div class="sidebar-secondary-item">
@@ -705,8 +693,8 @@ By Sandia Nuclear Fuel Cycle and Safeguards Group
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
   <footer class="bd-footer">
   </footer>

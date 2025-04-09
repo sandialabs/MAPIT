@@ -7,14 +7,17 @@
 
  ## Experienced with Python
 
- In most cases, you can simply install directly from our repository. We recommend using environments (either venv or conda).
+ :::{admonition}{Recommendation}
+ Our recommendation is to install using [anaconda](anaconda.org). 
+ :::
 
- Depending on what conda distribution you have (e.g., anaconda vs miniconda) these instructions might vary. Here's an example assuming you have an empty conda environment:
+ If you're installing via conda, you can simply use `conda install mapit -c conda-forge`.
 
- ```
-conda install pip "python<3.12,>3.8
-pip install git+https://github.com/sandialabs/MAPIT
- ```
+We don't host our repo through PyPI, so if you chose to install through pip, you'll need to install from source by using `pip install git+https://github.com/sandialabs/MAPIT`. 
+
+:::{important}
+If installing via pip, you must note that the maximum python version is 3.12, due to the requirements of the ray library.
+:::
 
  After MAPIT has been installed, you can call the GUI entry point from the command line simply by calling `MAPIT` from your environment. You can also import the MAPIT API and use it as a library.
 

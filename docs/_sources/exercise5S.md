@@ -31,7 +31,7 @@ An error config for this setup can be found [here](./assets/exercise5/errorConfi
 
 ### Performance
 
-Threshold = 0.40
+Threshold: ($a_1 = 0.0$, $a_0 = 0.40$)
 
 Values are approximate and may fluctuate to some degree. However, these values were calculated using 250 iterations, which should provide a relatively high level of certainty.
 

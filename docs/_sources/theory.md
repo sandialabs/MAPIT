@@ -23,6 +23,8 @@ The purpose of this section is to link theory behind material accountancy to spe
 ErrorTheory
 MufSeidTheory
 CumufTheory
+covmat
 SitmufTheory
+GemufTheory
 PageTheory
 ComputeTheory

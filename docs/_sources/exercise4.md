@@ -86,7 +86,7 @@ Plots in this excercise are using 300 iterations to have better statistics, so i
 +++
 
 * Use the `Statistical Thresholds` box to determine an appropriate threshold (i.e. 5% FAP)
-    * This is performed by entering values in the `Enter Threshold` box
+    * This is performed by entering values in the `Statistical Thresholds` box
     * MAPIT returns the number of iterations that exceed this threshold
       * MAPIT operates on the entire dataset, not just the iterations that are plotted. This can be important in cases where many iterations are calculated and only a few are plotted.
 
@@ -98,7 +98,7 @@ Plots in this excercise are using 300 iterations to have better statistics, so i
 :align: center
 ```
 
-* Your threshold should be near 0.5
+* Your threshold should be near 0.5 for $a_0$ and 0.0 or empty for $a_1$.
     * Due to the randomness of the calculations, your threshold might be slightly different
     * Increasing the number of iterations can help obtain a more precise estimate of the threshold
       * The uncertainty in the threshold itself should roughly decrease with sqrt(iterations).
@@ -137,7 +137,7 @@ Plots in this excercise are using 300 iterations to have better statistics, so i
 ```
 
 * Enter in the previously determined threshold to determine the probability of detection for this material loss.
-    * The value should be approximately 50-60%
+    * The `% Above Threshold` should be approximately 50-60%
 
 +++
 

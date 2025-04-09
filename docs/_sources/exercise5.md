@@ -79,7 +79,7 @@ For the baseline assumption, it was assumed that all measurement locations have 
 
 ### Performance
 
->Threshold = 1.50
+>Threshold: ($a_1 = 0.0$, $a_0 = 1.50$)
 
 | False Alarm Probability (%) | Probability of Detection (%) |
 |:---:|:---:|

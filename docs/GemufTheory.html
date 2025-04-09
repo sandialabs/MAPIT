@@ -1,0 +1,683 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GEMUF &#8212; MAPIT 1.5.0-beta documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="_static/documentation_options.js?v=81393923"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'GemufTheory';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Page’s trend test" href="PageTheory.html" />
+    <link rel="prev" title="SITMUF" href="SitmufTheory.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo_small.png" class="logo__image only-light" alt="MAPIT 1.5.0-beta documentation - Home"/>
+    <img src="_static/logo_small.png" class="logo__image only-dark pst-js-only" alt="MAPIT 1.5.0-beta documentation - Home"/>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Downloading &amp; Installing MAPIT</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="sceneTut.html">MAPIT Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CsvTut.html">Using your own data (.csv)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MatTut.html">Using your own data (.mat)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="guided_exercises.html">Guided exercises</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="exercise1.html">Exercise 1: General MAPIT Familiarity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise2.html">Exercise 2: Impacts of measurement error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise3.html">Exercise 3: Material Loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise4.html">Exercise 4: Quantifying probability of detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5.html">Exercise 5: System Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise5S.html">Exercise 5 Solution</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="theory.html">Theory guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ErrorTheory.html">Error model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="MufSeidTheory.html">MUF and SigmaMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CumufTheory.html">CuMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="covmat.html">Covariance Matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SitmufTheory.html">SITMUF</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">GEMUF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PageTheory.html">Page’s trend test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ComputeTheory.html">Special computational considerations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="apidocs.html">API home</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="code_autogen/coreLanding.html">core</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/AuxFunctions.html">AuxFunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/Preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/StatsProcessor.html">StatsProcessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="code_autogen/StatsTests.html">StatsTests</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/sandialabs/MAPIT/blob/master/docs_v2/build/html/GemufTheory.md?plain=1" target="_blank"
+   class="btn btn-sm btn-source-file-button dropdown-item"
+   title="Show source"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-code"></i>
+  </span>
+<span class="btn__text-container">Show source</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/sandialabs/MAPIT/edit/master/docs_v2/build/html/GemufTheory.md" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/sandialabs/MAPIT/issues/new?title=Issue%20on%20page%20%2FGemufTheory.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/GemufTheory.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>GEMUF</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#historical-context">Historical Context</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theory">Theory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gemuf-implementation">GEMUF implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#further-reading">Further reading</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="gemuf">
+<h1>GEMUF<a class="headerlink" href="#gemuf" title="Link to this heading">#</a></h1>
+<section id="historical-context">
+<h2>Historical Context<a class="headerlink" href="#historical-context" title="Link to this heading">#</a></h2>
+<p>There have been various schemes for analyzing the material balance sequence (i.e., MUF). The SITMUF approach attempts to develop a sequence of <em>residuals</em> wherein the MUF sequence is converted to a standardized sequence and monitored for trend changes.</p>
+<p>In contrast, GEMUF (geschatzter, or estimated, MUF) attempts instead to develop a distance-based metric to detect anomalies. However, GEMUF is very sensitive to misspecified covariance matrices.</p>
+</section>
+<section id="theory">
+<h2>Theory<a class="headerlink" href="#theory" title="Link to this heading">#</a></h2>
+<p>Recall that the <strong>muf</strong> sequence is defined as follows:</p>
+<div class="math notranslate nohighlight">
+\[
+     \boldsymbol{\text{muf}} = \{ \text{muf}_0, \text{muf}_1, ... \text{muf}_n \}
+\]</div>
+<p>With</p>
+<div class="math notranslate nohighlight">
+\[
+\text{muf}_i =  \sum_{l \in l_0}\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{t,l} - \sum_{l \in l_1}\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}O_{t,l} -  \sum_{l \in l_2}(C_{i,l} - C_{i-1, l})
+\]</div>
+<p>The covariance matrix contains the covariance between different material balances in the sequence. For example, consider the entry <span class="math notranslate nohighlight">\(\sigma_{2n}^2\)</span> of the covariance matrix below. This term is the variance between material balance <span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\(2\)</span>.</p>
+<div class="math notranslate nohighlight" id="equation-eqn-cov">
+<span class="eqno">(1)<a class="headerlink" href="#equation-eqn-cov" title="Link to this equation">#</a></span>\[\begin{split}
+\begin{aligned}
+ \boldsymbol{\Sigma} &amp; = \begin{pmatrix}
+  {\sigma}_{11}^2 &amp; {\sigma}_{12}^2 &amp; \ldots &amp; {\sigma}_{1n}^2 \\
+  {\sigma}_{21}^2 &amp; {\sigma}_{22}^2 &amp; \ldots &amp; {\sigma}_{2n}^2 \\
+  \vdots          &amp; \vdots          &amp; \ddots &amp; \vdots          \\
+  {\sigma}_{n1}^2 &amp; {\sigma}_{n2}^2 &amp; \ldots &amp; {\sigma}_{nn}^2 \\
+ \end{pmatrix}
+  =  \begin{pmatrix}
+  \boldsymbol{\Sigma_{i-1}} &amp; \boldsymbol{\sigma_{i-1}} \\
+  \boldsymbol{\sigma_{i-1}}^T &amp; \sigma_{i,i} \\
+ \end{pmatrix}
+\end{aligned}
+\end{split}\]</div>
+<p>The simplest statistical test to detect a loss would be to simply test two hypotheses:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+&amp; H_0 :  E(\boldsymbol{\text{muf}}_i) = 0 \text{ for } i \in \{1,2,...,N\} \\
+&amp; H_1 :  E(\boldsymbol{\text{muf}}_i) = M_i \text{ for }  i \in \{1,2,...,N\} \\
+&amp; \text{where} \\
+&amp; \sum M_i  =  M &gt; 0 \\
+\end{aligned}\end{split}\]</div>
+<p>For all loss patterns, <span class="math notranslate nohighlight">\(\textbf{M}_N^T = \{M_1, M_2, ... M_N\}\)</span>, where <span class="math notranslate nohighlight">\(M_i\)</span> is the loss in period <span class="math notranslate nohighlight">\(i\)</span>, the optimal test to compare <span class="math notranslate nohighlight">\(H_0\)</span> and <span class="math notranslate nohighlight">\(H_1\)</span> is a Neyman-Pearson test. Siefert showed the test statistic can be defined as:</p>
+<div class="math notranslate nohighlight">
+\[Z = \boldsymbol{M}_N^T {\Sigma}_N^{-1} \textbf{muf}_N\]</div>
+<p>With the test formulated as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}Z
+\begin{cases}
+&gt; \text{k}_\alpha: \text{ reject } H_0  \\
+\leq \text{k}_\alpha: \text{ reject } H_1  \\
+\end{cases}\end{split}\]</div>
+<p>There’s two challenges with this test. First, the test doesn’t provide sequential decisions (not necessarily a problem considering the test can still be calculated sequentially, which we will do). This can be remedied by simply calculating the test statistic for each period and making decisions as such:</p>
+<div class="math notranslate nohighlight">
+\[{ZG}_i= \boldsymbol{M}_i^T {\Sigma}_N^{-1} \textbf{muf}_i\]</div>
+<p>with decision process:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+{ZG}_i
+\begin{cases}
+&gt;s(i): \text{ reject } H_0  \\
+\leq s(i): \text{ no decision }   \\
+\end{cases}
+\end{split}\]</div>
+<p>and for the final period:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+{ZG}_N
+\begin{cases}
+&gt;s(N): \text{ reject } H_0  \\
+\leq s(N): \text{ no reject } H_1  \\
+\end{cases}
+\end{split}\]</div>
+<div class="note docutils">
+<p>Here all interim test statistic calculations are required to be below a threshold for <span class="math notranslate nohighlight">\(H_0\)</span> to be rejected.</p>
+</div>
+<p>Second, and more problematic, is the requirement that the loss pattern, <span class="math notranslate nohighlight">\(M_N\)</span> is known. It is reasonable to approximate <span class="math notranslate nohighlight">\(\boldsymbol{M_N}\)</span> as <span class="math notranslate nohighlight">\(\boldsymbol{M_N} \approx \textbf{muf}_N\)</span> such that <span class="math notranslate nohighlight">\(\boldsymbol{\hat{M_N}} = \textbf{muf}_N\)</span> by considering that <span class="math notranslate nohighlight">\(E(\boldsymbol{\text{muf}}_i) = M_i\)</span>.</p>
+<p>The test statistic then becomes</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+    Z &amp; = {\left(\hat{\boldsymbol{M}_N}\right)}^T {\Sigma}_N^{-1} \textbf{muf}_N \\
+    &amp; = {\textbf{muf}_N}^T {\Sigma}_N^{-1} \textbf{muf}_N
+\\
+\end{aligned}\end{split}\]</div>
+<div class="note docutils">
+<p>The details behind the covariance calculation can be found in <a class="reference internal" href="SitmufTheory.html"><span class="std std-doc">sitmuf theory</span></a></p>
+</div>
+<p>Siefert noted that using a single MUF value at each step (i.e.,  M_i$) can lead to significant variance. It was proposed to use a weighted value such that:</p>
+<div class="math notranslate nohighlight">
+\[M_i = \frac{1}{7} \left( \text{muf}_{i-2} +  \text{muf}_{i-1} + 3 \text{muf}_i +  \text{muf}_{i+1} +  \text{muf}_{i+2} \right)\]</div>
+<p>This approach has lower variance, but is no longer unbiased. In MAPIT we implement both approaches, the use of the single MUF value is V1 and the use of the weighted values is V5B3, following the notation in the original paper.</p>
+</section>
+<section id="gemuf-implementation">
+<h2>GEMUF implementation<a class="headerlink" href="#gemuf-implementation" title="Link to this heading">#</a></h2>
+<p>Since both GEMUF and SITMUF both require calculation of the covariance matrix, this is only done once and then used for any requested SITMUF or GEMUF calculations. Details of the covariance matrix calculation can be found in the SITMUF section and won’t be repeated here.</p>
+<div class="seealso docutils">
+<p><a class="reference internal" href="covmat.html"><span class="std std-doc">Covariance Matrix</span></a></p>
+</div>
+<p>The GEMUF functions are responsible for calculating the GEMUF sequence (either V1 or V5B3), effectively performing the calculation below as it’s assumed the covariance matrix has already been calculated:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+    Z &amp; = {\left(\hat{\boldsymbol{M}_N}\right)}^T {\Sigma}_N^{-1} \textbf{muf}_N \\
+    &amp; = {\textbf{muf}_N}^T {\Sigma}_N^{-1} \textbf{muf}_N
+\\
+\end{aligned}\end{split}\]</div>
+<p>Unlike the SITMUF sequence, GEMUF is calculated sequentially for each balance period. That is, for a given MUF sequence, only a single test statistic is produced. Therefore, we have to loop over the entire MUF sequence:</p>
+<p><span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">769</span>    <span class="k">for</span> <span class="n">ZR</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">nMBP</span><span class="p">)):</span>
+<span class="linenos">770</span>        <span class="n">IDs</span><span class="p">[</span><span class="n">ZR</span><span class="p">]</span> <span class="o">=</span> <span class="n">MUF</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">ZR</span><span class="o">*</span><span class="n">MBP</span><span class="p">]</span>
+<span class="linenos">771</span>        <span class="n">tempID</span> <span class="o">=</span> <span class="n">IDs</span><span class="p">[:</span><span class="n">ZR</span><span class="p">]</span>
+<span class="linenos">772</span>        <span class="n">tempcovmatrix</span> <span class="o">=</span> <span class="n">covmatrix</span><span class="p">[</span><span class="n">k</span><span class="p">,:</span><span class="n">ZR</span><span class="p">,:</span><span class="n">ZR</span><span class="p">]</span>
+<span class="linenos">773</span>        <span class="n">ZG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">tempID</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">tempcovmatrix</span><span class="p">)),</span> <span class="n">tempID</span><span class="p">)</span>
+<span class="linenos">774</span>        <span class="n">GEMUFCalcsV1</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="nb">int</span><span class="p">((</span><span class="n">ZR</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">ZR</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">MBP</span><span class="p">,))</span> <span class="o">*</span> <span class="n">ZG</span>
+</pre></div>
+</div>
+<p>We generate per-balance test statistics for GEMUF by considering subsections of the original sequence with increasing covariance matrix size:</p>
+<p><span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">769</span>    <span class="k">for</span> <span class="n">ZR</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">nMBP</span><span class="p">)):</span>
+<span class="linenos">770</span>        <span class="n">IDs</span><span class="p">[</span><span class="n">ZR</span><span class="p">]</span> <span class="o">=</span> <span class="n">MUF</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">ZR</span><span class="o">*</span><span class="n">MBP</span><span class="p">]</span>
+<span class="hll"><span class="linenos">771</span>        <span class="n">tempID</span> <span class="o">=</span> <span class="n">IDs</span><span class="p">[:</span><span class="n">ZR</span><span class="p">]</span>
+</span><span class="hll"><span class="linenos">772</span>        <span class="n">tempcovmatrix</span> <span class="o">=</span> <span class="n">covmatrix</span><span class="p">[</span><span class="n">k</span><span class="p">,:</span><span class="n">ZR</span><span class="p">,:</span><span class="n">ZR</span><span class="p">]</span>
+</span><span class="linenos">773</span>        <span class="n">ZG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">tempID</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">tempcovmatrix</span><span class="p">)),</span> <span class="n">tempID</span><span class="p">)</span>
+<span class="linenos">774</span>        <span class="n">GEMUFCalcsV1</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="nb">int</span><span class="p">((</span><span class="n">ZR</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">ZR</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">MBP</span><span class="p">,))</span> <span class="o">*</span> <span class="n">ZG</span>
+</pre></div>
+</div>
+<p>For GEMUF-V1, the test statistic is straightforward to calculate:</p>
+<p><span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">769</span>    <span class="k">for</span> <span class="n">ZR</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">nMBP</span><span class="p">)):</span>
+<span class="linenos">770</span>        <span class="n">IDs</span><span class="p">[</span><span class="n">ZR</span><span class="p">]</span> <span class="o">=</span> <span class="n">MUF</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">ZR</span><span class="o">*</span><span class="n">MBP</span><span class="p">]</span>
+<span class="linenos">771</span>        <span class="n">tempID</span> <span class="o">=</span> <span class="n">IDs</span><span class="p">[:</span><span class="n">ZR</span><span class="p">]</span>
+<span class="linenos">772</span>        <span class="n">tempcovmatrix</span> <span class="o">=</span> <span class="n">covmatrix</span><span class="p">[</span><span class="n">k</span><span class="p">,:</span><span class="n">ZR</span><span class="p">,:</span><span class="n">ZR</span><span class="p">]</span>
+<span class="hll"><span class="linenos">773</span>        <span class="n">ZG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">tempID</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">tempcovmatrix</span><span class="p">)),</span> <span class="n">tempID</span><span class="p">)</span>
+</span><span class="linenos">774</span>        <span class="n">GEMUFCalcsV1</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="nb">int</span><span class="p">((</span><span class="n">ZR</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">ZR</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">MBP</span><span class="p">,))</span> <span class="o">*</span> <span class="n">ZG</span>
+</pre></div>
+</div>
+<p>Following the calculation of GEMUF-V1, the discrete sequence of GEMUF-V1 values are converted to a continuous time series.</p>
+<p>The GEMUF-V5B3 calculation differs slightly from the GEMUF-V1 calculation. The GEMUF-V5B3 still iterates over the material balance periods, but a MUF ‘‘window’’ is created that corresponds to values needed in the weighting. Note the creation of the MUF window, generated from the continuous MUF values. The creation of this window is only valid when 5 consecutive MUF values are available:</p>
+<p><span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">848</span>        <span class="k">if</span> <span class="n">ZR</span><span class="o">&gt;=</span><span class="mi">2</span> <span class="ow">and</span> <span class="n">ZR</span><span class="o">+</span><span class="mi">2</span><span class="o">&lt;</span><span class="nb">int</span><span class="p">(</span><span class="n">nMBP</span><span class="p">):</span>
+<span class="linenos">849</span>          <span class="n">msc</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="linenos">850</span>          <span class="k">for</span> <span class="n">ZR2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ZR</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="n">ZR</span><span class="o">+</span><span class="mi">3</span><span class="p">):</span>
+<span class="linenos">851</span>            <span class="n">IDWindow</span><span class="p">[</span><span class="n">msc</span><span class="p">]</span> <span class="o">=</span> <span class="n">MUF</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">ZR2</span><span class="o">*</span><span class="n">MBP</span><span class="p">]</span>
+<span class="linenos">852</span>            <span class="n">msc</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>If there’s a valid window, then the GEMUF-V5B3 is calculated. It’s important to note that we store the calculated weighted MUF values as the GEMUF-V5B3 calculation requires a <em>sequence</em> of values, not just the instantaneous value (in the code, <code class="docutils literal notranslate"><span class="pre">MSSeq</span></code> holds the weighted MUF values).</p>
+<p><span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">856</span>        <span class="k">if</span> <span class="n">ZR</span><span class="o">&gt;=</span><span class="mi">2</span> <span class="ow">and</span> <span class="n">ZR</span><span class="o">+</span><span class="mi">2</span><span class="o">&lt;</span><span class="nb">int</span><span class="p">(</span><span class="n">nMBP</span><span class="p">):</span>
+<span class="linenos">857</span>          <span class="n">MS</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">7</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">IDWindow</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">IDWindow</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">IDWindow</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">IDWindow</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">IDWindow</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+<span class="linenos">858</span>          <span class="n">MSSeq</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">ZR</span><span class="p">]</span> <span class="o">=</span> <span class="n">MS</span>
+<span class="linenos">859</span>          <span class="n">ZG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">MSSeq</span><span class="p">[</span><span class="n">k</span><span class="p">,:</span><span class="n">ZR</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))),</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">tempcovmatrix</span><span class="p">)),</span> <span class="n">tempID</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After calculating the the discrete GEMUF-V5B3 sequence, it is converted to a continuous time series before being returned.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The GEMUF-V5B3 test isn’t valid for the first and last two material balance periods because it requires a weighted average that includes the two previous and future balances. Seifert’s original paper didn’t describe what to do with the test on the tails of the balance sequence, so we choose to represent those values as <code class="docutils literal notranslate"><span class="pre">np.nan</span></code>. It’s important to note this as sometimes plotting libraries will drop those values when plotting. For example, matplotlib will often drop <code class="docutils literal notranslate"><span class="pre">np.nan</span></code> values resulting in a plotted sequence that appears to be missing the first two and last two sequence intervals.</p>
+</div>
+</section>
+<section id="further-reading">
+<h2>Further reading<a class="headerlink" href="#further-reading" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://inis.iaea.org/records/jfm5m-x8s14">The GEMUF Test (Seifert)</a></p>
+<ul>
+<li><p>Note this is 675 pages long as the original GEMUF test paper is part of the IAEA symposium collection from 1986.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="SitmufTheory.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">SITMUF</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="PageTheory.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Page’s trend test</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#historical-context">Historical Context</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theory">Theory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gemuf-implementation">GEMUF implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#further-reading">Further reading</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Sandia Nuclear Fuel Cycle and Safeguards Group
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, National Technology and Engineering Solutions of Sandia, LLC (NTESS).
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
