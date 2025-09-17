@@ -963,14 +963,11 @@ def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,doPbar=True):
     for P in range(1,int(MBPs)):
       
       if P == 1:
-        RZN = inQty[k,int((P - 1) * MBP)]
+        PiY = max(inQty[k,int((P - 1) * MBP)], 0)
       else:
-        RZN = inQty[k,int((P - 2) * MBP)] + inQty[k,int((P - 1) * MBP)] - K
-      
-      if RZN < 0:
-        RZN = 0
-      
-      PageCalcs[k,int((P - 1) * MBP):int(P * MBP)] = np.ones((MBP,)) * RZN
+        PiY = max(PiY + inQty[k,int((P - 1) * MBP)] - K, 0)
+
+      PageCalcs[k,int((P - 1) * MBP):int(P * MBP)] = np.ones((MBP,)) * PiY
 
       if GUIObject is not None:
         GUIObject.progress.emit(loopcounter / totalloops*100)
