@@ -137,9 +137,23 @@ For simplicity, the diagonal and off-diagonal terms are broken into multiple com
 
 ```
 
-<span style="color:#5755aa; font-size: 1.5em; font-weight:bold">Term 1</span>
-<br>
-<span style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+```{math}
+:class: only-light
+    \sigma_{i,i}^2 & \approx 
+    \colorbox{#9392C8}{$\sum_{l \in l_0} \left( \left(\int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i}I_{l,t}\right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right) $} \\
+        &  +  \colorbox{#5CB8FF}{$\sum_{l \in l_1} \left( \left( \int_{t=\text{MBP}_{i-1}}^{\text{MBP}_i} O_{l,t} \right)^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right)$} \\
+    & + \colorbox{#DEBC7D}{$\sum_{l \in l_2} \left( (C_{i,l})^2 * ((\delta_{R,l})^2 + (\delta_{S,l})^2) \right)$} \\
+    & +  \colorbox{#8ECDC8}{$\sum_{l \in l_2} \left( (C_{i-1,l})^2 * ((\delta_{R,l})^2 +  (\delta_{S,l})^2)  \right)$}
+     -  \colorbox{#FF855C}{$\sum_{l \in l_2} \left( 2C_{i-1,l}C_{i,l}(\delta_{S,l})^2  \right)$} \\
+
+```
+
+<span class="only-dark" style="color:#5755aa; font-size: 1.5em; font-weight:bold">Term 1 </span>
+<span class="only-dark" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
+<span class="only-light" style="color:#9392C8; font-size: 1.5em; font-weight:bold">Term 1 <br></span>
+<span class="only-light" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
 ```{literalinclude} ../../MAPIT/core/AuxFunctions.py
 :start-after: _covmat_D1-start
 :end-before: _covmat_D1-end
@@ -149,9 +163,11 @@ For simplicity, the diagonal and off-diagonal terms are broken into multiple com
 :emphasize-lines: 6,8
 ```
 
-<span style="color:#0074CC; font-size: 1.5em; font-weight:bold">Term 2</span>
-<br>
-<span style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+<span class="only-dark" style="color:#0074CC; font-size: 1.5em; font-weight:bold">Term 2 <br></span>
+<span class="only-dark" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
+<span class="only-light" style="color:#5CB8FF; font-size: 1.5em; font-weight:bold">Term 2 <br></span>
+<span class="only-light" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
 
 ```{literalinclude} ../../MAPIT/core/AuxFunctions.py
 :start-after: _covmat_D2-start
@@ -162,9 +178,11 @@ For simplicity, the diagonal and off-diagonal terms are broken into multiple com
 :emphasize-lines: 7,9
 ```
 
-<span style="color:#A2782A; font-size: 1.5em; font-weight:bold">Term 3</span>
-<br>
-<span style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+<span class="only-dark" style="color:#A2782A; font-size: 1.5em; font-weight:bold">Term 3 <br></span>
+<span class="only-dark" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
+<span class="only-light" style="color:#DEBC7D; font-size: 1.5em; font-weight:bold">Term 3 <br></span>
+<span class="only-light" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
 ```{literalinclude} ../../MAPIT/core/AuxFunctions.py
 :start-after: _covmat_D345-start
 :end-before: _covmat_D345-end
@@ -174,9 +192,11 @@ For simplicity, the diagonal and off-diagonal terms are broken into multiple com
 :emphasize-lines: 7
 ```
 
-<span style="color:#3E8E87; font-size: 1.5em; font-weight:bold">Term 4</span>
-<br>
-<span style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+<span class="only-dark" style="color:#3E8E87; font-size: 1.5em; font-weight:bold">Term 4<br></span> 
+<span class="only-dark" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
+<span class="only-light" style="color:#8ECDC8; font-size: 1.5em; font-weight:bold">Term 4 <br></span>
+<span class="only-light" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
 ```{literalinclude} ../../MAPIT/core/AuxFunctions.py
 :start-after: _covmat_D345-start
 :end-before: _covmat_D345-end
@@ -186,9 +206,11 @@ For simplicity, the diagonal and off-diagonal terms are broken into multiple com
 :emphasize-lines: 16
 ```
 
-<span style="color:#CC3300; font-size: 1.5em; font-weight:bold">Term 5</span>
-<br>
-<span style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+<span class="only-dark" style="color:#CC3300; font-size: 1.5em; font-weight:bold">Term 5 <br></span>
+<span class="only-dark" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
+<span class="only-light" style="color:#FF855C; font-size: 1.5em; font-weight:bold">Term 5 <br> </span>
+<span class="only-light" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
 ```{literalinclude} ../../MAPIT/core/AuxFunctions.py
 :start-after: _covmat_D345-start
 :end-before: _covmat_D345-end
@@ -214,9 +236,12 @@ For simplicity, the diagonal and off-diagonal terms are broken into multiple com
     - &  \colorbox{#CC3300}{$\sum_{l \in l_2} \left( \left(   C_{i-1,l}C_{j,l}    \right) * \left(  (\delta_{S,l})^2 + P(i-1 == j)*(\delta_{R,l})^2 \right)   \right) $}\\
 ```
 
-<span style="color:#5755aa; font-size: 1.5em; font-weight:bold">Term 1</span>
-<br>
-<span style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+<span class="only-dark" style="color:#5755aa; font-size: 1.5em; font-weight:bold">Term 1 <br></span>
+<span class="only-dark" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
+<span class="only-light" style="color:#9392C8; font-size: 1.5em; font-weight:bold">Term 1 <br></span>
+<span class="only-light" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
 ```{literalinclude} ../../MAPIT/core/AuxFunctions.py
 :start-after: _covmat_OD1-start
 :end-before: _covmat_OD1-end
@@ -226,9 +251,11 @@ For simplicity, the diagonal and off-diagonal terms are broken into multiple com
 :emphasize-lines: 6,7,9,10,14,15
 ```
 
-<span style="color:#0074CC; font-size: 1.5em; font-weight:bold">Term 2</span>
-<br>
-<span style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+<span class="only-dark" style="color:#0074CC; font-size: 1.5em; font-weight:bold">Term 2 <br></span>
+<span class="only-dark" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
+<span class="only-light" style="color:#5CB8FF; font-size: 1.5em; font-weight:bold">Term 2 <br></span>
+<span class="only-light" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
 ```{literalinclude} ../../MAPIT/core/AuxFunctions.py
 :start-after: _covmat_OD2-start
 :end-before: _covmat_OD2-end
@@ -238,9 +265,11 @@ For simplicity, the diagonal and off-diagonal terms are broken into multiple com
 :emphasize-lines: 9,10,12,13,17,18
 ```
 
-<span style="color:#A2782A; font-size: 1.5em; font-weight:bold">Term 3</span>
-<br>
-<span style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+<span class="only-dark" style="color:#A2782A; font-size: 1.5em; font-weight:bold">Term 3 <br></span>
+<span class="only-dark" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
+<span class="only-light" style="color:#DEBC7D; font-size: 1.5em; font-weight:bold">Term 3 <br></span>
+<span class="only-light" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
 ```{literalinclude} ../../MAPIT/core/AuxFunctions.py
 :start-after: _covmat_OD345-start
 :end-before: _covmat_OD345-end
@@ -250,9 +279,11 @@ For simplicity, the diagonal and off-diagonal terms are broken into multiple com
 :emphasize-lines: 8-11
 ```
 
-<span style="color:#3E8E87; font-size: 1.5em; font-weight:bold">Term 4</span>
-<br>
-<span style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+<span class="only-dark" style="color:#3E8E87; font-size: 1.5em; font-weight:bold">Term 4<br></span> 
+<span class="only-dark" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
+<span class="only-light" style="color:#8ECDC8; font-size: 1.5em; font-weight:bold">Term 4 <br></span>
+<span class="only-light" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
 ```{literalinclude} ../../MAPIT/core/AuxFunctions.py
 :start-after: _covmat_OD345-start
 :end-before: _covmat_OD345-end
@@ -262,9 +293,11 @@ For simplicity, the diagonal and off-diagonal terms are broken into multiple com
 :emphasize-lines: 13-18,21
 ```
 
-<span style="color:#CC3300; font-size: 1.5em; font-weight:bold">Term 5</span>
-<br>
-<span style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+<span class="only-dark" style="color:#CC3300; font-size: 1.5em; font-weight:bold">Term 5 <br></span>
+<span class="only-dark" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
+
+<span class="only-light" style="color:#FF855C; font-size: 1.5em; font-weight:bold">Term 5 <br> </span>
+<span class="only-light" style="font-size: 1.5em; font-weight: bold;"><code>AuxFunctions.py</code></span>
 ```{literalinclude} ../../MAPIT/core/AuxFunctions.py
 :start-after: _covmat_OD345-start
 :end-before: _covmat_OD345-end

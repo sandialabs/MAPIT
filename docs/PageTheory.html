@@ -438,17 +438,17 @@
 </div>
 <div class="literal-block-wrapper docutils container" id="id1">
 <div class="code-block-caption"><span class="caption-text">The implementation of the trend test is straightforward following the equation given in the theory section. The only addition from the page’s equation above is the tiling in line 808 which copies the page test statistic for all time steps between material balances.</span><a class="headerlink" href="#id1" title="Link to this code">#</a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">797</span>    <span class="k">for</span> <span class="n">P</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">MBPs</span><span class="p">)):</span>
-<span class="linenos">798</span>      
-<span class="linenos">799</span>      <span class="k">if</span> <span class="n">P</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-<span class="linenos">800</span>        <span class="n">RZN</span> <span class="o">=</span> <span class="n">inQty</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="nb">int</span><span class="p">((</span><span class="n">P</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">)]</span>
-<span class="linenos">801</span>      <span class="k">else</span><span class="p">:</span>
-<span class="linenos">802</span>        <span class="n">RZN</span> <span class="o">=</span> <span class="n">inQty</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="nb">int</span><span class="p">((</span><span class="n">P</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">)]</span> <span class="o">+</span> <span class="n">inQty</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="nb">int</span><span class="p">((</span><span class="n">P</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">)]</span> <span class="o">-</span> <span class="n">K</span>
-<span class="linenos">803</span>      
-<span class="linenos">804</span>      <span class="k">if</span> <span class="n">RZN</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-<span class="linenos">805</span>        <span class="n">RZN</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="linenos">806</span>      
-<span class="linenos">807</span>      <span class="n">PageCalcs</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="nb">int</span><span class="p">((</span><span class="n">P</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">):</span><span class="nb">int</span><span class="p">(</span><span class="n">P</span> <span class="o">*</span> <span class="n">MBP</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">MBP</span><span class="p">,))</span> <span class="o">*</span> <span class="n">RZN</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">797</span>    <span class="k">if</span> <span class="n">pbar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<span class="linenos">798</span>      <span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">799</span>
+<span class="linenos">800</span>  <span class="k">if</span> <span class="n">doPbar</span> <span class="ow">and</span> <span class="n">ispar</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+<span class="linenos">801</span>    <span class="n">pbar</span><span class="o">.</span><span class="fm">__exit__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="linenos">802</span>  <span class="k">return</span> <span class="n">GEMUFCalcsV5B3</span>
+<span class="linenos">803</span>
+<span class="linenos">804</span>
+<span class="linenos">805</span><span class="k">def</span> <span class="nf">PageTrendTest</span><span class="p">(</span><span class="n">inQty</span><span class="p">,</span><span class="n">MBP</span><span class="p">,</span><span class="n">MBPs</span><span class="p">,</span><span class="n">K</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">GUIObject</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">doPbar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="linenos">806</span>  <span class="s2">&quot;&quot;&quot;</span>
+<span class="linenos">807</span><span class="s2">  Function for calculating Page&#39;s trend test, which is commonly applied to the SITMUF sequence. Formally compares the null hypothesis that there is no trend versus the alternate trend where there is a trend.</span>
 <span class="linenos">808</span>
 </pre></div>
 </div>

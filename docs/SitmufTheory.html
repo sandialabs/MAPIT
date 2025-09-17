@@ -506,19 +506,19 @@
 \end{split}\]</div>
 <p>Each SITMUF realization (that is, each iteration) is calculated separately as the Cholesky decomposition from Numpy isn’t vectorized (it’s pretty quick on modern machines, anyways). We start by converting the MUF values from a continuous vector in time to a discrete vector on a per balance basis:</p>
 <p><span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">686</span>    <span class="k">for</span> <span class="n">ZR</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">P</span><span class="p">):</span>
-<span class="linenos">687</span>        <span class="n">tempID</span><span class="p">[</span><span class="n">ZR</span><span class="p">]</span> <span class="o">=</span> <span class="n">MUF</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">ZR</span><span class="o">*</span><span class="n">MBP</span><span class="p">]</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">722</span>    <span class="k">for</span> <span class="n">ZR</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">P</span><span class="p">):</span>
+<span class="linenos">723</span>        <span class="n">tempID</span><span class="p">[</span><span class="n">ZR</span><span class="p">]</span> <span class="o">=</span> <span class="n">MUF</span><span class="p">[</span><span class="n">k</span><span class="p">,</span><span class="n">ZR</span><span class="o">*</span><span class="n">MBP</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>After that, we attempt to perform the Cholesky decomposition. The decomposition will fail if the covariance matrix wasn’t constructed properly, so we try to pass a warning/error if this happens.</p>
 <p><span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">691</span>    <span class="k">try</span><span class="p">:</span>
-<span class="linenos">692</span>        <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">tempcovmatrix</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">727</span>    <span class="k">try</span><span class="p">:</span>
+<span class="linenos">728</span>        <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">tempcovmatrix</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>If the decomposition succeeds, then we proceed directly to the transform itself:</p>
 <p><span style="font-size: 1.5em; font-weight: bold;"><code>StatsTests.py</code></span></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">707</span>    <span class="n">SITMUF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">V</span><span class="p">),</span><span class="n">tempID</span><span class="p">)</span>    
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">743</span>    <span class="n">SITMUF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">V</span><span class="p">),</span><span class="n">tempID</span><span class="p">)</span>    
 </pre></div>
 </div>
 <div class="admonition important">

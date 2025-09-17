@@ -41,7 +41,11 @@ If modifying the error matrix *after* having calculated errors or a statistical 
 
 ## Parallel Processing
 
-MAPIT provides parallel processing capabilities through the (Ray)[https://www.ray.io/] library. By default, Ray provides a local dashboard at [127.0.0.1:8265](http://127.0.0.1:8265) which can be used to monitor progress and view job related statistics. Two key parameters are used for parallel processing; `ncpu` and `nbatch`. `ncpu` controls the number of CPUs provided to Ray whereas `nbatch` is the number of iterations to process for each task. Once provided, each Ray worker (total is equal to `ncpu`) works through a queue of tasks. Each task returns some of the iterations requested by the user (defined by `nbatch`) until all results are processed. A table showing the relationship between user specified variables `iterations`, `ncpu`, and `nbatch` the number of tasks performed by each worker is shown below. Workers process tasks in the queue until the queue is completed. 
+:::{versionadded} 1.5.10
+   Parallel capabilities are now provided by `concurrent` instead of `ray`.
+:::
+
+MAPIT provides parallel processing capabilities through `concurrent.futures`. Two key parameters are used for parallel processing; `ncpu` and `nbatch`. `ncpu` controls the number of CPUs provided to the `ThreadPoolExecutor` whereas `nbatch` is the number of iterations to process for each task. Once provided, each `ThreadPoolExecutor` worker (total is equal to `ncpu`) works through a queue of tasks. Each task returns some of the iterations requested by the user (defined by `nbatch`) until all results are processed. A table showing the relationship between user specified variables `iterations`, `ncpu`, and `nbatch` the number of tasks performed by each worker is shown below. Workers process tasks in the queue until the queue is completed. 
 
 | `iterations` | `ncpu` | `nbatch` | total number of tasks | tasks completed per worker |
 |  :---:  |  :---:  |  :---:  |  :---:  | :---:  |

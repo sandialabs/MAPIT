@@ -85,36 +85,32 @@ $$
 While the random error component, $R_{n,p,t}$ is sampled at every time step, sensor setup might complicated the specification of the systematic error component. It is assumed here that the systematic error changes with location but _not_ time as no calibration time is assumed ($S_{n,p,t=0} = S_{n,p,t=50} = S_{n,p,t=t}$).
 :::
 
-The implementation of this error model is performed in MAPIT by `MAPIT.core.Preprocessing.SimErrors` starting on line 352: 
+The implementation of this error model is performed in MAPIT by `MAPIT.core.Preprocessing.SimErrors`: 
 
-```{literalinclude} ../../MAPIT/core/Preprocessing.py
-:lines: 352-352
-:language: python
-```
 
 The function generates `iterations` simulated realizations of measurements (i.e., the iteration dimension $n$) for each list entry. Each `iteration` represents a possible result of measuring at the specific key measurement point (i.e., location dimension $p$) represented by the list entry.
 
 First, a list of arrays is initialized to hold the errors calculated by the function (Lines 408-409). 
 
 ```{literalinclude} ../../MAPIT/core/Preprocessing.py
-:lines: 408-409
+:start-after: _EB1-start
+:end-before: _EB1-end
 :language: python
 :linenos:
-:lineno-start: 408
+:lineno-match:
 ```
 
 Each entry in the `AppliedError` list is an array with shape (iterations $n$, time steps $t$) and _presumably_ refers to a different location in a measurement type. For example, the first entry in the list might be a (time steps $t$, 1) shaped array of data collected at the first input key measurement point. Since each list entry might have a different number of time steps, the arrays are stored in a list rather than being concatenated. The list and constituent arrays are preinitalized.
 
-The main calculation loop occurs between lines 442 and 479:
+The main calculation loop occurs as follows:
 
 ```{literalinclude} ../../MAPIT/core/Preprocessing.py
-:lines: 442-479
+:start-after: _EB-main-start
+:end-before: _EB-main-end
 :language: python
 :linenos:
-:lineno-start: 442
+:lineno-match:
 ```
-
-
 
 
 `SimErrors` has a parameter `batchSize` that controls the number of `iterations` that are calculated at once. The most efficient implementation would calculate all `iterations` at once using a single matrix calculation. However, this could consume more memory than available in some scenarios, so the `batchSize` parameter is provided. The code tries to batch `iterations` into `batchSize` chunks. If `iterations` is not equally divisible by `batchSize`, then an extra `remRuns` sized calculation is performed after the all `iterations/batchSize` chunks are calculated.
