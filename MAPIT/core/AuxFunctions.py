@@ -1,6 +1,24 @@
 import numpy as np
 from itertools import chain
-from tqdm import tqdm
+from alive_progress import alive_bar
+from alive_progress.animations.spinners import frame_spinner_factory
+
+def _getSpinner():
+  d13 = ("⠋",
+          "⠙",
+          "⠹",
+          "⠸",
+          "⠼",
+          "⠴",
+          "⠦",
+          "⠧",
+          "⠇",
+          "⠏")
+
+  return frame_spinner_factory(d13)
+
+def _longestTitle():
+  return len('Calculating Page trend test')
 
 def trapSum(relevantIndex, time, data, IT=None, baseline_zero=1e-10):
     """
@@ -276,66 +294,70 @@ def SEIDcontrib(inArray,loc,time,typ='error',avg=True,Iter=None,):
     
     return out
   
-def calcCovMat(inputAppliedError, inventoryAppliedError, outputAppliedError, processedInputTimes, processedInventoryTimes, processedOutputTimes, ErrorMatrix, MBP, inputTypes, outputTypes, GUIObject=None, doTQDM=True,ispar=False):
-    """    
+def calcCovMat(inputAppliedError, inventoryAppliedError, outputAppliedError, processedInputTimes, processedInventoryTimes, processedOutputTimes, ErrorMatrix, MBP, inputTypes, outputTypes, GUIObject=None, doPbar=True,ispar=False):
+    """
+    
         Function to calculate the material balance covariance matrix. 
 
         Args: 
-            inputAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of input locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites (as opposed to ground truths). Inputs are assumed to be flows in units of :math:`\\frac{1}{s}` and will be integrated. 
+
+          inputAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of input locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites (as opposed to ground truths). Inputs are assumed to be flows in units of :math:`\\frac{1}{s}` and will be integrated. 
 
 
-            processedInputTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of input locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedInputTimes)` and the shape of each list entry (ndarray) should be the same as for `inputAppliedError`. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken. 
+          processedInputTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of input locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedInputTimes)` and the shape of each list entry (ndarray) should be the same as for `inputAppliedError`. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken. 
 
 
-            inventoryAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of inventory locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites. Inventories are assumed to be in units of mass and will *not* be integrated.
+          inventoryAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of inventory locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites. Inventories are assumed to be in units of mass and will *not* be integrated.
 
 
-            processedInventoryTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of inventory locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedInventoryTimes)` and shape of each list entry (ndarray) should be the same as for `inventoryAppliedError`. Each entry in the ndarray should corresond to a timestamp indicating when the value was taken. 
+          processedInventoryTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of inventory locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedInventoryTimes)` and shape of each list entry (ndarray) should be the same as for `inventoryAppliedError`. Each entry in the ndarray should corresond to a timestamp indicating when the value was taken. 
 
 
-            outputAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of output locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites. Outputs are assumed to be in flows with units of :math:`\\frac{1}{s}` and will be integrated.
+          outputAppliedError (list of ndarrays): A list of ndarrays that has length equal to the total number of output locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. This array should reflect observed quantites. Outputs are assumed to be in flows with units of :math:`\\frac{1}{s}` and will be integrated.
 
 
-            processedOutputTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of output locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedOutputTimes)` and shape of each list entry (ndarray) should be the same as for `outputAppliedError`. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken. 
+          processedOutputTimes (list of ndarrays): A list of ndarrays that has length equal to the total number of output locations. Each array should be :math:`[m,1]` in shape where :math:`m` is the number of samples. `len(processedOutputTimes)` and shape of each list entry (ndarray) should be the same as for `outputAppliedError`. Each entry in the ndarray should correspond to a timestamp indicating when the value was taken. 
 
-            ErrorMatrix (ndarray): mx1 A ndarray shaped :math:`[M,2]` where :math:`M` is the *total* number of locations across inputs, inventories, and outputs stacked together (in that order) and 2 refers to the relative random and systematic errors. For example with 2 inputs, 2 inventories, and 2 outputs, ErrorMatrix[3,1] would be the relative systematic error of inventory 2. See guide XX for more information. 
+          ErrorMatrix (ndarray): mx1 A ndarray shaped :math:`[M,2]` where :math:`M` is the *total* number of locations across inputs, inventories, and outputs stacked together (in that order) and 2 refers to the relative random and systematic errors. For example with 2 inputs, 2 inventories, and 2 outputs, ErrorMatrix[3,1] would be the relative systematic error of inventory 2. See guide XX for more information. 
 
-            MBP (float): Defines the material balance period. 
-            
-            inputTypes (list of strings): Defines the type of input. This should be a list of strings that is the same length as the number of input locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
+          MBP (float): Defines the material balance period. 
+          
+          inputTypes (list of strings): Defines the type of input. This should be a list of strings that is the same length as the number of input locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
 
-            outputTypes (list of strings): Defines the type of output. This should be a list of strings that is the same length as the number of output locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
+          outputTypes (list of strings): Defines the type of output. This should be a list of strings that is the same length as the number of output locations. The strings should be one of the following: `'discrete'` or `'continuous'`. 
 
-            GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
+          GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
 
-            doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
+          doPbar (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
 
-            isPar (bool, default=False): Flag indicating if the function is being run in a parallel context. Only controls output formatting.
+          isPar (bool, default=False): Flag indicating if the function is being run in a parallel context. Only controls output formatting.
 
-        Returns:
-            (tuple):         
-                * SITMUF sequence (ndarray if `doSITMUF` otherwise None): SITMUF sequence with the shape :math:`[n,j]` where :math:`n` is the length equal to the maximum time based on the number of material balances that could be constructed given the user-provided MBP and number of samples in the input data, and :math:`j` is the number of iterations given as input.
-                
-                * GEMUF sequence (ndarray if `doGEMUF` otherwise None): GEMUF sequence with the shape :math:`[n,j]` where :math:`n` is the length equal to the maximum time based on the number of material balances that could be constructed given the user-provided MBP and number of samples in the input data, and :math:`j` is the number of iterations given as input.
+      Returns:
+
+        (tuple): tuple containing:
+        
+          SITMUF sequence (ndarray if `doSITMUF` otherwise None): SITMUF sequence with the shape :math:`[n,j]` where :math:`n` is the length equal to the maximum time based on the number of material balances that could be constructed given the user-provided MBP and number of samples in the input data, and :math:`j` is the number of iterations given as input.
+          
+          GEMUF sequence (ndarray if `doGEMUF` otherwise None): GEMUF sequence with the shape :math:`[n,j]` where :math:`n` is the length equal to the maximum time based on the number of material balances that could be constructed given the user-provided MBP and number of samples in the input data, and :math:`j` is the number of iterations given as input.
 
         The maximum time of the sequence is based on the minimum of all material balance components (e.g., input, inventories, and outputs) used for the calculation:
 
         .. highlight:: python
         .. code-block:: python
 
-            import numpy as np
+          import numpy as np
 
-            time1[-1] = 400
-            time2[-1] = 300
-            time3[-1] = 800
+          time1[-1] = 400
+          time2[-1] = 300
+          time3[-1] = 800
 
-            j = np.floor(
+          j = np.floor(
                 np.min(
-                    (time1, time2, time3)))
+                  (time1, time2, time3)))
 
     """
     if GUIObject is not None:
-      doTQDM = False
+      doPbar = False
       loopcounter = 0
 
     A1 = np.max(np.asarray(list(chain.from_iterable(processedInputTimes))))  #unroll list
@@ -358,8 +380,10 @@ def calcCovMat(inputAppliedError, inventoryAppliedError, outputAppliedError, pro
     pbar = None
 
     totalloops = int(((totalMBPs-2)*(totalMBPs-1))/2)
-    if doTQDM and not ispar:        
-        pbar = tqdm(desc="CovMat", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+    if doPbar and not ispar:
+        title = "CovMat"
+        pbar = alive_bar(force_tty=True, total=int(totalloops), spinner=_getSpinner(), bar='circles', title=title+' '*(_longestTitle() - len(title)))
+        update = pbar.__enter__()        
 
     #_covmat_loop-start
     for currentMB in range(1, int(totalMBPs)):
@@ -553,8 +577,10 @@ def calcCovMat(inputAppliedError, inventoryAppliedError, outputAppliedError, pro
                 # _covmat_OD345-end
 
                 if pbar is not None:
-                    pbar.update(1)
+                    update(1)
 
                 
+    if doPbar and ispar == False:        
+      pbar.__exit__(None, None, None)
 
     return covmatrix

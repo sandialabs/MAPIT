@@ -1,18 +1,16 @@
-import ray
+import concurrent
+from functools import partial
 import numpy as np
 from MAPIT.core import StatsTests as Tests
 from MAPIT.core import Preprocessing, AuxFunctions
-import os
-import logging
 from itertools import chain
-os.environ["RAY_verbose_spill_logs"] = "0"
+from alive_progress import alive_bar
+from alive_progress.animations.spinners import frame_spinner_factory
+from yaspin import yaspin
+
 
 import MAPIT
-from tqdm import tqdm
-def to_iterator(obj_ids):
-    while obj_ids:
-        done, obj_ids = ray.wait(obj_ids)
-        yield 0
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -63,7 +61,7 @@ class MBArea(object):
 
             iterations (int, default=1): Number of statistical realizations.
 
-            doPar(bool, default=False): Controls the use of parallel processing provided by Ray. If used, progress can be monitored on a local dashboard that is accessible at http://127.0.0.1:8265. 
+            doPar(bool, default=False): Controls the use of parallel processing provided by concurrent.futures. 
 
             ncpu(int, default=1): The number of CPUs to use if parallel processing is enabled.
 
@@ -75,7 +73,7 @@ class MBArea(object):
 
             rebaseToZero(bool, default=False): Used in conjunction with dataOffset. If true, then times after ``dataOffset`` will be rebased to start at zero (i.e., if dataOffset=273, then t=274 will be rebased to be t=1).
 
-            doTQDM(bool, default=True): Boolean used to control progress bar of calculations.
+            doPbar(bool, default=True): Boolean used to control progress bar of calculations.
 
         Returns:
             None
@@ -86,7 +84,7 @@ class MBArea(object):
     def __init__(self,rawInput, rawInventory, rawOutput, rawInputTimes, rawInventoryTimes, rawOutputTimes,
                  inputErrorMatrix, inventoryErrorMatrix, outputErrorMatrix, mbaTime, inputTypes, outputTypes, inputCalibrationPeriod=None, inventoryCalibrationPeriod=None,
                  outputCalibrationPeriod=None, iterations=1, dopar=False, ncpu=1, nbatch=1,
-                 GUIObject=None,dataOffset=0,rebaseToZero=True, doTQDM=True, ):
+                 GUIObject=None,dataOffset=0,rebaseToZero=True, doPbar=True, ):
         
 
         # make sure data is present
@@ -109,7 +107,7 @@ class MBArea(object):
         self.dopar = dopar
         self.ncpu = ncpu
         self.nbatch = nbatch
-        self.doTQDM = doTQDM
+        self.doPbar = doPbar
         self.GUIObject = GUIObject
         self.keepCovMat = False
         self.covmatrix = None
@@ -166,8 +164,21 @@ class MBArea(object):
         self.inventoryAppliedError = None
         self.outputAppliedError = None
 
-        if self.dopar:
-            ray.init(num_cpus=ncpu,ignore_reinit_error=True,runtime_env={"py_modules": [MAPIT], "excludes": ["/data/","/.git/"]},logging_level=logging.ERROR)
+        if self.doPbar:
+            d13 = ("⠋",
+                    "⠙",
+                    "⠹",
+                    "⠸",
+                    "⠼",
+                    "⠴",
+                    "⠦",
+                    "⠧",
+                    "⠇",
+                    "⠏")
+
+            self.dots13 = frame_spinner_factory(d13)
+            self.longestBarStr = len('Calculating Page trend test')
+
 
     
     def _checkForErrorData(self):
@@ -175,15 +186,13 @@ class MBArea(object):
             if not self.dopar:
                 self._recalcBatchSize()
 
-            print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} Error data not found. Calculating...")
+            print(f"{bcolors.WARNING}[W]:{bcolors.ENDC} Error data not found. Calculating...")
             self.calcErrors()
     
    
     #performed in case batch size is changed after
     #initaliation
     def _recalcBatchSize(self):
-        if self.dopar == False:
-            return
         self.ntasks = np.floor(self.IT/self.nbatch).astype(np.int32) 
         if np.remainder(self.IT,self.nbatch) !=0: self.ntasks += 1
     
@@ -230,7 +239,7 @@ class MBArea(object):
                             processedInventoryTimes = self.processedInventoryTimes,
                             processedOutputTimes = self.processedOutputTimes,
                             MBP = self.mbaTime,
-                            doTQDM = self.doTQDM,
+                            doPbar = self.doPbar,
                             ispar = False,
                             GUIObject = self.GUIObject,
                             inputTypes=self.inputTypes,
@@ -239,60 +248,53 @@ class MBArea(object):
             
         # if parallel
         else:
+
             # helpers for batching data
             idx1=0
             idx2=0
 
-            # define the remote function
-            gfunc = ray.remote(Tests.MUF)
+            futures = []
 
-            # setup the progressbar if necessary
-            # NOTE: this is a crude progress bar
-            # for large jobs, recommend using the
-            # ray dashboard instead
-            # NOTE: performance of the progressbar
-            # is better in console
+            with concurrent.futures.ThreadPoolExecutor(max_workers=self.ncpu) as executor:
 
+                with yaspin(text="Configuring jobs", spinner='dots'):
+                    for _ in range(self.ntasks):
+                        idx2 = idx1 + self.nbatch
 
-            tasklist = []
+                        inslice = self._parIterSlicer(idx1,idx2,'inputAppliedError')
+                        invslice = self._parIterSlicer(idx1,idx2,'inventoryAppliedError')
+                        outslice = self._parIterSlicer(idx1,idx2,'outputAppliedError')
 
-            for i in range(self.ntasks):
-                idx2 = idx1 + self.nbatch
+                        idx1 += self.nbatch
 
-                # batch the data into ntasks of nbatch size
-                inslice = self._parIterSlicer(idx1,idx2,'inputAppliedError')
-                invslice = self._parIterSlicer(idx1,idx2,'inventoryAppliedError')
-                outslice = self._parIterSlicer(idx1,idx2,'outputAppliedError')
+                        futures.append(
+                            executor.submit(
+                                partial(Tests.MUF,
+                                        inputAppliedError = inslice,
+                                        inventoryAppliedError= invslice,
+                                        outputAppliedError = outslice,
+                                        processedInputTimes = self.processedInputTimes,
+                                        processedInventoryTimes = self.processedInventoryTimes,
+                                        processedOutputTimes = self.processedOutputTimes,
+                                        inputTypes=self.inputTypes,
+                                        outputTypes=self.outputTypes,
+                                        MBP = self.mbaTime,
+                                        doPbar=self.doPbar,
+                                        ispar = True
+                                )
+                            )
+                        )
 
-                idx1 += self.nbatch
+                title = 'Calculating MUF'
+                with alive_bar(force_tty=True, total=len(futures), spinner=self.dots13, bar='circles', title=title+' '*(self.longestBarStr - len(title))) as bar:
+                    for J, future in enumerate(futures):
+                        if J == 0:
+                            MUF = future.result()
+                        else:
+                            MUF = np.vstack((MUF,future.result()))
+                        
+                        bar()
 
-                # add the tasks
-                tasklist.append(gfunc.remote(
-                    inputAppliedError = inslice,
-                    inventoryAppliedError= invslice,
-                    outputAppliedError = outslice,
-                    processedInputTimes = self.processedInputTimes,
-                    processedInventoryTimes = self.processedInventoryTimes,
-                    processedOutputTimes = self.processedOutputTimes,
-                    inputTypes=self.inputTypes,
-                    outputTypes=self.outputTypes,
-                    MBP = self.mbaTime,
-                    doTQDM=self.doTQDM,
-                    ispar = True))
-
-
-            if self.doTQDM:
-                for x in tqdm(to_iterator(tasklist),total=len(tasklist),desc="MUF", leave=True, 
-                    bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
-                    pass
-            
-            res = ray.get(tasklist)
-            # assemble an array of results
-            for i in range(self.ntasks):
-                if i == 0:
-                    MUF = res[i]
-                else:
-                    MUF = np.vstack((MUF,res[i]))
 
         # assign the MUF calculation to the 
         # MBArea class for later use or
@@ -339,7 +341,7 @@ class MBArea(object):
                             processedInventoryTimes = self.processedInventoryTimes,
                             processedOutputTimes = self.processedOutputTimes,
                             MBP = self.mbaTime,
-                            doTQDM = self.doTQDM,
+                            doPbar = self.doPbar,
                             ispar = False,
                             GUIObject = self.GUIObject,
                             inputTypes=self.inputTypes,
@@ -352,7 +354,6 @@ class MBArea(object):
             idx2=0
 
             # define the remote function
-            gfunc = ray.remote(Tests.ActiveInventory)
 
             # setup the progressbar if necessary
             # NOTE: this is a crude progress bar
@@ -362,49 +363,53 @@ class MBArea(object):
             # is better in console
 
 
-            tasklist = []
+            futures = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=self.ncpu) as executor:
 
-            for i in range(self.ntasks):
-                idx2 = idx1 + self.nbatch
+                
+                with yaspin(text="Configuring jobs", spinner='dots'):
+                    for i in range(self.ntasks):
+                        idx2 = idx1 + self.nbatch
 
-                # batch the data into ntasks of nbatch size
-                inslice = self._parIterSlicer(idx1,idx2,'inputAppliedError')
-                invslice = self._parIterSlicer(idx1,idx2,'inventoryAppliedError')
-                outslice = self._parIterSlicer(idx1,idx2,'outputAppliedError')
+                        # batch the data into ntasks of nbatch size
+                        inslice = self._parIterSlicer(idx1,idx2,'inputAppliedError')
+                        invslice = self._parIterSlicer(idx1,idx2,'inventoryAppliedError')
+                        outslice = self._parIterSlicer(idx1,idx2,'outputAppliedError')
 
-                idx1 += self.nbatch
+                        idx1 += self.nbatch
 
-                # add the tasks
-                tasklist.append(gfunc.remote(
-                    inputAppliedError = inslice,
-                    inventoryAppliedError= invslice,
-                    outputAppliedError = outslice,
-                    processedInputTimes = self.processedInputTimes,
-                    processedInventoryTimes = self.processedInventoryTimes,
-                    processedOutputTimes = self.processedOutputTimes,
-                    inputTypes=self.inputTypes,
-                    outputTypes=self.outputTypes,
-                    MBP = self.mbaTime,
-                    doTQDM=self.doTQDM,
-                    ispar = True))
+                        
 
-            # print the progress until all tasks
-            # are completed 
+                        # add the tasks                    
+                        futures.append(
+                            executor.submit(
+                                partial(Tests.ActiveInventory,
+                                        inputAppliedError = inslice,
+                                        inventoryAppliedError= invslice,
+                                        outputAppliedError = outslice,
+                                        processedInputTimes = self.processedInputTimes,
+                                        processedInventoryTimes = self.processedInventoryTimes,
+                                        processedOutputTimes = self.processedOutputTimes,
+                                        inputTypes=self.inputTypes,
+                                        outputTypes=self.outputTypes,
+                                        MBP = self.mbaTime,
+                                        doPbar=self.doPbar,
+                                        ispar = True
+                                    )
+                            )
+                        )
 
-
-            # do the tasks
-            if self.doTQDM:
-                for x in tqdm(to_iterator(tasklist),total=len(tasklist),desc="Active Inv", leave=True, 
-                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
-                    pass
-
-            res = ray.get(tasklist)
-            # assemble an array of results
-            for i in range(self.ntasks):
-                if i == 0:
-                    AI = res[i]
-                else:
-                    AI = np.vstack((AI,res[i]))
+                # print the progress until all tasks
+                # are completed 
+                title = 'Calculating active inventory'
+                with alive_bar(force_tty=True, total=len(futures), spinner=self.dots13, bar='circles', title=title+' '*(self.longestBarStr - len(title))) as bar:
+                    for J, future in enumerate(futures):
+                        if J == 0:
+                            AI = future.result()
+                        else:
+                            AI = np.vstack((AI,future.result()))
+                        
+                        bar()
 
         # assign the MUF calculation to the 
         # MBArea class for later use or
@@ -457,7 +462,7 @@ class MBArea(object):
                             processedOutputTimes = self.processedOutputTimes,
                             MBP = self.mbaTime,
                             ErrorMatrix = self.totalErrorMatrix,
-                            doTQDM = self.doTQDM,
+                            doPbar = self.doPbar,
                             ispar = False,
                             GUIObject = self.GUIObject,
                             inputTypes=self.inputTypes,
@@ -469,65 +474,59 @@ class MBArea(object):
             idx1=0
             idx2=0
 
-            # define the remote function
-            gfunc = ray.remote(Tests.SEMUF)
+            futures = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=self.ncpu) as executor:
+                with yaspin(text="Configuring jobs", spinner='dots'):
+                    for _ in range(self.ntasks):
+                        idx2 = idx1 + self.nbatch
 
-            # setup the progressbar if necessary
-            # NOTE: this is a crude progress bar
-            # for large jobs, recommend using the
-            # ray dashboard instead
-            # NOTE: performance of the progressbar
-            # is better in console
+                        # batch the data into ntasks of nbatch size
+                        inslice = self._parIterSlicer(idx1,idx2,'inputAppliedError')
+                        invslice = self._parIterSlicer(idx1,idx2,'inventoryAppliedError')
+                        outslice = self._parIterSlicer(idx1,idx2,'outputAppliedError')
 
+                        idx1 += self.nbatch
 
-            tasklist = []
+                        
 
-            for i in range(self.ntasks):
-                idx2 = idx1 + self.nbatch
+                        # add the tasks                    
+                        futures.append(
+                            executor.submit(
+                                partial(Tests.SEMUF,
+                                        inputAppliedError = inslice,
+                                        inventoryAppliedError= invslice,
+                                        outputAppliedError = outslice,
+                                        processedInputTimes = self.processedInputTimes,
+                                        processedInventoryTimes = self.processedInventoryTimes,
+                                        processedOutputTimes = self.processedOutputTimes,
+                                        inputTypes=self.inputTypes,
+                                        outputTypes=self.outputTypes,
+                                        MBP = self.mbaTime,
+                                        ErrorMatrix = self.totalErrorMatrix,
+                                        doPbar=False, #self.doPbar
+                                        ispar = True
+                                    )
+                            )
+                        )
 
-                # batch the data into ntasks of nbatch size
-                inslice = self._parIterSlicer(idx1,idx2,'inputAppliedError')
-                invslice = self._parIterSlicer(idx1,idx2,'inventoryAppliedError')
-                outslice = self._parIterSlicer(idx1,idx2,'outputAppliedError')
-
-                idx1 += self.nbatch
-
-                # add the tasks
-                tasklist.append(gfunc.remote(
-                    inputAppliedError = inslice,
-                    inventoryAppliedError= invslice,
-                    outputAppliedError = outslice,
-                    processedInputTimes = self.processedInputTimes,
-                    processedInventoryTimes = self.processedInventoryTimes,
-                    processedOutputTimes = self.processedOutputTimes,
-                    inputTypes=self.inputTypes,
-                    outputTypes=self.outputTypes,
-                    MBP = self.mbaTime,
-                    ErrorMatrix = self.totalErrorMatrix,
-                    doTQDM=False, #self.doTQDM
-                    ispar = True))
-
-
-
-            # do the tasks
-            if self.doTQDM:
-                for x in tqdm(to_iterator(tasklist),total=len(tasklist),desc="Sigma MUF", leave=True, 
-                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
-                    pass
-            res = ray.get(tasklist)
-            # TODO: check SEMUF for which vars are which since multiple returned
-            # assemble an array of results
-            for i in range(self.ntasks):
-                if i == 0:
-                    SEMUF = res[i][0]
-                    SEMUF_contribR = res[i][1]
-                    SEMUF_contribS = res[i][2]
-                    SEMUF_inv = res[i][3]
-                else:
-                    SEMUF = np.vstack((SEMUF,res[i][0]))
-                    SEMUF_contribR = np.vstack((SEMUF_contribR,res[i][1]))
-                    SEMUF_contribS = np.vstack((SEMUF_contribS,res[i][2]))
-                    SEMUF_inv = np.vstack((SEMUF_inv,res[i][3]))
+                # print the progress until all tasks
+                # are completed 
+                title = 'Calculating sigma MUF'
+                with alive_bar(force_tty=True, total=len(futures), spinner=self.dots13, bar='circles', title=title+' '*(self.longestBarStr - len(title))) as bar:
+                    for J, future in enumerate(futures):
+                        res = future.result()
+                        if J == 0:
+                            SEMUF = res[0]
+                            SEMUF_contribR = res[1]
+                            SEMUF_contribS = res[2]
+                            SEMUF_inv = res[3]
+                        else:
+                            SEMUF = np.vstack((SEMUF,res[0]))
+                            SEMUF_contribR = np.vstack((SEMUF_contribR,res[1]))
+                            SEMUF_contribS = np.vstack((SEMUF_contribS,res[2]))
+                            SEMUF_inv = np.vstack((SEMUF_inv,res[3]))
+                        
+                        bar()
 
         # assign the MUF calculation to the 
         # MBArea class for later use or
@@ -555,25 +554,17 @@ class MBArea(object):
         return (self.SEMUFAI, self.SEMUFAI_contribR, self.SEMUFAI_contribS)
             
     def calcSITMUF(self):
-        """
-        
-            Calculates the SITMUF transform using Picard's formulation with the Cholesky decomposition (:math:`C_i^{-1}\mathrm{muf}_i`). Automatically calculates relevant quantities needed for the calculation if not already present (e.g., covariance matrix, simulated measurement error, etc.).
-
-            Returns:
-                ndarray: SITMUF sequence with shape :math:`[n,j]` where :math:`n` length equal to the maximum time based on the number of material balances that could be constructed given the user provided ``mbaTime`` and number of samples in the input data. :math:`j` is the number of iterations given as input. The term :math:`n` is calculated by finding the minimum of each of the provided input times.     
-        
-        """
         self._recalcBatchSize()
         self._checkForErrorData()
 
 
         # TODO: if parallel, calcMUF should also be parallel
         if not hasattr(self, "MUF"):
-            print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} MUF sequence not found. Calculating...")
+            print(f"{bcolors.WARNING}[W]:{bcolors.ENDC} MUF sequence not found. Calculating...")
             self.calcMUF()
         else:
             if self.MUF is None:
-                print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} MUF sequence not found. Calculating...")
+                print(f"{bcolors.WARNING}[W]:{bcolors.ENDC} MUF sequence not found. Calculating...")
                 self.calcMUF()
         
 
@@ -582,21 +573,22 @@ class MBArea(object):
             
             #check for covariance matrix presence
             if not hasattr(self, "covmatrix"):
-                print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} Covariance matrix not found. Calculating...")
+                print(f"{bcolors.WARNING}[W]:{bcolors.ENDC} Covariance matrix not found. Calculating...")
                 self._calcCovMat()
             elif self.covmatrix is None:
-                print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} Covariance matrix not found. Calculating...")
+                print(f"{bcolors.WARNING}[W]:{bcolors.ENDC} Covariance matrix not found. Calculating...")
                 self._calcCovMat()
 
-            self.SITMUF = Tests.SITMUF(self.MUF, self.covmatrix, self.mbaTime, self.GUIObject, self.doTQDM, self.dopar)
+            SITMUF = Tests.SITMUF(self.MUF, self.covmatrix, self.mbaTime, self.GUIObject, self.doPbar, self.dopar)
+        
         else:
 
             # check for covariance matrix presence
             if not hasattr(self, "covmatrix"):
-                print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} Covariance matrix not found. Calculating...")
+                print(f"{bcolors.WARNING}[W]:{bcolors.ENDC} Covariance matrix not found. Calculating...")
                 self.covmatrix = self._calcCovMatPar()
             elif self.covmatrix is None:
-                print(f"{bcolors.WARNING}WARN::{bcolors.ENDC} Covariance matrix not found. Calculating...")
+                print(f"{bcolors.WARNING}[W]:{bcolors.ENDC} Covariance matrix not found. Calculating...")
                 self.covmatrix = self._calcCovMatPar()
         
 
@@ -605,63 +597,52 @@ class MBArea(object):
             idx1=0
             idx2=0
 
-            # define the remote function
-            gfunc = ray.remote(Tests.SITMUF)
+            futures = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=self.ncpu) as executor:
+                with yaspin(text="Configuring jobs", spinner='dots'):
+                    for _ in range(self.ntasks):
+                        idx2 = idx1 + self.nbatch
+
+                        # batch the data into ntasks of nbatch size
+                        MUFslice = self._parIterSlicer(idx1,idx2,'MUF')
+                        covslice = self._parIterSlicer(idx1,idx2,'covmatrix')
+
+                        idx1 += self.nbatch
+
+                        
+
+                        # add the tasks                    
+                        futures.append(
+                            executor.submit(
+                                partial(Tests.SITMUF,
+                                        MUF = MUFslice,
+                                        covmatrix = covslice,
+                                        MBP = self.mbaTime,
+                                        doPbar=False,
+                                        ispar=True
+                                    )
+                            )
+                        )
+
+                # print the progress until all tasks
+                # are completed 
+                title = 'Calculating SITMUF'
+                with alive_bar(force_tty=True, total=len(futures), spinner=self.dots13, bar='circles', title=title+' '*(self.longestBarStr - len(title))) as bar:
+                    for J, future in enumerate(futures):
+                        if J == 0:
+                            SITMUF = future.result()
+                        else:
+                            SITMUF = np.vstack((SITMUF,future.result()))
+                        
+                        bar()
 
 
-            tasklist = []
-            for i in range(self.ntasks):
-                idx2 = idx1 + self.nbatch
 
-                # batch the data into ntasks of nbatch size
-                MUFslice = self._parIterSlicer(idx1,idx2,'MUF')
-                covslice = self._parIterSlicer(idx1,idx2,'covmatrix')
+        self.SITMUF = SITMUF
 
-
-                idx1 += self.nbatch
-
-                # add the tasks
-                tasklist.append(gfunc.remote(
-                    MUF = MUFslice,
-                    covmatrix = covslice,
-                    MBP = self.mbaTime,
-                    doTQDM=False,
-                    ispar=True))
-
-            
-            # do the tasks
-            if self.doTQDM:
-                for _ in tqdm(to_iterator(tasklist),total=len(tasklist),desc='SITMUF', leave=True, 
-                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
-                    pass
-            
-            res = ray.get(tasklist)
-            # Nones returned if SITMUF or GEMUF
-            # isn't selected won't result in an error
-            # as it will be an array of Nones,
-            # but we won't return them -- just
-            # helps keep the code a little neater
-            # instead of doing checks here for
-            # what was selected
-            for i in range(self.ntasks):
-                if i == 0:                    
-                    self.SITMUF = res[i]
-                else:
-                    self.SITMUF = np.vstack((self.SITMUF,res[i]))
-
-
-        return self.SITMUF
+        return SITMUF
 
     def calcGEMUF_V1(self):
-        """
-        
-            Calculates the GEMUFV1 transform using the singular, current MUF value to estimate the unknown loss vector (e.g., :math:`{ZG}_i=\mathbf{M}_i^T \Sigma_N^{-1} \mathbf{muf}_i`). Automatically calculates relevant quantities needed for the calculation if not already present (e.g., covariance matrix, simulated measurement error, etc.).
-
-            Returns:
-                ndarray: GEMUFV1 sequence with shape :math:`[n,j]` where :math:`n` length equal to the maximum time based on the number of material balances that could be constructed given the user provided ``mbaTime`` and number of samples in the input data. :math:`j` is the number of iterations given as input. The term :math:`n` is calculated by finding the minimum of each of the provided input times.     
-        
-        """
-
         self._recalcBatchSize()
         self._checkForErrorData()
 
@@ -679,7 +660,7 @@ class MBArea(object):
                 self._calcCovMat()
             elif self.covmatrix is None:
                 self._calcCovMat()
-            self.GEMUFV1 = Tests.GEMUF_V1(self.MUF, self.covmatrix, self.mbaTime, self.GUIObject, self.doTQDM, self.dopar)
+            self.GEMUFV1 = Tests.GEMUF_V1(self.MUF, self.covmatrix, self.mbaTime, self.GUIObject, self.doPbar, self.dopar)
         else:
 
             # check for covariance matrix presence
@@ -694,62 +675,50 @@ class MBArea(object):
             idx1=0
             idx2=0
 
-            # define the remote function
-            gfunc = ray.remote(Tests.GEMUF_V1)
+            futures = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=self.ncpu) as executor:
+                with yaspin(text="Configuring jobs", spinner='dots'):
+                    for _ in range(self.ntasks):
+                        idx2 = idx1 + self.nbatch
 
+                        # batch the data into ntasks of nbatch size
+                        MUFslice = self._parIterSlicer(idx1,idx2,'MUF')
+                        covslice = self._parIterSlicer(idx1,idx2,'covmatrix')
 
-            tasklist = []
-            for i in range(self.ntasks):
-                idx2 = idx1 + self.nbatch
+                        idx1 += self.nbatch
 
-                # batch the data into ntasks of nbatch size
-                MUFslice = self._parIterSlicer(idx1,idx2,'MUF')
-                covslice = self._parIterSlicer(idx1,idx2,'covmatrix')
+                        
 
+                        # add the tasks                    
+                        futures.append(
+                            executor.submit(
+                                partial(Tests.GEMUF_V1,
+                                        MUF = MUFslice,
+                                        covmatrix = covslice,
+                                        MBP = self.mbaTime,
+                                        doPbar=False,
+                                        ispar=True
+                                    )
+                            )
+                        )
 
-                idx1 += self.nbatch
+                # print the progress until all tasks
+                # are completed 
+                title = 'Calculating GEMUFV1'
+                with alive_bar(force_tty=True, total=len(futures), spinner=self.dots13, bar='circles', title=title+' '*(self.longestBarStr - len(title))) as bar:
+                    for J, future in enumerate(futures):
+                        if J == 0:
+                            GEMUFV1 = future.result()
+                        else:
+                            GEMUFV1 = np.vstack((GEMUFV1,future.result()))
+                        
+                        bar()
 
-                # add the tasks
-                tasklist.append(gfunc.remote(
-                    MUF = MUFslice,
-                    covmatrix = covslice,
-                    MBP = self.mbaTime,
-                    doTQDM=False,
-                    ispar=True))
-
-            
-            # do the tasks
-            if self.doTQDM:
-                for _ in tqdm(to_iterator(tasklist),total=len(tasklist),desc='GEMUFV1', leave=True, 
-                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
-                    pass
-            
-            res = ray.get(tasklist)
-            # Nones returned if SITMUF or GEMUF
-            # isn't selected won't result in an error
-            # as it will be an array of Nones,
-            # but we won't return them -- just
-            # helps keep the code a little neater
-            # instead of doing checks here for
-            # what was selected
-            for i in range(self.ntasks):
-                if i == 0:                    
-                    self.GEMUFV1 = res[i]
-                else:
-                    self.GEMUFV1 = np.vstack((self.GEMUFV1,res[i]))
-
+                self.GEMUFV1 = GEMUFV1
+                
         return self.GEMUFV1
     
     def calcGEMUF_V5B3(self):
-
-        """
-        
-            Calculates the GEMUFV5B3 transform using a weighted series of MUF values to estimate the unknown loss vector (e.g., :math:`{ZG}_i=\mathbf{M}_i^T \Sigma_N^{-1} \mathbf{muf}_i`). Automatically calculates relevant quantities needed for the calculation if not already present (e.g., covariance matrix, simulated measurement error, etc.).
-
-            Returns:
-                ndarray: GEMUFV5B3 sequence with shape :math:`[n,j]` where :math:`n` length equal to the maximum time based on the number of material balances that could be constructed given the user provided ``mbaTime`` and number of samples in the input data. :math:`j` is the number of iterations given as input. The term :math:`n` is calculated by finding the minimum of each of the provided input times.     
-        
-        """
         self._recalcBatchSize()
         self._checkForErrorData()
 
@@ -764,7 +733,7 @@ class MBArea(object):
                 self._calcCovMat()
             elif self.covmatrix is None:
                 self._calcCovMat()
-            self.GEMUFV5B3 = Tests.GEMUF_V5B3(self.MUF, self.covmatrix, self.mbaTime, self.GUIObject, self.doTQDM, self.dopar)
+            self.GEMUFV5B3 = Tests.GEMUF_V5B3(self.MUF, self.covmatrix, self.mbaTime, self.GUIObject, self.doPbar, self.dopar)
         else:
 
             # check for covariance matrix presence
@@ -780,48 +749,46 @@ class MBArea(object):
             idx2=0
 
             # define the remote function
-            gfunc = ray.remote(Tests.GEMUF_V5B3)
+            futures = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=self.ncpu) as executor:
+                with yaspin(text="Configuring jobs", spinner='dots'):
+                    for _ in range(self.ntasks):
+                        idx2 = idx1 + self.nbatch
 
+                        # batch the data into ntasks of nbatch size
+                        MUFslice = self._parIterSlicer(idx1,idx2,'MUF')
+                        covslice = self._parIterSlicer(idx1,idx2,'covmatrix')
 
-            tasklist = []
-            for i in range(self.ntasks):
-                idx2 = idx1 + self.nbatch
+                        idx1 += self.nbatch
 
-                # batch the data into ntasks of nbatch size
-                MUFslice = self._parIterSlicer(idx1,idx2,'MUF')
-                covslice = self._parIterSlicer(idx1,idx2,'covmatrix')
+                        
 
+                        # add the tasks                    
+                        futures.append(
+                            executor.submit(
+                                partial(Tests.GEMUF_V5B3,
+                                        MUF = MUFslice,
+                                        covmatrix = covslice,
+                                        MBP = self.mbaTime,
+                                        doPbar=False,
+                                        ispar=True
+                                    )
+                            )
+                        )
 
-                idx1 += self.nbatch
+                # print the progress until all tasks
+                # are completed 
+                title = 'Calculating GEMUFV5B3'
+                with alive_bar(force_tty=True, total=len(futures), spinner=self.dots13, bar='circles', title=title+' '*(self.longestBarStr - len(title))) as bar:
+                    for J, future in enumerate(futures):
+                        if J == 0:
+                            GEMUFV5B3 = future.result()
+                        else:
+                            GEMUFV5B3 = np.vstack((GEMUFV5B3,future.result()))
+                        
+                        bar()
 
-                # add the tasks
-                tasklist.append(gfunc.remote(
-                    MUF = MUFslice,
-                    covmatrix = covslice,
-                    MBP = self.mbaTime,
-                    doTQDM=False,
-                    ispar=True))
-
-            
-            # do the tasks
-            if self.doTQDM:
-                for _ in tqdm(to_iterator(tasklist),total=len(tasklist),desc='GEMUFV5B3', leave=True, 
-                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
-                    pass
-            
-            res = ray.get(tasklist)
-            # Nones returned if SITMUF or GEMUF
-            # isn't selected won't result in an error
-            # as it will be an array of Nones,
-            # but we won't return them -- just
-            # helps keep the code a little neater
-            # instead of doing checks here for
-            # what was selected
-            for i in range(self.ntasks):
-                if i == 0:                    
-                    self.GEMUFV5B3 = res[i]
-                else:
-                    self.GEMUFV5B3 = np.vstack((self.GEMUFV5B3,res[i]))
+                self.GEMUFV5B3 = GEMUFV5B3
 
         return self.GEMUFV5B3
     
@@ -839,7 +806,7 @@ class MBArea(object):
             "outputTypes": self.outputTypes, 
             "GUIObject": self.GUIObject,
             "ispar": self.dopar,
-            "doTQDM": self.doTQDM
+            "doPbar": self.doPbar
         }
 
         self.covmatrix = AuxFunctions.calcCovMat(**params)
@@ -848,46 +815,53 @@ class MBArea(object):
         idx1 = 0
         idx2 = 0
 
-        gfunc = ray.remote(AuxFunctions.calcCovMat)
+        futures = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.ncpu) as executor:
+            with yaspin(text="Configuring jobs", spinner='dots'):
+                for _ in range(self.ntasks):
+                    idx2 = idx1 + self.nbatch
 
-        # inputAppliedError, inventoryAppliedError, outputAppliedError, processedInputTimes, processedInventoryTimes, processedOutputTimes, ErrorMatrix, MBP, inputTypes, outputTypes, GUIObject=None, doTQDM=True,ispar=False
-        tasklist = []
-        for i in range(self.ntasks):
-            idx2 = idx1 + self.nbatch
+                    # batch the data into ntasks of nbatch size
+                    inpslice = self._parIterSlicer(idx1, idx2, 'inputAppliedError')
+                    invslice = self._parIterSlicer(idx1, idx2, 'inventoryAppliedError')
+                    outslice = self._parIterSlicer(idx1, idx2, 'outputAppliedError')
 
-            inpslice = self._parIterSlicer(idx1, idx2, 'inputAppliedError')
-            invslice = self._parIterSlicer(idx1, idx2, 'inventoryAppliedError')
-            outslice = self._parIterSlicer(idx1, idx2, 'outputAppliedError')
+                    idx1 += self.nbatch
 
-            idx1 += self.nbatch
+                    
 
-            tasklist.append(gfunc.remote(
-                inputAppliedError = inpslice,
-                inventoryAppliedError = invslice,
-                outputAppliedError = outslice,
-                processedInputTimes = self.processedInputTimes,
-                processedInventoryTimes = self.processedInventoryTimes,
-                processedOutputTimes = self.processedOutputTimes,
-                ErrorMatrix = self.totalErrorMatrix,
-                MBP = self.mbaTime,
-                inputTypes = self.inputTypes,
-                outputTypes = self.outputTypes,
-                doTQDM = False,
-                ispar = True
-            ))
+                    # add the tasks                    
+                    futures.append(
+                        executor.submit(
+                            partial(AuxFunctions.calcCovMat,
+                                    inputAppliedError = inpslice,
+                                    inventoryAppliedError = invslice,
+                                    outputAppliedError = outslice,
+                                    processedInputTimes = self.processedInputTimes,
+                                    processedInventoryTimes = self.processedInventoryTimes,
+                                    processedOutputTimes = self.processedOutputTimes,
+                                    ErrorMatrix = self.totalErrorMatrix,
+                                    MBP = self.mbaTime,
+                                    inputTypes = self.inputTypes,
+                                    outputTypes = self.outputTypes,
+                                    doPbar = False,
+                                    ispar = True
+                                )
+                        )
+                    )
 
-        if self.doTQDM:
-            for _ in tqdm(to_iterator(tasklist), total = len(tasklist), desc='CovMat', leave=True, 
-                                bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
-                pass
-        
-        res = ray.get(tasklist)
+            # print the progress until all tasks
+            # are completed 
+            title = 'Calculating CovMatrix'
+            with alive_bar(force_tty=True, total=len(futures), spinner=self.dots13, bar='circles', title=title+' '*(self.longestBarStr - len(title))) as bar:
+                for J, future in enumerate(futures):
+                    if J == 0:
+                        covmatrix = future.result()
+                    else:
+                        covmatrix = np.concatenate((covmatrix, future.result()), axis = 0)
+                    
+                    bar()
 
-        for i in range(self.ntasks):
-            if i == 0:
-                covmatrix = res[i]
-            else:
-                covmatrix = np.concatenate((covmatrix, res[i]), axis = 0)
 
         return covmatrix
 
@@ -910,7 +884,7 @@ class MBArea(object):
                 self.calcSITMUF()
 
         MBPs = AuxFunctions.getMBPs(self.processedInputTimes,self.processedInventoryTimes,self.processedOutputTimes,self.mbaTime)
-        self.Page = Tests.PageTrendTest(self.SITMUF,self.mbaTime,MBPs,doTQDM=False, GUIObject=self.GUIObject)
+        self.Page = Tests.PageTrendTest(self.SITMUF,self.mbaTime,MBPs,doPbar=False, GUIObject=self.GUIObject)
         return self.Page
     
     def _parIterSlicer(self, I1, I2, attr):
@@ -975,58 +949,61 @@ class MBArea(object):
                                         iterations = self.IT,
                                         GUIObject = self.GUIObject)
         else:
-            gfunc = ray.remote(Preprocessing.SimErrors)
 
-            
-            
-            tasklist = []
-            for i in range(self.ntasks):
-                tasklist.append(gfunc.remote(
-                            rawData = self.processedInput, 
-                            times = self.processedInputTimes, 
-                            calibrationPeriod = self.inputCalibrationPeriod,
-                            ErrorMatrix =  self.inputErrorMatrix, 
-                            iterations = self.nbatch,
-                            batchSize = self.nbatch,
-                            dopar=True))
+            futures = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=self.ncpu) as executor:
+                for i in range(self.ntasks):
+                    futures.append(
+                        executor.submit(
+                            partial(Preprocessing.SimErrors,
+                                    rawData = self.processedInput, 
+                                    times = self.processedInputTimes, 
+                                    calibrationPeriod = self.inputCalibrationPeriod,
+                                    ErrorMatrix =  self.inputErrorMatrix, 
+                                    iterations = self.nbatch,
+                                    batchSize = self.nbatch,
+                                    dopar=True
 
-                tasklist.append(gfunc.remote(
-                            rawData = self.processedInventory, 
-                            times = self.processedInventoryTimes, 
-                            calibrationPeriod = self.inventoryCalibrationPeriod,
-                            ErrorMatrix =  self.inventoryErrorMatrix, 
-                            iterations = self.nbatch,
-                            batchSize = self.nbatch,
-                            dopar=True))
+                            )
+                        )
+                    )
 
-                tasklist.append(gfunc.remote(
-                            rawData = self.processedOutput, 
-                            times = self.processedOutputTimes, 
-                            calibrationPeriod = self.outputCalibrationPeriod,
-                            ErrorMatrix =  self.outputErrorMatrix, 
-                            iterations = self.nbatch,
-                            batchSize = self.nbatch,
-                            dopar=True))
+                    futures.append(
+                        executor.submit(
+                            partial(Preprocessing.SimErrors,
+                                    rawData = self.processedInventory, 
+                                    times = self.processedInventoryTimes, 
+                                    calibrationPeriod = self.inventoryCalibrationPeriod,
+                                    ErrorMatrix =  self.inventoryErrorMatrix, 
+                                    iterations = self.nbatch,
+                                    batchSize = self.nbatch,
+                                    dopar=True
+                            )
+                        )
+                    )
 
-            # kinda cursed
-            # since the tasks aren't ordered by 
-            # error type we have to cycle
-            # throught the types in the order
-            # [input, inventory, output]
-            # so the rotation array helps determine
-            # which task is which error type
+                    futures.append(
+                        executor.submit(
+                            partial(Preprocessing.SimErrors,
+                                rawData = self.processedOutput, 
+                                times = self.processedOutputTimes, 
+                                calibrationPeriod = self.outputCalibrationPeriod,
+                                ErrorMatrix =  self.outputErrorMatrix, 
+                                iterations = self.nbatch,
+                                batchSize = self.nbatch,
+                                dopar=True
+                            )
+                        )
+                    )
 
 
-            
-            # order matters so do the pbar
-            # then grab all the results at once,
-            # in order
-            if self.doTQDM:
-                for x in tqdm(to_iterator(tasklist),total=len(tasklist),desc="Error Prop", leave=True, 
-                               bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None):
-                    pass
+            res = []
+            title = 'Calculating errors'
+            with alive_bar(force_tty=True, total=len(futures), spinner=self.dots13, bar='circles', title=title+' '*(self.longestBarStr - len(title))) as bar:
+                for _, future in enumerate(futures):
+                    res.append(future.result())                        
+                    bar()
 
-            res = ray.get(tasklist)
 
             # getting the results can be
             # quite slow depending

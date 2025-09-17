@@ -4,10 +4,28 @@ from itertools import chain
 import MAPIT.core.AuxFunctions as AuxFunctions
 
 
-from tqdm import tqdm
+from alive_progress import alive_bar
+from alive_progress.animations.spinners import frame_spinner_factory
+
+def _getSpinner():
+  d13 = ("⠋",
+          "⠙",
+          "⠹",
+          "⠸",
+          "⠼",
+          "⠴",
+          "⠦",
+          "⠧",
+          "⠇",
+          "⠏")
+
+  return frame_spinner_factory(d13)
+
+def _longestTitle():
+  return len('Calculating Page trend test')
 
 
-def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,inputTypes,outputTypes,GUIObject=None,doTQDM=True,ispar=False):
+def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,inputTypes,outputTypes,GUIObject=None,doPbar=True,ispar=False):
     """
       Function to calculate Material Unaccounted For (MUF), which is sometimes also called ID (inventory difference). 
       Specifically calculates the material balance sequence given some input time series. 
@@ -66,7 +84,7 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
 
         GUIParams (object, default=None): An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI. 
 
-        doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
+        doPbar (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
 
       Returns:
 
@@ -109,7 +127,7 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
         # N = samples
 
     if GUIObject is not None:
-      doTQDM = False
+      doPbar = False
      
 
     #if one of the datasets are a list
@@ -142,15 +160,16 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
     # use data from (i-1):i to set MUF for period i:i+1
     #TODO: this needs to be updated for csv
 
-    if doTQDM and ispar == False:
-       pbar = tqdm(desc="MUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+    if doPbar and ispar == False:
+       title = "MUF"
+       pbar = alive_bar(force_tty=True, total=int(totalloops), spinner=_getSpinner(), bar='circles', title=title+' '*(_longestTitle() - len(title)))
+       update = pbar.__enter__()
+       #pbar = tqdm(desc="MUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
 
     #-------------------------------------------------------------------------------#
     #------------------------------  MUF Calculation  ------------------------------#
     #-------------------------------------------------------------------------------#
 
-    MUFTermHolder0 = []
-    MUFTermHolder1 = []
 
     for i in range(1, int(MBPs)):  #each MBP
 
@@ -161,9 +180,9 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
         if GUIObject is not None:
           GUIObject.progress.emit(loopcounter / totalloops*100)
           loopcounter+=1
-        if doTQDM:
+        if doPbar:
           if ispar == False:
-            pbar.update(1)
+            update(1)
 
         #select the indices for the relevant time
         # TODO: convert tile to broadcasting in some places
@@ -188,9 +207,9 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
         if GUIObject is not None:
           GUIObject.progress.emit(loopcounter / totalloops*100)
           loopcounter+=1
-        if doTQDM:
+        if doPbar:
           if ispar == False:
-            pbar.update(1)
+            update(1)
 
         logicalInterval = np.logical_and(
             processedOutputTimes[j] >= MBP * (i - 1),
@@ -212,9 +231,9 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
         if GUIObject is not None:
           GUIObject.progress.emit(loopcounter / totalloops*100)
           loopcounter+=1
-        if doTQDM:
+        if doPbar:
           if ispar == False:
-            pbar.update(1)
+            update(1)
 
         startIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) - MBP *
                         (i - 1)).argmin()
@@ -231,12 +250,13 @@ def MUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInv
 
 
 
-
+    if doPbar and ispar == False:
+      pbar.__exit__(None, None, None)
 
     return MUF
 
 
-def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,inputTypes,outputTypes,GUIObject=None,doTQDM=True,ispar=False):
+def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,inputTypes,outputTypes,GUIObject=None,doPbar=True,ispar=False):
 
 
 
@@ -262,10 +282,12 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
     totalloops = ((MBPs-1)*(len(inputAppliedError)+len(outputAppliedError)+len(inventoryAppliedError)))
     
     if GUIObject is not None:
-      doTQDM = False
+      doPbar = False
 
-    if doTQDM and ispar == False:
-      pbar = tqdm(desc="Active Inventory", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+    if doPbar and ispar == False:
+      title = "Active Inventory"
+      pbar = alive_bar(force_tty=True, total=int(totalloops), spinner=_getSpinner(), bar='circles', title=title+' '*(_longestTitle() - len(title)))
+      update = pbar.__enter__()
 
     for i in range(1, int(MBPs)):  #each MBP
         for j in range(0, len(inputAppliedError)):  
@@ -273,9 +295,9 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
           if GUIObject is not None:
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
-          if doTQDM:
+          if doPbar:
             if ispar == False:
-              pbar.update(1)
+              update(1)
 
           logicalInterval = np.logical_and(
               processedInputTimes[j] >= MBP * (i - 1),
@@ -295,9 +317,9 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
           if GUIObject is not None:
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
-          if doTQDM:
+          if doPbar:
             if ispar == False:
-              pbar.update(1)
+              update(1)
 
           logicalInterval = np.logical_and(
               processedOutputTimes[j] >= MBP * (i - 1),
@@ -315,9 +337,9 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
           if GUIObject is not None:
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
-          if doTQDM:
+          if doPbar:
             if ispar == False:
-              pbar.update(1)
+              update(1)
 
           startIdx = np.abs(processedInventoryTimes[j].reshape((-1,)) - MBP *
                           (i - 1)).argmin()
@@ -333,10 +355,12 @@ def ActiveInventory(inputAppliedError,processedInputTimes,inventoryAppliedError,
               (inventoryAppliedError[j][:, endIdx] - inventoryAppliedError[j][:, startIdx])[:, np.newaxis]
 
 
+    if doPbar and ispar == False:
+      pbar.__exit__(None, None, None)
 
     return AI
 
-def CUMUF(MUF,GUIObject=None,doTQDM=True, ispar=False):
+def CUMUF(MUF,GUIObject=None,doPbar=True, ispar=False):
   """
 
       This function performs the cumulative MUF test. This is simply the sum of all previous MUF values at a particular time. 
@@ -348,7 +372,7 @@ def CUMUF(MUF,GUIObject=None,doTQDM=True, ispar=False):
 
         GUIParams (object, default=None): An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI. 
 
-        doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
+        doPbar (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
 
       Returns:
         ndarray: CUMUF sequence with identical shape to the input MUF.
@@ -357,14 +381,17 @@ def CUMUF(MUF,GUIObject=None,doTQDM=True, ispar=False):
 
 
   if GUIObject is not None:
-    doTQDM = False  
+    doPbar = False  
 
   z = np.diff(MUF[0,])
   idxs = np.concatenate(([0,],np.argwhere(z!=0).squeeze().reshape((-1,)),[int(MUF.shape[1]-1),])).astype(int)
   cumuf = np.zeros_like(MUF)
 
-  if doTQDM and ispar == False:
-      pbar = tqdm(desc="CUMUF", total=int(len(idxs)-1), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+  if doPbar and ispar == False:
+      title = "CUMUF"
+      pbar = alive_bar(force_tty=True, total=int(len(idxs)-1), spinner=_getSpinner(), bar='circles', title=title+' '*(_longestTitle() - len(title)))
+      update = pbar.__enter__()
+
 
 
 
@@ -373,9 +400,9 @@ def CUMUF(MUF,GUIObject=None,doTQDM=True, ispar=False):
 
     if GUIObject is not None:
       GUIObject.progress.emit(i/(len(idxs)-1))
-    if doTQDM:
+    if doPbar:
       if ispar == False:
-        pbar.update(1)
+        update(1)
 
 
 
@@ -384,11 +411,12 @@ def CUMUF(MUF,GUIObject=None,doTQDM=True, ispar=False):
   cumuf[:,-1] = cumuf[:,-2]
 
 
-  
+  if doPbar and ispar == False:
+    pbar.__exit__(None, None, None)
   return cumuf
 
 
-def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,inputTypes,outputTypes,ErrorMatrix,GUIObject=None,doTQDM=True,ispar=False):
+def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedInventoryTimes,outputAppliedError,processedOutputTimes,MBP,inputTypes,outputTypes,ErrorMatrix,GUIObject=None,doPbar=True,ispar=False):
       """
         Function for calculating standard error of the material balance sequence (often called SEID or Standard Error of Inventory Difference; :math:`\\sigma _\\text{ID}`). This is accomplished by assuming the error incurred at each location (specified in the ErrorMatrix) rather than estimating it emperically, which is difficult in practice. The equation used here is suitable for most traditional bulk facilities such as enrichment or reprocessing where input and output flows are independent. This function should **not** be used for facilitiy types where there are more complex statistical dependencies between input, inventory, and output terms (e.g., molten salt reactors). See guide XX for more information.
 
@@ -426,7 +454,7 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
 
           GUIParams (object, default=None): An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI. 
 
-          doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
+          doPbar (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
 
         Returns:
 
@@ -445,7 +473,7 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
       """
 
       if GUIObject is not None:
-        doTQDM = False
+        doPbar = False
       
 
       
@@ -486,8 +514,10 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
       loopcounter = 0
       totalloops = ((MBPs-1)*(len(inputAppliedError)+len(outputAppliedError)+len(inventoryAppliedError)))
 
-      if doTQDM and ispar == False:
-        pbar = tqdm(desc="Sigma MUF", total=int(totalloops), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+      if doPbar and ispar == False:
+        title = "Sigma MUF"
+        pbar = alive_bar(force_tty=True, total=int(totalloops), spinner=_getSpinner(), bar='circles', title=title+' '*(_longestTitle() - len(title)))
+        update = pbar.__enter__()
 
 
       InpVar = np.zeros((iterations,int(MBPs * MBP)))
@@ -507,9 +537,9 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
           if GUIObject is not None:
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
-          if doTQDM:
+          if doPbar:
             if ispar == False:
-              pbar.update(1)
+              update(1)
 
 
           logicalInterval = np.logical_and(
@@ -546,9 +576,9 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
           if GUIObject is not None:
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
-          if doTQDM:
+          if doPbar:
             if ispar == False:
-              pbar.update(1)
+              update(1)
 
 
           if i == 1:
@@ -580,9 +610,9 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
           if GUIObject is not None:
             GUIObject.progress.emit(loopcounter / totalloops*100)
             loopcounter+=1
-          if doTQDM:
+          if doPbar:
             if ispar == False:
-              pbar.update(1)
+              update(1)
 
 
           if outputTypes[j] == 'continuous':
@@ -604,6 +634,9 @@ def SEMUF(inputAppliedError,processedInputTimes,inventoryAppliedError,processedI
 
 
       SEMUFCalcs = np.sqrt(InpVar + InvVar + OutVar)
+
+      if doPbar and ispar == False:
+        pbar.__exit__(None, None, None)
 
       return SEMUFCalcs, SEMUFContribR, SEMUFContribS, SEMUFContribI
 
@@ -633,7 +666,7 @@ def SEMUFAI(AI, SEMUF, SEMUFContribR, SEMUFContribS, MBP):
 
   return SEMUFAI, SEMUFAIContribR, SEMUFAIContribS
 
-def SITMUF(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
+def SITMUF(MUF, covmatrix, MBP, GUIObject=None, doPbar=True, ispar=False):
 
   """
     Function to calculate the standardized independent transformed MUF (SITMUF).
@@ -648,7 +681,7 @@ def SITMUF(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
         
         GUIObject (object, default=None): Optional object used by MAPIT GUI to warn users in the case of a Cholesky decomposition error. Defaults to None.
         
-        doTQDM (bool, default=True): Whether to use a tqdm progress bar for the calculation. Defaults to True.
+        doPbar (bool, default=True): Whether to use a tqdm progress bar for the calculation. Defaults to True.
         
         ispar (bool, default=False): Whether to use a parallel calculation for the calculation. Defaults to False.
 
@@ -657,7 +690,7 @@ def SITMUF(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
         ndarray: SITMUF sequence with shape [M, T] where M is number of iterations and T is the total number of timesteps.
   """
   if GUIObject is not None:
-    doTQDM = False
+    doPbar = False
 
   required_params = ["MUF", "covmatrix", "iterations", "nMBP", "MBP"]
   missing_params = [param for param, value in locals().items() if value is None and param in required_params]
@@ -666,8 +699,11 @@ def SITMUF(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
 
   pbar = None
   iterations = MUF.shape[0]
-  if doTQDM and not ispar:
-    pbar = tqdm(desc="SITMUF", total=int(iterations), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+  if doPbar and not ispar:
+    title = "SITMUF"
+    pbar = alive_bar(force_tty=True, total=int(iterations), spinner=_getSpinner(), bar='circles', title=title+' '*(_longestTitle() - len(title)))
+    update = pbar.__enter__()
+
 
   if missing_params:
       raise ValueError(f"Missing required parameters: {', '.join(missing_params)}")
@@ -711,11 +747,13 @@ def SITMUF(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
       SITMUFCalcs[k,int((P - 1) * MBP):int(P * MBP)] = np.ones((MBP,)) * SITMUF[P-1]
     
     if pbar is not None:
-      pbar.update(1)
-    
+      update(1)
+
+  if doPbar and ispar == False:
+    pbar.__exit__(None, None, None)
   return SITMUFCalcs
 
-def GEMUF_V1(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
+def GEMUF_V1(MUF, covmatrix, MBP, GUIObject=None, doPbar=True, ispar=False):
   """
   
     Function that calculates the V1 version of GEMUF. Here, only the current value of MUF is used to estimate the loss vector for the GEMUF test statistic.
@@ -731,7 +769,7 @@ def GEMUF_V1(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
 
         GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
         
-        doTQDM (bool, default=True): Whether to use a tqdm progress bar for the calculation. Defaults to True.
+        doPbar (bool, default=True): Whether to use a tqdm progress bar for the calculation. Defaults to True.
         
         ispar (bool, default=False): Whether to use a parallel calculation for the calculation. Defaults to False.
 
@@ -742,7 +780,7 @@ def GEMUF_V1(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
 
   """
   if GUIObject is not None:
-    doTQDM = False
+    doPbar = False
   required_params = ["MUF", "covmatrix", "iterations", "nMBP", "MBP"]
   missing_params = [param for param, value in locals().items() if value is None and param in required_params]
 
@@ -753,8 +791,10 @@ def GEMUF_V1(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
 
   iterations = MUF.shape[0]
   pbar = None
-  if doTQDM and not ispar:
-    pbar = tqdm(desc="GEMUFV1", total=int(iterations), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+  if doPbar and not ispar:
+    title = "GEMUFV1"
+    pbar = alive_bar(force_tty=True, total=int(iterations), spinner=_getSpinner(), bar='circles', title=title+' '*(_longestTitle() - len(title)))
+    update = pbar.__enter__()
 
   GEMUFCalcsV1 = np.zeros((iterations,  int((nMBP - 1) * MBP)))
   P = int(nMBP)
@@ -779,11 +819,14 @@ def GEMUF_V1(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
     # _GEMUF_V1-end
 
     if pbar is not None:
-      pbar.update(1)
+      update(1)
+
+  if doPbar and ispar == False:
+    pbar.__exit__(None, None, None)
 
   return GEMUFCalcsV1
 
-def GEMUF_V5B3(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
+def GEMUF_V5B3(MUF, covmatrix, MBP, GUIObject=None, doPbar=True, ispar=False):
   """
   
     Function that calculates the V5B3 version of GEMUF. A weighted window of MUF values are used to estimate the loss vector when calculating the test statistic. Note that the V5B3 version is only valid for only certain parts of the sequence. For example, at balance period 1 and balance period 2, V5B3 cannot be calculated as there isn't two past values to weigh. Similarly, V5B3 can't be calculated for the last two balance periods. Rather than modifying this from Seifert's original paper, we represent those values as zero.
@@ -802,7 +845,7 @@ def GEMUF_V5B3(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
 
         GUIObject (object, default=None): An optional object that carries GUI related references when the API is used inside the MAPIT GUI. 
         
-        doTQDM (bool, default=True): Whether to use a tqdm progress bar for the calculation. Defaults to True.
+        doPbar (bool, default=True): Whether to use a tqdm progress bar for the calculation. Defaults to True.
         
         ispar (bool, default=False): Whether to use a parallel calculation for the calculation. Defaults to False.
 
@@ -813,7 +856,7 @@ def GEMUF_V5B3(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
 
   """
   if GUIObject is not None:
-    doTQDM = False
+    doPbar = False
   required_params = ["MUF", "covmatrix", "iterations", "nMBP", "MBP"]
   missing_params = [param for param, value in locals().items() if value is None and param in required_params]
 
@@ -824,8 +867,10 @@ def GEMUF_V5B3(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
 
   iterations = MUF.shape[0]
   pbar = None
-  if doTQDM and not ispar:
-    pbar = pbar = tqdm(desc="GEMUFV5B3", total=int(iterations), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]", ncols=None)
+  if doPbar and not ispar:
+    title = "GEMUFV5B3"
+    pbar = alive_bar(force_tty=True, total=int(iterations), spinner=_getSpinner(), bar='circles', title=title+' '*(_longestTitle() - len(title)))
+    update = pbar.__enter__()
   
   GEMUFCalcsV5B3 = np.zeros((iterations,  int((nMBP - 1) * MBP)))
   MSSeq = np.zeros((iterations, int(nMBP - 1)))
@@ -867,12 +912,14 @@ def GEMUF_V5B3(MUF, covmatrix, MBP, GUIObject=None, doTQDM=True, ispar=False):
 
   
     if pbar is not None:
-      pbar.update(1)
+      update(1)
 
+  if doPbar and ispar == False:
+    pbar.__exit__(None, None, None)
   return GEMUFCalcsV5B3
 
 
-def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,doTQDM=True):
+def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,doPbar=True):
   """
   Function for calculating Page's trend test, which is commonly applied to the SITMUF sequence. Formally compares the null hypothesis that there is no trend versus the alternate trend where there is a trend.
 
@@ -890,21 +937,23 @@ def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,doTQDM=True):
 
     GUIParams (object, default=None): An optional object that carries GUI related parameters when the API is used inside the MAPIT GUI. 
 
-    doTQDM (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
+    doPbar (bool, default=True): Controls the use of TQDM progress bar for command line or notebook operation. 
 
   Returns:
     ndarray: The results of the trend test which has shape :math:`[m,n]`. 
 
   """
   if GUIObject is not None:
-    doTQDM = False
+    doPbar = False
 
   PageCalcs = np.zeros((inQty.shape[0:2]))
   totalloops = int(MBPs-1) * PageCalcs.shape[0]
   loopcounter = 0
 
-  if doTQDM:
-    pbar = tqdm(total=totalloops)
+  if doPbar:
+    title = "Page's trend test"
+    pbar = alive_bar(force_tty=True, total=int(totalloops), spinner=_getSpinner(), bar='circles', title=title+' '*(_longestTitle() - len(title)))
+    update = pbar.__enter__()
 
 
       
@@ -926,10 +975,12 @@ def PageTrendTest(inQty,MBP,MBPs,K=0.5,GUIObject=None,doTQDM=True):
       if GUIObject is not None:
         GUIObject.progress.emit(loopcounter / totalloops*100)
         loopcounter+=1
-      if doTQDM:
-        pbar.update(1)
+      if doPbar:
+        update(1)
 
 
+  if doPbar:
+    pbar.__exit__(None, None, None)
 
   return PageCalcs
   

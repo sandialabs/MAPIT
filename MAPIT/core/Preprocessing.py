@@ -4,11 +4,28 @@ import string
 import copy
 from scipy.io import loadmat
 
-from tqdm import tqdm
 
 
 
+from alive_progress import alive_bar
+from alive_progress.animations.spinners import frame_spinner_factory
 
+def _getSpinner():
+  d13 = ("⠋",
+          "⠙",
+          "⠹",
+          "⠸",
+          "⠼",
+          "⠴",
+          "⠦",
+          "⠧",
+          "⠇",
+          "⠏")
+
+  return frame_spinner_factory(d13)
+
+def _longestTitle():
+  return len('Calculating Page trend test')
 
 def loadDataFromWizard(GUIObject):
       eleAppend = list(string.ascii_lowercase)
@@ -531,12 +548,17 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
 
     #assume sys differs by location only and doesn't change for different elements
 
+    pbar = None
     if doTQDM and not dopar:
+      title = "Error Prop"
       if iterations > batchSize:
-        outerloop = int(np.floor(iterations/batchSize))
-        pbar = tqdm(desc="Error Prop", total=int((outerloop+1)*len(rawData)), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]",ncols=None)   
+        outerloop = int(np.floor(iterations/batchSize))        
+        pbar = alive_bar(force_tty=True, total=int((outerloop+1)*len(rawData)), spinner=_getSpinner(), bar='circles', title=title+' '*(_longestTitle() - len(title)))
+        
       else:
-        pbar = tqdm(desc="Error Prop", total=int(len(rawData)), leave=True, bar_format = "{desc:10}: {percentage:06.2f}% |{bar}|  [Elapsed: {elapsed} || Remaining: {remaining}]",ncols=None)
+        pbar = alive_bar(force_tty=True, total=int(len(rawData)), spinner=_getSpinner(), bar='circles', title=title+' '*(_longestTitle() - len(title)))
+      
+      update = pbar.__enter__()
     #------------ Start error prop ------------#
     for i in range(0, len(rawData)):
 
@@ -559,7 +581,7 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
             loopcounter+=1
           
           if doTQDM and not dopar:
-            pbar.update(1)
+            update(1)
         
         # if there are any batches left over, do them now
         if remruns > 0:
@@ -572,7 +594,7 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
               loopcounter+=1 
           
           if doTQDM and not dopar:
-            pbar.update(1)
+            update(1)
       
       else:
           (randRSD, sysRSD) = calcBatchError(calibrationPeriod, ErrorMatrix, iterations, times, i, rawData[i].shape[0])
@@ -582,11 +604,11 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
             GUIObject.progress.emit(i/len(rawData)*100)
           
           if doTQDM and not dopar:
-            pbar.update(1)
+            update(1)
 
 
     if doTQDM and not dopar:
-      pbar.n=pbar.total
+      update(int((outerloop+1)*len(rawData)) - update.current)
     
     if doTQDM and bar is not None:
       bar.update.remote(1)
@@ -594,7 +616,9 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
     if GUIObject is not None:
       GUIObject.progress.emit(100)
       
-    
 
+    
+    if pbar is not None:
+      pbar.__exit__(None, None, None)
 
     return AppliedError

@@ -1095,7 +1095,7 @@ def add_stats_box(self):
 
   MBPLabel = QtWidgets.QLabel(GUIparams.labels["Box21L"], LIContainer)
   self.MBPBox = QtWidgets.QLineEdit("", LIContainer)
-  self.MBPBox.setMaxLength(4)
+  self.MBPBox.setMaxLength(5)
   LIL.addWidget(MBPLabel, 0, 0)
   LIL.addWidget(self.MBPBox, 0, 1)
   self.CBHolder.append(MBPLabel)
