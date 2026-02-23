@@ -29,15 +29,15 @@ def trapSum(relevantIndex, time, data, IT=None, baseline_zero=1e-10):
       is needed to identify the non-zero regions of the dataset to enable proper integration.
 
       This function first identified a list of non-zero pulses of material before performing trapezoidal integration
-      on each non-zero pulse segment. `np.trapz` is used to perform the integration. See the `numpy documentation <https://numpy.org/doc/stable/reference/generated/numpy.trapz.html>`_
+      on each non-zero pulse segment. `np.trapezoid` is used to perform the integration. See the `numpy documentation <https://numpy.org/doc/stable/reference/generated/numpy.trapz.html>`_
       for more information.
 
       :math:`\\int y(x) dx`
 
       Args:
-        relevantIndex (ndarray): An array that expresses the relevant time slice, with boolean values (0 = not relevant, 1 = relevant), with shape :math:`[m,j]` where :math:`m` is the total number of relevant samples and :math:`j` is the total number of iterations.
+        relevantIndex (ndarray): An array that expresses the relevant time slice, with boolean values (0 = not relevant, 1 = relevant), with shape :math:`[j,]` where :math:`j` is the total number of relevant samples.
 
-        time(ndarray): An array containing the total number of timestep values under consideration for the analysis. Has shape :math:`[n,j]` where :math:`n` is the total number of samples under consideration and :math:`n>m` for :math:`m` in `relevantIndex` and :math:`j` is the total number of iterations.
+        time(ndarray): An array containing the total number of timestep values under consideration for the analysis. Has shape :math:`[n,j]` where :math:`n` is the total number of iterations and :math:`j` is the total number of samples under consideration and :math:`n>m` for :math:`m` in `relevantIndex`.
 
         data (ndarray): An array containing the total number of samples under consideration for the analysis. Should have the same shape as **time**.
 
@@ -224,10 +224,10 @@ def trapSum(relevantIndex, time, data, IT=None, baseline_zero=1e-10):
     for Q in range(len(datasegs)):
         
         if datasegs[Q][0, -1] == 0:
-            traptot += (np.trapz(datasegs[Q], timesegs[Q]) + 0.5 *
+            traptot += (np.trapezoid(datasegs[Q], timesegs[Q]) + 0.5 *
                         (timesegs[Q][:, -1]-timesegs[Q][:, -2])*datasegs[Q][:, -2])
         else:
-            traptot += (np.trapz(datasegs[Q], timesegs[Q]))
+            traptot += (np.trapezoid(datasegs[Q], timesegs[Q]))
 
 
     return traptot

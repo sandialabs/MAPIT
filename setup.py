@@ -19,10 +19,10 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="MAPIT",  # Required
-    version="1.5.12-beta",  # Required
+    version="1.5.13-beta",  # Required
     author="Nathan Shoman",  # Optional
     author_email="nshoman@sandia.gov",  # Optional
-    install_requires = ["matplotlib","numpy","Pillow","tqdm","scipy","pyside6","alive-progress","yaspin"],
+    install_requires = ["matplotlib","numpy>=2.0.0","Pillow","tqdm","scipy","pyside6","alive-progress","yaspin","platformdirs"],
     # Classifiers help users find your project by categorizing it.
     #
     # For a list of valid classifiers, see https://pypi.org/classifiers/

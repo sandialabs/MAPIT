@@ -529,8 +529,11 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
 
     #len(list) = locations
     #list[n] = (iterations, samples, elements)
+
+    #_EB1-start
     for i in range(0, len(rawData)):
         AppliedError.append(np.zeros((iterations, rawData[i].shape[0]),dtype=np.float32))
+    #_EB1-end
 
 
     loopcounter = 0
@@ -560,6 +563,8 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
       
       update = pbar.__enter__()
     #------------ Start error prop ------------#
+
+    #_EB-main-start
     for i in range(0, len(rawData)):
 
 
@@ -606,6 +611,7 @@ def SimErrors(rawData,ErrorMatrix,iterations,GUIObject=None,doTQDM=True,batchSiz
           if doTQDM and not dopar:
             update(1)
 
+    #_EB-main-end
 
     if doTQDM and not dopar:
       update(int((outerloop+1)*len(rawData)) - update.current)
